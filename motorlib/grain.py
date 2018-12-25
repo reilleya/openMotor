@@ -79,6 +79,9 @@ class grain():
 	def getWebLeft(self, r):
 		return None
 
+	def isWebLeft(self, r):
+		return self.getWebLeft(0) < 10000 * self.getWebLeft(r)
+
 class batesGrain(grain):
 	def __init__(self):
 		super().__init__()
