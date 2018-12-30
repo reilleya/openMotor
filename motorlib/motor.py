@@ -4,14 +4,20 @@ from . import geometry
 class motor():
     def __init__(self):
         self.grains = []
-        self.nozzle = 0
+
+        self.nozzleThroat = 0
+        self.nozzleExit = 0
+
+    def calcExpansion(self):
+        return (self.nozzleExit / self.nozzleThroat) ** 2
 
     def calcKN(self, r):
         surfArea = sum([gr.getSurfaceAreaAtRegression(reg) * int(gr.isWebLeft(reg)) for gr, reg in zip(self.grains, r)])
-        nozz = geometry.circleArea(self.nozzle)
+        nozz = geometry.circleArea(self.nozzleThroat)
         return surfArea / nozz
 
     def calcIdealPressure(self, r):
+        # Only considers prop from the first grain currently
         k = self.grains[0].props['prop'].getValue()['k']
         t = self.grains[0].props['prop'].getValue()['t']
         m = self.grains[0].props['prop'].getValue()['m']
@@ -23,28 +29,74 @@ class motor():
         denom = ((k/((8314/m)*t))*((2/(k+1))**((k+1)/(k-1))))**0.5
         return (num/denom) ** exponent
 
+    def calcForce(self, r):
+        # Only considers prop from the first grain currently
+        # Assumes full expansion
+        p_a = 101353
+        p_e = 101353
+        p_c = self.calcIdealPressure(r)
+        k = self.grains[0].props['prop'].getValue()['k']
+        t_a = geometry.circleArea(self.nozzleThroat)
+        e_a = geometry.circleArea(self.nozzleExit)
+
+        if p_c == 0:
+            return 0
+ 
+        t1 = (2*(k**2))/(k-1)
+        t2 = (2/(k+1))**((k+1)/(k-1))
+        t3 = 1 - ((p_e/p_c) ** ((k-1)/k))
+
+        sr = (t1 * t2 * t3) ** 0.5
+
+        return t_a*p_c*sr + (p_e - p_a) * e_a
+
     def runSimulation(self):
         burnoutThres = 0.00001
         ts = 0.01
 
         perGrainReg = [0 for grain in self.grains]
 
-        p = [0, self.calcIdealPressure(perGrainReg)]
-        k = [0, self.calcKN(perGrainReg)]
         t = [0, ts]
+        k = [0, self.calcKN(perGrainReg)]
+        p = [0, self.calcIdealPressure(perGrainReg)]
+        f = [0, self.calcForce(perGrainReg)]
+        m_flow = [[0, 0] for grain in self.grains]
+        m_flux = [[0, 0] for grain in self.grains]
 
         while any([g.getWebLeft(r) > burnoutThres for g,r in zip(self.grains, perGrainReg)]):
+            # Calculate regression
+            mf = 0
             for gid, grain in enumerate(self.grains):
                 if grain.getWebLeft(perGrainReg[gid]) > burnoutThres:
-                    perGrainReg[gid] += ts * grain.props['prop'].getValue()['a'] * (p[-1]**grain.props['prop'].getValue()['n'])
+                    reg = ts * grain.props['prop'].getValue()['a'] * (p[-1]**grain.props['prop'].getValue()['n'])
+                    
+                    m_flux[gid].append(grain.getPeakMassFlux(mf, ts, perGrainReg[gid], reg))
+                    
+                    mf += (grain.props['prop'].getValue()['density'] * grain.getVolumeSlice(perGrainReg[gid], reg) / ts)
+                    m_flow[gid].append(mf)
+                    
+                    perGrainReg[gid] += reg
 
-            #print(reg)
-            t.append(t[-1] + ts)
-            k.append(self.calcKN(perGrainReg))
+            # Calculate Pressure
             p.append(self.calcIdealPressure(perGrainReg))
+
+            # Calculate force
+            f.append(self.calcForce(perGrainReg))
+
+            # Calculate KN
+            k.append(self.calcKN(perGrainReg))
+
+            t.append(t[-1] + ts)
 
         t.append(t[-1] + ts)
         k.append(0)
         p.append(0)
+        f.append(0)
 
-        return (t, k, p)
+        for g in m_flow:
+            g.append(0)
+
+        for g in m_flux:
+            g.append(0)
+
+        return (t, k, p, f, m_flow, m_flux)

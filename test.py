@@ -12,6 +12,7 @@ class TestMotorMethods(unittest.TestCase):
         bg3.setProperties({'diameter':0.083058, 
                   'length':0.1397, 
                   'coreDiameter':0.05, 
+                  'inhibitedEnds':0,
                   'prop':{
                     'density': 1890, 
                     'a': 0.000101, 
@@ -25,6 +26,28 @@ class TestMotorMethods(unittest.TestCase):
         self.assertAlmostEqual(tm.calcKN([0]), 180, 0)
         self.assertAlmostEqual(tm.calcKN([0.0025]), 183, 0)
         self.assertAlmostEqual(tm.calcKN([0.005]), 185, 0)
+
+
+    def test_calcPressure(self):
+        tm = motorlib.motor()
+        tm.nozzle = 0.01428
+
+        bg3 = motorlib.batesGrain()
+        bg3.setProperties({'diameter':0.083058, 
+                  'length':0.1397, 
+                  'coreDiameter':0.05, 
+                  'inhibitedEnds':0,
+                  'prop':{
+                    'density': 1890, 
+                    'a': 0.000101, 
+                    'n': 0.319, 
+                    't': 1720, 
+                    'm': 41.98, 
+                    'k': 1.133}})
+
+        tm.grains.append(bg3)
+        self.assertAlmostEqual(tm.calcIdealPressure([0]), 4050030, 0)
+
 
 class TestGeometryMethods(unittest.TestCase):
     def test_circle(self):
