@@ -1,5 +1,50 @@
 from . import grain
 from . import geometry
+from . import units
+
+import math
+
+class simulationResult():
+    def __init__(self, time, kn, pressure, force, massFlow, massFlux):
+        self.time = time
+        self.kn = kn
+        self.pressure = pressure
+        self.force = force
+        self.massFlow = massFlow
+        self.massFlux = massFlux
+
+    def getBurnTime(self):
+        return self.time[-1]
+
+    def getInitialKN(self):
+        return self.kn[1]
+
+    def getPeakKN(self):
+        return max(self.kn)
+
+    def getAveragePressure(self):
+        return sum(self.pressure)/len(self.pressure)
+
+    def getMaxPressure(self):
+        return max(self.pressure)
+
+    def getImpulse(self):
+        impulse = 0
+        lastTime = 0
+        for time, force in zip(self.time, self.force):
+            impulse += force * (time - lastTime)
+            lastTime = time
+        return impulse
+
+    def getAverageForce(self):
+        return sum(self.force)/len(self.force)
+
+    def getDesignation(self):
+        imp = self.getImpulse()
+        return chr(int(math.log(imp/2.5, 2)) + 66) + str(round(self.getAverageForce()))
+
+    def getPeakMassFlux(self):
+        return max([max(mf) for mf in self.massFlux])
 
 class motor():
     def __init__(self):
@@ -99,4 +144,4 @@ class motor():
         for g in m_flux:
             g.append(0)
 
-        return (t, k, p, f, m_flow, m_flux)
+        return simulationResult(t, k, p, f, m_flow, m_flux)

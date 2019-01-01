@@ -4,18 +4,30 @@ import sys
 
 import motorlib
 
+def formatForDisplay(quantity, inUnits, outUnits): # Move to somewhere else
+    return str(round(motorlib.convert(quantity, inUnits, outUnits), 3)) + ' ' + outUnits
+
 class GraphWindow(QMainWindow):
     def __init__(self):
         QWidget.__init__(self)
         loadUi("MainWindow.ui", self)
 
+        self.motorStatLabels = [self.labelMotorDesignation, self.labelImpulse, self.labelDeliveredISP, self.labelBurnTime,
+                                self.labelAveragePressure, self.labelPeakPressure, self.labelInitialKN, self.labelPeakKN,
+                                self.labelPortThroatRatio, self.labelCoreLD, self.labelPeakMassFlux]
+
         self.loadDefaultMotor()
 
+        self.setupMotorStats()
         self.setupGrainEditor()
         self.setupMenu()
         self.setupGrainTable()
 
         self.show()
+
+    def setupMotorStats(self):
+        for label in self.motorStatLabels:
+            label.setText("-")
 
     def setupGrainEditor(self):
         self.pushButtonEditGrain.pressed.connect(self.editGrain)
@@ -35,15 +47,33 @@ class GraphWindow(QMainWindow):
         for gid, grain in enumerate(self.motor.grains):
             self.tableWidgetGrainList.setItem(gid, 0, QTableWidgetItem(grain.geomName))
             self.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.props['prop'].getValue()['name']))
-            self.tableWidgetGrainList.setItem(gid, 2, QTableWidgetItem(str(motorlib.convert(grain.props['length'].getValue(), grain.props['length'].unit, 'in')) + " in"))
+            self.tableWidgetGrainList.setItem(gid, 2, QTableWidgetItem(grain.props['length'].dispFormat('in')))
 
     def editGrain(self):
         ind = self.tableWidgetGrainList.selectionModel().selectedRows()[0].row()
         self.grainEditor.loadGrain(self.motor.grains[ind])
 
+    def updateMotorStats(self, simResult):
+        self.labelMotorDesignation.setText(simResult.getDesignation())
+        self.labelImpulse.setText(formatForDisplay(simResult.getImpulse(), 'ns', 'lbfs'))
+        self.labelDeliveredISP.setText('??? s')
+        self.labelBurnTime.setText(formatForDisplay(simResult.getBurnTime(), 's', 's'))
+
+        self.labelAveragePressure.setText(formatForDisplay(simResult.getAveragePressure(), 'pa', 'psi'))
+        self.labelPeakPressure.setText(formatForDisplay(simResult.getMaxPressure(), 'pa', 'psi'))
+        self.labelInitialKN.setText(formatForDisplay(simResult.getInitialKN(), '', ''))
+        self.labelPeakKN.setText(formatForDisplay(simResult.getPeakKN(), '', ''))
+
+        self.labelPortThroatRatio.setText('????')
+        self.labelCoreLD.setText('????')
+        self.labelPeakMassFlux.setText(formatForDisplay(simResult.getPeakMassFlux(), 'km/(m^2*s)', 'lb/(in^2*s)'))
+
     def runSimulation(self):
-        t, k, p, f, m_flow, m_flux = self.motor.runSimulation()
-        self.graphWidget.showData(t, [k, [motorlib.convert(pr, 'mpa', 'psi') for pr in p]])
+        self.setupMotorStats()
+        simResult = self.motor.runSimulation()
+        self.graphWidget.showData(simResult)
+
+        self.updateMotorStats(simResult)
 
     def loadDefaultMotor(self):
         self.motor = motorlib.motor()
@@ -63,7 +93,7 @@ class GraphWindow(QMainWindow):
         bg2 = motorlib.batesGrain()
         bg2.setProperties({'diameter':0.083058, 
                   'length':0.18, 
-                  'coreDiameter':0.045, 
+                  'coreDiameter':0.04, 
                   'inhibitedEnds':0,
                   'prop':{
                     'name': 'Cherry Limeade',

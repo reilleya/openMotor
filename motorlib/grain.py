@@ -1,4 +1,5 @@
 from . import geometry
+from . import units
 
 import matplotlib
 matplotlib.use('Qt4Agg')
@@ -21,6 +22,9 @@ class grainProperty():
     def getValue(self):
         return self.value
 
+    def dispFormat(self):
+        return str(self.value)
+
 class floatGrainProperty(grainProperty):
     def __init__(self, dispName, unit, minValue, maxValue):
         super().__init__(dispName, unit, float)
@@ -30,6 +34,9 @@ class floatGrainProperty(grainProperty):
     def setValue(self, value):
         if value > self.min and value < self.max:
             super().setValue(value)
+
+    def dispFormat(self, unit):
+        return str(round(units.convert(self.value, self.unit, unit), 3)) + ' ' + unit
 
 class intGrainProperty(grainProperty):
     def __init__(self, dispName, unit, minValue, maxValue):
