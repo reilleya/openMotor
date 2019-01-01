@@ -4,6 +4,8 @@ matplotlib.use('Qt4Agg')
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+import motorlib
+
 class graphWidget(FigureCanvas):
     def __init__(self, parent):
         super(graphWidget, self).__init__(Figure())
@@ -21,12 +23,14 @@ class graphWidget(FigureCanvas):
         #self.plot.set_ylabel('')
         #self.plot.set_title('Raw data')
     
-    def showData(self, time, data):
+    def showData(self, simResult):
         self.plot.clear()
         self.setLabels()
-        for d in data:
-            self.plot.plot(time, d)
-        self.plot.legend(["KN", "Pressure"])
+
+        self.plot.plot(simResult.time, simResult.kn)
+        self.plot.plot(simResult.time, [motorlib.convert(pr, 'pa', 'psi') for pr in simResult.pressure])
+        self.plot.plot(simResult.time, [motorlib.convert(fr, 'n', 'n') for fr in simResult.force])
+        self.plot.legend(["KN", "Pressure", "Force"])
         self.draw()
 
     def saveImage(self, filename):

@@ -195,6 +195,213 @@
         <property name="title">
          <string>Motor Statistics</string>
         </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="2" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayoutInitialKN">
+           <item>
+            <widget class="QLabel" name="labelInitialKNText">
+             <property name="text">
+              <string>Initial KN:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelInitialKN">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="2">
+          <layout class="QHBoxLayout" name="horizontalLayoutPortThroatRatio">
+           <item>
+            <widget class="QLabel" name="labelPortThroatRatioText">
+             <property name="text">
+              <string>Port/Throat Ratio</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelPortThroatRatio">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="2">
+          <layout class="QHBoxLayout" name="horizontalLayoutCoreLD">
+           <item>
+            <widget class="QLabel" name="labelCoreLDText">
+             <property name="text">
+              <string>Core L/D:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelCoreLD">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="2" column="2">
+          <layout class="QHBoxLayout" name="horizontalLayoutPeakMassFlux">
+           <item>
+            <widget class="QLabel" name="labelPeakMassFluxText">
+             <property name="text">
+              <string>Peak Mass Flux:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelPeakMassFlux">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayoutAveragePressure">
+           <item>
+            <widget class="QLabel" name="labelAveragePressureText">
+             <property name="text">
+              <string>Average Pressure:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelAveragePressure">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayoutImpulse">
+           <item>
+            <widget class="QLabel" name="labelImpulseText">
+             <property name="text">
+              <string>Impulse:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelImpulse">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayoutMotorDesignation">
+           <item>
+            <widget class="QLabel" name="labelMotorDesignationText">
+             <property name="text">
+              <string>Motor Designation:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelMotorDesignation">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayoutPeakPressure">
+           <item>
+            <widget class="QLabel" name="labelPeakPressureText">
+             <property name="text">
+              <string>Peak Pressure:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelPeakPressure">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="2" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayoutDeliveredISP">
+           <item>
+            <widget class="QLabel" name="labelDeliveredISPText">
+             <property name="text">
+              <string>Delivered ISP:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelDeliveredISP">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="3" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayoutBurnTime">
+           <item>
+            <widget class="QLabel" name="labelBurnTimeText">
+             <property name="text">
+              <string>Burn Time:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelBurnTime">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="3" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayoutPeakKN">
+           <item>
+            <widget class="QLabel" name="labelPeakKNText">
+             <property name="text">
+              <string>Peak KN:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelPeakKN">
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="3" column="2">
+          <widget class="QPushButton" name="pushButton_3">
+           <property name="text">
+            <string>Display full report</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
