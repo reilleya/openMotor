@@ -14,6 +14,7 @@ class TestMotorMethods(unittest.TestCase):
                   'coreDiameter':0.05, 
                   'inhibitedEnds':0,
                   'prop':{
+                    'name': 'KNSU',
                     'density': 1890, 
                     'a': 0.000101, 
                     'n': 0.319, 
@@ -38,6 +39,7 @@ class TestMotorMethods(unittest.TestCase):
                   'coreDiameter':0.05, 
                   'inhibitedEnds':0,
                   'prop':{
+                    'name': 'KNSU',
                     'density': 1890, 
                     'a': 0.000101, 
                     'n': 0.319, 

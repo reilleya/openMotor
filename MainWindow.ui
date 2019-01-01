@@ -36,10 +36,15 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QGroupBox" name="groupBox_2">
+       <widget class="grainEditor" name="grainEditor">
         <property name="title">
          <string>Grain Editor</string>
         </property>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <property name="leftMargin">
+          <number>4</number>
+         </property>
+        </layout>
        </widget>
       </item>
       <item>
@@ -50,25 +55,55 @@
        </widget>
       </item>
       <item>
-       <widget class="QListView" name="listViewGrainList">
+       <widget class="QTableWidget" name="tableWidgetGrainList">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>400</width>
-          <height>200</height>
-         </size>
-        </property>
         <property name="maximumSize">
          <size>
           <width>400</width>
-          <height>200</height>
+          <height>300</height>
          </size>
         </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustIgnored</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="textElideMode">
+         <enum>Qt::ElideNone</enum>
+        </property>
+        <property name="columnCount">
+         <number>3</number>
+        </property>
+        <attribute name="horizontalHeaderCascadingSectionResizes">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="verticalHeaderCascadingSectionResizes">
+         <bool>false</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>Geometry</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Propellant</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Length</string>
+         </property>
+        </column>
        </widget>
       </item>
       <item>
@@ -88,7 +123,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_3">
+         <widget class="QPushButton" name="pushButtonEditGrain">
           <property name="text">
            <string>Edit</string>
           </property>
@@ -248,6 +283,12 @@
   <customwidget>
    <class>graphWidget</class>
    <extends>QWidget</extends>
+   <header location="global">uilib</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>grainEditor</class>
+   <extends>QGroupBox</extends>
    <header location="global">uilib</header>
    <container>1</container>
   </customwidget>

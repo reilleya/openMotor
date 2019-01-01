@@ -9,8 +9,9 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
 class grainProperty():
-    def __init__(self, dispName, valueType):
+    def __init__(self, dispName, unit, valueType):
         self.dispName = dispName
+        self.unit = unit
         self.valueType = valueType
         self.value = None
 
@@ -21,8 +22,8 @@ class grainProperty():
         return self.value
 
 class floatGrainProperty(grainProperty):
-    def __init__(self, dispName, minValue, maxValue):
-        super().__init__(dispName, float)
+    def __init__(self, dispName, unit, minValue, maxValue):
+        super().__init__(dispName, unit, float)
         self.min = minValue
         self.max = maxValue
 
@@ -31,8 +32,8 @@ class floatGrainProperty(grainProperty):
             super().setValue(value)
 
 class intGrainProperty(grainProperty):
-    def __init__(self, dispName, minValue, maxValue):
-        super().__init__(dispName, int)
+    def __init__(self, dispName, unit, minValue, maxValue):
+        super().__init__(dispName, unit, int)
         self.min = minValue
         self.max = maxValue
 
@@ -42,9 +43,9 @@ class intGrainProperty(grainProperty):
 
 class propellantGrainProperty(grainProperty):
     def __init__(self, dispName):
-        super().__init__(dispName, dict)
+        super().__init__(dispName, '', dict)
         #self.proplist = proplist
-        self.value = {'density': None, 'a': None, 'n': None, 'k': None, 't': None, 'm':None}
+        self.value = {'name': None, 'density': None, 'a': None, 'n': None, 'k': None, 't': None, 'm':None}
 
     def setValue(self, value):
         #TODO: check for proper properties
@@ -53,10 +54,11 @@ class propellantGrainProperty(grainProperty):
 class grain():
     def __init__(self):
         self.props = {
-            'diameter': floatGrainProperty('Diameter', 0, 100),
-            'length': floatGrainProperty('Length', 0, 100),
+            'diameter': floatGrainProperty('Diameter', 'm', 0, 100),
+            'length': floatGrainProperty('Length', 'm', 0, 100),
             'prop': propellantGrainProperty('Propellant')
         }
+        self.geomName = "None"
 
     def setProperties(self, props):
         for p in props.keys():
@@ -99,8 +101,9 @@ class grain():
 class batesGrain(grain):
     def __init__(self):
         super().__init__()
-        self.props['coreDiameter'] = floatGrainProperty('Core Diameter', 0, 100)
-        self.props['inhibitedEnds'] = intGrainProperty('Inhibited ends', 0, 3)
+        self.props['coreDiameter'] = floatGrainProperty('Core Diameter', 'm', 0, 100)
+        self.props['inhibitedEnds'] = intGrainProperty('Inhibited ends', '', 0, 3)
+        self.geomName = "BATES"
 
     def getSurfaceAreaAtRegression(self, r):
         bLength = self.getRegressedLength(r)
