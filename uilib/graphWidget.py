@@ -17,6 +17,7 @@ class graphWidget(FigureCanvas):
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
         self.plot = self.figure.add_subplot(111)
+        self.figure.tight_layout()
 
     def setLabels(self):
         self.plot.set_xlabel('Time (s)')

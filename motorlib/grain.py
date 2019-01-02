@@ -30,6 +30,7 @@ class floatGrainProperty(grainProperty):
         super().__init__(dispName, unit, float)
         self.min = minValue
         self.max = maxValue
+        self.value = minValue
 
     def setValue(self, value):
         if value > self.min and value < self.max:
@@ -43,6 +44,7 @@ class intGrainProperty(grainProperty):
         super().__init__(dispName, unit, int)
         self.min = minValue
         self.max = maxValue
+        self.value = minValue
 
     def setValue(self, value):
         if value >= self.min and value <= self.max:
@@ -103,6 +105,9 @@ class grain():
     def getRegressedLength(self, r):
         endPos = self.getEndPositions(r)
         return endPos[1] - endPos[0]
+
+    def getDetailsString(self):
+        return 'Length: ' + self.props['length'].dispFormat('in')
 
 
 class batesGrain(grain):
@@ -169,3 +174,31 @@ class batesGrain(grain):
             return [r, self.props['length'].getValue()]
         elif self.props['inhibitedEnds'].getValue() == 3:
             return [0, self.props['length'].getValue()]
+
+    def getDetailsString(self):
+        return 'Core Diameter: ' + self.props['coreDiameter'].dispFormat('in')
+
+class endBurningGrain(grain):
+    def __init__(self):
+        super().__init__()
+        self.geomName = 'End Burner'
+
+    def getSurfaceAreaAtRegression(self, r):
+        diameter = self.props['diameter'].getValue()
+        return geometry.circleArea(diameter)
+
+    def getVolumeAtRegression(self, r):
+        bLength = self.getRegressedLength(r)
+        diameter = self.props['diameter'].getValue()
+        return geometry.cylinderVolume(diameter, bLength)
+
+    def getWebLeft(self, r):
+        return self.getRegressedLength(r)
+
+    def getMassFlux(self, massIn, dt, r, dr, position):
+        return 0 # Should return a simulation error if massIn != 0 
+        
+    def getEndPositions(self, r):
+        return [0, self.props['length'].getValue() - r]
+
+grainTypes = {'BATES': batesGrain, 'End Burner': endBurningGrain}

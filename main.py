@@ -20,6 +20,7 @@ class Window(QMainWindow):
 
         self.setupMotorStats()
         self.setupGrainEditor()
+        self.setupGrainAddition()
         self.setupMenu()
         self.setupGrainTable()
 
@@ -31,6 +32,11 @@ class Window(QMainWindow):
 
     def setupGrainEditor(self):
         self.pushButtonEditGrain.pressed.connect(self.editGrain)
+
+    def setupGrainAddition(self):
+        self.comboBoxGrainGeometry.addItems(motorlib.grainTypes.keys())
+        self.comboBoxPropellant.addItems(['Cherry Limeade'])
+        self.pushButtonAddGrain.pressed.connect(self.addGrain)
 
     def setupMenu(self):
         self.actionRunSimulation.triggered.connect(self.runSimulation)
@@ -44,11 +50,14 @@ class Window(QMainWindow):
 
         self.updateGrainTable()
 
+        self.pushButtonDeleteGrain.pressed.connect(self.deleteGrain)
+
+    # Todo: add slot heres
     def updateGrainTable(self):
         self.tableWidgetGrainList.setRowCount(len(self.motor.grains) + 1)
         for gid, grain in enumerate(self.motor.grains):
             self.tableWidgetGrainList.setItem(gid, 0, QTableWidgetItem(grain.geomName))
-            self.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.props['prop'].getValue()['name']))
+            self.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString()))
 
         self.tableWidgetGrainList.setItem(len(self.motor.grains), 0, QTableWidgetItem('Nozzle'))
         self.tableWidgetGrainList.setItem(len(self.motor.grains), 1, QTableWidgetItem('-'))
@@ -57,6 +66,27 @@ class Window(QMainWindow):
         ind = self.tableWidgetGrainList.selectionModel().selectedRows()
         if len(ind) > 0:
             self.grainEditor.loadGrain(self.motor.grains[ind[0].row()])
+
+    def addGrain(self):
+        newGrain = motorlib.grainTypes[self.comboBoxGrainGeometry.currentText()]()
+
+        newGrain.setProperties({'prop':{ # Todo: should retrieve from propProvider
+                    'name': 'Cherry Limeade',
+                    'density': 1690, 
+                    'a': 3.517054143255937e-05, 
+                    'n': 0.3273, 
+                    't': 2770, 
+                    'm': 23.67, 
+                    'k': 1.21}})
+
+        self.motor.grains.append(newGrain)
+        self.updateGrainTable()
+
+    def deleteGrain(self):
+        ind = self.tableWidgetGrainList.selectionModel().selectedRows()
+        if len(ind) > 0:
+            del self.motor.grains[ind[0].row()]
+        self.updateGrainTable()
 
     def updateMotorStats(self, simResult):
         self.labelMotorDesignation.setText(simResult.getDesignation())

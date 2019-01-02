@@ -37,8 +37,14 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="grainEditor" name="grainEditor">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="title">
-         <string>Grain Editor</string>
+         <string>Editor</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <property name="leftMargin">
@@ -99,7 +105,7 @@
         </column>
         <column>
          <property name="text">
-          <string>Propellant</string>
+          <string>Details</string>
          </property>
         </column>
        </widget>
@@ -107,14 +113,14 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="pushButtonMoveGrainUp">
           <property name="text">
            <string>Up</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_2">
+         <widget class="QPushButton" name="pushButtonMoveGrainDown">
           <property name="text">
            <string>Down</string>
           </property>
@@ -128,7 +134,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_4">
+         <widget class="QPushButton" name="pushButtonDeleteGrain">
           <property name="text">
            <string>Delete</string>
           </property>
@@ -139,13 +145,13 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
-         <widget class="QComboBox" name="comboBox"/>
+         <widget class="QComboBox" name="comboBoxGrainGeometry"/>
         </item>
         <item>
-         <widget class="QComboBox" name="comboBox_2"/>
+         <widget class="QComboBox" name="comboBoxPropellant"/>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_5">
+         <widget class="QPushButton" name="pushButtonAddGrain">
           <property name="text">
            <string>Add grain</string>
           </property>
