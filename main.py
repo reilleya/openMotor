@@ -7,11 +7,7 @@ import motorlib
 def formatForDisplay(quantity, inUnits, outUnits): # Move to somewhere else
     return str(round(motorlib.convert(quantity, inUnits, outUnits), 3)) + ' ' + outUnits
 
-<<<<<<< HEAD
 class Window(QMainWindow):
-=======
-class GraphWindow(QMainWindow):
->>>>>>> c34b6b1a1d1ddcaa218d77e91c2a158083aa0c8b
     def __init__(self):
         QWidget.__init__(self)
         loadUi("MainWindow.ui", self)
