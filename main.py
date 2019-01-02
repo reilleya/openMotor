@@ -7,7 +7,11 @@ import motorlib
 def formatForDisplay(quantity, inUnits, outUnits): # Move to somewhere else
     return str(round(motorlib.convert(quantity, inUnits, outUnits), 3)) + ' ' + outUnits
 
+<<<<<<< HEAD
 class Window(QMainWindow):
+=======
+class GraphWindow(QMainWindow):
+>>>>>>> c34b6b1a1d1ddcaa218d77e91c2a158083aa0c8b
     def __init__(self):
         QWidget.__init__(self)
         loadUi("MainWindow.ui", self)
@@ -61,6 +65,21 @@ class Window(QMainWindow):
     def updateMotorStats(self, simResult):
         self.labelMotorDesignation.setText(simResult.getDesignation())
         self.labelImpulse.setText(formatForDisplay(simResult.getImpulse(), 'ns', 'ns'))
+        self.labelDeliveredISP.setText('??? s')
+        self.labelBurnTime.setText(formatForDisplay(simResult.getBurnTime(), 's', 's'))
+
+        self.labelAveragePressure.setText(formatForDisplay(simResult.getAveragePressure(), 'pa', 'psi'))
+        self.labelPeakPressure.setText(formatForDisplay(simResult.getMaxPressure(), 'pa', 'psi'))
+        self.labelInitialKN.setText(formatForDisplay(simResult.getInitialKN(), '', ''))
+        self.labelPeakKN.setText(formatForDisplay(simResult.getPeakKN(), '', ''))
+
+        self.labelPortThroatRatio.setText('????')
+        self.labelCoreLD.setText('????')
+        self.labelPeakMassFlux.setText(formatForDisplay(simResult.getPeakMassFlux(), 'km/(m^2*s)', 'lb/(in^2*s)'))
+
+    def updateMotorStats(self, simResult):
+        self.labelMotorDesignation.setText(simResult.getDesignation())
+        self.labelImpulse.setText(formatForDisplay(simResult.getImpulse(), 'ns', 'lbfs'))
         self.labelDeliveredISP.setText('??? s')
         self.labelBurnTime.setText(formatForDisplay(simResult.getBurnTime(), 's', 's'))
 
