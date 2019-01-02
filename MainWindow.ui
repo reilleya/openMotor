@@ -74,6 +74,9 @@
         <property name="sizeAdjustPolicy">
          <enum>QAbstractScrollArea::AdjustIgnored</enum>
         </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
         <property name="selectionBehavior">
          <enum>QAbstractItemView::SelectRows</enum>
         </property>
@@ -81,7 +84,7 @@
          <enum>Qt::ElideNone</enum>
         </property>
         <property name="columnCount">
-         <number>3</number>
+         <number>2</number>
         </property>
         <attribute name="horizontalHeaderCascadingSectionResizes">
          <bool>false</bool>
@@ -91,17 +94,12 @@
         </attribute>
         <column>
          <property name="text">
-          <string>Geometry</string>
+          <string>Type</string>
          </property>
         </column>
         <column>
          <property name="text">
           <string>Propellant</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Length</string>
          </property>
         </column>
        </widget>
@@ -414,7 +412,7 @@
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>14</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

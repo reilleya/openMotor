@@ -21,6 +21,16 @@ class grainEditorField(QWidget):
         elif type(prop) is motorlib.intGrainProperty:
             self.layout().addWidget(QSpinBox())
 
+    def getValue(self):
+        if type(self.prop) is motorlib.propellantGrainProperty:
+            pass
+
+        elif type(self.prop) is motorlib.floatGrainProperty:
+            return motorlib.convert(self.editor.value(), inputUnit, self.prop.unit)
+
+        elif type(self.prop) is motorlib.intGrainProperty:
+            pass
+
 class grainEditor(QGroupBox):
     def __init__(self, parent):
         super(grainEditor, self).__init__(QGroupBox(parent))
@@ -32,7 +42,12 @@ class grainEditor(QGroupBox):
         self.layout().addLayout(self.buttons)
 
         self.applyButton = QPushButton('Apply')
+        self.applyButton.pressed.connect(self.apply)
+        self.applyButton.hide()
+
         self.cancelButton = QPushButton('Cancel')
+        self.cancelButton.pressed.connect(self.cleanup)
+        self.cancelButton.hide()
 
         self.buttons.addWidget(self.applyButton)
         self.buttons.addWidget(self.cancelButton)
@@ -40,12 +55,26 @@ class grainEditor(QGroupBox):
         
     def loadGrain(self, grain):
         self.cleanup()
+        self.grain = grain
         for prop in grain.props:
             self.propertyEditors[prop] = grainEditorField(self, grain.props[prop])
             self.form.addRow(QLabel(grain.props[prop].dispName), self.propertyEditors[prop])
-            #print(type(grain.props[prop]) is motorlib.floatGrainProperty) 
+        self.applyButton.show()
+        self.cancelButton.show()
 
     def cleanup(self):
-        for pid, prop in enumerate(self.propertyEditors):
+        self.grain = None
+        for prop in self.propertyEditors:
             self.form.removeRow(0) # Removes the first row, but will delete all by the end of the loop
-            del prop
+        self.propertyEditors = {}
+        self.applyButton.hide()
+        self.cancelButton.hide()
+
+    def apply(self):
+        res = {}
+        for prop in self.propertyEditors:
+            out = self.propertyEditors[prop].getValue()
+            if out is not None:
+                res[prop] = out
+        self.grain.setProperties(res)
+        self.cleanup()

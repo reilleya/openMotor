@@ -7,7 +7,7 @@ import motorlib
 def formatForDisplay(quantity, inUnits, outUnits): # Move to somewhere else
     return str(round(motorlib.convert(quantity, inUnits, outUnits), 3)) + ' ' + outUnits
 
-class GraphWindow(QMainWindow):
+class Window(QMainWindow):
     def __init__(self):
         QWidget.__init__(self)
         loadUi("MainWindow.ui", self)
@@ -40,22 +40,27 @@ class GraphWindow(QMainWindow):
 
         header = self.tableWidgetGrainList.horizontalHeader()       
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(2, QHeaderView.Stretch)
+        header.setSectionResizeMode(1, QHeaderView.Stretch)
 
-        self.tableWidgetGrainList.setRowCount(len(self.motor.grains))
+        self.updateGrainTable()
+
+    def updateGrainTable(self):
+        self.tableWidgetGrainList.setRowCount(len(self.motor.grains) + 1)
         for gid, grain in enumerate(self.motor.grains):
             self.tableWidgetGrainList.setItem(gid, 0, QTableWidgetItem(grain.geomName))
             self.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.props['prop'].getValue()['name']))
-            self.tableWidgetGrainList.setItem(gid, 2, QTableWidgetItem(grain.props['length'].dispFormat('in')))
+
+        self.tableWidgetGrainList.setItem(len(self.motor.grains), 0, QTableWidgetItem('Nozzle'))
+        self.tableWidgetGrainList.setItem(len(self.motor.grains), 1, QTableWidgetItem('-'))
 
     def editGrain(self):
-        ind = self.tableWidgetGrainList.selectionModel().selectedRows()[0].row()
-        self.grainEditor.loadGrain(self.motor.grains[ind])
+        ind = self.tableWidgetGrainList.selectionModel().selectedRows()
+        if len(ind) > 0:
+            self.grainEditor.loadGrain(self.motor.grains[ind[0].row()])
 
     def updateMotorStats(self, simResult):
         self.labelMotorDesignation.setText(simResult.getDesignation())
-        self.labelImpulse.setText(formatForDisplay(simResult.getImpulse(), 'ns', 'lbfs'))
+        self.labelImpulse.setText(formatForDisplay(simResult.getImpulse(), 'ns', 'ns'))
         self.labelDeliveredISP.setText('??? s')
         self.labelBurnTime.setText(formatForDisplay(simResult.getBurnTime(), 's', 's'))
 
@@ -110,5 +115,5 @@ class GraphWindow(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    g = GraphWindow()
+    w = Window()
     sys.exit(app.exec_())
