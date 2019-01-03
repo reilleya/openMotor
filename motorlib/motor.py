@@ -1,4 +1,5 @@
 from . import grain
+from . import nozzle
 from . import geometry
 from . import units
 
@@ -49,16 +50,11 @@ class simulationResult():
 class motor():
     def __init__(self):
         self.grains = []
-
-        self.nozzleThroat = 0
-        self.nozzleExit = 0
-
-    def calcExpansion(self):
-        return (self.nozzleExit / self.nozzleThroat) ** 2
+        self.nozzle = nozzle.nozzle()
 
     def calcKN(self, r):
         surfArea = sum([gr.getSurfaceAreaAtRegression(reg) * int(gr.isWebLeft(reg)) for gr, reg in zip(self.grains, r)])
-        nozz = geometry.circleArea(self.nozzleThroat)
+        nozz = self.nozzle.getThroatArea()
         return surfArea / nozz
 
     def calcIdealPressure(self, r):
@@ -81,8 +77,8 @@ class motor():
         p_e = 101353
         p_c = self.calcIdealPressure(r)
         k = self.grains[0].props['prop'].getValue()['k']
-        t_a = geometry.circleArea(self.nozzleThroat)
-        e_a = geometry.circleArea(self.nozzleExit)
+        t_a = self.nozzle.getThroatArea()
+        e_a = self.nozzle.getExitArea()
 
         if p_c == 0:
             return 0

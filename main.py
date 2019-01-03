@@ -62,12 +62,16 @@ class Window(QMainWindow):
             self.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString()))
 
         self.tableWidgetGrainList.setItem(len(self.motor.grains), 0, QTableWidgetItem('Nozzle'))
-        self.tableWidgetGrainList.setItem(len(self.motor.grains), 1, QTableWidgetItem('Throat: ' + str(self.motor.nozzleThroat)))
+        self.tableWidgetGrainList.setItem(len(self.motor.grains), 1, QTableWidgetItem(self.motor.nozzle.getDetailsString()))
 
     def editGrain(self):
         ind = self.tableWidgetGrainList.selectionModel().selectedRows()
         if len(ind) > 0:
-            self.motorEditor.loadGrain(self.motor.grains[ind[0].row()])
+            gid = ind[0].row()
+            if gid < len(self.motor.grains):
+                self.motorEditor.loadGrain(self.motor.grains[gid])
+            else:
+                self.motorEditor.loadNozzle(self.motor.nozzle)
 
     def addGrain(self):
         newGrain = motorlib.grainTypes[self.comboBoxGrainGeometry.currentText()]()
@@ -157,8 +161,8 @@ class Window(QMainWindow):
                     'k': 1.21}})
         self.motor.grains.append(bg)
         self.motor.grains.append(bg2)
-        self.motor.nozzleThroat = 0.015
-        self.motor.nozzleExit = 0.015
+
+        self.motor.nozzle.setProperties({'throat': 0.015, 'exit': 0.015})
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

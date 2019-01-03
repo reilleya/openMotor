@@ -1,35 +1,41 @@
 import motorlib
-from PyQt5.QtWidgets import QWidget, QGroupBox, QLabel, QDoubleSpinBox, QSpinBox, QFormLayout, QVBoxLayout, QHBoxLayout, QPushButton
+from PyQt5.QtWidgets import QWidget, QGroupBox, QFormLayout, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QDoubleSpinBox, QSpinBox, QLabel, QPushButton
+from PyQt5.QtWidgets import QSpacerItem, QSizePolicy
 from PyQt5.QtCore import pyqtSignal
 
 inputUnit = 'in'
 
-class grainEditorField(QWidget):
+class propertyEditorField(QWidget):
+
+    valueChanged = pyqtSignal()
+
     def __init__(self, parent, prop):
-        super(grainEditorField, self).__init__(QWidget(parent))
+        super(propertyEditorField, self).__init__(QWidget(parent))
         self.setLayout(QVBoxLayout())
         self.prop = prop
 
-        if type(prop) is motorlib.propellantGrainProperty:
+        if type(prop) is motorlib.propellantProperty:
             pass
 
-        elif type(prop) is motorlib.floatGrainProperty:
+        elif type(prop) is motorlib.floatProperty:
             self.editor = QDoubleSpinBox()
             self.editor.setValue(motorlib.convert(self.prop.getValue(), prop.unit, inputUnit))
             self.editor.setSuffix(' ' + inputUnit)
+            self.editor.valueChanged.connect(self.valueChanged.emit)
             self.layout().addWidget(self.editor)
 
-        elif type(prop) is motorlib.intGrainProperty:
+        elif type(prop) is motorlib.intProperty:
             self.layout().addWidget(QSpinBox())
 
     def getValue(self):
-        if type(self.prop) is motorlib.propellantGrainProperty:
+        if type(self.prop) is motorlib.propellantProperty:
             pass
 
-        elif type(self.prop) is motorlib.floatGrainProperty:
+        elif type(self.prop) is motorlib.floatProperty:
             return motorlib.convert(self.editor.value(), inputUnit, self.prop.unit)
 
-        elif type(self.prop) is motorlib.intGrainProperty:
+        elif type(self.prop) is motorlib.intProperty:
             pass
 
 class motorEditor(QGroupBox):
@@ -42,6 +48,16 @@ class motorEditor(QGroupBox):
         self.setLayout(QVBoxLayout())
         self.form = QFormLayout()
         self.layout().addLayout(self.form)
+
+        self.stats = QVBoxLayout()
+        self.layout().addLayout(self.stats)
+        self.expRatioLabel = QLabel("Expansion ratio: -")
+        self.expRatioLabel.hide()
+        self.stats.addWidget(self.expRatioLabel)
+
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.layout().addItem(self.verticalSpacer)
+
         self.buttons = QHBoxLayout()
         self.layout().addLayout(self.buttons)
 
@@ -56,21 +72,41 @@ class motorEditor(QGroupBox):
         self.buttons.addWidget(self.applyButton)
         self.buttons.addWidget(self.cancelButton)
 
+        self.nozzle = None
+        self.grain = None
         
-    def loadGrain(self, grain):
+    def loadProperties(self, object):
         self.cleanup()
+        for prop in object.props:
+            self.propertyEditors[prop] = propertyEditorField(self, object.props[prop])
+            self.propertyEditors[prop].valueChanged.connect(self.update)
+            self.form.addRow(QLabel(object.props[prop].dispName), self.propertyEditors[prop])
+
+    def loadGrain(self, grain):
+        self.loadProperties(grain)
         self.grain = grain
-        for prop in grain.props:
-            self.propertyEditors[prop] = grainEditorField(self, grain.props[prop])
-            self.form.addRow(QLabel(grain.props[prop].dispName), self.propertyEditors[prop])
+        self.applyButton.show()
+        self.cancelButton.show()
+
+    def loadNozzle(self, nozzle):
+        self.loadProperties(nozzle)
+        self.nozzle = nozzle
+        self.update()
+        self.expRatioLabel.show()
         self.applyButton.show()
         self.cancelButton.show()
 
     def cleanup(self):
-        self.grain = None
+        if self.grain is not None:
+            self.grain = None
+        elif self.nozzle is not None:
+            self.nozzle = None
+            self.expRatioLabel.hide()
+
         for prop in self.propertyEditors:
             self.form.removeRow(0) # Removes the first row, but will delete all by the end of the loop
         self.propertyEditors = {}
+
         self.applyButton.hide()
         self.cancelButton.hide()
 
@@ -80,6 +116,18 @@ class motorEditor(QGroupBox):
             out = self.propertyEditors[prop].getValue()
             if out is not None:
                 res[prop] = out
-        self.grain.setProperties(res)
+        if self.grain is not None:
+            self.grain.setProperties(res)
+        elif self.nozzle is not None:
+            self.nozzle.setProperties(res)
         self.motorChanged.emit()
         self.cleanup()
+
+    def update(self):
+        if self.nozzle is not None:
+            exit = self.propertyEditors['exit'].getValue()
+            throat = self.propertyEditors['throat'].getValue()
+            if throat == 0:
+                self.expRatioLabel.setText('Expansion ratio: -')
+            else:
+                self.expRatioLabel.setText('Expansion ratio: ' + str((exit / throat) ** 2))
