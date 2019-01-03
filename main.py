@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QHeaderView
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.uic import loadUi
 import sys
 
@@ -19,7 +20,7 @@ class Window(QMainWindow):
         self.loadDefaultMotor()
 
         self.setupMotorStats()
-        self.setupGrainEditor()
+        self.setupMotorEditor()
         self.setupGrainAddition()
         self.setupMenu()
         self.setupGrainTable()
@@ -30,8 +31,9 @@ class Window(QMainWindow):
         for label in self.motorStatLabels:
             label.setText("-")
 
-    def setupGrainEditor(self):
+    def setupMotorEditor(self):
         self.pushButtonEditGrain.pressed.connect(self.editGrain)
+        self.motorEditor.motorChanged.connect(self.updateGrainTable)
 
     def setupGrainAddition(self):
         self.comboBoxGrainGeometry.addItems(motorlib.grainTypes.keys())
@@ -60,12 +62,12 @@ class Window(QMainWindow):
             self.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString()))
 
         self.tableWidgetGrainList.setItem(len(self.motor.grains), 0, QTableWidgetItem('Nozzle'))
-        self.tableWidgetGrainList.setItem(len(self.motor.grains), 1, QTableWidgetItem('-'))
+        self.tableWidgetGrainList.setItem(len(self.motor.grains), 1, QTableWidgetItem('Throat: ' + str(self.motor.nozzleThroat)))
 
     def editGrain(self):
         ind = self.tableWidgetGrainList.selectionModel().selectedRows()
         if len(ind) > 0:
-            self.grainEditor.loadGrain(self.motor.grains[ind[0].row()])
+            self.motorEditor.loadGrain(self.motor.grains[ind[0].row()])
 
     def addGrain(self):
         newGrain = motorlib.grainTypes[self.comboBoxGrainGeometry.currentText()]()

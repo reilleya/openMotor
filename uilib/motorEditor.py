@@ -1,5 +1,6 @@
 import motorlib
 from PyQt5.QtWidgets import QWidget, QGroupBox, QLabel, QDoubleSpinBox, QSpinBox, QFormLayout, QVBoxLayout, QHBoxLayout, QPushButton
+from PyQt5.QtCore import pyqtSignal
 
 inputUnit = 'in'
 
@@ -31,9 +32,12 @@ class grainEditorField(QWidget):
         elif type(self.prop) is motorlib.intGrainProperty:
             pass
 
-class grainEditor(QGroupBox):
+class motorEditor(QGroupBox):
+
+    motorChanged = pyqtSignal()
+
     def __init__(self, parent):
-        super(grainEditor, self).__init__(QGroupBox(parent))
+        super(motorEditor, self).__init__(QGroupBox(parent))
         self.propertyEditors = {}
         self.setLayout(QVBoxLayout())
         self.form = QFormLayout()
@@ -77,4 +81,5 @@ class grainEditor(QGroupBox):
             if out is not None:
                 res[prop] = out
         self.grain.setProperties(res)
+        self.motorChanged.emit()
         self.cleanup()

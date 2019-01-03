@@ -176,7 +176,7 @@ class batesGrain(grain):
             return [0, self.props['length'].getValue()]
 
     def getDetailsString(self):
-        return 'Core Diameter: ' + self.props['coreDiameter'].dispFormat('in')
+        return 'Length: ' + self.props['length'].dispFormat('in') + ', Core: ' + self.props['coreDiameter'].dispFormat('in')
 
 class endBurningGrain(grain):
     def __init__(self):

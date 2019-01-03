@@ -1,2 +1,2 @@
 from .graphWidget import *
-from .grainEditor import *
+from .motorEditor import *
