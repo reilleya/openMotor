@@ -34,5 +34,9 @@ class graphWidget(FigureCanvas):
         self.plot.legend(["KN", "Pressure", "Force"])
         self.draw()
 
+    def resetPlot(self):
+        self.plot.clear()
+        self.draw()
+
     def saveImage(self, filename):
         self.figure.savefig(filename)

@@ -41,6 +41,7 @@ class propertyEditorField(QWidget):
 class motorEditor(QGroupBox):
 
     motorChanged = pyqtSignal()
+    closed = pyqtSignal()
 
     def __init__(self, parent):
         super(motorEditor, self).__init__(QGroupBox(parent))
@@ -66,7 +67,7 @@ class motorEditor(QGroupBox):
         self.applyButton.hide()
 
         self.cancelButton = QPushButton('Cancel')
-        self.cancelButton.pressed.connect(self.cleanup)
+        self.cancelButton.pressed.connect(self.close)
         self.cancelButton.hide()
 
         self.buttons.addWidget(self.applyButton)
@@ -96,6 +97,10 @@ class motorEditor(QGroupBox):
         self.applyButton.show()
         self.cancelButton.show()
 
+    def close(self):
+        self.closed.emit()
+        self.cleanup()
+
     def cleanup(self):
         if self.grain is not None:
             self.grain = None
@@ -121,6 +126,7 @@ class motorEditor(QGroupBox):
         elif self.nozzle is not None:
             self.nozzle.setProperties(res)
         self.motorChanged.emit()
+        self.closed.emit()
         self.cleanup()
 
     def update(self):

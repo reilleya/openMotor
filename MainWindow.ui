@@ -425,8 +425,19 @@
     <property name="title">
      <string>File</string>
     </property>
+    <widget class="QMenu" name="menuExport">
+     <property name="title">
+      <string>Export</string>
+     </property>
+     <addaction name="separator"/>
+     <addaction name="actionENGFile"/>
+     <addaction name="actionImage"/>
+     <addaction name="actionCSV"/>
+    </widget>
+    <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
+    <addaction name="menuExport"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuSimulate">
@@ -449,29 +460,49 @@
     </property>
     <addaction name="actionAboutOpenMotor"/>
    </widget>
+   <widget class="QMenu" name="menuOptimize">
+    <property name="title">
+     <string>Optimize</string>
+    </property>
+    <addaction name="actionSetKN"/>
+    <addaction name="actionExpansionRatio"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuSimulate"/>
+   <addaction name="menuOptimize"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionQuit">
    <property name="text">
     <string>Quit</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
   </action>
   <action name="actionOpen">
    <property name="text">
     <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
   <action name="actionSave">
    <property name="text">
     <string>Save</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
   </action>
   <action name="actionRunSimulation">
    <property name="text">
     <string>Run Simulation</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="actionGenerateReport">
@@ -483,10 +514,49 @@
    <property name="text">
     <string>Preferences</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
   </action>
   <action name="actionAboutOpenMotor">
    <property name="text">
     <string>About openMotor</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionENGFile">
+   <property name="text">
+    <string>ENG File</string>
+   </property>
+  </action>
+  <action name="actionImage">
+   <property name="text">
+    <string>Image</string>
+   </property>
+  </action>
+  <action name="actionCSV">
+   <property name="text">
+    <string>CSV</string>
+   </property>
+  </action>
+  <action name="actionSetKN">
+   <property name="text">
+    <string>Set KN</string>
+   </property>
+  </action>
+  <action name="actionExpansionRatio">
+   <property name="text">
+    <string>Expansion Ratio</string>
    </property>
   </action>
  </widget>
