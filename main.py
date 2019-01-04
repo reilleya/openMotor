@@ -105,14 +105,14 @@ class Window(QMainWindow):
         self.labelInitialKN.setText(formatForDisplay(simResult.getInitialKN(), '', ''))
         self.labelPeakKN.setText(formatForDisplay(simResult.getPeakKN(), '', ''))
 
-        self.labelPortThroatRatio.setText('????')
+        self.labelPortThroatRatio.setText()
         self.labelCoreLD.setText('????')
         self.labelPeakMassFlux.setText(formatForDisplay(simResult.getPeakMassFlux(), 'km/(m^2*s)', 'lb/(in^2*s)'))
 
     def updateMotorStats(self, simResult):
         self.labelMotorDesignation.setText(simResult.getDesignation())
         self.labelImpulse.setText(formatForDisplay(simResult.getImpulse(), 'ns', 'lbfs'))
-        self.labelDeliveredISP.setText('??? s')
+        self.labelDeliveredISP.setText(formatForDisplay(simResult.getISP(), 's', 's'))
         self.labelBurnTime.setText(formatForDisplay(simResult.getBurnTime(), 's', 's'))
 
         self.labelAveragePressure.setText(formatForDisplay(simResult.getAveragePressure(), 'pa', 'psi'))
@@ -120,7 +120,7 @@ class Window(QMainWindow):
         self.labelInitialKN.setText(formatForDisplay(simResult.getInitialKN(), '', ''))
         self.labelPeakKN.setText(formatForDisplay(simResult.getPeakKN(), '', ''))
 
-        self.labelPortThroatRatio.setText('????')
+        self.labelPortThroatRatio.setText(formatForDisplay(simResult.getPortRatio(), '', ''))
         self.labelCoreLD.setText('????')
         self.labelPeakMassFlux.setText(formatForDisplay(simResult.getPeakMassFlux(), 'km/(m^2*s)', 'lb/(in^2*s)'))
 

@@ -6,11 +6,14 @@ from . import units
 import math
 
 class simulationResult():
-    def __init__(self, time, kn, pressure, force, massFlow, massFlux):
+    def __init__(self, nozzle, grains, time, kn, pressure, force, mass, massFlow, massFlux):
+        self.nozzle = nozzle
+        self.grains = grains
         self.time = time
         self.kn = kn
         self.pressure = pressure
         self.force = force
+        self.mass = mass
         self.massFlow = massFlow
         self.massFlux = massFlux
 
@@ -47,6 +50,16 @@ class simulationResult():
     def getPeakMassFlux(self):
         return max([max(mf) for mf in self.massFlux])
 
+    def getISP(self):
+        return self.getImpulse() / (sum([grainMass[0] for grainMass in self.mass]) * 9.80665)
+
+    def getPortRatio(self):
+        aftPort = self.grains[-1].getPortArea(0)
+        if aftPort is not None:
+            return aftPort / geometry.circleArea(self.nozzle.props['throat'].getValue())
+        else:
+            return None
+
 class motor():
     def __init__(self):
         self.grains = []
@@ -72,17 +85,18 @@ class motor():
 
     def calcForce(self, r):
         # Only considers prop from the first grain currently
-        # Assumes full expansion
-        p_a = 101353
-        p_e = 101353
-        p_c = self.calcIdealPressure(r)
         k = self.grains[0].props['prop'].getValue()['k']
         t_a = self.nozzle.getThroatArea()
         e_a = self.nozzle.getExitArea()
 
+        p_a = 101353
+        p_c = self.calcIdealPressure(r)
+
         if p_c == 0:
             return 0
  
+        p_e = self.nozzle.getExitPressure(k, p_c)
+
         t1 = (2*(k**2))/(k-1)
         t2 = (2/(k+1))**((k+1)/(k-1))
         t3 = 1 - ((p_e/p_c) ** ((k-1)/k))
@@ -101,6 +115,7 @@ class motor():
         k = [0, self.calcKN(perGrainReg)]
         p = [0, self.calcIdealPressure(perGrainReg)]
         f = [0, self.calcForce(perGrainReg)]
+        mass = [[grain.getMassAtRegression(0), grain.getMassAtRegression(0)] for grain in self.grains]
         m_flow = [[0, 0] for grain in self.grains]
         m_flux = [[0, 0] for grain in self.grains]
 
@@ -115,6 +130,8 @@ class motor():
                     
                     mf += (grain.props['prop'].getValue()['density'] * grain.getVolumeSlice(perGrainReg[gid], reg) / ts)
                     m_flow[gid].append(mf)
+
+                    mass[gid].append(grain.getMassAtRegression(perGrainReg[gid]))
                     
                     perGrainReg[gid] += reg
 
@@ -140,4 +157,4 @@ class motor():
         for g in m_flux:
             g.append(0)
 
-        return simulationResult(t, k, p, f, m_flow, m_flux)
+        return simulationResult(self.nozzle, self.grains, t, k, p, f, mass, m_flow, m_flux)

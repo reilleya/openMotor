@@ -51,12 +51,18 @@ class grain(propertyCollection):
     def getEndPositions(self, r): # Returns the positions of the grain ends relative to the original (unburned) grain top
         return None
 
+    def getPortArea(self, r):
+        return None
+
     def getRegressedLength(self, r):
         endPos = self.getEndPositions(r)
         return endPos[1] - endPos[0]
 
     def getDetailsString(self):
         return 'Length: ' + self.props['length'].dispFormat('in')
+
+    def getMassAtRegression(self, r):
+        return self.getVolumeAtRegression(r) * self.props['prop'].getValue()['density']
 
 
 class batesGrain(grain):
@@ -123,6 +129,10 @@ class batesGrain(grain):
             return [r, self.props['length'].getValue()]
         elif self.props['inhibitedEnds'].getValue() == 3:
             return [0, self.props['length'].getValue()]
+
+    def getPortArea(self, r):
+        bCoreDiameter = self.props['coreDiameter'].getValue() + (r * 2)
+        return geometry.circleArea(bCoreDiameter)
 
     def getDetailsString(self):
         return 'Length: ' + self.props['length'].dispFormat('in') + ', Core: ' + self.props['coreDiameter'].dispFormat('in')

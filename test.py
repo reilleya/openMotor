@@ -6,10 +6,9 @@ class TestMotorMethods(unittest.TestCase):
     def test_calcKN(self):
 
         tm = motorlib.motor()
-        tm.nozzle = 0.01428
 
-        bg3 = motorlib.batesGrain()
-        bg3.setProperties({'diameter':0.083058, 
+        bg = motorlib.batesGrain()
+        bg.setProperties({'diameter':0.083058, 
                   'length':0.1397, 
                   'coreDiameter':0.05, 
                   'inhibitedEnds':0,
@@ -22,7 +21,8 @@ class TestMotorMethods(unittest.TestCase):
                     'm': 41.98, 
                     'k': 1.133}})
 
-        tm.grains.append(bg3)
+        tm.grains.append(bg)
+        tm.nozzle.setProperties({'throat': 0.01428})
 
         self.assertAlmostEqual(tm.calcKN([0]), 180, 0)
         self.assertAlmostEqual(tm.calcKN([0.0025]), 183, 0)
@@ -31,10 +31,9 @@ class TestMotorMethods(unittest.TestCase):
 
     def test_calcPressure(self):
         tm = motorlib.motor()
-        tm.nozzle = 0.01428
 
-        bg3 = motorlib.batesGrain()
-        bg3.setProperties({'diameter':0.083058, 
+        bg = motorlib.batesGrain()
+        bg.setProperties({'diameter':0.083058, 
                   'length':0.1397, 
                   'coreDiameter':0.05, 
                   'inhibitedEnds':0,
@@ -47,7 +46,9 @@ class TestMotorMethods(unittest.TestCase):
                     'm': 41.98, 
                     'k': 1.133}})
 
-        tm.grains.append(bg3)
+        tm.grains.append(bg)
+
+        tm.nozzle.setProperties({'throat': 0.01428})
         self.assertAlmostEqual(tm.calcIdealPressure([0]), 4050030, 0)
 
 
@@ -63,5 +64,9 @@ class TestGeometryMethods(unittest.TestCase):
 
     def test_cylinderVolume(self):
         self.assertAlmostEqual(motorlib.cylinderVolume(0.5, 2), 0.39269908)
+
+class TestNozzleMethods(unittest.TestCase):
+    def test_expansionRatio(self):
+        self.assertAlmostEqual(motorlib.eRatioFromPRatio(1.15, 0.0156), 0.10650602)
 
 unittest.main()
