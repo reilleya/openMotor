@@ -151,6 +151,7 @@ class Window(QMainWindow):
         self.motor.grains.append(newGrain)
         self.updateGrainTable()
         self.tableWidgetGrainList.selectRow(len(self.motor.grains) - 1)
+        self.motorEditor.loadGrain(self.motor.grains[-1])
         self.checkGrainSelection()
 
     def updateMotorStats(self, simResult):
@@ -164,9 +165,15 @@ class Window(QMainWindow):
         self.labelInitialKN.setText(formatForDisplay(simResult.getInitialKN(), '', ''))
         self.labelPeakKN.setText(formatForDisplay(simResult.getPeakKN(), '', ''))
 
-        self.labelPortThroatRatio.setText(formatForDisplay(simResult.getPortRatio(), '', ''))
+        if simResult.getPortRatio() is not None:
+            self.labelPortThroatRatio.setText(formatForDisplay(simResult.getPortRatio(), '', ''))
+            self.labelPeakMassFlux.setText(formatForDisplay(simResult.getPeakMassFlux(), 'km/(m^2*s)', 'lb/(in^2*s)'))
+
+        else:
+            self.labelPortThroatRatio.setText('-')
+            self.labelPeakMassFlux.setText('-')
+
         self.labelCoreLD.setText('????')
-        self.labelPeakMassFlux.setText(formatForDisplay(simResult.getPeakMassFlux(), 'km/(m^2*s)', 'lb/(in^2*s)'))
 
     def runSimulation(self):
         self.setupMotorStats()
