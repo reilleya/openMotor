@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QFileDialog, QTa
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.uic import loadUi
 import sys
+import yaml
 
 import motorlib
 
@@ -44,6 +45,8 @@ class Window(QMainWindow):
     def setupMenu(self):
         #File menu
         self.actionNew.triggered.connect(self.newMotor)
+        self.actionSave.triggered.connect(self.saveMotor)
+        self.actionOpen.triggered.connect(self.loadMotor)
         self.actionQuit.triggered.connect(self.exit)
 
         #Sim
@@ -189,6 +192,23 @@ class Window(QMainWindow):
         self.setupMotorStats()
         self.graphWidget.resetPlot()
         self.updateGrainTable()
+
+    def saveMotor(self):
+        path = QFileDialog.getSaveFileName(self, 'Save motor', '', 'Motor Files (*.ric)')[0]
+        if path[-4:] != '.ric':
+            path += '.ric'
+        with open(path, 'w') as saveFile:
+            yaml.dump(self.motor, saveFile)
+
+    def loadMotor(self):
+        # Check for unsaved changes
+        path = QFileDialog.getOpenFileName(self, 'Load motor', '', 'Motor Files (*.ric)')[0]
+        with open(path, 'r') as loadFile:
+            motor = yaml.load(loadFile)
+            self.motor = motor
+            self.setupMotorStats()
+            self.graphWidget.resetPlot()
+            self.updateGrainTable()
 
     def exit(self):
         # Check for unsaved changes
