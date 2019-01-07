@@ -103,7 +103,7 @@ class motor():
 
         sr = (t1 * t2 * t3) ** 0.5
 
-        return t_a*p_c*sr + (p_e - p_a) * e_a
+        return self.nozzle.props['efficiency'].getValue()*t_a*p_c*sr + (p_e - p_a) * e_a
 
     def runSimulation(self):
         burnoutThres = 0.00001

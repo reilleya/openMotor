@@ -8,8 +8,9 @@ def eRatioFromPRatio(k, pr):
 class nozzle(propertyCollection):
     def __init__(self):
         super().__init__()
-        self.props['throat'] = floatProperty('Throat Diameter', 'm', 0, 100)
-        self.props['exit'] = floatProperty('Exit Diameter', 'm', 0, 100)
+        self.props['throat'] = floatProperty('Throat Diameter', 'm', 0, 0.5)
+        self.props['exit'] = floatProperty('Exit Diameter', 'm', 0, 1)
+        self.props['efficiency'] = floatProperty('Efficiency', '', 0, 2)
 
     def getDetailsString(self):
         return 'Throat: ' + self.props['throat'].dispFormat('in')

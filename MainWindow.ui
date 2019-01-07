@@ -223,7 +223,7 @@
            <item>
             <widget class="QLabel" name="labelPortThroatRatioText">
              <property name="text">
-              <string>Port/Throat Ratio</string>
+              <string>Port/Throat Ratio:</string>
              </property>
             </widget>
            </item>

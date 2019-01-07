@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QDoubleSpinBox, QSpinBox, QLabel, QPushButton
 from PyQt5.QtWidgets import QSpacerItem, QSizePolicy
 from PyQt5.QtCore import pyqtSignal
 
-inputUnit = 'in'
+defaultUnits = {'m': 'in', '':''}
 
 class propertyEditorField(QWidget):
 
@@ -20,8 +20,13 @@ class propertyEditorField(QWidget):
 
         elif type(prop) is motorlib.floatProperty:
             self.editor = QDoubleSpinBox()
-            self.editor.setValue(motorlib.convert(self.prop.getValue(), prop.unit, inputUnit))
-            self.editor.setSuffix(' ' + inputUnit)
+            self.editor.setValue(motorlib.convert(self.prop.getValue(), prop.unit, defaultUnits[prop.unit]))
+            self.editor.setSuffix(' ' + defaultUnits[prop.unit])
+            convMin = motorlib.convert(self.prop.min, self.prop.unit, defaultUnits[self.prop.unit])
+            convMax = motorlib.convert(self.prop.max, self.prop.unit, defaultUnits[self.prop.unit])
+            self.editor.setRange(convMin, convMax)
+            self.editor.setDecimals(3)
+            self.editor.setSingleStep(0.1)
             self.editor.valueChanged.connect(self.valueChanged.emit)
             self.layout().addWidget(self.editor)
 
@@ -33,7 +38,7 @@ class propertyEditorField(QWidget):
             pass
 
         elif type(self.prop) is motorlib.floatProperty:
-            return motorlib.convert(self.editor.value(), inputUnit, self.prop.unit)
+            return motorlib.convert(self.editor.value(), defaultUnits[self.prop.unit], self.prop.unit)
 
         elif type(self.prop) is motorlib.intProperty:
             pass

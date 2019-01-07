@@ -153,10 +153,11 @@ class Window(QMainWindow):
         self.tableWidgetGrainList.selectRow(len(self.motor.grains) - 1)
         self.motorEditor.loadGrain(self.motor.grains[-1])
         self.checkGrainSelection()
+        self.toggleGrainButtons(False)
 
     def updateMotorStats(self, simResult):
         self.labelMotorDesignation.setText(simResult.getDesignation())
-        self.labelImpulse.setText(formatForDisplay(simResult.getImpulse(), 'ns', 'lbfs'))
+        self.labelImpulse.setText(formatForDisplay(simResult.getImpulse(), 'ns', 'ns'))
         self.labelDeliveredISP.setText(formatForDisplay(simResult.getISP(), 's', 's'))
         self.labelBurnTime.setText(formatForDisplay(simResult.getBurnTime(), 's', 's'))
 
@@ -224,7 +225,7 @@ class Window(QMainWindow):
         self.motor.grains.append(bg)
         self.motor.grains.append(bg2)
 
-        self.motor.nozzle.setProperties({'throat': 0.015, 'exit': 0.03})
+        self.motor.nozzle.setProperties({'throat': 0.015, 'exit': 0.03, 'efficiency':0.9})
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

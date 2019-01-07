@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 class grain(propertyCollection):
     def __init__(self):
         super().__init__()
-        self.props['diameter'] = floatProperty('Diameter', 'm', 0, 100)
-        self.props['length'] = floatProperty('Length', 'm', 0, 100)
+        self.props['diameter'] = floatProperty('Diameter', 'm', 0, 1)
+        self.props['length'] = floatProperty('Length', 'm', 0, 2)
         self.props['prop'] = propellantProperty('Propellant')
         self.geomName = "None"
 
@@ -68,7 +68,7 @@ class grain(propertyCollection):
 class batesGrain(grain):
     def __init__(self):
         super().__init__()
-        self.props['coreDiameter'] = floatProperty('Core Diameter', 'm', 0, 100)
+        self.props['coreDiameter'] = floatProperty('Core Diameter', 'm', 0, 1)
         self.props['inhibitedEnds'] = intProperty('Inhibited ends', '', 0, 3)
         self.geomName = "BATES"
 
