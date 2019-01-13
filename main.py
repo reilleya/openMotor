@@ -14,7 +14,12 @@ class Window(QMainWindow):
     def __init__(self):
         QWidget.__init__(self)
         loadUi("MainWindow.ui", self)
+
+        self.preferences = uilib.preferences()
+        self.preferences.loadDefault()
+        self.loadPreferences()
         self.preferencesWindow = uilib.PreferencesWindow()
+        self.preferencesWindow.preferencesApplied.connect(self.applyPreferences)
 
         self.motorStatLabels = [self.labelMotorDesignation, self.labelImpulse, self.labelDeliveredISP, self.labelBurnTime,
                                 self.labelAveragePressure, self.labelPeakPressure, self.labelInitialKN, self.labelPeakKN,
@@ -52,7 +57,7 @@ class Window(QMainWindow):
         self.actionQuit.triggered.connect(self.exit)
 
         #Edit menu
-        self.actionPreferences.triggered.connect(self.preferencesWindow.show)
+        self.actionPreferences.triggered.connect(self.showPreferences)
 
         #Sim
         self.actionRunSimulation.triggered.connect(self.runSimulation)
@@ -218,6 +223,29 @@ class Window(QMainWindow):
     def exit(self):
         # Check for unsaved changes
         sys.exit()
+
+    def loadPreferences(self):
+        try:
+            with open('preferences.yaml', 'r') as prefFile:
+                prefDict = yaml.load(prefFile)
+                self.preferences.applyDict(prefDict)
+        except FileNotFoundError:
+            self.savePreferences()
+
+    def savePreferences(self):
+        try:
+            with open('preferences.yaml', 'w') as prefFile:
+                yaml.dump(self.preferences.getDict(), prefFile)
+        except:
+            print('Unable to save preferences')
+
+    def applyPreferences(self, prefDict):
+        self.preferences.applyDict(prefDict)
+        self.savePreferences()
+
+    def showPreferences(self):
+        self.preferencesWindow.load(self.preferences)
+        self.preferencesWindow.show()
 
     def loadDefaultMotor(self):
         self.motor = motorlib.motor()

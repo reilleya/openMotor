@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.uic import loadUi
+from PyQt5.QtCore import pyqtSignal
 
 from motorlib import propertyCollection, floatProperty, enumProperty
 from motorlib import unitLabels, getAllConversions
@@ -23,20 +24,31 @@ class preferences():
         self.general.setProperties(dictionary['general'])
         self.units.setProperties(dictionary['units'])
 
+    def loadDefault(self):
+        self.general.props['burnoutThres'].setValue(0.00001)
+        self.general.props['timestep'].setValue(0.01)
+
+        self.units.props['m'].setValue('in')
+        self.units.props['pa'].setValue('psi')
+
+
 class PreferencesWindow(QWidget):
+
+    preferencesApplied = pyqtSignal(dict)
+
     def __init__(self):
         QWidget.__init__(self)
-
-        self.p = preferences()
 
         loadUi("Preferences.ui", self)
         self.buttonBox.accepted.connect(self.apply)
         self.buttonBox.rejected.connect(self.cancel)
 
-        self.settingsEditorGeneral.loadProperties(self.p.general)
-        self.settingsEditorUnits.loadProperties(self.p.units)
+    def load(self, pref):
+        self.settingsEditorGeneral.loadProperties(pref.general)
+        self.settingsEditorUnits.loadProperties(pref.units)
 
     def apply(self):
+        self.preferencesApplied.emit({'general': self.settingsEditorGeneral.getProperties(), 'units': self.settingsEditorUnits.getProperties()})
         self.hide()
 
     def cancel(self):

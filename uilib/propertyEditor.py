@@ -39,6 +39,8 @@ class propertyEditor(QWidget):
             self.editor = QComboBox()
 
             self.editor.addItems(self.prop.values)
+            self.editor.setCurrentText(self.prop.value)
+            self.editor.currentTextChanged.connect(self.valueChanged.emit)
 
             self.layout().addWidget(self.editor)
 
@@ -52,3 +54,6 @@ class propertyEditor(QWidget):
 
         elif type(self.prop) is motorlib.intProperty:
             pass
+
+        elif type(self.prop) is motorlib.enumProperty:
+            return self.editor.currentText()

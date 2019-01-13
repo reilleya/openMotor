@@ -20,7 +20,7 @@ class settingsEditor(QWidget):
         self.cleanup()
         for prop in object.props:
             self.propertyEditors[prop] = propertyEditor(self, object.props[prop])
-            self.form.addRow(QLabel(object.props[prop].dispName), self.propertyEditors[prop])
+            self.form.addRow(QLabel(object.props[prop].dispName + ':'), self.propertyEditors[prop])
 
     def cleanup(self):
         for prop in self.propertyEditors:
@@ -34,3 +34,4 @@ class settingsEditor(QWidget):
             if out is not None:
                 res[prop] = out
         self.cleanup()
+        return res
