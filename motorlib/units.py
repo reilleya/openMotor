@@ -1,3 +1,5 @@
+labels = {'m': 'Length', 'ns': 'Impulse', 'pa': 'Pressure', 'Mass Flux': 'kg/(m^2*s)'}
+
 table = [
 ('m', 'in', 39.37),
 ('m', 'f', 3.28),
@@ -6,7 +8,7 @@ table = [
 
 ('pa', 'psi', 1/6895),
 
-('km/(m^2*s)', 'lb/(in^2*s)', 0.001422)
+('kg/(m^2*s)', 'lb/(in^2*s)', 0.001422)
 ]
 
 def getAllConversions(unit):

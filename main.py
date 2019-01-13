@@ -5,6 +5,7 @@ import sys
 import yaml
 
 import motorlib
+import uilib
 
 def formatForDisplay(quantity, inUnits, outUnits): # Move to somewhere else
     return str(round(motorlib.convert(quantity, inUnits, outUnits), 3)) + ' ' + outUnits
@@ -13,6 +14,7 @@ class Window(QMainWindow):
     def __init__(self):
         QWidget.__init__(self)
         loadUi("MainWindow.ui", self)
+        self.preferencesWindow = uilib.PreferencesWindow()
 
         self.motorStatLabels = [self.labelMotorDesignation, self.labelImpulse, self.labelDeliveredISP, self.labelBurnTime,
                                 self.labelAveragePressure, self.labelPeakPressure, self.labelInitialKN, self.labelPeakKN,
@@ -48,6 +50,9 @@ class Window(QMainWindow):
         self.actionSave.triggered.connect(self.saveMotor)
         self.actionOpen.triggered.connect(self.loadMotor)
         self.actionQuit.triggered.connect(self.exit)
+
+        #Edit menu
+        self.actionPreferences.triggered.connect(self.preferencesWindow.show)
 
         #Sim
         self.actionRunSimulation.triggered.connect(self.runSimulation)
@@ -171,7 +176,7 @@ class Window(QMainWindow):
 
         if simResult.getPortRatio() is not None:
             self.labelPortThroatRatio.setText(formatForDisplay(simResult.getPortRatio(), '', ''))
-            self.labelPeakMassFlux.setText(formatForDisplay(simResult.getPeakMassFlux(), 'km/(m^2*s)', 'lb/(in^2*s)'))
+            self.labelPeakMassFlux.setText(formatForDisplay(simResult.getPeakMassFlux(), 'kg/(m^2*s)', 'lb/(in^2*s)'))
 
         else:
             self.labelPortThroatRatio.setText('-')
