@@ -12,11 +12,11 @@ import matplotlib.pyplot as plt
 
 class grain(propertyCollection):
     def __init__(self):
+        geomName = None
         super().__init__()
         self.props['diameter'] = floatProperty('Diameter', 'm', 0, 1)
         self.props['length'] = floatProperty('Length', 'm', 0, 2)
         self.props['prop'] = propellantProperty('Propellant')
-        self.geomName = "None"
 
     def setProperties(self, props):
         for p in props.keys():
@@ -66,11 +66,11 @@ class grain(propertyCollection):
 
 
 class batesGrain(grain):
+    geomName = "BATES"
     def __init__(self):
         super().__init__()
         self.props['coreDiameter'] = floatProperty('Core Diameter', 'm', 0, 1)
         self.props['inhibitedEnds'] = intProperty('Inhibited ends', '', 0, 3)
-        self.geomName = "BATES"
 
     def getSurfaceAreaAtRegression(self, r):
         bLength = self.getRegressedLength(r)
@@ -138,9 +138,9 @@ class batesGrain(grain):
         return 'Length: ' + self.props['length'].dispFormat('in') + ', Core: ' + self.props['coreDiameter'].dispFormat('in')
 
 class endBurningGrain(grain):
+    geomName = 'End Burner'
     def __init__(self):
         super().__init__()
-        self.geomName = 'End Burner'
 
     def getSurfaceAreaAtRegression(self, r):
         diameter = self.props['diameter'].getValue()
@@ -160,4 +160,8 @@ class endBurningGrain(grain):
     def getEndPositions(self, r):
         return [0, self.props['length'].getValue() - r]
 
-grainTypes = {'BATES': batesGrain, 'End Burner': endBurningGrain}
+# Generate grain geometry name -> constructor lookup table
+grainTypes = {}
+grainClasses = [batesGrain, endBurningGrain]
+for grainType in grainClasses:
+    grainTypes[grainType.geomName] = grainType

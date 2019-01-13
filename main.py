@@ -203,14 +203,14 @@ class Window(QMainWindow):
         if path[-4:] != '.ric':
             path += '.ric'
         with open(path, 'w') as saveFile:
-            yaml.dump(self.motor, saveFile)
+            yaml.dump(self.motor.getDict(), saveFile)
 
     def loadMotor(self):
         # Check for unsaved changes
         path = QFileDialog.getOpenFileName(self, 'Load motor', '', 'Motor Files (*.ric)')[0]
         with open(path, 'r') as loadFile:
-            motor = yaml.load(loadFile)
-            self.motor = motor
+            motorData = yaml.load(loadFile)
+            self.motor.loadDict(motorData)
             self.setupMotorStats()
             self.graphWidget.resetPlot()
             self.updateGrainTable()
@@ -250,7 +250,7 @@ class Window(QMainWindow):
         self.motor.grains.append(bg)
         self.motor.grains.append(bg2)
 
-        self.motor.nozzle.setProperties({'throat': 0.015, 'exit': 0.03, 'efficiency':0.9})
+        self.motor.nozzle.setProperties({'throat': 0.015, 'exit': 0.03, 'efficiency': 0.9})
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

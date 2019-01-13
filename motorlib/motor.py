@@ -1,4 +1,5 @@
 from . import grain
+from . import grainTypes
 from . import nozzle
 from . import geometry
 from . import units
@@ -65,6 +66,19 @@ class motor():
         self.grains = []
         self.nozzle = nozzle.nozzle()
 
+    def getDict(self):
+        motorData = {}
+        motorData['nozzle'] = self.nozzle.getProperties()
+        motorData['grains'] = [{'type': grain.geomName, 'properties': grain.getProperties()} for grain in self.grains]
+        return motorData
+
+    def loadDict(self, dictionary):
+        self.nozzle.setProperties(dictionary['nozzle'])
+        self.grains = []
+        for entry in dictionary['grains']:
+            self.grains.append(grainTypes[entry['type']]())
+            self.grains[-1].setProperties(entry['properties'])
+
     def calcKN(self, r):
         surfArea = sum([gr.getSurfaceAreaAtRegression(reg) * int(gr.isWebLeft(reg)) for gr, reg in zip(self.grains, r)])
         nozz = self.nozzle.getThroatArea()
@@ -105,10 +119,7 @@ class motor():
 
         return self.nozzle.props['efficiency'].getValue()*t_a*p_c*sr + (p_e - p_a) * e_a
 
-    def runSimulation(self):
-        burnoutThres = 0.00001
-        ts = 0.01
-
+    def runSimulation(self, burnoutThres = 0.00001, ts = 0.01):
         perGrainReg = [0 for grain in self.grains]
 
         t = [0, ts]
@@ -150,6 +161,9 @@ class motor():
         k.append(0)
         p.append(0)
         f.append(0)
+
+        for g in mass:
+            g.append(0)
 
         for g in m_flow:
             g.append(0)
