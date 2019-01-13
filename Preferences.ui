@@ -32,11 +32,21 @@
       <attribute name="title">
        <string>General</string>
       </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="settingsEditor" name="settingsEditorGeneral" native="true"/>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tabUnits">
       <attribute name="title">
        <string>Units</string>
       </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="settingsEditor" name="settingsEditorUnits" native="true"/>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>
@@ -55,6 +65,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>settingsEditor</class>
+   <extends>QWidget</extends>
+   <header location="global">uilib</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -30,6 +30,19 @@ class floatProperty(property):
     def dispFormat(self, unit):
         return str(round(units.convert(self.value, self.unit, unit), 3)) + ' ' + unit
 
+class enumProperty(property):
+    def __init__(self, dispName, values):
+        super().__init__(dispName, '', object)
+        self.values = values
+        self.value = self.values[0]
+
+    def contains(self, value):
+        return value in self.values
+
+    def setValue(self, value):
+        if self.contains(value):
+            self.value = value
+
 class intProperty(property):
     def __init__(self, dispName, unit, minValue, maxValue):
         super().__init__(dispName, unit, int)
