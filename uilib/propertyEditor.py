@@ -4,27 +4,30 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from PyQt5.QtWidgets import QDoubleSpinBox, QSpinBox, QComboBox
 from PyQt5.QtCore import pyqtSignal
 
-# Todo: read this in from settings instead!
-defaultUnits = {'m': 'in', 's':'s', '':''}
-
 class propertyEditor(QWidget):
 
     valueChanged = pyqtSignal()
 
-    def __init__(self, parent, prop):
+    def __init__(self, parent, prop, preferences):
         super(propertyEditor, self).__init__(QWidget(parent))
+        self.preferences = preferences
         self.setLayout(QVBoxLayout())
         self.prop = prop
+
+        if self.preferences is not None:
+            self.dispUnit = self.preferences.getUnit(self.prop.unit)
+        else:
+            self.dispUnit = self.prop.unit
 
         if type(prop) is motorlib.propellantProperty:
             pass
 
         elif type(prop) is motorlib.floatProperty:
             self.editor = QDoubleSpinBox()
-            self.editor.setValue(motorlib.convert(self.prop.getValue(), prop.unit, defaultUnits[prop.unit]))
-            self.editor.setSuffix(' ' + defaultUnits[prop.unit])
-            convMin = motorlib.convert(self.prop.min, self.prop.unit, defaultUnits[self.prop.unit])
-            convMax = motorlib.convert(self.prop.max, self.prop.unit, defaultUnits[self.prop.unit])
+            self.editor.setValue(motorlib.convert(self.prop.getValue(), prop.unit, self.dispUnit))
+            self.editor.setSuffix(' ' + self.dispUnit)
+            convMin = motorlib.convert(self.prop.min, self.prop.unit, self.dispUnit)
+            convMax = motorlib.convert(self.prop.max, self.prop.unit, self.dispUnit)
             self.editor.setRange(convMin, convMax)
             self.editor.setDecimals(3)
             self.editor.setSingleStep(0.1)
@@ -50,7 +53,7 @@ class propertyEditor(QWidget):
             pass
 
         elif type(self.prop) is motorlib.floatProperty:
-            return motorlib.convert(self.editor.value(), defaultUnits[self.prop.unit], self.prop.unit)
+            return motorlib.convert(self.editor.value(), self.dispUnit, self.prop.unit)
 
         elif type(self.prop) is motorlib.intProperty:
             pass

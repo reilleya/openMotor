@@ -12,8 +12,9 @@ class nozzle(propertyCollection):
         self.props['exit'] = floatProperty('Exit Diameter', 'm', 0, 1)
         self.props['efficiency'] = floatProperty('Efficiency', '', 0, 2)
 
-    def getDetailsString(self):
-        return 'Throat: ' + self.props['throat'].dispFormat('in')
+    def getDetailsString(self, preferences):
+        lengthUnit = preferences.units.getProperty('m')
+        return 'Throat: ' + self.props['throat'].dispFormat(lengthUnit)
 
     def calcExpansion(self):
         return (self.props['exit'].getValue() / self.props['throat'].getValue()) ** 2

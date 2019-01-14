@@ -1,8 +1,10 @@
 unitLabels = {'m': 'Length', 'ns': 'Impulse', 'pa': 'Pressure', 'kg/(m^2*s)': 'Mass Flux'}
 
 unitTable = [
+('m', 'cm', 100),
+('m', 'mm', 1000),
 ('m', 'in', 39.37),
-('m', 'f', 3.28),
+('m', 'ft', 3.28),
 
 ('ns', 'lbfs', 0.2248),
 

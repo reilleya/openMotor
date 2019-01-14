@@ -31,6 +31,12 @@ class preferences():
         self.units.props['m'].setValue('in')
         self.units.props['pa'].setValue('psi')
 
+    def getUnit(self, fromUnit):
+        if fromUnit in self.units.props:
+            return self.units.getProperty(fromUnit)
+        else:
+            return fromUnit
+
 
 class PreferencesWindow(QWidget):
 
@@ -44,6 +50,7 @@ class PreferencesWindow(QWidget):
         self.buttonBox.rejected.connect(self.cancel)
 
     def load(self, pref):
+        self.settingsEditorGeneral.setPreferences(pref)
         self.settingsEditorGeneral.loadProperties(pref.general)
         self.settingsEditorUnits.loadProperties(pref.units)
 

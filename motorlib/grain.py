@@ -58,8 +58,8 @@ class grain(propertyCollection):
         endPos = self.getEndPositions(r)
         return endPos[1] - endPos[0]
 
-    def getDetailsString(self):
-        return 'Length: ' + self.props['length'].dispFormat('in')
+    def getDetailsString(self, preferences):
+        return 'Length: ' + self.props['length'].dispFormat(preferences.units.getProperty('m'))
 
     def getMassAtRegression(self, r):
         return self.getVolumeAtRegression(r) * self.props['prop'].getValue()['density']
@@ -134,8 +134,9 @@ class batesGrain(grain):
         bCoreDiameter = self.props['coreDiameter'].getValue() + (r * 2)
         return geometry.circleArea(bCoreDiameter)
 
-    def getDetailsString(self):
-        return 'Length: ' + self.props['length'].dispFormat('in') + ', Core: ' + self.props['coreDiameter'].dispFormat('in')
+    def getDetailsString(self, preferences):
+        lengthUnit = preferences.units.getProperty('m')
+        return 'Length: ' + self.props['length'].dispFormat(lengthUnit) + ', Core: ' + self.props['coreDiameter'].dispFormat(lengthUnit)
 
 class endBurningGrain(grain):
     geomName = 'End Burner'

@@ -7,9 +7,6 @@ import yaml
 import motorlib
 import uilib
 
-def formatForDisplay(quantity, inUnits, outUnits): # Move to somewhere else
-    return str(round(motorlib.convert(quantity, inUnits, outUnits), 3)) + ' ' + outUnits
-
 class Window(QMainWindow):
     def __init__(self):
         QWidget.__init__(self)
@@ -40,6 +37,7 @@ class Window(QMainWindow):
             label.setText("-")
 
     def setupMotorEditor(self):
+        self.motorEditor.setPreferences(self.preferences)
         self.pushButtonEditGrain.pressed.connect(self.editGrain)
         self.motorEditor.motorChanged.connect(self.updateGrainTable)
         self.motorEditor.closed.connect(self.checkGrainSelection) # Enables only buttons for actions possible given the selected grain
@@ -82,10 +80,10 @@ class Window(QMainWindow):
         self.tableWidgetGrainList.setRowCount(len(self.motor.grains) + 1)
         for gid, grain in enumerate(self.motor.grains):
             self.tableWidgetGrainList.setItem(gid, 0, QTableWidgetItem(grain.geomName))
-            self.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString()))
+            self.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString(self.preferences)))
 
         self.tableWidgetGrainList.setItem(len(self.motor.grains), 0, QTableWidgetItem('Nozzle'))
-        self.tableWidgetGrainList.setItem(len(self.motor.grains), 1, QTableWidgetItem(self.motor.nozzle.getDetailsString()))
+        self.tableWidgetGrainList.setItem(len(self.motor.grains), 1, QTableWidgetItem(self.motor.nozzle.getDetailsString(self.preferences)))
 
     def toggleGrainEditButtons(self, state, grainTable = True):
         if grainTable:
@@ -119,7 +117,6 @@ class Window(QMainWindow):
         else:
             self.toggleGrainEditButtons(False, False)
 
-
     def moveGrain(self, offset):
         ind = self.tableWidgetGrainList.selectionModel().selectedRows()
         if len(ind) > 0:
@@ -148,7 +145,6 @@ class Window(QMainWindow):
                 self.updateGrainTable()
                 self.checkGrainSelection()
 
-
     def addGrain(self):
         newGrain = motorlib.grainTypes[self.comboBoxGrainGeometry.currentText()]()
 
@@ -168,20 +164,24 @@ class Window(QMainWindow):
         self.checkGrainSelection()
         self.toggleGrainButtons(False)
 
+    def formatMotorStat(self, quantity, inUnit):
+        convUnit = self.preferences.getUnit(inUnit)
+        return str(round(motorlib.convert(quantity, inUnit, convUnit), 3)) + ' ' + convUnit
+
     def updateMotorStats(self, simResult):
         self.labelMotorDesignation.setText(simResult.getDesignation())
-        self.labelImpulse.setText(formatForDisplay(simResult.getImpulse(), 'ns', 'ns'))
-        self.labelDeliveredISP.setText(formatForDisplay(simResult.getISP(), 's', 's'))
-        self.labelBurnTime.setText(formatForDisplay(simResult.getBurnTime(), 's', 's'))
+        self.labelImpulse.setText(self.formatMotorStat(simResult.getImpulse(), 'ns'))
+        self.labelDeliveredISP.setText(self.formatMotorStat(simResult.getISP(), 's'))
+        self.labelBurnTime.setText(self.formatMotorStat(simResult.getBurnTime(), 's'))
 
-        self.labelAveragePressure.setText(formatForDisplay(simResult.getAveragePressure(), 'pa', 'psi'))
-        self.labelPeakPressure.setText(formatForDisplay(simResult.getMaxPressure(), 'pa', 'psi'))
-        self.labelInitialKN.setText(formatForDisplay(simResult.getInitialKN(), '', ''))
-        self.labelPeakKN.setText(formatForDisplay(simResult.getPeakKN(), '', ''))
+        self.labelAveragePressure.setText(self.formatMotorStat(simResult.getAveragePressure(), 'pa'))
+        self.labelPeakPressure.setText(self.formatMotorStat(simResult.getMaxPressure(), 'pa'))
+        self.labelInitialKN.setText(self.formatMotorStat(simResult.getInitialKN(), ''))
+        self.labelPeakKN.setText(self.formatMotorStat(simResult.getPeakKN(), ''))
 
         if simResult.getPortRatio() is not None:
-            self.labelPortThroatRatio.setText(formatForDisplay(simResult.getPortRatio(), '', ''))
-            self.labelPeakMassFlux.setText(formatForDisplay(simResult.getPeakMassFlux(), 'kg/(m^2*s)', 'lb/(in^2*s)'))
+            self.labelPortThroatRatio.setText(self.formatMotorStat(simResult.getPortRatio(), ''))
+            self.labelPeakMassFlux.setText(self.formatMotorStat(simResult.getPeakMassFlux(), 'kg/(m^2*s)'))
 
         else:
             self.labelPortThroatRatio.setText('-')
@@ -242,6 +242,8 @@ class Window(QMainWindow):
     def applyPreferences(self, prefDict):
         self.preferences.applyDict(prefDict)
         self.savePreferences()
+        self.updateGrainTable()
+        self.setupMotorStats()
 
     def showPreferences(self):
         self.preferencesWindow.load(self.preferences)

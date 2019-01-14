@@ -76,3 +76,6 @@ class propertyCollection():
         if props is None:
             props = self.props.keys()
         return {k:self.props[k].getValue() for k in props}
+
+    def getProperty(self, prop):
+        return self.props[prop].getValue()
