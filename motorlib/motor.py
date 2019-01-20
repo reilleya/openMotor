@@ -46,7 +46,7 @@ class simulationResult():
 
     def getDesignation(self):
         imp = self.getImpulse()
-        return chr(int(math.log(imp/2.5, 2)) + 66) + str(round(self.getAverageForce()))
+        return chr(int(math.log(imp/2.5, 2)) + 66) + str(int(self.getAverageForce()))
 
     def getPeakMassFlux(self):
         return max([max(mf) for mf in self.massFlux])

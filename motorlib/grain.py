@@ -36,7 +36,7 @@ class grain(propertyCollection):
     def getVolumeAtRegression(self, r):
         return None
 
-    def getWebLeft(self, r):
+    def getWebLeft(self, r): # Returns the shortest distance the grain has to regress to burn out
         return None
 
     def isWebLeft(self, r):
@@ -93,7 +93,9 @@ class batesGrain(grain):
         return grainVol - coreVol
 
     def getWebLeft(self, r):
-        return self.props['diameter'].getValue() - self.props['coreDiameter'].getValue() - (2 * r)
+        web = self.props['diameter'].getValue() - self.props['coreDiameter'].getValue() - (2 * r)
+        length = self.getRegressedLength(r)
+        return min(web, length)
 
     def getMassFlux(self, massIn, dt, r, dr, position):
         density = self.props['prop'].getValue()['density']
