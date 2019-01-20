@@ -1,5 +1,7 @@
 import motorlib
 
+import math
+
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from PyQt5.QtWidgets import QDoubleSpinBox, QSpinBox, QComboBox
 from PyQt5.QtCore import pyqtSignal
@@ -26,11 +28,14 @@ class propertyEditor(QWidget):
             self.editor = QDoubleSpinBox()
             self.editor.setValue(motorlib.convert(self.prop.getValue(), prop.unit, self.dispUnit))
             self.editor.setSuffix(' ' + self.dispUnit)
+
             convMin = motorlib.convert(self.prop.min, self.prop.unit, self.dispUnit)
             convMax = motorlib.convert(self.prop.max, self.prop.unit, self.dispUnit)
             self.editor.setRange(convMin, convMax)
-            self.editor.setDecimals(3)
-            self.editor.setSingleStep(0.1)
+
+            self.editor.setDecimals(6) # Large number of decimals for now while I pick a better method
+            self.editor.setSingleStep(10 ** (int(math.log(convMax, 10) - 4)))
+
             self.editor.valueChanged.connect(self.valueChanged.emit)
             self.layout().addWidget(self.editor)
 

@@ -24,7 +24,7 @@ class floatProperty(property):
         self.value = minValue
 
     def setValue(self, value):
-        if value > self.min and value < self.max:
+        if value >= self.min and value <= self.max:
             super().setValue(value)
 
     def dispFormat(self, unit):

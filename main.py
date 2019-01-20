@@ -191,7 +191,7 @@ class Window(QMainWindow):
 
     def runSimulation(self):
         self.setupMotorStats()
-        simResult = self.motor.runSimulation()
+        simResult = self.motor.runSimulation(self.preferences)
         self.graphWidget.showData(simResult)
 
         self.updateMotorStats(simResult)

@@ -10,6 +10,7 @@ class preferences():
         self.general = propertyCollection()
         self.general.props['burnoutThres'] = floatProperty('Burnout Threshold', 'm', 2.54e-5, 3.175e-3)
         self.general.props['timestep'] = floatProperty('Simulation Timestep', 's', 0.0001, 0.1)
+        self.general.props['ambPressure'] = floatProperty('Ambient Pressure', 'pa', 0.0001, 102000)
         self.units = propertyCollection()
         for unit in unitLabels:
             self.units.props[unit] = enumProperty(unitLabels[unit], getAllConversions(unit))
@@ -27,6 +28,7 @@ class preferences():
     def loadDefault(self):
         self.general.props['burnoutThres'].setValue(0.00001)
         self.general.props['timestep'].setValue(0.01)
+        self.general.props['ambPressure'].setValue(101325)
 
         self.units.props['m'].setValue('in')
         self.units.props['pa'].setValue('psi')
