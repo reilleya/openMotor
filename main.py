@@ -12,6 +12,8 @@ class Window(QMainWindow):
         QWidget.__init__(self)
         loadUi("MainWindow.ui", self)
 
+        self.editing = None
+
         self.preferences = uilib.preferences()
         self.preferences.loadDefault()
         self.loadPreferences()
@@ -40,7 +42,7 @@ class Window(QMainWindow):
     def setupMotorEditor(self):
         self.motorEditor.setPreferences(self.preferences)
         self.pushButtonEditGrain.pressed.connect(self.editGrain)
-        self.motorEditor.motorChanged.connect(self.updateGrainTable)
+        self.motorEditor.changeApplied.connect(self.applyChange)
         self.motorEditor.closed.connect(self.checkGrainSelection) # Enables only buttons for actions possible given the selected grain
 
     def setupGrainAddition(self):
@@ -81,6 +83,10 @@ class Window(QMainWindow):
         self.graphWidget.resetPlot()
         self.graphWidget.setPreferences(self.preferences)
 
+    def applyChange(self, propDict):
+        self.editing.setProperties(propDict)
+        self.updateGrainTable()
+
     def updateGrainTable(self):
         self.tableWidgetGrainList.setRowCount(len(self.motor.grains) + 1)
         for gid, grain in enumerate(self.motor.grains):
@@ -98,13 +104,11 @@ class Window(QMainWindow):
         self.pushButtonMoveGrainDown.setEnabled(state)
         self.pushButtonMoveGrainUp.setEnabled(state)
 
-
     def toggleGrainButtons(self, state):
         self.toggleGrainEditButtons(state)
         self.comboBoxPropellant.setEnabled(state)
         self.comboBoxGrainGeometry.setEnabled(state)
         self.pushButtonAddGrain.setEnabled(state)
-
 
     def checkGrainSelection(self):
         ind = self.tableWidgetGrainList.selectionModel().selectedRows()
@@ -137,8 +141,10 @@ class Window(QMainWindow):
             gid = ind[0].row()
             if gid < len(self.motor.grains):
                 self.motorEditor.loadGrain(self.motor.grains[gid])
+                self.editing = self.motor.grains[gid]
             else:
                 self.motorEditor.loadNozzle(self.motor.nozzle)
+                self.editing = self.motor.nozzle
             self.toggleGrainButtons(False)
 
     def deleteGrain(self):

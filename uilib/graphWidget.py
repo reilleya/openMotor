@@ -25,8 +25,6 @@ class graphWidget(FigureCanvas):
 
     def setLabels(self):
         self.plot.set_xlabel('Time (s)')
-        #self.plot.set_ylabel('')
-        #self.plot.set_title('Raw data')
     
     def showData(self, simResult):
         self.plot.clear()
