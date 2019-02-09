@@ -29,6 +29,7 @@ class Window(QMainWindow):
         self.setupGrainAddition()
         self.setupMenu()
         self.setupGrainTable()
+        self.setupGraph()
 
         self.show()
 
@@ -75,6 +76,10 @@ class Window(QMainWindow):
 
         self.tableWidgetGrainList.itemSelectionChanged.connect(self.checkGrainSelection)
         self.checkGrainSelection()
+
+    def setupGraph(self):
+        self.graphWidget.resetPlot()
+        self.graphWidget.setPreferences(self.preferences)
 
     def updateGrainTable(self):
         self.tableWidgetGrainList.setRowCount(len(self.motor.grains) + 1)
@@ -244,6 +249,7 @@ class Window(QMainWindow):
         self.savePreferences()
         self.updateGrainTable()
         self.setupMotorStats()
+        self.setupGraph()
 
     def showPreferences(self):
         self.preferencesWindow.load(self.preferences)
