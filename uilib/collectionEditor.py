@@ -10,7 +10,7 @@ class collectionEditor(QWidget):
     changeApplied = pyqtSignal(dict)
     closed = pyqtSignal()
 
-    def __init__(self, parent, spacer, buttons):
+    def __init__(self, parent, buttons):
         super(collectionEditor, self).__init__(QWidget(parent))
 
         self.preferences = None
@@ -23,9 +23,9 @@ class collectionEditor(QWidget):
         self.stats = QVBoxLayout()
         self.layout().addLayout(self.stats)
 
-        if spacer:
-            self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-            self.layout().addItem(self.verticalSpacer)
+
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.layout().addItem(self.verticalSpacer)
         
         self.buttons = buttons
         if self.buttons:

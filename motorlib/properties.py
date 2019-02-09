@@ -54,15 +54,9 @@ class intProperty(property):
         if value >= self.min and value <= self.max:
             super().setValue(value)
 
-class propellantProperty(property):
+class stringProperty(property):
     def __init__(self, dispName):
-        super().__init__(dispName, '', dict)
-        #self.proplist = proplist
-        self.value = {'name': None, 'density': None, 'a': None, 'n': None, 'k': None, 't': None, 'm':None}
-
-    def setValue(self, value):
-        #TODO: check for proper properties
-        self.value = value
+        super().__init__(dispName, '', str)
 
 class propertyCollection():
     def __init__(self):

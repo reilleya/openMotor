@@ -8,7 +8,7 @@ from PyQt5.QtCore import pyqtSignal
 
 class motorEditor(collectionEditor):
     def __init__(self, parent):
-        super().__init__(parent, False, True)
+        super().__init__(parent, True)
 
         self.expRatioLabel = QLabel("Expansion ratio: -")
         self.expRatioLabel.hide()

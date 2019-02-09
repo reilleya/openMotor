@@ -21,10 +21,7 @@ class propertyEditor(QWidget):
         else:
             self.dispUnit = self.prop.unit
 
-        if type(prop) is motorlib.propellantProperty:
-            pass
-
-        elif type(prop) is motorlib.floatProperty:
+        if type(prop) is motorlib.floatProperty:
             self.editor = QDoubleSpinBox()
             self.editor.setValue(motorlib.convert(self.prop.getValue(), prop.unit, self.dispUnit))
             self.editor.setSuffix(' ' + self.dispUnit)
@@ -54,10 +51,7 @@ class propertyEditor(QWidget):
 
 
     def getValue(self):
-        if type(self.prop) is motorlib.propellantProperty:
-            pass
-
-        elif type(self.prop) is motorlib.floatProperty:
+        if type(self.prop) is motorlib.floatProperty:
             return motorlib.convert(self.editor.value(), self.dispUnit, self.prop.unit)
 
         elif type(self.prop) is motorlib.intProperty:

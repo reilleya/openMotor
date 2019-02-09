@@ -2,30 +2,12 @@ from . import geometry
 from . import units
 from .properties import *
 
-import matplotlib
-matplotlib.use('Qt4Agg')
-
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-
-import matplotlib.pyplot as plt
-
 class grain(propertyCollection):
     def __init__(self):
         geomName = None
         super().__init__()
         self.props['diameter'] = floatProperty('Diameter', 'm', 0, 1)
         self.props['length'] = floatProperty('Length', 'm', 0, 2)
-        self.props['prop'] = propellantProperty('Propellant')
-
-    def setProperties(self, props):
-        for p in props.keys():
-            self.props[p].setValue(props[p])
-
-    def getProperties(self, props = None):
-        if props is None:
-            props = self.props.keys()
-        return {k:self.props[k].getValue() for k in props}
 
     def getVolumeSlice(self, r, dR):
         return self.getVolumeAtRegression(r) - self.getVolumeAtRegression(r + dR)
@@ -42,11 +24,11 @@ class grain(propertyCollection):
     def isWebLeft(self, r):
         return self.getWebLeft(0) < 10000 * self.getWebLeft(r) # Todo: make configurable
 
-    def getMassFlux(self, massIn, dt, r, dr, position):
+    def getMassFlux(self, massIn, dt, r, dr, position, density):
         return None
 
-    def getPeakMassFlux(self, massIn, dt, r, dr):
-        return self.getMassFlux(massIn, dt, r, dr, self.getEndPositions(r)[1]) # Assumes that peak mass flux for each grain is at the port of the grain
+    def getPeakMassFlux(self, massIn, dt, r, dr, density):
+        return self.getMassFlux(massIn, dt, r, dr, self.getEndPositions(r)[1], density) # Assumes that peak mass flux for each grain is at the port of the grain
 
     def getEndPositions(self, r): # Returns the positions of the grain ends relative to the original (unburned) grain top
         return None
@@ -60,9 +42,6 @@ class grain(propertyCollection):
 
     def getDetailsString(self, preferences):
         return 'Length: ' + self.props['length'].dispFormat(preferences.units.getProperty('m'))
-
-    def getMassAtRegression(self, r):
-        return self.getVolumeAtRegression(r) * self.props['prop'].getValue()['density']
 
 
 class batesGrain(grain):
@@ -97,8 +76,7 @@ class batesGrain(grain):
         length = self.getRegressedLength(r)
         return min(web, length)
 
-    def getMassFlux(self, massIn, dt, r, dr, position):
-        density = self.props['prop'].getValue()['density']
+    def getMassFlux(self, massIn, dt, r, dr, position, density):
         diameter = self.props['diameter'].getValue()
         bCoreDiameter = self.props['coreDiameter'].getValue() + (r * 2)
         bLength = self.getRegressedLength(r)

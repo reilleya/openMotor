@@ -264,35 +264,22 @@ class Window(QMainWindow):
     def loadDefaultMotor(self):
         self.motor = motorlib.motor()
         bg = motorlib.batesGrain()
-        bg.setProperties({'diameter':0.083058, 
-                  'length':0.1397, 
-                  'coreDiameter':0.03175, 
-                  'inhibitedEnds':0,
-                  'prop':{
-                    'name': 'Cherry Limeade',
-                    'density': 1690, 
-                    'a': 3.517054143255937e-05, 
-                    'n': 0.3273, 
-                    't': 2800, 
-                    'm': 23.67, 
-                    'k': 1.21}})
+        bg.setProperties({'diameter': 0.083058, 
+                  'length': 0.1397, 
+                  'coreDiameter': 0.03175, 
+                  'inhibitedEnds': 0
+                  })
         bg2 = motorlib.batesGrain()
-        bg2.setProperties({'diameter':0.083058, 
-                  'length':0.1397, 
-                  'coreDiameter':0.03175, 
-                  'inhibitedEnds':0,
-                  'prop':{
-                    'name': 'Cherry Limeade',
-                    'density': 1690, 
-                    'a': 3.517054143255937e-05, 
-                    'n': 0.3273, 
-                    't': 2800, 
-                    'm': 23.67, 
-                    'k': 1.21}})
+        bg2.setProperties({'diameter': 0.083058, 
+                  'length': 0.1397, 
+                  'coreDiameter': 0.03175, 
+                  'inhibitedEnds': 0
+                  })
         self.motor.grains.append(bg)
         self.motor.grains.append(bg2)
 
-        self.motor.nozzle.setProperties({'throat': 0.015, 'exit': 0.03, 'efficiency': 0.9})
+        self.motor.nozzle.setProperties({'throat': 0.014, 'exit': 0.03, 'efficiency': 0.9})
+        self.motor.propellant.setProperties({'name': 'Cherry Limeade', 'density': 1690, 'a': 3.517054143255937e-05, 'n': 0.3273, 't': 2800, 'm': 23.67, 'k': 1.21})
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

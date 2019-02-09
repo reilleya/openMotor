@@ -1,6 +1,7 @@
 from . import grain
 from . import grainTypes
 from . import nozzle
+from . import propellant
 from . import geometry
 from . import units
 
@@ -64,16 +65,19 @@ class simulationResult():
 class motor():
     def __init__(self):
         self.grains = []
+        self.propellant = propellant()
         self.nozzle = nozzle.nozzle()
 
     def getDict(self):
         motorData = {}
         motorData['nozzle'] = self.nozzle.getProperties()
+        motorData['propellant'] = self.propellant.getProperties()
         motorData['grains'] = [{'type': grain.geomName, 'properties': grain.getProperties()} for grain in self.grains]
         return motorData
 
     def loadDict(self, dictionary):
         self.nozzle.setProperties(dictionary['nozzle'])
+        self.propellant.setProperties(dictionary['propellant'])
         self.grains = []
         for entry in dictionary['grains']:
             self.grains.append(grainTypes[entry['type']]())
@@ -85,21 +89,19 @@ class motor():
         return surfArea / nozz
 
     def calcIdealPressure(self, r):
-        # Only considers prop from the first grain currently
-        k = self.grains[0].props['prop'].getValue()['k']
-        t = self.grains[0].props['prop'].getValue()['t']
-        m = self.grains[0].props['prop'].getValue()['m']
-        p = self.grains[0].props['prop'].getValue()['density']
-        a = self.grains[0].props['prop'].getValue()['a']
-        n = self.grains[0].props['prop'].getValue()['n']
+        k = self.propellant.getProperty('k')
+        t = self.propellant.getProperty('t')
+        m = self.propellant.getProperty('m')
+        p = self.propellant.getProperty('density')
+        a = self.propellant.getProperty('a')
+        n = self.propellant.getProperty('n')
         num = self.calcKN(r) * p * a
         exponent = 1/(1 - n)
         denom = ((k/((8314/m)*t))*((2/(k+1))**((k+1)/(k-1))))**0.5
         return (num/denom) ** exponent
 
     def calcForce(self, r, ambientPressure = 101325):
-        # Only considers prop from the first grain currently
-        k = self.grains[0].props['prop'].getValue()['k']
+        k = self.propellant.getProperty('k')
         t_a = self.nozzle.getThroatArea()
         e_a = self.nozzle.getExitArea()
 
@@ -136,7 +138,7 @@ class motor():
         k = [0, self.calcKN(perGrainReg)]
         p = [0, self.calcIdealPressure(perGrainReg)]
         f = [0, self.calcForce(perGrainReg, ambientPressure)]
-        mass = [[grain.getMassAtRegression(0), grain.getMassAtRegression(0)] for grain in self.grains]
+        mass = [[grain.getVolumeAtRegression(0) * self.propellant.getProperty('density'), grain.getVolumeAtRegression(0) * self.propellant.getProperty('density')] for grain in self.grains]
         m_flow = [[0, 0] for grain in self.grains]
         m_flux = [[0, 0] for grain in self.grains]
 
@@ -145,14 +147,14 @@ class motor():
             mf = 0
             for gid, grain in enumerate(self.grains):
                 if grain.getWebLeft(perGrainReg[gid]) > burnoutThres:
-                    reg = ts * grain.props['prop'].getValue()['a'] * (p[-1]**grain.props['prop'].getValue()['n'])
+                    reg = ts * self.propellant.getProperty('a') * (p[-1]**self.propellant.getProperty('n'))
                     
-                    m_flux[gid].append(grain.getPeakMassFlux(mf, ts, perGrainReg[gid], reg))
+                    m_flux[gid].append(grain.getPeakMassFlux(mf, ts, perGrainReg[gid], reg, self.propellant.getProperty('density')))
                     
-                    mf += (grain.props['prop'].getValue()['density'] * grain.getVolumeSlice(perGrainReg[gid], reg) / ts)
+                    mf += (self.propellant.getProperty('density') * grain.getVolumeSlice(perGrainReg[gid], reg) / ts)
                     m_flow[gid].append(mf)
 
-                    mass[gid].append(grain.getMassAtRegression(perGrainReg[gid]))
+                    mass[gid].append(grain.getVolumeAtRegression(perGrainReg[gid]) * self.propellant.getProperty('density'))
                     
                     perGrainReg[gid] += reg
 
