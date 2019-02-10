@@ -2,7 +2,7 @@ import yaml
 
 from PyQt5.QtWidgets import QDialog
 from PyQt5.uic import loadUi
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal
 
 from motorlib import propertyCollection, floatProperty, enumProperty
 from motorlib import unitLabels, getAllConversions
@@ -10,12 +10,17 @@ from motorlib import propellant
 
 from . import collectionEditor
 
-class propellantManager():
+class propellantManager(QObject):
+
+    updated = pyqtSignal()
+
     def __init__(self):
+        super().__init__()
         self.propellants = []
         self.loadPropellants()
 
         self.propMenu = propellantMenu(self)
+        self.propMenu.closed.connect(self.updated.emit)
 
     def loadDefaults(self):
         cl = propellant()
@@ -47,12 +52,17 @@ class propellantManager():
     def getNames(self):
         return [prop.getProperty('name') for prop in self.propellants]
 
+    def getPropellantByName(self, name):
+        return self.propellants[self.getNames().index(name)]
+
     def showMenu(self):
+        self.propMenu.setupPropList()
         self.propMenu.show()
 
 class propellantMenu(QDialog):
 
     propellantEdited = pyqtSignal(dict)
+    closed = pyqtSignal()
 
     def __init__(self, manager):
         QDialog.__init__(self)
@@ -131,6 +141,10 @@ class propellantMenu(QDialog):
         self.pushButtonNewPropellant.setEnabled(not editing)
         self.pushButtonEdit.setEnabled(not editing)
         self.pushButtonDelete.setEnabled(not editing)
+
+    def close(self):
+        super().close()
+        self.closed.emit()
 
 class propellantEditor(collectionEditor):
     def __init__(self, parent):

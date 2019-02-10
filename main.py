@@ -21,6 +21,7 @@ class Window(QMainWindow):
         self.preferencesWindow.preferencesApplied.connect(self.applyPreferences)
 
         self.propManager = uilib.propellantManager()
+        self.propManager.updated.connect(self.propListChanged)
 
         self.motorStatLabels = [self.labelMotorDesignation, self.labelImpulse, self.labelDeliveredISP, self.labelBurnTime,
                                 self.labelAveragePressure, self.labelPeakPressure, self.labelInitialKN, self.labelPeakKN,
@@ -68,6 +69,15 @@ class Window(QMainWindow):
 
     def setupPropSelector(self):
         self.pushButtonPropEditor.pressed.connect(self.propManager.showMenu)
+        self.populatePropSelector()
+        self.comboBoxPropellant.currentIndexChanged.connect(self.propChooserChanged)
+
+    def disablePropSelector(self):
+        self.pushButtonPropEditor.pressed.disconnect()
+        self.comboBoxPropellant.currentIndexChanged.disconnect()
+
+    def populatePropSelector(self):
+        self.comboBoxPropellant.clear()
         self.comboBoxPropellant.addItems(self.propManager.getNames())
 
     def setupGrainTable(self):
@@ -93,6 +103,19 @@ class Window(QMainWindow):
     def applyChange(self, propDict):
         self.editing.setProperties(propDict)
         self.updateGrainTable()
+
+    def propListChanged(self):
+        self.resetOutput()
+        self.disablePropSelector()
+        if self.motor.propellant.getProperty("name") not in self.propManager.getNames():
+            print("Motor's propellant must have been deleted, readding")
+            self.propManager.propellants.append(self.motor.propellant)
+        self.populatePropSelector()
+        self.setupPropSelector()
+        self.comboBoxPropellant.setCurrentText(self.motor.propellant.getProperty("name"))
+
+    def propChooserChanged(self):
+        self.motor.propellant = self.propManager.propellants[self.comboBoxPropellant.currentIndex()]
 
     def updateGrainTable(self):
         self.tableWidgetGrainList.setRowCount(len(self.motor.grains) + 1)
@@ -214,12 +237,15 @@ class Window(QMainWindow):
 
         self.updateMotorStats(simResult)
 
-    def newMotor(self):
-        #Check for unsaved changes
-        self.loadDefaultMotor()
+    def resetOutput(self):
         self.setupMotorStats()
         self.graphWidget.resetPlot()
         self.updateGrainTable()
+
+    def newMotor(self):
+        #Check for unsaved changes
+        self.loadDefaultMotor()
+        self.resetOutput()
 
     def saveMotor(self):
         path = QFileDialog.getSaveFileName(self, 'Save motor', '', 'Motor Files (*.ric)')[0]
@@ -232,11 +258,22 @@ class Window(QMainWindow):
         # Check for unsaved changes
         path = QFileDialog.getOpenFileName(self, 'Load motor', '', 'Motor Files (*.ric)')[0]
         with open(path, 'r') as loadFile:
+            self.disablePropSelector()
             motorData = yaml.load(loadFile)
             self.motor.loadDict(motorData)
-            self.setupMotorStats()
-            self.graphWidget.resetPlot()
-            self.updateGrainTable()
+            self.resetOutput()
+
+            if self.motor.propellant.getProperty('name') not in self.propManager.getNames():
+                print("Propellant not in library, adding")
+                self.propManager.propellants.append(self.motor.propellant)
+                self.propManager.savePropellants()
+            else:
+                if self.motor.propellant.getProperties() != self.propManager.getPropellantByName(self.motor.propellant.getProperty('name')).getProperties():
+                    print("Loaded propellant name matches existing propellant, but properties differ. Using propellant from library.")
+                    self.motor.propellant = self.propManager.getPropellantByName(self.motor.propellant.getProperty('name'))
+
+            self.setupPropSelector()
+            self.comboBoxPropellant.setCurrentText(self.motor.propellant.getProperty("name"))
 
     def exit(self):
         # Check for unsaved changes
