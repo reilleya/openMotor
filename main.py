@@ -20,6 +20,8 @@ class Window(QMainWindow):
         self.preferencesWindow = uilib.PreferencesWindow()
         self.preferencesWindow.preferencesApplied.connect(self.applyPreferences)
 
+        self.propManager = uilib.propellantManager()
+
         self.motorStatLabels = [self.labelMotorDesignation, self.labelImpulse, self.labelDeliveredISP, self.labelBurnTime,
                                 self.labelAveragePressure, self.labelPeakPressure, self.labelInitialKN, self.labelPeakKN,
                                 self.labelPortThroatRatio, self.labelCoreLD, self.labelPeakMassFlux]
@@ -30,6 +32,7 @@ class Window(QMainWindow):
         self.setupMotorEditor()
         self.setupGrainAddition()
         self.setupMenu()
+        self.setupPropSelector()
         self.setupGrainTable()
         self.setupGraph()
 
@@ -47,7 +50,6 @@ class Window(QMainWindow):
 
     def setupGrainAddition(self):
         self.comboBoxGrainGeometry.addItems(motorlib.grainTypes.keys())
-        self.comboBoxPropellant.addItems(['Cherry Limeade'])
         self.pushButtonAddGrain.pressed.connect(self.addGrain)
 
     def setupMenu(self):
@@ -59,9 +61,14 @@ class Window(QMainWindow):
 
         #Edit menu
         self.actionPreferences.triggered.connect(self.showPreferences)
+        self.actionPropellantEditor.triggered.connect(self.propManager.showMenu)
 
         #Sim
         self.actionRunSimulation.triggered.connect(self.runSimulation)
+
+    def setupPropSelector(self):
+        self.pushButtonPropEditor.pressed.connect(self.propManager.showMenu)
+        self.comboBoxPropellant.addItems(self.propManager.getNames())
 
     def setupGrainTable(self):
         self.tableWidgetGrainList.clearContents()
@@ -279,7 +286,7 @@ class Window(QMainWindow):
         self.motor.grains.append(bg2)
 
         self.motor.nozzle.setProperties({'throat': 0.014, 'exit': 0.03, 'efficiency': 0.9})
-        self.motor.propellant.setProperties({'name': 'Cherry Limeade', 'density': 1690, 'a': 3.517054143255937e-05, 'n': 0.3273, 't': 2800, 'm': 23.67, 'k': 1.21})
+        self.motor.propellant.setProperties({'name': 'Cherry Limeade', 'density': 1680, 'a': 3.517054143255937e-05, 'n': 0.3273, 't': 2800, 'm': 23.67, 'k': 1.21})
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

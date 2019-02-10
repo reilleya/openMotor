@@ -58,14 +58,46 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBoxPropellant">
-        <property name="maximumSize">
-         <size>
-          <width>200</width>
-          <height>16777215</height>
-         </size>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <property name="topMargin">
+         <number>0</number>
         </property>
-       </widget>
+        <item>
+         <widget class="QComboBox" name="comboBoxPropellant">
+          <property name="maximumSize">
+           <size>
+            <width>200</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonPropEditor">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>120</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Propellant Editor</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QTableWidget" name="tableWidgetGrainList">
@@ -457,6 +489,7 @@
      <string>Edit</string>
     </property>
     <addaction name="actionPreferences"/>
+    <addaction name="actionPropellantEditor"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -561,6 +594,11 @@
   <action name="actionExpansionRatio">
    <property name="text">
     <string>Expansion Ratio</string>
+   </property>
+  </action>
+  <action name="actionPropellantEditor">
+   <property name="text">
+    <string>Propellant Editor</string>
    </property>
   </action>
  </widget>

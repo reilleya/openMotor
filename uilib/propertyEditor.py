@@ -2,7 +2,7 @@ import motorlib
 
 import math
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit
 from PyQt5.QtWidgets import QDoubleSpinBox, QSpinBox, QComboBox
 from PyQt5.QtCore import pyqtSignal
 
@@ -23,7 +23,7 @@ class propertyEditor(QWidget):
 
         if type(prop) is motorlib.floatProperty:
             self.editor = QDoubleSpinBox()
-            self.editor.setValue(motorlib.convert(self.prop.getValue(), prop.unit, self.dispUnit))
+
             self.editor.setSuffix(' ' + self.dispUnit)
 
             convMin = motorlib.convert(self.prop.min, self.prop.unit, self.dispUnit)
@@ -33,11 +33,17 @@ class propertyEditor(QWidget):
             self.editor.setDecimals(6) # Large number of decimals for now while I pick a better method
             self.editor.setSingleStep(10 ** (int(math.log(convMax, 10) - 4)))
 
+            self.editor.setValue(motorlib.convert(self.prop.getValue(), prop.unit, self.dispUnit))
             self.editor.valueChanged.connect(self.valueChanged.emit)
             self.layout().addWidget(self.editor)
 
         elif type(prop) is motorlib.intProperty:
             self.editor = QSpinBox()
+            self.layout().addWidget(self.editor)
+
+        elif type(prop) is motorlib.stringProperty:
+            self.editor = QLineEdit()
+            self.editor.setText(self.prop.getValue())
             self.layout().addWidget(self.editor)
 
         elif type(prop) is motorlib.enumProperty:
@@ -49,13 +55,15 @@ class propertyEditor(QWidget):
 
             self.layout().addWidget(self.editor)
 
-
     def getValue(self):
         if type(self.prop) is motorlib.floatProperty:
             return motorlib.convert(self.editor.value(), self.dispUnit, self.prop.unit)
 
         elif type(self.prop) is motorlib.intProperty:
             pass
+
+        elif type(self.prop) is motorlib.stringProperty:
+            return self.editor.text()
 
         elif type(self.prop) is motorlib.enumProperty:
             return self.editor.currentText()

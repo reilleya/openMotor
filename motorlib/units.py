@@ -1,4 +1,4 @@
-unitLabels = {'m': 'Length', 'n': 'Force', 'ns': 'Impulse', 'pa': 'Pressure', 'kg/(m^2*s)': 'Mass Flux'}
+unitLabels = {'m': 'Length', 'n': 'Force', 'ns': 'Impulse', 'pa': 'Pressure', 'kg': 'Mass', 'kg/m^3': 'Density', 'kg/(m^2*s)': 'Mass Flux'}
 
 unitTable = [
 ('m', 'cm', 100),
