@@ -24,10 +24,10 @@ class propellantManager(QObject):
 
     def loadDefaults(self):
         cl = propellant()
-        cl.setProperties({'name': 'Cherry Limeade', 'density': 1680, 'a': 3.517054143255937e-05, 'n': 0.3273, 't': 2800, 'm': 23.67, 'k': 1.21})
+        cl.setProperties({'name': 'Cherry Limeade', 'density': 1680, 'a': 3.517054143255937e-05, 'n': 0.3273, 't': 3500, 'm': 23.67, 'k': 1.21})
         self.propellants.append(cl)
         ow = propellant()
-        ow.setProperties({'name': 'Ocean Water', 'density': 1650, 'a': 1.467e-05, 'n': 0.382, 't': 2800, 'm': 23.67, 'k': 1.25})
+        ow.setProperties({'name': 'Ocean Water', 'density': 1650, 'a': 1.467e-05, 'n': 0.382, 't': 3500, 'm': 23.67, 'k': 1.25})
         self.propellants.append(ow)
 
     def loadPropellants(self):
@@ -58,6 +58,9 @@ class propellantManager(QObject):
     def showMenu(self):
         self.propMenu.setupPropList()
         self.propMenu.show()
+
+    def setPreferences(self, pref):
+        self.propMenu.propEditor.setPreferences(pref)
 
 class propellantMenu(QDialog):
 
@@ -141,9 +144,12 @@ class propellantMenu(QDialog):
         self.pushButtonNewPropellant.setEnabled(not editing)
         self.pushButtonEdit.setEnabled(not editing)
         self.pushButtonDelete.setEnabled(not editing)
+        self.buttonBox.setEnabled(not editing)
 
     def close(self):
         super().close()
+        self.toggleButtons(False)
+        self.propEditor.cleanup()
         self.closed.emit()
 
 class propellantEditor(collectionEditor):

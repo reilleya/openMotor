@@ -22,6 +22,7 @@ class Window(QMainWindow):
 
         self.propManager = uilib.propellantManager()
         self.propManager.updated.connect(self.propListChanged)
+        self.propManager.setPreferences(self.preferences)
 
         self.motorStatLabels = [self.labelMotorDesignation, self.labelImpulse, self.labelDeliveredISP, self.labelBurnTime,
                                 self.labelAveragePressure, self.labelPeakPressure, self.labelInitialKN, self.labelPeakKN,
@@ -291,6 +292,7 @@ class Window(QMainWindow):
         self.updateGrainTable()
         self.setupMotorStats()
         self.setupGraph()
+        self.propManager.setPreferences(self.preferences)
 
     def showPreferences(self):
         self.preferencesWindow.load(self.preferences)
@@ -314,7 +316,7 @@ class Window(QMainWindow):
         self.motor.grains.append(bg2)
 
         self.motor.nozzle.setProperties({'throat': 0.014, 'exit': 0.03, 'efficiency': 0.9})
-        self.motor.propellant.setProperties({'name': 'Cherry Limeade', 'density': 1680, 'a': 3.517054143255937e-05, 'n': 0.3273, 't': 2800, 'm': 23.67, 'k': 1.21})
+        self.motor.propellant.setProperties({'name': 'Cherry Limeade', 'density': 1680, 'a': 3.517054143255937e-05, 'n': 0.3273, 't': 3500, 'm': 23.67, 'k': 1.21})
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
