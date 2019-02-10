@@ -135,7 +135,7 @@ class endBurningGrain(grain):
     def getWebLeft(self, r):
         return self.getRegressedLength(r)
 
-    def getMassFlux(self, massIn, dt, r, dr, position):
+    def getMassFlux(self, massIn, dt, r, dr, position, density):
         return 0 # Should return a simulation error if massIn != 0 
         
     def getEndPositions(self, r):

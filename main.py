@@ -188,20 +188,11 @@ class Window(QMainWindow):
 
     def addGrain(self):
         newGrain = motorlib.grainTypes[self.comboBoxGrainGeometry.currentText()]()
-
-        newGrain.setProperties({'prop':{ # Todo: should retrieve from propProvider
-                    'name': 'Cherry Limeade',
-                    'density': 1690, 
-                    'a': 3.517054143255937e-05, 
-                    'n': 0.3273, 
-                    't': 2800, 
-                    'm': 23.67, 
-                    'k': 1.21}})
-
         self.motor.grains.append(newGrain)
         self.updateGrainTable()
         self.tableWidgetGrainList.selectRow(len(self.motor.grains) - 1)
         self.motorEditor.loadGrain(self.motor.grains[-1])
+        self.editing = newGrain
         self.checkGrainSelection()
         self.toggleGrainButtons(False)
 
