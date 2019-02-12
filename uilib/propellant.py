@@ -1,11 +1,11 @@
 import yaml
 
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QLabel
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from motorlib import propertyCollection, floatProperty, enumProperty
-from motorlib import unitLabels, getAllConversions
+from motorlib import unitLabels, getAllConversions, convert
 from motorlib import propellant
 
 from . import collectionEditor
@@ -155,3 +155,32 @@ class propellantMenu(QDialog):
 class propellantEditor(collectionEditor):
     def __init__(self, parent):
         super().__init__(parent, True)
+
+        self.labelCStar = QLabel("Characteristic Velocity: -")
+        self.labelCStar.hide()
+        self.stats.addWidget(self.labelCStar)
+
+    def update(self):
+        k = self.propertyEditors['k'].getValue()
+        t = self.propertyEditors['t'].getValue()
+        m = self.propertyEditors['m'].getValue()
+        r = 8314 
+        num = (k * r/m * t)**0.5
+        denom = k * ((2/(k+1))**((k+1)/(k-1)))**0.5
+        charVel = num / denom
+
+        if self.preferences is not None:
+            dispUnit = self.preferences.getUnit('m/s')
+        else:
+            dispUnit = 'm/s'
+
+        self.labelCStar.setText('Characteristic Velocity: ' + str(int(convert(charVel, 'm/s', dispUnit))) + ' ' + dispUnit)
+
+    def loadProperties(self, collection):
+        super().loadProperties(collection)
+        self.labelCStar.show()
+
+    def cleanup(self):
+        self.labelCStar.hide()
+
+        super().cleanup()
