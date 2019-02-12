@@ -28,6 +28,10 @@
   <property name="windowTitle">
    <string>Propellant Editor</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>oMIconCycles.png</normaloff>oMIconCycles.png</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">

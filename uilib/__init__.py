@@ -5,3 +5,5 @@ from .motorEditor import *
 from .preferences import *
 from .settingsEditor import *
 from .propellant import *
+from .defaults import *
+from .fileManager import *

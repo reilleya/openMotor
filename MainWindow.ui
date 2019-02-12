@@ -25,6 +25,10 @@
   <property name="windowTitle">
    <string>openMotor</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>oMIconCycles.png</normaloff>oMIconCycles.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <property name="minimumSize">
     <size>
@@ -454,7 +458,7 @@
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>21</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -473,6 +477,7 @@
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
+    <addaction name="actionSaveAs"/>
     <addaction name="menuExport"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -488,8 +493,11 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionPreferences"/>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
     <addaction name="actionPropellantEditor"/>
+    <addaction name="actionPreferences"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -499,10 +507,24 @@
    </widget>
    <widget class="QMenu" name="menuOptimize">
     <property name="title">
-     <string>Optimize</string>
+     <string>Tools</string>
     </property>
-    <addaction name="actionSetKN"/>
-    <addaction name="actionExpansionRatio"/>
+    <widget class="QMenu" name="menuSet">
+     <property name="title">
+      <string>Set</string>
+     </property>
+     <addaction name="actionMotor_Diameter"/>
+     <addaction name="actionInitial_KN"/>
+     <addaction name="actionMax_KN"/>
+    </widget>
+    <widget class="QMenu" name="menuOptimize_2">
+     <property name="title">
+      <string>Optimize</string>
+     </property>
+     <addaction name="actionExpansion_Ratio"/>
+    </widget>
+    <addaction name="menuSet"/>
+    <addaction name="menuOptimize_2"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -599,6 +621,50 @@
   <action name="actionPropellantEditor">
    <property name="text">
     <string>Propellant Editor</string>
+   </property>
+  </action>
+  <action name="actionMotor_Diameter">
+   <property name="text">
+    <string>Motor Diameter</string>
+   </property>
+  </action>
+  <action name="actionInitial_KN">
+   <property name="text">
+    <string>Initial KN</string>
+   </property>
+  </action>
+  <action name="actionMax_KN">
+   <property name="text">
+    <string>Max KN</string>
+   </property>
+  </action>
+  <action name="actionExpansion_Ratio">
+   <property name="text">
+    <string>Expansion Ratio</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
+   </property>
+  </action>
+  <action name="actionSaveAs">
+   <property name="text">
+    <string>Save As</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
  </widget>

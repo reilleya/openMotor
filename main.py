@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QFileDialog, QTableWidgetItem, QHeaderView
+from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QTableWidgetItem, QHeaderView
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.uic import loadUi
 import sys
@@ -11,8 +11,6 @@ class Window(QMainWindow):
     def __init__(self):
         QWidget.__init__(self)
         loadUi("MainWindow.ui", self)
-
-        self.editing = None
 
         self.preferences = uilib.preferences()
         self.preferences.loadDefault()
@@ -28,7 +26,9 @@ class Window(QMainWindow):
                                 self.labelAveragePressure, self.labelPeakPressure, self.labelInitialKN, self.labelPeakKN,
                                 self.labelPortThroatRatio, self.labelCoreLD, self.labelPeakMassFlux]
 
-        self.loadDefaultMotor()
+        self.fileManager = uilib.fileManager()
+        self.fileManager.newFile()
+        self.fileManager.fileNameChanged.connect(self.updateWindowTitle)
 
         self.setupMotorStats()
         self.setupMotorEditor()
@@ -39,6 +39,13 @@ class Window(QMainWindow):
         self.setupGraph()
 
         self.show()
+
+    def updateWindowTitle(self, name, saved):
+        unsavedStr = '*' if not saved else ''
+        if name is not None:
+            self.setWindowTitle('openMotor - ' + name + unsavedStr)
+        else:
+            self.setWindowTitle('openMotor - ' + unsavedStr)
 
     def setupMotorStats(self):
         for label in self.motorStatLabels:
@@ -57,11 +64,14 @@ class Window(QMainWindow):
     def setupMenu(self):
         #File menu
         self.actionNew.triggered.connect(self.newMotor)
-        self.actionSave.triggered.connect(self.saveMotor)
+        self.actionSave.triggered.connect(self.fileManager.save)
+        self.actionSaveAs.triggered.connect(self.fileManager.saveAs)
         self.actionOpen.triggered.connect(self.loadMotor)
-        self.actionQuit.triggered.connect(self.exit)
+        self.actionQuit.triggered.connect(self.closeEvent)
 
         #Edit menu
+        self.actionUndo.triggered.connect(self.undo)
+        self.actionRedo.triggered.connect(self.redo)
         self.actionPreferences.triggered.connect(self.showPreferences)
         self.actionPropellantEditor.triggered.connect(self.propManager.showMenu)
 
@@ -102,30 +112,42 @@ class Window(QMainWindow):
         self.graphWidget.setPreferences(self.preferences)
 
     def applyChange(self, propDict):
-        self.editing.setProperties(propDict)
+        ind = self.tableWidgetGrainList.selectionModel().selectedRows()
+        cm = self.fileManager.getCurrentMotor()
+        if len(ind) > 0:
+            gid = ind[0].row()
+            if gid < len(cm.grains):
+                cm.grains[gid].setProperties(propDict)
+            else:
+                cm.nozzle.setProperties(propDict)
+        self.fileManager.addNewMotorHistory(cm)
         self.updateGrainTable()
 
     def propListChanged(self):
         self.resetOutput()
         self.disablePropSelector()
-        if self.motor.propellant.getProperty("name") not in self.propManager.getNames():
+        cm = self.fileManager.getCurrentMotor()
+        if cm.propellant.getProperty("name") not in self.propManager.getNames():
             print("Motor's propellant must have been deleted, readding")
-            self.propManager.propellants.append(self.motor.propellant)
+            self.propManager.propellants.append(cm.propellant)
         self.populatePropSelector()
         self.setupPropSelector()
-        self.comboBoxPropellant.setCurrentText(self.motor.propellant.getProperty("name"))
+        self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
 
     def propChooserChanged(self):
-        self.motor.propellant = self.propManager.propellants[self.comboBoxPropellant.currentIndex()]
+        cm = self.fileManager.getCurrentMotor()
+        cm.propellant = self.propManager.propellants[self.comboBoxPropellant.currentIndex()]
+        self.fileManager.addNewMotorHistory(cm)
 
     def updateGrainTable(self):
-        self.tableWidgetGrainList.setRowCount(len(self.motor.grains) + 1)
-        for gid, grain in enumerate(self.motor.grains):
+        cm = self.fileManager.getCurrentMotor()
+        self.tableWidgetGrainList.setRowCount(len(cm.grains) + 1)
+        for gid, grain in enumerate(cm.grains):
             self.tableWidgetGrainList.setItem(gid, 0, QTableWidgetItem(grain.geomName))
             self.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString(self.preferences)))
 
-        self.tableWidgetGrainList.setItem(len(self.motor.grains), 0, QTableWidgetItem('Nozzle'))
-        self.tableWidgetGrainList.setItem(len(self.motor.grains), 1, QTableWidgetItem(self.motor.nozzle.getDetailsString(self.preferences)))
+        self.tableWidgetGrainList.setItem(len(cm.grains), 0, QTableWidgetItem('Nozzle'))
+        self.tableWidgetGrainList.setItem(len(cm.grains), 1, QTableWidgetItem(cm.nozzle.getDetailsString(self.preferences)))
 
     def toggleGrainEditButtons(self, state, grainTable = True):
         if grainTable:
@@ -143,14 +165,15 @@ class Window(QMainWindow):
 
     def checkGrainSelection(self):
         ind = self.tableWidgetGrainList.selectionModel().selectedRows()
+        cm = self.fileManager.getCurrentMotor()
         if len(ind) > 0:
             gid = ind[0].row()
             self.toggleGrainButtons(True)
             if gid == 0: # Top grain selected
                 self.pushButtonMoveGrainUp.setEnabled(False)
-            if gid == len(self.motor.grains) - 1: # Bottom grain selected
+            if gid == len(cm.grains) - 1: # Bottom grain selected
                 self.pushButtonMoveGrainDown.setEnabled(False)
-            elif gid == len(self.motor.grains):
+            elif gid == len(cm.grains):
                 self.pushButtonMoveGrainUp.setEnabled(False)
                 self.pushButtonMoveGrainDown.setEnabled(False)
                 self.pushButtonDeleteGrain.setEnabled(False) 
@@ -158,42 +181,46 @@ class Window(QMainWindow):
             self.toggleGrainEditButtons(False, False)
 
     def moveGrain(self, offset):
+        cm = self.fileManager.getCurrentMotor()
         ind = self.tableWidgetGrainList.selectionModel().selectedRows()
         if len(ind) > 0:
             gid = ind[0].row()
-            if gid < len(self.motor.grains) and gid + offset < len(self.motor.grains) and gid + offset >= 0:
-                self.motor.grains[gid + offset], self.motor.grains[gid] = self.motor.grains[gid], self.motor.grains[gid + offset]
+            if gid < len(cm.grains) and gid + offset < len(cm.grains) and gid + offset >= 0:
+                cm.grains[gid + offset], cm.grains[gid] = cm.grains[gid], cm.grains[gid + offset]
                 self.tableWidgetGrainList.selectRow(gid + offset)
+                self.fileManager.addNewMotorHistory(cm)
                 self.updateGrainTable()
 
     def editGrain(self):
         ind = self.tableWidgetGrainList.selectionModel().selectedRows()
+        cm = self.fileManager.getCurrentMotor()
         if len(ind) > 0:
             gid = ind[0].row()
-            if gid < len(self.motor.grains):
-                self.motorEditor.loadGrain(self.motor.grains[gid])
-                self.editing = self.motor.grains[gid]
+            if gid < len(cm.grains):
+                self.motorEditor.loadGrain(cm.grains[gid])
             else:
-                self.motorEditor.loadNozzle(self.motor.nozzle)
-                self.editing = self.motor.nozzle
+                self.motorEditor.loadNozzle(cm.nozzle)
             self.toggleGrainButtons(False)
 
     def deleteGrain(self):
         ind = self.tableWidgetGrainList.selectionModel().selectedRows()
+        cm = self.fileManager.getCurrentMotor()
         if len(ind) > 0:
             gid = ind[0].row()
-            if gid < len(self.motor.grains):
-                del self.motor.grains[gid]
+            if gid < len(cm.grains):
+                del cm.grains[gid]
+                self.fileManager.addNewMotorHistory(cm)
                 self.updateGrainTable()
                 self.checkGrainSelection()
 
     def addGrain(self):
+        cm = self.fileManager.getCurrentMotor()
         newGrain = motorlib.grainTypes[self.comboBoxGrainGeometry.currentText()]()
-        self.motor.grains.append(newGrain)
+        cm.grains.append(newGrain)
+        self.fileManager.addNewMotorHistory(cm)
         self.updateGrainTable()
-        self.tableWidgetGrainList.selectRow(len(self.motor.grains) - 1)
-        self.motorEditor.loadGrain(self.motor.grains[-1])
-        self.editing = newGrain
+        self.tableWidgetGrainList.selectRow(len(cm.grains) - 1)
+        self.motorEditor.loadGrain(cm.grains[-1])
         self.checkGrainSelection()
         self.toggleGrainButtons(False)
 
@@ -224,7 +251,8 @@ class Window(QMainWindow):
 
     def runSimulation(self):
         self.setupMotorStats()
-        simResult = self.motor.runSimulation(self.preferences)
+        cm = self.fileManager.getCurrentMotor()
+        simResult = cm.runSimulation(self.preferences)
         self.graphWidget.showData(simResult)
 
         self.updateMotorStats(simResult)
@@ -234,42 +262,52 @@ class Window(QMainWindow):
         self.graphWidget.resetPlot()
         self.updateGrainTable()
 
+    def undo(self):
+        self.fileManager.undo()
+        self.updateGrainTable()
+        self.checkGrainSelection()
+        cm = self.fileManager.getCurrentMotor()
+        self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
+
+    def redo(self):
+        self.fileManager.redo()
+        self.updateGrainTable()
+        self.checkGrainSelection()
+        cm = self.fileManager.getCurrentMotor()
+        self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
+
     def newMotor(self):
         #Check for unsaved changes
-        self.loadDefaultMotor()
+        self.fileManager.newFile()
         self.resetOutput()
 
-    def saveMotor(self):
-        path = QFileDialog.getSaveFileName(self, 'Save motor', '', 'Motor Files (*.ric)')[0]
-        if path[-4:] != '.ric':
-            path += '.ric'
-        with open(path, 'w') as saveFile:
-            yaml.dump(self.motor.getDict(), saveFile)
-
     def loadMotor(self):
-        # Check for unsaved changes
-        path = QFileDialog.getOpenFileName(self, 'Load motor', '', 'Motor Files (*.ric)')[0]
-        with open(path, 'r') as loadFile:
-            self.disablePropSelector()
-            motorData = yaml.load(loadFile)
-            self.motor.loadDict(motorData)
-            self.resetOutput()
+        self.disablePropSelector()
+        self.fileManager.load()
+        self.resetOutput()
+        self.updateGrainTable()
 
-            if self.motor.propellant.getProperty('name') not in self.propManager.getNames():
-                print("Propellant not in library, adding")
-                self.propManager.propellants.append(self.motor.propellant)
-                self.propManager.savePropellants()
-            else:
-                if self.motor.propellant.getProperties() != self.propManager.getPropellantByName(self.motor.propellant.getProperty('name')).getProperties():
-                    print("Loaded propellant name matches existing propellant, but properties differ. Using propellant from library.")
-                    self.motor.propellant = self.propManager.getPropellantByName(self.motor.propellant.getProperty('name'))
+        cm = self.fileManager.getCurrentMotor()
+        if cm.propellant.getProperty('name') not in self.propManager.getNames():
+            print("Propellant not in library, adding")
+            self.propManager.propellants.append(cm.propellant)
+            self.propManager.savePropellants()
+        else:
+            if cm.propellant.getProperties() != self.propManager.getPropellantByName(cm.propellant.getProperty('name')).getProperties():
+                print("Loaded propellant name matches existing propellant, but properties differ. Using propellant from library.")
+                cm.propellant = self.propManager.getPropellantByName(cm.propellant.getProperty('name'))
+                self.fileManager.addNewMotorHistory(cm)
 
-            self.setupPropSelector()
-            self.comboBoxPropellant.setCurrentText(self.motor.propellant.getProperty("name"))
+        self.setupPropSelector()
+        self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
 
-    def exit(self):
-        # Check for unsaved changes
-        sys.exit()
+    def closeEvent(self, event = None):
+        if self.fileManager.unsavedCheck():
+            sys.exit()
+        else:
+            if event is not None:
+                if type(event) is not bool:
+                    event.ignore()
 
     def loadPreferences(self):
         try:
@@ -297,26 +335,6 @@ class Window(QMainWindow):
     def showPreferences(self):
         self.preferencesWindow.load(self.preferences)
         self.preferencesWindow.show()
-
-    def loadDefaultMotor(self):
-        self.motor = motorlib.motor()
-        bg = motorlib.batesGrain()
-        bg.setProperties({'diameter': 0.083058, 
-                  'length': 0.1397, 
-                  'coreDiameter': 0.03175, 
-                  'inhibitedEnds': 0
-                  })
-        bg2 = motorlib.batesGrain()
-        bg2.setProperties({'diameter': 0.083058, 
-                  'length': 0.1397, 
-                  'coreDiameter': 0.03175, 
-                  'inhibitedEnds': 0
-                  })
-        self.motor.grains.append(bg)
-        self.motor.grains.append(bg2)
-
-        self.motor.nozzle.setProperties({'throat': 0.014, 'exit': 0.03, 'efficiency': 0.9})
-        self.motor.propellant.setProperties({'name': 'Cherry Limeade', 'density': 1680, 'a': 3.517054143255937e-05, 'n': 0.3273, 't': 3500, 'm': 23.67, 'k': 1.21})
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

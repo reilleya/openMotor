@@ -11,15 +11,8 @@ class TestMotorMethods(unittest.TestCase):
         bg.setProperties({'diameter':0.083058, 
                   'length':0.1397, 
                   'coreDiameter':0.05, 
-                  'inhibitedEnds':0,
-                  'prop':{
-                    'name': 'KNSU',
-                    'density': 1890, 
-                    'a': 0.000101, 
-                    'n': 0.319, 
-                    't': 1720, 
-                    'm': 41.98, 
-                    'k': 1.133}})
+                  'inhibitedEnds':0
+                  })
 
         tm.grains.append(bg)
         tm.nozzle.setProperties({'throat': 0.01428})
@@ -36,19 +29,20 @@ class TestMotorMethods(unittest.TestCase):
         bg.setProperties({'diameter':0.083058, 
                   'length':0.1397, 
                   'coreDiameter':0.05, 
-                  'inhibitedEnds':0,
-                  'prop':{
+                  'inhibitedEnds':0
+                  })
+
+        tm.grains.append(bg)
+
+        tm.nozzle.setProperties({'throat': 0.01428})
+        tm.propellant.setProperties({
                     'name': 'KNSU',
                     'density': 1890, 
                     'a': 0.000101, 
                     'n': 0.319, 
                     't': 1720, 
                     'm': 41.98, 
-                    'k': 1.133}})
-
-        tm.grains.append(bg)
-
-        tm.nozzle.setProperties({'throat': 0.01428})
+                    'k': 1.133})
         self.assertAlmostEqual(tm.calcIdealPressure([0]), 4050030, 0)
 
 
