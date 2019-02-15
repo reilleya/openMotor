@@ -10,7 +10,7 @@ import uilib
 class Window(QMainWindow):
     def __init__(self):
         QWidget.__init__(self)
-        loadUi("MainWindow.ui", self)
+        loadUi("resources/MainWindow.ui", self)
 
         self.preferences = uilib.preferences()
         self.preferences.loadDefault()
@@ -277,7 +277,6 @@ class Window(QMainWindow):
         self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
 
     def newMotor(self):
-        #Check for unsaved changes
         self.fileManager.newFile()
         self.resetOutput()
 

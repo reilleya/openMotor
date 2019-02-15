@@ -47,7 +47,7 @@ class PreferencesWindow(QWidget):
     def __init__(self):
         QWidget.__init__(self)
 
-        loadUi("Preferences.ui", self)
+        loadUi("resources/Preferences.ui", self)
         self.buttonBox.accepted.connect(self.apply)
         self.buttonBox.rejected.connect(self.cancel)
 

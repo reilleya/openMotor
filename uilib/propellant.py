@@ -69,7 +69,7 @@ class propellantMenu(QDialog):
 
     def __init__(self, manager):
         QDialog.__init__(self)
-        loadUi("PropMenu.ui", self)
+        loadUi("resources/PropMenu.ui", self)
 
         self.manager = manager
 
