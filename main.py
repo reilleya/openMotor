@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QTableWidgetItem, QHeaderView
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, pyqtSignal
 from PyQt5.uic import loadUi
 import sys
 import yaml
@@ -8,6 +8,9 @@ import motorlib
 import uilib
 
 class Window(QMainWindow):
+
+    newSimulationResult = pyqtSignal(object)
+
     def __init__(self):
         QWidget.__init__(self)
         loadUi("resources/MainWindow.ui", self)
@@ -29,6 +32,13 @@ class Window(QMainWindow):
         self.fileManager = uilib.fileManager()
         self.fileManager.newFile()
         self.fileManager.fileNameChanged.connect(self.updateWindowTitle)
+
+        self.engExporter = uilib.engExportMenu()
+        self.engExporter.setPreferences(self.preferences)
+        self.newSimulationResult.connect(self.engExporter.acceptSimResult)
+
+        self.newSimulationResult.connect(self.updateMotorStats)
+        self.newSimulationResult.connect(self.graphWidget.showData)
 
         self.setupMotorStats()
         self.setupMotorEditor()
@@ -67,6 +77,7 @@ class Window(QMainWindow):
         self.actionSave.triggered.connect(self.fileManager.save)
         self.actionSaveAs.triggered.connect(self.fileManager.saveAs)
         self.actionOpen.triggered.connect(self.loadMotor)
+        self.actionENGFile.triggered.connect(self.engExporter.open)
         self.actionQuit.triggered.connect(self.closeEvent)
 
         #Edit menu
@@ -253,9 +264,7 @@ class Window(QMainWindow):
         self.setupMotorStats()
         cm = self.fileManager.getCurrentMotor()
         simResult = cm.runSimulation(self.preferences)
-        self.graphWidget.showData(simResult)
-
-        self.updateMotorStats(simResult)
+        self.newSimulationResult.emit(simResult)
 
     def resetOutput(self):
         self.setupMotorStats()
@@ -330,6 +339,7 @@ class Window(QMainWindow):
         self.setupMotorStats()
         self.setupGraph()
         self.propManager.setPreferences(self.preferences)
+        self.engExporter.setPreferences(self.preferences)
 
     def showPreferences(self):
         self.preferencesWindow.load(self.preferences)
