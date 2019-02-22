@@ -11,7 +11,7 @@ class TestMotorMethods(unittest.TestCase):
         bg.setProperties({'diameter':0.083058, 
                   'length':0.1397, 
                   'coreDiameter':0.05, 
-                  'inhibitedEnds':0
+                  'inhibitedEnds':'Neither'
                   })
 
         tm.grains.append(bg)
@@ -29,7 +29,7 @@ class TestMotorMethods(unittest.TestCase):
         bg.setProperties({'diameter':0.083058, 
                   'length':0.1397, 
                   'coreDiameter':0.05, 
-                  'inhibitedEnds':0
+                  'inhibitedEnds':'Neither'
                   })
 
         tm.grains.append(bg)

@@ -21,8 +21,8 @@ class grain(propertyCollection):
     def getWebLeft(self, r): # Returns the shortest distance the grain has to regress to burn out
         return None
 
-    def isWebLeft(self, r):
-        return self.getWebLeft(0) < 10000 * self.getWebLeft(r) # Todo: make configurable
+    def isWebLeft(self, r, burnoutThres = 0.00001):
+        return self.getWebLeft(r) > burnoutThres
 
     def getMassFlux(self, massIn, dt, r, dr, position, density):
         return None
@@ -49,7 +49,7 @@ class batesGrain(grain):
     def __init__(self):
         super().__init__()
         self.props['coreDiameter'] = floatProperty('Core Diameter', 'm', 0, 1)
-        self.props['inhibitedEnds'] = intProperty('Inhibited ends', '', 0, 3)
+        self.props['inhibitedEnds'] = enumProperty('Inhibited ends', ['Neither', 'Top', 'Bottom', 'Both'])
 
     def getSurfaceAreaAtRegression(self, r):
         bLength = self.getRegressedLength(r)
@@ -57,9 +57,15 @@ class batesGrain(grain):
         diameter = self.props['diameter'].getValue()
 
         faceArea = geometry.circleArea(diameter) - geometry.circleArea(bCoreDiameter)
+        exposedFaces = 2
+        if self.props['inhibitedEnds'].getValue() == 'Top' or self.props['inhibitedEnds'].getValue() == 'Bottom':
+            exposedFaces = 1
+        if self.props['inhibitedEnds'].getValue() == 'Both':
+            exposedFaces = 0
+
         tubeArea = geometry.tubeArea(bCoreDiameter, bLength)
 
-        return tubeArea + (2 * faceArea)
+        return tubeArea + (exposedFaces * faceArea)
 
     def getVolumeAtRegression(self, r):
         bLength = self.getRegressedLength(r)
@@ -86,7 +92,7 @@ class batesGrain(grain):
             return massIn / geometry.circleArea(diameter)
         elif position <= endPos[1]: # If a position in the grain is queried, the mass flow is the input mass, from the top face, and from the tube up to the point. The diameter is the core.
             
-            if self.props['inhibitedEnds'].getValue() == 1: # Top inhibited
+            if self.props['inhibitedEnds'].getValue() == 'Top': # Top inhibited
                 top = 0
                 countedCoreLength = position
             else:
@@ -101,13 +107,13 @@ class batesGrain(grain):
 
     def getEndPositions(self, r):
         # Until there is some kind of enum prop, inhibited faces are handled like this:
-        if self.props['inhibitedEnds'].getValue() == 0: # Neither
+        if self.props['inhibitedEnds'].getValue() == 'Neither': # Neither
             return [r, self.props['length'].getValue() - r]
-        elif self.props['inhibitedEnds'].getValue() == 1: # Top
+        elif self.props['inhibitedEnds'].getValue() == 'Top': # Top
             return [0, self.props['length'].getValue() - r]
-        elif self.props['inhibitedEnds'].getValue() == 2: # Bottom
+        elif self.props['inhibitedEnds'].getValue() == 'Bottom': # Bottom
             return [r, self.props['length'].getValue()]
-        elif self.props['inhibitedEnds'].getValue() == 3:
+        elif self.props['inhibitedEnds'].getValue() == 'Both':
             return [0, self.props['length'].getValue()]
 
     def getPortArea(self, r):
