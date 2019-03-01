@@ -3,8 +3,8 @@ from . import units
 from .properties import *
 
 class grain(propertyCollection):
+    geomName = None
     def __init__(self):
-        geomName = None
         super().__init__()
         self.props['diameter'] = floatProperty('Diameter', 'm', 0, 1)
         self.props['length'] = floatProperty('Length', 'm', 0, 2)
@@ -146,9 +146,3 @@ class endBurningGrain(grain):
         
     def getEndPositions(self, r):
         return [0, self.props['length'].getValue() - r]
-
-# Generate grain geometry name -> constructor lookup table
-grainTypes = {}
-grainClasses = [batesGrain, endBurningGrain]
-for grainType in grainClasses:
-    grainTypes[grainType.geomName] = grainType

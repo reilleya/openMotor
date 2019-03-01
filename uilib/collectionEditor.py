@@ -15,8 +15,11 @@ class collectionEditor(QWidget):
 
         self.preferences = None
 
+
         self.propertyEditors = {}
         self.setLayout(QVBoxLayout())
+        self.layout().setSpacing(0) # Todo: reduce it further somehow
+
         self.form = QFormLayout()
         self.layout().addLayout(self.form)
 

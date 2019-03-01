@@ -10,10 +10,10 @@ X, Y = np.meshgrid(np.linspace(-1,1,1001), np.linspace(-1,1,1001))
 phi = np.ones_like(X)
 
 # Bates
-"""
+
 r = 0.39
 phi[X**2 + Y**2 < r**2] = 0
-"""
+
 
 # Moon burner
 """
@@ -22,6 +22,22 @@ r = 0.28
 phi[(X-offset)**2 + Y**2 < r**2] = 0
 """
 
+# Star grain
+"""
+w = 0.2
+l = 0.5
+n = 24
+r = 0.025
+
+for i in range(0, n):
+    th = 2*np.pi/n * i
+    a = np.cos(th)
+    b = np.sin(th)
+
+    vect = abs(a*X + b*Y) < w/2 * (1 - (((X**2 + Y**2) ** 0.5) / l))
+    near = b*X - a*Y > -0.025
+    phi[np.logical_and(vect, near)] = 0
+"""
 
 # X core
 """
@@ -65,23 +81,27 @@ for i in range(0, n):
 """
 
 # Face
-
+"""
 phi[(2*X-0.65)**2 + (Y+0.35)**2 < 0.05] = 0
 phi[(2*X+0.65)**2 + (Y+0.35)**2 < 0.05] = 0
 phi[(X/2.5)**2 + (2*Y-0.7)**2 < 0.07] = 0
 phi[(X/2.5)**2 + (2*Y-0.5)**2 < 0.07] = 1
-
+"""
 
 # Setup grain boundry (casting tube)
 mask = X**2 + Y**2 > 1
 
 phi  = np.ma.MaskedArray(phi, mask)
 t    = skfmm.distance(phi, dx=1e-3)
-#plt.imshow(phi)
+print(np.amax(t))
 plt.contour(X, Y, phi, [0], linewidths=(2), colors='black')
 plt.contour(X, Y, phi.mask, [0], linewidths=(2), colors='red')
 plt.contourf(X, Y, t, 20)
 plt.show()
+
+plt.imshow(t, interpolation='nearest', cmap=plt.cm.gray)
+plt.show()
+f
 
 def length(contour):
     offset = np.roll(contour.T, 1, axis = 1)
@@ -93,17 +113,17 @@ def clean(contour, m = 498):
     l = np.linalg.norm(contour - offset, axis = 1)
     return contour[l < m]
 
+step = 500
+
+ncontours = int((np.amax(t) * step) + 5)
+valid = np.logical_not(mask)
 p = [0]
 a = [np.count_nonzero(t == 0)]
-
 fig, ax = plt.subplots()
-
-valid = np.logical_not(mask)
-
-for i in range(0, 300, 1):
-    contours = measure.find_contours(t, i/500, fully_connected='high')
+for i in range(0, ncontours, 1):
+    contours = measure.find_contours(t, i/step, fully_connected='high')
     p.append(0)
-    a.append(np.count_nonzero(np.logical_and(t <= (i/500), valid)))
+    a.append(np.count_nonzero(np.logical_and(t <= (i/step), valid)))
     for n, contour in enumerate(contours):
         contour = clean(contour)
         p[-1] += length(contour)
@@ -114,6 +134,4 @@ plt.show()
 plt.plot(p)
 plt.show()
 plt.plot(a)
-plt.show()
-plt.imshow(t)
 plt.show()

@@ -6,6 +6,7 @@ from . import geometry
 from . import units
 
 import math
+import numpy as np
 
 class simulationResult():
     def __init__(self, nozzle, grains, time, kn, pressure, force, mass, massFlow, massFlux):
@@ -119,7 +120,11 @@ class motor():
 
         sr = (t1 * t2 * t3) ** 0.5
 
-        return self.nozzle.props['efficiency'].getValue()*t_a*p_c*sr + (p_e - p_a) * e_a
+        f = self.nozzle.props['efficiency'].getValue()*t_a*p_c*sr + (p_e - p_a) * e_a
+        if np.isnan(f):
+            f = 0
+
+        return f
 
     def runSimulation(self, preferences = None):
         if preferences is not None:
@@ -144,6 +149,9 @@ class motor():
 
         while any([g.getWebLeft(r) > burnoutThres for g,r in zip(self.grains, perGrainReg)]):
             # Calculate regression
+            #print(perGrainReg)
+            #print([g.getWebLeft(r) for g,r in zip(self.grains, perGrainReg)])
+            #print('\n')
             mf = 0
             for gid, grain in enumerate(self.grains):
                 if grain.getWebLeft(perGrainReg[gid]) > burnoutThres:
@@ -182,5 +190,7 @@ class motor():
 
         for g in m_flux:
             g.append(0)
+
+        print(f)
 
         return simulationResult(self.nozzle, self.grains, t, k, p, f, mass, m_flow, m_flux)

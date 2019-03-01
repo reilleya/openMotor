@@ -60,7 +60,7 @@ class propertyEditor(QWidget):
             return motorlib.convert(self.editor.value(), self.dispUnit, self.prop.unit)
 
         elif type(self.prop) is motorlib.intProperty:
-            pass
+            return motorlib.convert(self.editor.value(), self.dispUnit, self.prop.unit)
 
         elif type(self.prop) is motorlib.stringProperty:
             return self.editor.text()
