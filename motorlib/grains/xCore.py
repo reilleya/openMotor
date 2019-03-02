@@ -19,4 +19,4 @@ class xCore(perforatedGrain):
 
     def getDetailsString(self, preferences):
         lengthUnit = preferences.units.getProperty('m')
-        return 'Slot width: ' + self.props['slotWidth'].dispFormat(lengthUnit) + ', Slot length: ' + self.props['slotLength'].dispFormat(lengthUnit)
+        return 'Length: ' + self.props['length'].dispFormat(lengthUnit) + ', Slots: ' + self.props['slotWidth'].dispFormat(lengthUnit) + ' by ' + self.props['slotLength'].dispFormat(lengthUnit)

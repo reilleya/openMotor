@@ -19,4 +19,4 @@ class moonBurner(perforatedGrain):
 
     def getDetailsString(self, preferences):
         lengthUnit = preferences.units.getProperty('m')
-        return 'Core: ' + self.props['coreDiameter'].dispFormat(lengthUnit) + ', Offset: ' + self.props['coreOffset'].dispFormat(lengthUnit)
+        return 'Length: ' + self.props['length'].dispFormat(lengthUnit) + ', Core: ' + self.props['coreDiameter'].dispFormat(lengthUnit)

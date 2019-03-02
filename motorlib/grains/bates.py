@@ -49,7 +49,6 @@ class batesGrain(grain):
         if position < endPos[0]: # If a position above the top face is queried, the mass flow is just the input mass and the diameter is the casting tube
             return massIn / geometry.circleArea(diameter)
         elif position <= endPos[1]: # If a position in the grain is queried, the mass flow is the input mass, from the top face, and from the tube up to the point. The diameter is the core.
-            
             if self.props['inhibitedEnds'].getValue() == 'Top': # Top inhibited
                 top = 0
                 countedCoreLength = position

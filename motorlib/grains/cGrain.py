@@ -18,4 +18,4 @@ class cGrain(perforatedGrain):
 
     def getDetailsString(self, preferences):
         lengthUnit = preferences.units.getProperty('m')
-        return 'Slot width: ' + self.props['slotWidth'].dispFormat(lengthUnit) + ', Slot offset: ' + self.props['slotOffset'].dispFormat(lengthUnit)
+        return 'Length: ' + self.props['length'].dispFormat(lengthUnit)

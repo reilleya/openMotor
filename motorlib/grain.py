@@ -66,9 +66,9 @@ class perforatedGrain(grain):
         self.props['inhibitedEnds'] = enumProperty('Inhibited ends', ['Neither', 'Top', 'Bottom', 'Both'])
 
         self.mapDim = 1001
-        self.X, self.Y = np.meshgrid(np.linspace(-1, 1, self.mapDim), np.linspace(-1, 1, self.mapDim))
-        self.mask = self.X**2 + self.Y**2 > 1
-        self.coreMap = np.ones_like(self.X)
+        self.X, self.Y = None, None
+        self.mask = None
+        self.coreMap = None
         self.regressionMap = None
         self.wallWeb = 0 # Max distance from the core to the wall
 
@@ -101,10 +101,16 @@ class perforatedGrain(grain):
     def mapToArea(self, value): # Used to convert sq pixels to sqm
         return (self.props['diameter'].getValue() ** 2) * (value / (self.mapDim ** 2))
 
+    def initGeometry(self):
+        self.X, self.Y = np.meshgrid(np.linspace(-1, 1, self.mapDim), np.linspace(-1, 1, self.mapDim))
+        self.mask = self.X**2 + self.Y**2 > 1
+        self.coreMap = np.ones_like(self.X)
+
     def generateCoreMap(self):
         pass
 
     def generateRegressionMap(self):
+        self.initGeometry()
         self.generateCoreMap()
         masked = np.ma.MaskedArray(self.coreMap, self.mask)
         #plt.imshow(masked)

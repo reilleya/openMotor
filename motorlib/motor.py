@@ -154,9 +154,6 @@ class motor():
 
         while any([g.getWebLeft(r) > burnoutThres for g,r in zip(self.grains, perGrainReg)]):
             # Calculate regression
-            #print(perGrainReg)
-            #print([g.getWebLeft(r) for g,r in zip(self.grains, perGrainReg)])
-            #print('\n')
             mf = 0
             for gid, grain in enumerate(self.grains):
                 if grain.getWebLeft(perGrainReg[gid]) > burnoutThres:
@@ -166,7 +163,7 @@ class motor():
                     
                     mass[gid].append(grain.getVolumeAtRegression(perGrainReg[gid]) * self.propellant.getProperty('density'))
 
-                    mf += (mass[gid][-1] - mass[gid][-2]) / ts
+                    mf += (mass[gid][-2] - mass[gid][-1]) / ts
                     m_flow[gid].append(mf)
                     
                     perGrainReg[gid] += reg

@@ -27,4 +27,4 @@ class starGrain(perforatedGrain):
 
     def getDetailsString(self, preferences):
         lengthUnit = preferences.units.getProperty('m')
-        return 'Points: ' + str(self.props['numPoints'].getValue())+ ', Length: ' + self.props['pointLength'].dispFormat(lengthUnit)
+        return 'Length: ' + self.props['length'].dispFormat(lengthUnit) + ', Points: ' + str(self.props['numPoints'].getValue())
