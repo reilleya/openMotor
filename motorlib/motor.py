@@ -89,25 +89,30 @@ class motor():
         nozz = self.nozzle.getThroatArea()
         return surfArea / nozz
 
-    def calcIdealPressure(self, r, burnoutThres = 0.00001):
+    def calcIdealPressure(self, r, kn = None, burnoutThres = 0.00001):
         k = self.propellant.getProperty('k')
         t = self.propellant.getProperty('t')
         m = self.propellant.getProperty('m')
         p = self.propellant.getProperty('density')
         a = self.propellant.getProperty('a')
         n = self.propellant.getProperty('n')
-        num = self.calcKN(r, burnoutThres) * p * a
+        if kn is None:
+            kn = self.calcKN(r, burnoutThres)
+        num = kn * p * a
         exponent = 1/(1 - n)
         denom = ((k/((8314/m)*t))*((2/(k+1))**((k+1)/(k-1))))**0.5
         return (num/denom) ** exponent
 
-    def calcForce(self, r, ambientPressure = 101325, burnoutThres = 0.00001):
+    def calcForce(self, r, casePressure = None, ambientPressure = 101325, burnoutThres = 0.00001):
         k = self.propellant.getProperty('k')
         t_a = self.nozzle.getThroatArea()
         e_a = self.nozzle.getExitArea()
 
         p_a = ambientPressure
-        p_c = self.calcIdealPressure(r, burnoutThres)
+        if casePressure is None:
+            p_c = self.calcIdealPressure(r, None, burnoutThres)
+        else:
+            p_c = casePressure
 
         if p_c == 0:
             return 0
@@ -141,8 +146,8 @@ class motor():
 
         t = [0, ts]
         k = [0, self.calcKN(perGrainReg, burnoutThres)]
-        p = [0, self.calcIdealPressure(perGrainReg, burnoutThres)]
-        f = [0, self.calcForce(perGrainReg, ambientPressure)]
+        p = [0, self.calcIdealPressure(perGrainReg, None, burnoutThres)]
+        f = [0, self.calcForce(perGrainReg, None, ambientPressure, burnoutThres)]
         mass = [[grain.getVolumeAtRegression(0) * self.propellant.getProperty('density'), grain.getVolumeAtRegression(0) * self.propellant.getProperty('density')] for grain in self.grains]
         m_flow = [[0, 0] for grain in self.grains]
         m_flux = [[0, 0] for grain in self.grains]
@@ -159,21 +164,21 @@ class motor():
                     
                     m_flux[gid].append(grain.getPeakMassFlux(mf, ts, perGrainReg[gid], reg, self.propellant.getProperty('density')))
                     
-                    mf += (self.propellant.getProperty('density') * grain.getVolumeSlice(perGrainReg[gid], reg) / ts)
-                    m_flow[gid].append(mf)
-
                     mass[gid].append(grain.getVolumeAtRegression(perGrainReg[gid]) * self.propellant.getProperty('density'))
+
+                    mf += (mass[gid][-1] - mass[gid][-2]) / ts
+                    m_flow[gid].append(mf)
                     
                     perGrainReg[gid] += reg
 
-            # Calculate Pressure
-            p.append(self.calcIdealPressure(perGrainReg, burnoutThres))
-
-            # Calculate force
-            f.append(self.calcForce(perGrainReg, ambientPressure, burnoutThres))
-
             # Calculate KN
             k.append(self.calcKN(perGrainReg, burnoutThres))
+
+            # Calculate Pressure
+            p.append(self.calcIdealPressure(perGrainReg, k[-1], burnoutThres))
+
+            # Calculate force
+            f.append(self.calcForce(perGrainReg, p[-1], ambientPressure, burnoutThres))
 
             t.append(t[-1] + ts)
 
@@ -190,7 +195,5 @@ class motor():
 
         for g in m_flux:
             g.append(0)
-
-        print(f)
 
         return simulationResult(self.nozzle, self.grains, t, k, p, f, mass, m_flow, m_flux)

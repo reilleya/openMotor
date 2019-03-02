@@ -1,0 +1,41 @@
+from .. import perforatedGrain
+from ..properties import *
+
+import numpy as np
+
+class finocyl(perforatedGrain):
+    geomName = 'Finocyl'
+    def __init__(self):
+        super().__init__()
+        self.props['numFins'] = intProperty('Number of fins', '', 0, 64)
+        self.props['finWidth'] = floatProperty('Fin width', 'm', 0, 1)
+        self.props['finLength'] = floatProperty('Fin length', 'm', 0, 1)
+        self.props['coreDiameter'] = floatProperty('Core diameter', 'm', 0, 1)
+
+    def generateCoreMap(self):
+        coreRadius = self.normalize(self.props['coreDiameter'].getValue()) / 2
+        numFins = self.props['numFins'].getValue()
+        finWidth = self.normalize(self.props['finWidth'].getValue())
+        finLength = self.normalize(self.props['finLength'].getValue()) + coreRadius # The user enters the length that the fin protrudes from the core, so we add the radius on
+
+        # Open up core
+        self.coreMap[self.X**2 + self.Y**2 < coreRadius**2] = 0
+
+        # Add fins
+        for i in range(0, numFins):
+            th = 2 * np.pi / numFins * i
+            # Initialize a vector pointing along the fin
+            a = np.cos(th)
+            b = np.sin(th)
+            # Select all points within half the width of the vector
+            vect = abs(a*self.X + b*self.Y) < finWidth / 2
+            # Set up two perpendicular vectors to cap off the ends
+            near = (b * self.X) - (a * self.Y) > 0 # Inside of the core
+            far = (b * self.X) - (a * self.Y) < finLength # At the casting tube end of the vector
+            ends = np.logical_and(far, near)
+            # Open up the fin
+            self.coreMap[np.logical_and(vect, ends)] = 0
+
+    def getDetailsString(self, preferences):
+        lengthUnit = preferences.units.getProperty('m')
+        return 'Core: ' + self.props['coreDiameter'].dispFormat(lengthUnit) + ', Fins: ' + str(self.props['numFins'].getValue())

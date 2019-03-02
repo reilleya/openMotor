@@ -2,6 +2,10 @@ from . import geometry
 from . import units
 from .properties import *
 
+import numpy as np
+import skfmm
+from skimage import measure
+
 class grain(propertyCollection):
     geomName = None
     def __init__(self):
@@ -44,66 +48,29 @@ class grain(propertyCollection):
         return 'Length: ' + self.props['length'].dispFormat(preferences.units.getProperty('m'))
 
 
-class batesGrain(grain):
-    geomName = "BATES"
+def length(contour): # Adds up the length of each segment in a contour
+    offset = np.roll(contour.T, 1, axis = 1)
+    l = np.linalg.norm(contour.T - offset, axis = 0)
+    return sum(list(l)[1:])
+
+def clean(contour, m = 498): # Removes the points in a contour near the edge (inhibits the casting tube)
+    offset = np.array([[500, 500]])
+    l = np.linalg.norm(contour - offset, axis = 1)
+    return contour[l < m]
+
+
+class perforatedGrain(grain):
+    geomName = 'PerfGrain'
     def __init__(self):
         super().__init__()
-        self.props['coreDiameter'] = floatProperty('Core Diameter', 'm', 0, 1)
         self.props['inhibitedEnds'] = enumProperty('Inhibited ends', ['Neither', 'Top', 'Bottom', 'Both'])
 
-    def getSurfaceAreaAtRegression(self, r):
-        bLength = self.getRegressedLength(r)
-        bCoreDiameter = self.props['coreDiameter'].getValue() + (r * 2)
-        diameter = self.props['diameter'].getValue()
-
-        faceArea = geometry.circleArea(diameter) - geometry.circleArea(bCoreDiameter)
-        exposedFaces = 2
-        if self.props['inhibitedEnds'].getValue() == 'Top' or self.props['inhibitedEnds'].getValue() == 'Bottom':
-            exposedFaces = 1
-        if self.props['inhibitedEnds'].getValue() == 'Both':
-            exposedFaces = 0
-
-        tubeArea = geometry.tubeArea(bCoreDiameter, bLength)
-
-        return tubeArea + (exposedFaces * faceArea)
-
-    def getVolumeAtRegression(self, r):
-        bLength = self.getRegressedLength(r)
-        bCoreDiameter = self.props['coreDiameter'].getValue() + (r * 2)
-        diameter = self.props['diameter'].getValue()
-
-        grainVol = geometry.cylinderVolume(diameter, bLength)
-        coreVol = geometry.cylinderVolume(bCoreDiameter, bLength)
-
-        return grainVol - coreVol
-
-    def getWebLeft(self, r):
-        web = self.props['diameter'].getValue() - self.props['coreDiameter'].getValue() - (2 * r)
-        length = self.getRegressedLength(r)
-        return min(web, length)
-
-    def getMassFlux(self, massIn, dt, r, dr, position, density):
-        diameter = self.props['diameter'].getValue()
-        bCoreDiameter = self.props['coreDiameter'].getValue() + (r * 2)
-        bLength = self.getRegressedLength(r)
-        endPos = self.getEndPositions(r)
-
-        if position < endPos[0]: # If a position above the top face is queried, the mass flow is just the input mass and the diameter is the casting tube
-            return massIn / geometry.circleArea(diameter)
-        elif position <= endPos[1]: # If a position in the grain is queried, the mass flow is the input mass, from the top face, and from the tube up to the point. The diameter is the core.
-            
-            if self.props['inhibitedEnds'].getValue() == 'Top': # Top inhibited
-                top = 0
-                countedCoreLength = position
-            else:
-                top = (geometry.circleArea(diameter) - geometry.circleArea(bCoreDiameter + dr)) * dr * density
-                countedCoreLength = position - (endPos[0] + dr)
-            core = (geometry.cylinderVolume(bCoreDiameter + (2 * dr), countedCoreLength) - geometry.cylinderVolume(bCoreDiameter, countedCoreLength)) * density
-            mf = massIn + ((top + core) / dt)
-            return mf / geometry.circleArea(bCoreDiameter + (2 * dr))
-        else: # A poition past the grain end was specified, so the mass flow includes the input mass flow and all mass produced by the grain. Diameter is the casting tube.
-            mf = massIn + (self.getVolumeSlice(r, dr) * density / dt)
-            return mf / geometry.circleArea(diameter)
+        self.mapDim = 1001
+        self.X, self.Y = np.meshgrid(np.linspace(-1, 1, self.mapDim), np.linspace(-1, 1, self.mapDim))
+        self.mask = self.X**2 + self.Y**2 > 1
+        self.coreMap = np.ones_like(self.X)
+        self.regressionMap = None
+        self.wallWeb = 0 # Max distance from the core to the wall
 
     def getEndPositions(self, r):
         # Until there is some kind of enum prop, inhibited faces are handled like this:
@@ -116,33 +83,81 @@ class batesGrain(grain):
         elif self.props['inhibitedEnds'].getValue() == 'Both':
             return [0, self.props['length'].getValue()]
 
-    def getPortArea(self, r):
-        bCoreDiameter = self.props['coreDiameter'].getValue() + (r * 2)
-        return geometry.circleArea(bCoreDiameter)
+    def normalize(self, value): # Used when transforming real unit quantities into self.X, self.Y coordinates
+        return value / (0.5 * self.props['diameter'].getValue())
 
-    def getDetailsString(self, preferences):
-        lengthUnit = preferences.units.getProperty('m')
-        return 'Length: ' + self.props['length'].dispFormat(lengthUnit) + ', Core: ' + self.props['coreDiameter'].dispFormat(lengthUnit)
+    def unNormalize(self, value): # Used to transform self.X, self.Y coordinates to real unit quantities
+        return (value / 2) * self.props['diameter'].getValue()
 
-class endBurningGrain(grain):
-    geomName = 'End Burner'
-    def __init__(self):
-        super().__init__()
+    def lengthToMap(self, value): # Used to convert meters to pixels
+        return self.mapDim * (value / self.props['diameter'].getValue())
 
-    def getSurfaceAreaAtRegression(self, r):
-        diameter = self.props['diameter'].getValue()
-        return geometry.circleArea(diameter)
+    def mapToLength(self, value): # Used to convert pixels to meters
+        return self.props['diameter'].getValue() * (value / self.mapDim)
 
-    def getVolumeAtRegression(self, r):
-        bLength = self.getRegressedLength(r)
-        diameter = self.props['diameter'].getValue()
-        return geometry.cylinderVolume(diameter, bLength)
+    def areaToMap(self, value): # Used to convert sqm to sq pixels
+        return (self.mapDim ** 2) * (value / (self.props['diameter'].getValue() ** 2))
+
+    def mapToArea(self, value): # Used to convert sq pixels to sqm
+        return (self.props['diameter'].getValue() ** 2) * (value / (self.mapDim ** 2))
+
+    def generateCoreMap(self):
+        pass
+
+    def generateRegressionMap(self):
+        self.generateCoreMap()
+        masked = np.ma.MaskedArray(self.coreMap, self.mask)
+        #plt.imshow(masked)
+        #plt.show()
+        self.regressionMap = skfmm.distance(masked, dx=1e-3) * 2
+        self.wallWeb = self.unNormalize(np.amax(self.regressionMap))
+        #plt.imshow(self.regressionMap)
+        #plt.show()
 
     def getWebLeft(self, r):
-        return self.getRegressedLength(r)
+        if self.regressionMap is None:
+            self.generateRegressionMap()
+
+        wallLeft = self.wallWeb - r
+        lengthLeft = self.getRegressedLength(r)
+
+        return min(lengthLeft, wallLeft)
+
+    def getSurfaceAreaAtRegression(self, r):
+        if self.regressionMap is None:
+            self.generateRegressionMap()
+
+        mapDist = self.normalize(r)
+
+        valid = np.logical_not(self.mask)
+        faceArea = self.mapToArea(np.count_nonzero(np.logical_and(self.regressionMap >= mapDist, valid)))
+
+        corePerimeter = 0
+        contours = measure.find_contours(self.regressionMap, mapDist, fully_connected='high')
+        for contour in contours:
+            contour = clean(contour)
+            corePerimeter += self.mapToLength(length(contour))
+
+        coreArea = corePerimeter * self.getRegressedLength(r)
+
+        exposedFaces = 2
+        if self.props['inhibitedEnds'].getValue() == 'Top' or self.props['inhibitedEnds'].getValue() == 'Bottom':
+            exposedFaces = 1
+        if self.props['inhibitedEnds'].getValue() == 'Both':
+            exposedFaces = 0
+
+        return coreArea + (exposedFaces * faceArea)
+    
+    def getVolumeAtRegression(self, r):
+        if self.regressionMap is None:
+            self.generateRegressionMap()
+
+        mapDist = self.normalize(r)
+
+        valid = np.logical_not(self.mask)
+        faceArea = self.mapToArea(np.count_nonzero(np.logical_and(self.regressionMap >= mapDist, valid)))
+
+        return faceArea * self.getRegressedLength(r)
 
     def getMassFlux(self, massIn, dt, r, dr, position, density):
-        return 0 # Should return a simulation error if massIn != 0 
-        
-    def getEndPositions(self, r):
-        return [0, self.props['length'].getValue() - r]
+        return 0 # Todo: implement this!
