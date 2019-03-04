@@ -37,8 +37,10 @@ class Window(QMainWindow):
         self.engExporter.setPreferences(self.preferences)
         self.newSimulationResult.connect(self.engExporter.acceptSimResult)
 
-        self.newSimulationResult.connect(self.updateMotorStats)
-        self.newSimulationResult.connect(self.graphWidget.showData)
+        self.simulationManager = uilib.simulationManager()
+        self.simulationManager.setPreferences(self.preferences)
+        self.simulationManager.newSimulationResult.connect(self.updateMotorStats)
+        self.simulationManager.newSimulationResult.connect(self.graphWidget.showData)
 
         self.setupMotorStats()
         self.setupMotorEditor()
@@ -263,8 +265,7 @@ class Window(QMainWindow):
     def runSimulation(self):
         self.setupMotorStats()
         cm = self.fileManager.getCurrentMotor()
-        simResult = cm.runSimulation(self.preferences)
-        self.newSimulationResult.emit(simResult)
+        self.simulationManager.runSimulation(cm)
 
     def resetOutput(self):
         self.setupMotorStats()
@@ -340,6 +341,7 @@ class Window(QMainWindow):
         self.setupGraph()
         self.propManager.setPreferences(self.preferences)
         self.engExporter.setPreferences(self.preferences)
+        self.simulationManager.setPreferences(self.preferences)
 
     def showPreferences(self):
         self.preferencesWindow.load(self.preferences)

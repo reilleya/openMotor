@@ -131,7 +131,7 @@ class motor():
 
         return f
 
-    def runSimulation(self, preferences = None):
+    def runSimulation(self, preferences = None, callback = None):
         if preferences is not None:
             ambientPressure = preferences.general.getProperty('ambPressure')
             burnoutThres = preferences.general.getProperty('burnoutThres')
@@ -178,6 +178,11 @@ class motor():
             f.append(self.calcForce(perGrainReg, p[-1], ambientPressure, burnoutThres))
 
             t.append(t[-1] + ts)
+
+            if callback is not None:
+                progress = max([g.getWebLeft(r) / g.getWebLeft(0) for g,r in zip(self.grains, perGrainReg)]) # Grain with the largest percentage of its web left
+                if callback(1 - progress):
+                    return
 
         t.append(t[-1] + ts)
         k.append(0)

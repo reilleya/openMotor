@@ -8,3 +8,4 @@ from .propellant import *
 from .defaults import *
 from .fileManager import *
 from .engExport import *
+from .simulationManager import *
