@@ -136,7 +136,7 @@ class perforatedGrain(grain):
         mapDist = self.normalize(r)
 
         valid = np.logical_not(self.mask)
-        faceArea = self.mapToArea(np.count_nonzero(np.logical_and(self.regressionMap >= mapDist, valid)))
+        faceArea = self.mapToArea(np.count_nonzero(np.logical_and(self.regressionMap > mapDist, valid)))
 
         corePerimeter = 0
         contours = measure.find_contours(self.regressionMap, mapDist, fully_connected='high')
@@ -161,7 +161,7 @@ class perforatedGrain(grain):
         mapDist = self.normalize(r)
 
         valid = np.logical_not(self.mask)
-        faceArea = self.mapToArea(np.count_nonzero(np.logical_and(self.regressionMap >= mapDist, valid)))
+        faceArea = self.mapToArea(np.count_nonzero(np.logical_and(self.regressionMap > mapDist, valid)))
 
         return faceArea * self.getRegressedLength(r)
 
