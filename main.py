@@ -8,10 +8,7 @@ import motorlib
 import uilib
 
 class Window(QMainWindow):
-
-    newSimulationResult = pyqtSignal(object)
-
-    def __init__(self):
+    def __init__(self, startupFile = None):
         QWidget.__init__(self)
         loadUi("resources/MainWindow.ui", self)
 
@@ -32,15 +29,17 @@ class Window(QMainWindow):
         self.fileManager = uilib.fileManager()
         self.fileManager.newFile()
         self.fileManager.fileNameChanged.connect(self.updateWindowTitle)
+        if startupFile is not None:
+            self.fileManager.load(startupFile)
 
         self.engExporter = uilib.engExportMenu()
         self.engExporter.setPreferences(self.preferences)
-        self.newSimulationResult.connect(self.engExporter.acceptSimResult)
 
         self.simulationManager = uilib.simulationManager()
         self.simulationManager.setPreferences(self.preferences)
         self.simulationManager.newSimulationResult.connect(self.updateMotorStats)
         self.simulationManager.newSimulationResult.connect(self.graphWidget.showData)
+        self.simulationManager.newSimulationResult.connect(self.engExporter.acceptSimResult)
 
         self.setupMotorStats()
         self.setupMotorEditor()
@@ -341,13 +340,28 @@ class Window(QMainWindow):
         self.setupGraph()
         self.propManager.setPreferences(self.preferences)
         self.engExporter.setPreferences(self.preferences)
-        self.simulationManager.setPreferences(self.preferences)
 
     def showPreferences(self):
         self.preferencesWindow.load(self.preferences)
         self.preferencesWindow.show()
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    w = Window()
-    sys.exit(app.exec_())
+    if '-h' in sys.argv:
+        if len(sys.argv) < 3:
+            print('Not enough arguments. Headless mode requires an input file.')
+        else:
+            with open(sys.argv[-1], 'r') as motorFile, open('preferences.yaml', 'r') as prefFile:
+                prefDict = yaml.load(prefFile)
+                preferences = uilib.preferences()
+                preferences.applyDict(prefDict)
+                motorData = yaml.load(motorFile)
+                motor = motorlib.motor()
+                motor.loadDict(motorData)
+                simres = motor.runSimulation(preferences)
+    else:
+        app = QApplication(sys.argv)
+        startupFile = None
+        if len(sys.argv) > 1:
+            startupFile = sys.argv[-1]
+        w = Window(startupFile)
+        sys.exit(app.exec_())

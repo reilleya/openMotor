@@ -38,9 +38,10 @@ class fileManager(QObject):
         self.fileName = self.showSaveDialog()
         self.save()
 
-    def load(self):
+    def load(self, path = None):
         if self.unsavedCheck():
-            path = QFileDialog.getOpenFileName(None, 'Load motor', '', 'Motor Files (*.ric)')[0]
+            if path is None:
+                path = QFileDialog.getOpenFileName(None, 'Load motor', '', 'Motor Files (*.ric)')[0]
             with open(path, 'r') as loadFile:
                 motorData = yaml.load(loadFile)
                 self.fileHistory = [motorData]
