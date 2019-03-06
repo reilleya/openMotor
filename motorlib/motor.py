@@ -63,6 +63,12 @@ class simulationResult():
         else:
             return None
 
+    def getPropellantLength(self):
+        return sum([g.props['length'].getValue() for g in self.grains])
+
+    def getPropellantMass(self):
+        return sum([m[0] for m in self.mass])
+
 class motor():
     def __init__(self):
         self.grains = []

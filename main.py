@@ -24,7 +24,7 @@ class Window(QMainWindow):
 
         self.motorStatLabels = [self.labelMotorDesignation, self.labelImpulse, self.labelDeliveredISP, self.labelBurnTime,
                                 self.labelAveragePressure, self.labelPeakPressure, self.labelInitialKN, self.labelPeakKN,
-                                self.labelPortThroatRatio, self.labelCoreLD, self.labelPeakMassFlux]
+                                self.labelPropellantMass, self.labelPropellantLength, self.labelPortThroatRatio, self.labelPeakMassFlux]
 
         self.fileManager = uilib.fileManager()
         self.fileManager.newFile()
@@ -251,6 +251,9 @@ class Window(QMainWindow):
         self.labelInitialKN.setText(self.formatMotorStat(simResult.getInitialKN(), ''))
         self.labelPeakKN.setText(self.formatMotorStat(simResult.getPeakKN(), ''))
 
+        self.labelPropellantMass.setText(self.formatMotorStat(simResult.getPropellantMass(), 'kg'))
+        self.labelPropellantLength.setText(self.formatMotorStat(simResult.getPropellantLength(), 'm'))
+
         if simResult.getPortRatio() is not None:
             self.labelPortThroatRatio.setText(self.formatMotorStat(simResult.getPortRatio(), ''))
             self.labelPeakMassFlux.setText(self.formatMotorStat(simResult.getPeakMassFlux(), 'kg/(m^2*s)'))
@@ -258,8 +261,6 @@ class Window(QMainWindow):
         else:
             self.labelPortThroatRatio.setText('-')
             self.labelPeakMassFlux.setText('-')
-
-        self.labelCoreLD.setText('????')
 
     def runSimulation(self):
         self.setupMotorStats()
