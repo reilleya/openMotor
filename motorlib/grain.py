@@ -120,6 +120,36 @@ class perforatedGrain(grain):
         #plt.imshow(self.regressionMap)
         #plt.show()
 
+    def getCorePerimeter(self, r):
+        if self.regressionMap is None:
+            self.generateRegressionMap()
+
+        mapDist = self.normalize(r)
+
+        corePerimeter = 0
+        contours = measure.find_contours(self.regressionMap, mapDist, fully_connected='high')
+        for contour in contours:
+            contour = clean(contour)
+            corePerimeter += self.mapToLength(length(contour))
+
+        return corePerimeter
+
+    def getCoreSurfaceArea(self, r):
+        corePerimeter = self.getCorePerimeter(r)
+        coreArea = corePerimeter * self.getRegressedLength(r)
+        return coreArea
+
+    def getFaceArea(self, r):
+        if self.regressionMap is None:
+            self.generateRegressionMap()
+
+        mapDist = self.normalize(r)
+
+        valid = np.logical_not(self.mask)
+        faceArea = self.mapToArea(np.count_nonzero(np.logical_and(self.regressionMap > mapDist, valid)))
+
+        return faceArea
+
     def getWebLeft(self, r):
         if self.regressionMap is None:
             self.generateRegressionMap()
@@ -130,21 +160,8 @@ class perforatedGrain(grain):
         return min(lengthLeft, wallLeft)
 
     def getSurfaceAreaAtRegression(self, r):
-        if self.regressionMap is None:
-            self.generateRegressionMap()
-
-        mapDist = self.normalize(r)
-
-        valid = np.logical_not(self.mask)
-        faceArea = self.mapToArea(np.count_nonzero(np.logical_and(self.regressionMap > mapDist, valid)))
-
-        corePerimeter = 0
-        contours = measure.find_contours(self.regressionMap, mapDist, fully_connected='high')
-        for contour in contours:
-            contour = clean(contour)
-            corePerimeter += self.mapToLength(length(contour))
-
-        coreArea = corePerimeter * self.getRegressedLength(r)
+        faceArea = self.getFaceArea(r)
+        coreArea = self.getCoreSurfaceArea(r)
 
         exposedFaces = 2
         if self.props['inhibitedEnds'].getValue() == 'Top' or self.props['inhibitedEnds'].getValue() == 'Bottom':
@@ -155,15 +172,32 @@ class perforatedGrain(grain):
         return coreArea + (exposedFaces * faceArea)
     
     def getVolumeAtRegression(self, r):
-        if self.regressionMap is None:
-            self.generateRegressionMap()
-
-        mapDist = self.normalize(r)
-
-        valid = np.logical_not(self.mask)
-        faceArea = self.mapToArea(np.count_nonzero(np.logical_and(self.regressionMap > mapDist, valid)))
-
+        faceArea = self.getFaceArea(r)
         return faceArea * self.getRegressedLength(r)
 
-    def getMassFlux(self, massIn, dt, r, dr, position, density):
-        return 0 # Todo: implement this!
+    def getPortArea(self, r):
+        faceArea = self.getFaceArea(r)
+        uncored = geometry.circleArea(self.props['diameter'].getValue())
+        return uncored - faceArea
+
+    def getMassFlux(self, massIn, dt, r, dr, position, density): # This duplicates a lot of code from bates. Time to make bates a perforated grain?
+        diameter = self.props['diameter'].getValue()
+
+        bLength = self.getRegressedLength(r)
+        endPos = self.getEndPositions(r)
+
+        if position < endPos[0]: # If a position above the top face is queried, the mass flow is just the input mass and the diameter is the casting tube
+            return massIn / geometry.circleArea(diameter)
+        elif position <= endPos[1]: # If a position in the grain is queried, the mass flow is the input mass, from the top face, and from the tube up to the point. The diameter is the core.
+            if self.props['inhibitedEnds'].getValue() == 'Top': # Top inhibited
+                top = 0
+                countedCoreLength = position
+            else:
+                top = self.getFaceArea(r + dr) * dr * density
+                countedCoreLength = position - (endPos[0] + dr)
+            core = ((self.getPortArea(r + dr) * countedCoreLength) - (self.getPortArea(r) * countedCoreLength)) * density
+            mf = massIn + ((top + core) / dt)
+            return mf / self.getPortArea(r + dr)
+        else: # A poition past the grain end was specified, so the mass flow includes the input mass flow and all mass produced by the grain. Diameter is the casting tube.
+            mf = massIn + (self.getVolumeSlice(r, dr) * density / dt)
+            return mf / geometry.circleArea(diameter)
