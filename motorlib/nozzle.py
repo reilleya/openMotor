@@ -26,4 +26,4 @@ class nozzle(propertyCollection):
         return geometry.circleArea(self.props['exit'].getValue())
 
     def getExitPressure(self, k, inputPressure):
-        return fsolve(lambda x: (1/self.calcExpansion()) - eRatioFromPRatio(k, x / inputPressure), 100000)[0]
+        return fsolve(lambda x: (1/self.calcExpansion()) - eRatioFromPRatio(k, x / inputPressure), 50000)[0]

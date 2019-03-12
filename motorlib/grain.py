@@ -53,7 +53,7 @@ def length(contour): # Adds up the length of each segment in a contour
     l = np.linalg.norm(contour.T - offset, axis = 0)
     return sum(list(l)[1:])
 
-def clean(contour, m = 498): # Removes the points in a contour near the edge (inhibits the casting tube)
+def clean(contour, m = 497): # Removes the points in a contour near the edge (inhibits the casting tube)
     offset = np.array([[500, 500]])
     l = np.linalg.norm(contour - offset, axis = 1)
     return contour[l < m]

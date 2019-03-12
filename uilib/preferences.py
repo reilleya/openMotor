@@ -8,7 +8,8 @@ from motorlib import unitLabels, getAllConversions
 class preferences():
     def __init__(self):
         self.general = propertyCollection()
-        self.general.props['burnoutThres'] = floatProperty('Burnout Threshold', 'm', 2.54e-5, 3.175e-3)
+        self.general.props['burnoutWebThres'] = floatProperty('Web Burnout Threshold', 'm', 2.54e-5, 3.175e-3)
+        self.general.props['burnoutThrustThres'] = floatProperty('Thrust Burnout Threshold', '%', 0.01, 10)
         self.general.props['timestep'] = floatProperty('Simulation Timestep', 's', 0.0001, 0.1)
         self.general.props['ambPressure'] = floatProperty('Ambient Pressure', 'pa', 0.0001, 102000)
         self.units = propertyCollection()
@@ -26,7 +27,8 @@ class preferences():
         self.units.setProperties(dictionary['units'])
 
     def loadDefault(self):
-        self.general.props['burnoutThres'].setValue(0.00001)
+        self.general.props['burnoutWebThres'].setValue(0.00001)
+        self.general.props['burnoutThrustThres'].setValue(0.1)
         self.general.props['timestep'].setValue(0.01)
         self.general.props['ambPressure'].setValue(101325)
 
