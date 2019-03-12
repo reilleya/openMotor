@@ -4,8 +4,8 @@ from .collectionEditor import *
 from .motorEditor import *
 from .preferences import *
 from .settingsEditor import *
-from .propellant import *
 from .defaults import *
+from .propellant import *
 from .fileManager import *
 from .engExport import *
 from .simulationManager import *

@@ -9,6 +9,7 @@ from motorlib import unitLabels, getAllConversions, convert
 from motorlib import propellant
 
 from . import collectionEditor
+from . import defaultPropellants
 
 class propellantManager(QObject):
 
@@ -22,14 +23,6 @@ class propellantManager(QObject):
         self.propMenu = propellantMenu(self)
         self.propMenu.closed.connect(self.updated.emit)
 
-    def loadDefaults(self):
-        cl = propellant()
-        cl.setProperties({'name': 'Cherry Limeade', 'density': 1680, 'a': 3.517054143255937e-05, 'n': 0.3273, 't': 3500, 'm': 23.67, 'k': 1.21})
-        self.propellants.append(cl)
-        ow = propellant()
-        ow.setProperties({'name': 'Ocean Water', 'density': 1650, 'a': 1.467e-05, 'n': 0.382, 't': 3500, 'm': 23.67, 'k': 1.25})
-        self.propellants.append(ow)
-
     def loadPropellants(self):
         try:
             with open('propellants.yaml', 'r') as propFile:
@@ -38,7 +31,7 @@ class propellantManager(QObject):
                     newProp.setProperties(propDict)
                     self.propellants.append(newProp)
         except FileNotFoundError:
-            self.loadDefaults()
+            self.propellants = defaultPropellants()
             self.savePropellants()
 
     def savePropellants(self):

@@ -12,8 +12,7 @@ class Window(QMainWindow):
         QWidget.__init__(self)
         loadUi("resources/MainWindow.ui", self)
 
-        self.preferences = uilib.preferences()
-        self.preferences.loadDefault()
+        self.preferences = uilib.defaultPreferences()
         self.loadPreferences()
         self.preferencesWindow = uilib.PreferencesWindow()
         self.preferencesWindow.preferencesApplied.connect(self.applyPreferences)

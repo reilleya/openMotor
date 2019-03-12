@@ -26,15 +26,6 @@ class preferences():
         self.general.setProperties(dictionary['general'])
         self.units.setProperties(dictionary['units'])
 
-    def loadDefault(self):
-        self.general.props['burnoutWebThres'].setValue(0.00001)
-        self.general.props['burnoutThrustThres'].setValue(0.1)
-        self.general.props['timestep'].setValue(0.01)
-        self.general.props['ambPressure'].setValue(101325)
-
-        self.units.props['m'].setValue('in')
-        self.units.props['pa'].setValue('psi')
-
     def getUnit(self, fromUnit):
         if fromUnit in self.units.props:
             return self.units.getProperty(fromUnit)
