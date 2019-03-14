@@ -201,3 +201,10 @@ class perforatedGrain(grain):
         else: # A poition past the grain end was specified, so the mass flow includes the input mass flow and all mass produced by the grain. Diameter is the casting tube.
             mf = massIn + (self.getVolumeSlice(r, dr) * density / dt)
             return mf / geometry.circleArea(diameter)
+
+    def getPreview(self, mapDim):
+        self.mapDim = mapDim
+        self.initGeometry()
+        self.generateCoreMap()
+        masked = np.ma.MaskedArray(self.coreMap, self.mask)
+        return masked

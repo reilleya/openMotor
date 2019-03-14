@@ -55,6 +55,7 @@ class collectionEditor(QWidget):
 
     def apply(self):
         res = self.getProperties()
+        self.cleanup()
         self.changeApplied.emit(res)
         self.closed.emit()
 
@@ -87,5 +88,4 @@ class collectionEditor(QWidget):
             out = self.propertyEditors[prop].getValue()
             if out is not None:
                 res[prop] = out
-        self.cleanup()
         return res

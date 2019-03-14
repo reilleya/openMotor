@@ -40,6 +40,7 @@ class propertyEditor(QWidget):
         elif type(prop) is motorlib.intProperty:
             self.editor = QSpinBox()
             self.editor.setValue(self.prop.getValue())
+            self.editor.valueChanged.connect(self.valueChanged.emit)
             self.layout().addWidget(self.editor)
 
         elif type(prop) is motorlib.stringProperty:
