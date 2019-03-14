@@ -1,5 +1,4 @@
 from .graphWidget import *
-from .grainCrossSectionWidget import *
 from .grainPreviewWidget import *
 from .propertyEditor import *
 from .collectionEditor import *
