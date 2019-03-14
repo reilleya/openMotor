@@ -23,6 +23,9 @@ class grainCrossSectionWidget(FigureCanvas):
         self.canvas = FigureCanvas(self.figure)
         self.figure.tight_layout()
 
+        self.figure.subplots_adjust(left=None, bottom=0.01, right=None, top=0.99,
+                wspace=None, hspace=0)
+
         self.plot = self.figure.add_subplot(111)
         self.plot.xaxis.set_visible(False)
         self.plot.yaxis.set_visible(False)
