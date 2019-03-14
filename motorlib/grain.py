@@ -47,16 +47,19 @@ class grain(propertyCollection):
     def getDetailsString(self, preferences):
         return 'Length: ' + self.props['length'].dispFormat(preferences.units.getProperty('m'))
 
+    def simulationSetup(self, preferences): # Do anything needed to prepare this grain for simulation
+        return None
+
 
 def length(contour): # Adds up the length of each segment in a contour
     offset = np.roll(contour.T, 1, axis = 1)
     l = np.linalg.norm(contour.T - offset, axis = 0)
     return sum(list(l)[1:])
 
-def clean(contour, m = 497): # Removes the points in a contour near the edge (inhibits the casting tube)
-    offset = np.array([[500, 500]])
+def clean(contour, mapSize, tolerance): # Removes the points in a contour near the edge (inhibits the casting tube)
+    offset = np.array([[mapSize / 2, mapSize / 2]])
     l = np.linalg.norm(contour - offset, axis = 1)
-    return contour[l < m]
+    return contour[l < (mapSize / 2) - tolerance]
 
 
 class perforatedGrain(grain):
@@ -101,35 +104,33 @@ class perforatedGrain(grain):
     def mapToArea(self, value): # Used to convert sq pixels to sqm
         return (self.props['diameter'].getValue() ** 2) * (value / (self.mapDim ** 2))
 
-    def initGeometry(self):
+    def initGeometry(self, mapDim):
+        self.mapDim = mapDim
         self.X, self.Y = np.meshgrid(np.linspace(-1, 1, self.mapDim), np.linspace(-1, 1, self.mapDim))
         self.mask = self.X**2 + self.Y**2 > 1
         self.coreMap = np.ones_like(self.X)
+        self.regressionMap = None
 
     def generateCoreMap(self):
         pass
 
-    def generateRegressionMap(self):
-        self.initGeometry()
+    def simulationSetup(self, preferences):
+        self.initGeometry(1001)
         self.generateCoreMap()
+        self.generateRegressionMap()
+
+    def generateRegressionMap(self):
         masked = np.ma.MaskedArray(self.coreMap, self.mask)
-        #plt.imshow(masked)
-        #plt.show()
         self.regressionMap = skfmm.distance(masked, dx=1e-3) * 2
         self.wallWeb = self.unNormalize(np.amax(self.regressionMap))
-        #plt.imshow(self.regressionMap)
-        #plt.show()
 
     def getCorePerimeter(self, r):
-        if self.regressionMap is None:
-            self.generateRegressionMap()
-
         mapDist = self.normalize(r)
 
         corePerimeter = 0
         contours = measure.find_contours(self.regressionMap, mapDist, fully_connected='high')
         for contour in contours:
-            contour = clean(contour)
+            contour = clean(contour, self.mapDim, 3)
             corePerimeter += self.mapToLength(length(contour))
 
         return corePerimeter
@@ -140,9 +141,6 @@ class perforatedGrain(grain):
         return coreArea
 
     def getFaceArea(self, r):
-        if self.regressionMap is None:
-            self.generateRegressionMap()
-
         mapDist = self.normalize(r)
 
         valid = np.logical_not(self.mask)
@@ -151,9 +149,6 @@ class perforatedGrain(grain):
         return faceArea
 
     def getWebLeft(self, r):
-        if self.regressionMap is None:
-            self.generateRegressionMap()
-
         wallLeft = self.wallWeb - r
         lengthLeft = self.getRegressedLength(r)
 
@@ -202,9 +197,40 @@ class perforatedGrain(grain):
             mf = massIn + (self.getVolumeSlice(r, dr) * density / dt)
             return mf / geometry.circleArea(diameter)
 
-    def getPreview(self, mapDim):
-        self.mapDim = mapDim
-        self.initGeometry()
+    def getFaceImage(self, mapDim):
+        self.initGeometry(mapDim)
         self.generateCoreMap()
         masked = np.ma.MaskedArray(self.coreMap, self.mask)
         return masked
+
+    def getRegressionData(self, mapDim, numContours = 10):
+        self.initGeometry(mapDim)
+        self.generateCoreMap()
+
+        masked = np.ma.MaskedArray(self.coreMap, self.mask)
+        regressionMap = None
+        contours = []
+        contourLengths = {}
+
+        try:
+            self.generateRegressionMap()
+
+            regmax = np.amax(self.regressionMap)
+
+            regressionMap = self.regressionMap[:, :].copy()
+            regressionMap[np.where(self.coreMap == 0)] = regmax # Make the core black
+
+            for dist in np.linspace(0, regmax, numContours):
+                contours.append([])
+                contourLengths[dist] = 0
+                layerContours = measure.find_contours(self.regressionMap, dist, fully_connected='high')
+                for contour in layerContours:
+                    cleaned = clean(contour, mapDim, 2)
+                    contours[-1].append(cleaned)
+                    contourLengths[dist] += length(cleaned)
+
+        except ValueError: # If there aren't any contours, do nothing
+            pass
+
+        return (masked, regressionMap, contours, contourLengths)
+

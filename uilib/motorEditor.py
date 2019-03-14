@@ -45,6 +45,7 @@ class motorEditor(collectionEditor):
         if isinstance(grain, perforatedGrain):
             self.grainClass = type(grain)
             self.grainPreview.show()
+            self.update()
         else:
             self.grainClass = None
             self.grainPreview.hide()
@@ -61,6 +62,7 @@ class motorEditor(collectionEditor):
             self.expRatioLabel.hide()
         if self.grainClass is not None:
             self.grainPreview.hide()
+            self.grainPreview.cleanup()
             self.grainClass = None # Needed so it isn't trying to update the preview grain while loading in properties. Refactor this!
         super().cleanup()
     

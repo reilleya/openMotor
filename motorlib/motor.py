@@ -150,6 +150,9 @@ class motor():
             burnoutThrustThres = 0.1
             ts = 0.01
 
+        for grain in self.grains:
+            grain.simulationSetup(preferences)
+
         perGrainReg = [0 for grain in self.grains]
 
         t = [0, ts]
