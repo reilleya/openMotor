@@ -115,13 +115,17 @@ class perforatedGrain(grain):
         pass
 
     def simulationSetup(self, preferences):
-        self.initGeometry(1001)
+
+        mapSize = preferences.general.props['mapDim'].getValue()
+
+        self.initGeometry(mapSize)
         self.generateCoreMap()
         self.generateRegressionMap()
 
     def generateRegressionMap(self):
         masked = np.ma.MaskedArray(self.coreMap, self.mask)
-        self.regressionMap = skfmm.distance(masked, dx=1e-3) * 2
+        cellSize = 1 / self.mapDim
+        self.regressionMap = skfmm.distance(masked, dx=cellSize) * 2
         self.wallWeb = self.unNormalize(np.amax(self.regressionMap))
 
     def getCorePerimeter(self, r):
@@ -190,10 +194,10 @@ class perforatedGrain(grain):
             else:
                 top = self.getFaceArea(r + dr) * dr * density
                 countedCoreLength = position - (endPos[0] + dr)
-            core = ((self.getPortArea(r + dr) * countedCoreLength) - (self.getPortArea(r) * countedCoreLength)) * density
+            core = ((self.getPortArea(r + (dr * 10)) * countedCoreLength) - (self.getPortArea(r) * countedCoreLength)) * density / 10 # The factor of ten is to compensate for lower resolution maps
             mf = massIn + ((top + core) / dt)
             return mf / self.getPortArea(r + dr)
-        else: # A poition past the grain end was specified, so the mass flow includes the input mass flow and all mass produced by the grain. Diameter is the casting tube.
+        else: # A position past the grain end was specified, so the mass flow includes the input mass flow and all mass produced by the grain. Diameter is the casting tube.
             mf = massIn + (self.getVolumeSlice(r, dr) * density / dt)
             return mf / geometry.circleArea(diameter)
 

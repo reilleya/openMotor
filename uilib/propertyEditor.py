@@ -39,6 +39,11 @@ class propertyEditor(QWidget):
 
         elif type(prop) is motorlib.intProperty:
             self.editor = QSpinBox()
+
+            convMin = motorlib.convert(self.prop.min, self.prop.unit, self.dispUnit)
+            convMax = motorlib.convert(self.prop.max, self.prop.unit, self.dispUnit)
+            self.editor.setRange(convMin, convMax)
+
             self.editor.setValue(self.prop.getValue())
             self.editor.valueChanged.connect(self.valueChanged.emit)
             self.layout().addWidget(self.editor)

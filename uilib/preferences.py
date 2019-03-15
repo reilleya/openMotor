@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import pyqtSignal
 
-from motorlib import propertyCollection, floatProperty, enumProperty
+from motorlib import propertyCollection, floatProperty, intProperty, enumProperty
 from motorlib import unitLabels, getAllConversions
 
 class preferences():
@@ -12,6 +12,7 @@ class preferences():
         self.general.props['burnoutThrustThres'] = floatProperty('Thrust Burnout Threshold', '%', 0.01, 10)
         self.general.props['timestep'] = floatProperty('Simulation Timestep', 's', 0.0001, 0.1)
         self.general.props['ambPressure'] = floatProperty('Ambient Pressure', 'pa', 0.0001, 102000)
+        self.general.props['mapDim'] = intProperty('Grain Map Dimension', '', 250, 2000)
         self.units = propertyCollection()
         for unit in unitLabels:
             self.units.props[unit] = enumProperty(unitLabels[unit], getAllConversions(unit))
