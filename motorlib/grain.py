@@ -207,7 +207,7 @@ class perforatedGrain(grain):
         masked = np.ma.MaskedArray(self.coreMap, self.mask)
         return masked
 
-    def getRegressionData(self, mapDim, numContours = 10):
+    def getRegressionData(self, mapDim, numContours = 15):
         self.initGeometry(mapDim)
         self.generateCoreMap()
 
@@ -223,13 +223,14 @@ class perforatedGrain(grain):
 
             regressionMap = self.regressionMap[:, :].copy()
             regressionMap[np.where(self.coreMap == 0)] = regmax # Make the core black
+            regressionMap = np.ma.MaskedArray(regressionMap, self.mask)
 
             for dist in np.linspace(0, regmax, numContours):
                 contours.append([])
                 contourLengths[dist] = 0
                 layerContours = measure.find_contours(self.regressionMap, dist, fully_connected='high')
                 for contour in layerContours:
-                    cleaned = clean(contour, mapDim, 2)
+                    cleaned = clean(contour, mapDim, 3)
                     contours[-1].append(cleaned)
                     contourLengths[dist] += length(cleaned)
 

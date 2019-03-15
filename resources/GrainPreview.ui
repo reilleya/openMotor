@@ -50,7 +50,7 @@
        <string>Regression</string>
       </attribute>
      </widget>
-     <widget class="QWidget" name="tabAreaGraph">
+     <widget class="grainPreviewGraph" name="tabAreaGraph">
       <attribute name="title">
        <string>Area Graph</string>
       </attribute>
