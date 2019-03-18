@@ -238,4 +238,3 @@ class perforatedGrain(grain):
             pass
 
         return (masked, regressionMap, contours, contourLengths)
-

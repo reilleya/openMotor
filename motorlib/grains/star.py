@@ -7,7 +7,7 @@ class starGrain(perforatedGrain):
     geomName = 'Star Grain'
     def __init__(self):
         super().__init__()
-        self.props['numPoints'] = intProperty('Number of fins', '', 0, 64)
+        self.props['numPoints'] = intProperty('Number of points', '', 0, 64)
         self.props['pointLength'] = floatProperty('Point length', 'm', 0, 1)
         self.props['pointWidth'] = floatProperty('Point base width', 'm', 0, 1)
 

@@ -22,27 +22,23 @@ class grainPreviewGraph(FigureCanvas):
         self.im = None
         self.numContours = 0
 
-    def setPreferences(self, pref):
-        self.preferences = pref
-
-    def setupImagePlot(self):
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
         self.figure.tight_layout()
 
+        self.plot = self.figure.add_subplot(111)
+
+    def setPreferences(self, pref):
+        self.preferences = pref
+
+    def setupImagePlot(self):
         self.figure.subplots_adjust(bottom = 0.01, top = 0.99, hspace = 0)
 
-        self.plot = self.figure.add_subplot(111)
         self.plot.xaxis.set_visible(False)
         self.plot.yaxis.set_visible(False)
         self.plot.axis('off')
 
     def setupGraphPlot(self):
-        self.figure = Figure()
-        self.canvas = FigureCanvas(self.figure)
-        self.figure.tight_layout()
-
-        self.plot = self.figure.add_subplot(111)
         self.plot.set_xticklabels([])
         self.plot.set_yticklabels([])
 
@@ -76,6 +72,7 @@ class grainPreviewGraph(FigureCanvas):
 
     def resetGraphBounds(self):
         self.plot.clear()
+        self.setupGraphPlot()
 
 class grainPreviewWidget(QWidget):
 
