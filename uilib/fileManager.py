@@ -24,6 +24,7 @@ class fileManager(QObject):
             self.currentVersion = 0
             self.savedVersion = 0
             self.fileName = None
+            self.sendTitleUpdate()
 
     def save(self):
         if self.fileName is None:
