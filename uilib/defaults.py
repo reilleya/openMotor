@@ -30,7 +30,12 @@ def defaultPreferences():
     pref.general.props['mapDim'].setValue(750)
 
     pref.units.props['m'].setValue('in')
+    pref.units.props['m/s'].setValue('ft/s')
     pref.units.props['pa'].setValue('psi')
+    pref.units.props['kg'].setValue('lb')
+    pref.units.props['kg/m^3'].setValue('lb/in^3')
+    pref.units.props['kg/(m^2*s)'].setValue('lb/(in^2*s)')
+    pref.units.props['m/(s*pa^n)'].setValue('in/(s*psi^n)')
 
     return pref
 

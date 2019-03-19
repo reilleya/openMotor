@@ -169,11 +169,26 @@ class propellantEditor(collectionEditor):
 
         self.labelCStar.setText('Characteristic Velocity: ' + str(int(convert(charVel, 'm/s', dispUnit))) + ' ' + dispUnit)
 
-    def loadProperties(self, collection):
-        super().loadProperties(collection)
-        self.labelCStar.show()
-
     def cleanup(self):
         self.labelCStar.hide()
 
         super().cleanup()
+
+    def getProperties(self): # Override to change units on ballistic coefficient
+        res = super().getProperties()
+        coeffUnit = self.propertyEditors['a'].dispUnit
+        if coeffUnit == 'in/(s*psi^n)':
+            res['a'] *= 1/(6895**res['n'])
+        return res
+
+    def loadProperties(self, collection): # Override for ballisitc coefficient units
+        props = collection.getProperties()
+        # Convert the ballistic coefficient based on the exponent
+        ballisticCoeffUnit = self.preferences.getUnit('m/(s*pa^n)')
+        if ballisticCoeffUnit == 'in/(s*psi^n)':
+            props['a'] /= 1/(6895**props['n'])
+        # Create a new propellant instance using the new A
+        newProp = propellant()
+        newProp.setProperties(props)
+        super().loadProperties(newProp)
+        self.labelCStar.show()

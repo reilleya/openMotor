@@ -1,4 +1,4 @@
-unitLabels = {'m': 'Length', 'm/s': 'Velocity', 'n': 'Force', 'ns': 'Impulse', 'pa': 'Pressure', 'kg': 'Mass', 'kg/m^3': 'Density', 'kg/(m^2*s)': 'Mass Flux'}
+unitLabels = {'m': 'Length', 'm/s': 'Velocity', 'n': 'Force', 'ns': 'Impulse', 'pa': 'Pressure', 'kg': 'Mass', 'kg/m^3': 'Density', 'kg/(m^2*s)': 'Mass Flux', 'm/(s*pa^n)': 'Burn Rate Coefficient'}
 
 unitTable = [
 ('m', 'cm', 100),
@@ -22,6 +22,8 @@ unitTable = [
 ('kg/m^3', 'lb/in^3', 3.61273e-5),
 
 ('kg/(m^2*s)', 'lb/(in^2*s)', 0.001422),
+
+('m/(s*pa^n)', 'in/(s*psi^n)', 39.37) # Ratio converts m/s to in/s. The pressure conversion must be done separately.
 ]
 
 def getAllConversions(unit):
