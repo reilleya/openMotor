@@ -36,20 +36,25 @@ class fileManager(QObject):
                 self.sendTitleUpdate()
 
     def saveAs(self):
-        self.fileName = self.showSaveDialog()
-        self.save()
+        fn = self.showSaveDialog()
+        if fn is not None:
+            self.fileName = fn
+            self.save()
 
     def load(self, path = None):
         if self.unsavedCheck():
             if path is None:
                 path = QFileDialog.getOpenFileName(None, 'Load motor', '', 'Motor Files (*.ric)')[0]
-            with open(path, 'r') as loadFile:
-                motorData = yaml.load(loadFile)
-                self.fileHistory = [motorData]
-                self.currentVersion = 0
-                self.savedVersion = 0
-                self.fileName = path
-                self.sendTitleUpdate()
+            if path != '': # If they cancel the dialog, path will be an empty string
+                with open(path, 'r') as loadFile:
+                    motorData = yaml.load(loadFile)
+                    self.fileHistory = [motorData]
+                    self.currentVersion = 0
+                    self.savedVersion = 0
+                    self.fileName = path
+                    self.sendTitleUpdate()
+                    return True
+        return False # If no file is loaded, return false
 
     def getCurrentMotor(self):
         nm = motorlib.motor()
@@ -103,6 +108,8 @@ class fileManager(QObject):
 
     def showSaveDialog(self):
         path = QFileDialog.getSaveFileName(None, 'Save motor', '', 'Motor Files (*.ric)')[0]
+        if path == '' or path is None:
+            return
         if path[-4:] != '.ric':
             path += '.ric'
         return path

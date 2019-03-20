@@ -291,23 +291,23 @@ class Window(QMainWindow):
 
     def loadMotor(self):
         self.disablePropSelector()
-        self.fileManager.load()
-        self.resetOutput()
-        self.updateGrainTable()
+        if self.fileManager.load():
+            self.resetOutput()
+            self.updateGrainTable()
 
-        cm = self.fileManager.getCurrentMotor()
-        if cm.propellant.getProperty('name') not in self.propManager.getNames():
-            print("Propellant not in library, adding")
-            self.propManager.propellants.append(cm.propellant)
-            self.propManager.savePropellants()
-        else:
-            if cm.propellant.getProperties() != self.propManager.getPropellantByName(cm.propellant.getProperty('name')).getProperties():
-                print("Loaded propellant name matches existing propellant, but properties differ. Using propellant from library.")
-                cm.propellant = self.propManager.getPropellantByName(cm.propellant.getProperty('name'))
-                self.fileManager.addNewMotorHistory(cm)
+            cm = self.fileManager.getCurrentMotor()
+            if cm.propellant.getProperty('name') not in self.propManager.getNames():
+                print("Propellant not in library, adding")
+                self.propManager.propellants.append(cm.propellant)
+                self.propManager.savePropellants()
+            else:
+                if cm.propellant.getProperties() != self.propManager.getPropellantByName(cm.propellant.getProperty('name')).getProperties():
+                    print("Loaded propellant name matches existing propellant, but properties differ. Using propellant from library.")
+                    cm.propellant = self.propManager.getPropellantByName(cm.propellant.getProperty('name'))
+                    self.fileManager.addNewMotorHistory(cm)
 
-        self.setupPropSelector()
-        self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
+            self.setupPropSelector()
+            self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
 
     def closeEvent(self, event = None):
         if self.fileManager.unsavedCheck():
