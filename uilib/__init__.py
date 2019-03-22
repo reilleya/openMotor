@@ -10,3 +10,4 @@ from .propellant import *
 from .fileManager import *
 from .engExport import *
 from .simulationManager import *
+from .aboutDialog import *

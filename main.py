@@ -40,6 +40,8 @@ class Window(QMainWindow):
         self.simulationManager.newSimulationResult.connect(self.graphWidget.showData)
         self.simulationManager.newSimulationResult.connect(self.engExporter.acceptSimResult)
 
+        self.aboutDialog = uilib.aboutDialog()
+
         self.setupMotorStats()
         self.setupMotorEditor()
         self.setupGrainAddition()
@@ -88,6 +90,9 @@ class Window(QMainWindow):
 
         #Sim
         self.actionRunSimulation.triggered.connect(self.runSimulation)
+
+        #Help
+        self.actionAboutOpenMotor.triggered.connect(self.aboutDialog.show)
 
     def setupPropSelector(self):
         self.pushButtonPropEditor.pressed.connect(self.propManager.showMenu)
