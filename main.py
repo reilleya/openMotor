@@ -267,7 +267,7 @@ class Window(QMainWindow):
             self.labelPeakMassFlux.setText('-')
 
     def runSimulation(self):
-        self.setupMotorStats()
+        self.resetOutput()
         cm = self.fileManager.getCurrentMotor()
         self.simulationManager.runSimulation(cm)
 

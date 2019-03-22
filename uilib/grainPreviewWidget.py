@@ -89,9 +89,10 @@ class grainPreviewWidget(QWidget):
         self.previewReady.connect(self.updateView)
 
     def loadGrain(self, grain):
-
-        if grain.props['diameter'].getValue() == 0: # Todo: replace with more rigorous geometry checks
-            return
+        geomAlerts = grain.getGeometryErrors()
+        for alert in geomAlerts:
+            if alert.level == motorlib.simAlertLevel.ERROR:
+                return
 
         dataThread = Thread(target = self._genData, args = [grain])
         dataThread.start()
