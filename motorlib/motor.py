@@ -176,13 +176,15 @@ class motor():
         simRes = simulationResult(self.nozzle, self.grains)
 
         for gid, grain in enumerate(self.grains):
-            grain.simulationSetup(preferences)
             for alert in grain.getGeometryErrors():
                 alert.location = "Grain " + str(gid + 1)
                 simRes.addAlert(alert)
 
         if len(simRes.getAlertsByLevel(simAlertLevel.ERROR)) > 0:
             return simRes
+
+        for grain in self.grains:
+            grain.simulationSetup(preferences)
 
         perGrainReg = [0 for grain in self.grains]
 

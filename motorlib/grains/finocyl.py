@@ -1,5 +1,6 @@
 from .. import perforatedGrain
 from ..properties import *
+from .. import simAlert, simAlertLevel, simAlertType
 
 import numpy as np
 
@@ -39,3 +40,23 @@ class finocyl(perforatedGrain):
     def getDetailsString(self, preferences):
         lengthUnit = preferences.units.getProperty('m')
         return 'Core: ' + self.props['coreDiameter'].dispFormat(lengthUnit) + ', Fins: ' + str(self.props['numFins'].getValue())
+
+    def getGeometryErrors(self):
+        errors = super().getGeometryErrors()
+        if self.props['coreDiameter'].getValue() == 0:
+            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Core diameter must not be 0'))
+        if self.props['coreDiameter'].getValue() >= self.props['diameter'].getValue():
+            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Core diameter must be less than or equal to grain diameter'))
+
+        if self.props['finLength'].getValue() == 0:
+            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Fin length must not be 0'))
+        if self.props['finLength'].getValue() * 2 > self.props['diameter'].getValue():
+            errors.append(simAlert(simAlertLevel.WARNING, simAlertType.GEOMETRY, 'Fin length should be less than or equal to grain radius'))
+        if self.props['coreDiameter'].getValue() + (2 * self.props['finLength'].getValue()) > self.props['diameter'].getValue():
+            errors.append(simAlert(simAlertLevel.WARNING, simAlertType.GEOMETRY, 'Core radius plus fin length should be less than or equal to grain radius'))
+
+        if self.props['finWidth'].getValue() == 0:
+            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Fin width must not be 0'))
+        # TODO: Come up with fin width constraint based on the corners of the fins intersecting
+
+        return errors

@@ -1,5 +1,6 @@
 from .. import grain
-from ..import geometry
+from .. import geometry
+from .. import simAlert, simAlertLevel, simAlertType
 from ..properties import *
 
 class batesGrain(grain):
@@ -80,3 +81,11 @@ class batesGrain(grain):
     def getDetailsString(self, preferences):
         lengthUnit = preferences.units.getProperty('m')
         return 'Length: ' + self.props['length'].dispFormat(lengthUnit) + ', Core: ' + self.props['coreDiameter'].dispFormat(lengthUnit)
+
+    def getGeometryErrors(self):
+        errors = super().getGeometryErrors()
+        if self.props['coreDiameter'].getValue() == 0:
+            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Core diameter must not be 0'))
+        if self.props['coreDiameter'].getValue() >= self.props['diameter'].getValue():
+            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Core diameter must be less than grain diameter'))
+        return errors

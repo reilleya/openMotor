@@ -1,5 +1,6 @@
 from .. import perforatedGrain
 from ..properties import *
+from .. import simAlert, simAlertLevel, simAlertType
 
 import numpy as np
 
@@ -28,3 +29,18 @@ class starGrain(perforatedGrain):
     def getDetailsString(self, preferences):
         lengthUnit = preferences.units.getProperty('m')
         return 'Length: ' + self.props['length'].dispFormat(lengthUnit) + ', Points: ' + str(self.props['numPoints'].getValue())
+
+    def getGeometryErrors(self):
+        errors = super().getGeometryErrors()
+        if self.props['numPoints'].getValue() == 0:
+            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Star grain has 0 points'))
+
+        if self.props['pointLength'].getValue() == 0:
+            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Point length must not be 0'))
+        if self.props['pointLength'].getValue() * 2 > self.props['diameter'].getValue():
+            errors.append(simAlert(simAlertLevel.WARNING, simAlertType.GEOMETRY, 'Point length should be less than or equal to grain radius'))
+        
+        if self.props['pointWidth'].getValue() == 0:
+            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Point width must not be 0'))
+
+        return errors
