@@ -4,14 +4,27 @@ from . import nozzle
 from . import propellant
 from . import geometry
 from . import units
+from . import simAlert, simAlertLevel, simAlertType
 
 import math
 import numpy as np
 
 class simulationResult():
-    def __init__(self, nozzle, grains, time, kn, pressure, force, mass, massFlow, massFlux):
+    def __init__(self, nozzle, grains):
+        self.alerts = []
+        self.success = False
+
         self.nozzle = nozzle
         self.grains = grains
+        self.time = None
+        self.kn = None
+        self.pressure = None
+        self.force = None
+        self.mass = None
+        self.massFlow = None
+        self.massFlux = None
+
+    def addSimData(self, time, kn, pressure, force, mass, massFlow, massFlux):
         self.time = time
         self.kn = kn
         self.pressure = pressure
@@ -19,6 +32,9 @@ class simulationResult():
         self.mass = mass
         self.massFlow = massFlow
         self.massFlux = massFlux
+
+    def addAlert(self, alert):
+        self.alerts.append(alert)
 
     def getBurnTime(self):
         return self.time[-1]
@@ -68,6 +84,13 @@ class simulationResult():
 
     def getPropellantMass(self):
         return sum([m[0] for m in self.mass])
+
+    def getAlertsByLevel(self, level):
+        out = []
+        for alert in self.alerts:
+            if alert.level == level:
+                out.append(alert)
+        return out
 
 class motor():
     def __init__(self):
@@ -150,8 +173,16 @@ class motor():
             burnoutThrustThres = 0.1
             ts = 0.01
 
-        for grain in self.grains:
+        simRes = simulationResult(self.nozzle, self.grains)
+
+        for gid, grain in enumerate(self.grains):
             grain.simulationSetup(preferences)
+            for alert in grain.getGeometryErrors():
+                alert.location = "Grain " + str(gid + 1)
+                simRes.addAlert(alert)
+
+        if len(simRes.getAlertsByLevel(simAlertLevel.ERROR)) > 0:
+            return simRes
 
         perGrainReg = [0 for grain in self.grains]
 
@@ -209,4 +240,7 @@ class motor():
         for g in m_flux:
             g.append(0)
 
-        return simulationResult(self.nozzle, self.grains, t, k, p, f, mass, m_flow, m_flux)
+        simRes.addSimData(t, k, p, f, mass, m_flow, m_flux)
+        simRes.success = True
+
+        return simRes

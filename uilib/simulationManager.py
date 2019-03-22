@@ -31,6 +31,7 @@ class simulationProgressDialog(QDialog):
 
 class simulationManager(QObject):
 
+    simulationDone = pyqtSignal(object)
     newSimulationResult = pyqtSignal(object)
     simProgress = pyqtSignal(float)
 
@@ -39,7 +40,7 @@ class simulationManager(QObject):
 
         self.progDialog = simulationProgressDialog()
         self.simProgress.connect(self.progDialog.progressUpdate)
-        self.newSimulationResult.connect(self.progDialog.close)
+        self.simulationDone.connect(self.progDialog.close)
         self.progDialog.simulationCanceled.connect(self.cancelSim)
 
         self.motor = None
@@ -60,7 +61,10 @@ class simulationManager(QObject):
 
     def _simThread(self):
         simRes = self.motor.runSimulation(self.preferences, self.updateProgressBar)
-        if simRes is not None:
+        self.simulationDone.emit(simRes)
+        for alert in simRes.alerts:
+            print(alert.location + ": " + alert.description)
+        if simRes.success:
             self.newSimulationResult.emit(simRes)
 
     def updateProgressBar(self, prog):

@@ -1,5 +1,6 @@
 from . import geometry
 from . import units
+from . import simAlert, simAlertLevel, simAlertType
 from .properties import *
 
 import numpy as np
@@ -49,6 +50,14 @@ class grain(propertyCollection):
 
     def simulationSetup(self, preferences): # Do anything needed to prepare this grain for simulation
         return None
+
+    def getGeometryErrors(self):
+        errors = []
+        if self.props['diameter'].getValue() == 0:
+            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Diameter must not be 0'))
+        if self.props['length'].getValue() == 0:
+            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Length must not be 0'))
+        return errors
 
 
 def length(contour): # Adds up the length of each segment in a contour
