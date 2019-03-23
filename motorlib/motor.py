@@ -175,17 +175,21 @@ class motor():
 
         simRes = simulationResult(self.nozzle, self.grains)
 
+        # Check for geometry errors
         for gid, grain in enumerate(self.grains):
             for alert in grain.getGeometryErrors():
                 alert.location = "Grain " + str(gid + 1)
                 simRes.addAlert(alert)
 
+        # If any geometry errors occurred, stop simulation and return an empty sim with errors
         if len(simRes.getAlertsByLevel(simAlertLevel.ERROR)) > 0:
             return simRes
 
+        # Generate coremaps for perforated grains
         for grain in self.grains:
             grain.simulationSetup(preferences)
 
+        # Setup initial values
         perGrainReg = [0 for grain in self.grains]
 
         t = [0, ts]
@@ -196,6 +200,16 @@ class motor():
         m_flow = [[0, 0] for grain in self.grains]
         m_flux = [[0, 0] for grain in self.grains]
 
+        # Check port/throat ratio and add a warning if it is large enough
+        aftPort = self.grains[-1].getPortArea(0)
+        if aftPort is not None:
+            minAllowed = 2 # TODO: Make the threshold configurable
+            ratio = aftPort / geometry.circleArea(self.nozzle.props['throat'].getValue())
+            if ratio < minAllowed:
+                desc = 'Initial port/throat ratio of ' + str(round(ratio, 3)) + ' was less than ' + str(minAllowed)
+                simRes.addAlert(simAlert(simAlertLevel.WARNING, simAlertType.CONSTRAINT, desc, 'N/A'))
+
+        # Perform timesteps
         while f[-1] > burnoutThrustThres * 0.01 * max(f): # 0.01 to convert to a percentage
             # Calculate regression
             mf = 0
