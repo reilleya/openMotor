@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QDialog
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import pyqtSignal
 
@@ -34,12 +34,12 @@ class preferences():
             return fromUnit
 
 
-class PreferencesWindow(QWidget):
+class PreferencesWindow(QDialog):
 
     preferencesApplied = pyqtSignal(dict)
 
     def __init__(self):
-        QWidget.__init__(self)
+        QDialog.__init__(self)
 
         loadUi("resources/Preferences.ui", self)
         self.buttonBox.accepted.connect(self.apply)
