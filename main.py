@@ -8,6 +8,9 @@ import motorlib
 import uilib
 
 class Window(QMainWindow):
+
+    preferencesChanged = pyqtSignal(object)
+
     def __init__(self, startupFile = None):
         QWidget.__init__(self)
         loadUi("resources/MainWindow.ui", self)
@@ -19,7 +22,7 @@ class Window(QMainWindow):
 
         self.propManager = uilib.propellantManager()
         self.propManager.updated.connect(self.propListChanged)
-        self.propManager.setPreferences(self.preferences)
+        self.preferencesChanged.connect(self.propManager.setPreferences)
 
         self.motorStatLabels = [self.labelMotorDesignation, self.labelImpulse, self.labelDeliveredISP, self.labelBurnTime,
                                 self.labelAveragePressure, self.labelPeakPressure, self.labelInitialKN, self.labelPeakKN,
@@ -32,10 +35,10 @@ class Window(QMainWindow):
             self.fileManager.load(startupFile)
 
         self.engExporter = uilib.engExportMenu()
-        self.engExporter.setPreferences(self.preferences)
+        self.preferencesChanged.connect(self.engExporter.setPreferences)
 
         self.simulationManager = uilib.simulationManager()
-        self.simulationManager.setPreferences(self.preferences)
+        self.preferencesChanged.connect(self.simulationManager.setPreferences)
         self.simulationManager.newSimulationResult.connect(self.updateMotorStats)
         self.simulationManager.newSimulationResult.connect(self.graphWidget.showData)
         self.simulationManager.newSimulationResult.connect(self.engExporter.acceptSimResult)
@@ -43,9 +46,10 @@ class Window(QMainWindow):
         self.aboutDialog = uilib.aboutDialog()
 
         self.toolManager = uilib.toolManager(self.fileManager)
-        self.toolManager.setPreferences(self.preferences)
+        self.preferencesChanged.connect(self.toolManager.setPreferences)
         self.toolManager.setupMenu(self.menuTools)
 
+        self.preferencesChanged.emit(self.preferences)
         self.setupMotorStats()
         self.setupMotorEditor()
         self.setupGrainAddition()
@@ -347,10 +351,7 @@ class Window(QMainWindow):
         self.updateGrainTable()
         self.setupMotorStats()
         self.setupGraph()
-        self.propManager.setPreferences(self.preferences) # Add a signal that pubs to these slots
-        self.engExporter.setPreferences(self.preferences)
-        self.simulationManager.setPreferences(self.preferences)
-        self.toolManager.setPreferences(self.preferences)
+        self.preferencesChanged.emit(self.preferences)
 
     def showPreferences(self):
         self.preferencesWindow.load(self.preferences)
