@@ -42,6 +42,10 @@ class Window(QMainWindow):
 
         self.aboutDialog = uilib.aboutDialog()
 
+        self.toolManager = uilib.toolManager(self.fileManager)
+        self.toolManager.setPreferences(self.preferences)
+        self.toolManager.setupMenu(self.menuTools)
+
         self.setupMotorStats()
         self.setupMotorEditor()
         self.setupGrainAddition()
@@ -343,8 +347,10 @@ class Window(QMainWindow):
         self.updateGrainTable()
         self.setupMotorStats()
         self.setupGraph()
-        self.propManager.setPreferences(self.preferences)
+        self.propManager.setPreferences(self.preferences) # Add a signal that pubs to these slots
         self.engExporter.setPreferences(self.preferences)
+        self.simulationManager.setPreferences(self.preferences)
+        self.toolManager.setPreferences(self.preferences)
 
     def showPreferences(self):
         self.preferencesWindow.load(self.preferences)

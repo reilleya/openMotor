@@ -469,7 +469,7 @@
      <x>0</x>
      <y>0</y>
      <width>1300</width>
-     <height>21</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -520,31 +520,15 @@
     </property>
     <addaction name="actionAboutOpenMotor"/>
    </widget>
-   <widget class="QMenu" name="menuOptimize">
+   <widget class="QMenu" name="menuTools">
     <property name="title">
      <string>Tools</string>
     </property>
-    <widget class="QMenu" name="menuSet">
-     <property name="title">
-      <string>Set</string>
-     </property>
-     <addaction name="actionMotor_Diameter"/>
-     <addaction name="actionInitial_KN"/>
-     <addaction name="actionMax_KN"/>
-    </widget>
-    <widget class="QMenu" name="menuOptimize_2">
-     <property name="title">
-      <string>Optimize</string>
-     </property>
-     <addaction name="actionExpansion_Ratio"/>
-    </widget>
-    <addaction name="menuSet"/>
-    <addaction name="menuOptimize_2"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuSimulate"/>
-   <addaction name="menuOptimize"/>
+   <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionQuit">
@@ -638,7 +622,7 @@
     <string>Propellant Editor</string>
    </property>
   </action>
-  <action name="actionMotor_Diameter">
+  <action name="actionMotorDiameter">
    <property name="text">
     <string>Motor Diameter</string>
    </property>

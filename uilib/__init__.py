@@ -11,3 +11,5 @@ from .fileManager import *
 from .engExport import *
 from .simulationManager import *
 from .aboutDialog import *
+from .tool import *
+from .toolManager import *

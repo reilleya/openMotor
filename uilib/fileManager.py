@@ -62,11 +62,12 @@ class fileManager(QObject):
         return nm
 
     def addNewMotorHistory(self, motor):
-        if self.canRedo():
-            del self.fileHistory[self.currentVersion + 1:]
-        self.fileHistory.append(motor.getDict())
-        self.currentVersion += 1
-        self.sendTitleUpdate()
+        if motor.getDict() != self.fileHistory[self.currentVersion]:
+            if self.canRedo():
+                del self.fileHistory[self.currentVersion + 1:]
+            self.fileHistory.append(motor.getDict())
+            self.currentVersion += 1
+            self.sendTitleUpdate()
 
     def canUndo(self):
         return self.currentVersion > 0
