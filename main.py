@@ -48,6 +48,7 @@ class Window(QMainWindow):
         self.toolManager = uilib.toolManager(self.fileManager)
         self.preferencesChanged.connect(self.toolManager.setPreferences)
         self.toolManager.setupMenu(self.menuTools)
+        self.toolManager.changeApplied.connect(self.updateGrainTable)
 
         self.preferencesChanged.emit(self.preferences)
         self.setupMotorStats()

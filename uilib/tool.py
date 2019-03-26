@@ -10,6 +10,7 @@ class tool(QDialog):
         self.manager = manager
         self.name = name
         self.description = description
+        self.preferences = None
         self.propCollection = motorlib.propertyCollection()
         self.propCollection.props = propDict
 
@@ -25,6 +26,7 @@ class tool(QDialog):
         self.layout().addWidget(self.editor)
 
     def setPreferences(self, pref):
+        self.preferences = pref
         self.editor.setPreferences(pref)
 
     def show(self):
