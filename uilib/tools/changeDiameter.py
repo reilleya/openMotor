@@ -7,7 +7,7 @@ class changeDiameterTool(tool):
         props = {'diameter': motorlib.floatProperty('Diameter', 'm', 0, 1)}
         super().__init__(manager,
                             'Motor diameter',
-                            'Use this tool to set the diameter of all grains in the motor',
+                            'Use this tool to set the diameter of all grains in the motor.',
                             props,
                             False)
 

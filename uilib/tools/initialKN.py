@@ -7,7 +7,7 @@ class initialKNTool(tool):
         props = {'kn': motorlib.floatProperty('KN', '', 0, 1000)}
         super().__init__(manager,
                             'Initial KN', 
-                            'Use this tool to set the nozzle throat to achieve a specific KN at startup',
+                            'Use this tool to set the nozzle throat to achieve a specific KN at startup.',
                             props,
                             False)
 

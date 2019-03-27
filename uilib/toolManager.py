@@ -2,7 +2,7 @@ from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QAction, QMenu
 from PyQt5.QtCore import pyqtSignal
 
-from .tools import changeDiameterTool, initialKNTool, maxKNTool
+from .tools import *
 
 class toolManager(QObject):
 
@@ -15,7 +15,7 @@ class toolManager(QObject):
         self.simulationManager = simulationManager
 
         self.tools = {'Set': [changeDiameterTool(self), initialKNTool(self), maxKNTool(self)],
-                      'Optimize': [],
+                      'Optimize': [expansionTool(self)],
                       'Design': []}
 
         for toolCategory in self.tools.keys():

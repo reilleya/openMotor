@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel
+from PyQt5.QtGui import QIcon
 
 from . import collectionEditor
 
@@ -19,6 +20,7 @@ class tool(QDialog):
         self.inp = None
 
         self.setWindowTitle(self.name)
+        self.setWindowIcon(QIcon('resources/oMIconCycles.png'))
         self.setLayout(QVBoxLayout())
 
         self.descLabel = QLabel(self.description)
@@ -28,6 +30,8 @@ class tool(QDialog):
         self.editor.changeApplied.connect(self.applyPressed)
         self.editor.closed.connect(self.hide)
         self.layout().addWidget(self.editor)
+
+        self.setFixedSize(self.minimumSize()) # Prevent resizing
 
     def setPreferences(self, pref):
         self.preferences = pref
@@ -40,7 +44,6 @@ class tool(QDialog):
     def applyPressed(self, inp):
         if self.needsSimulation:
             self.inp = inp
-            print(self.inp)
             self.motor = self.manager.getMotor()
             self.manager.requestSimulation()
         else:
@@ -54,7 +57,6 @@ class tool(QDialog):
             self.motor = None
 
     def simCanceled(self):
-        print('can')
         self.inp = None
         self.motor = None
 
