@@ -45,7 +45,7 @@ class Window(QMainWindow):
 
         self.aboutDialog = uilib.aboutDialog()
 
-        self.toolManager = uilib.toolManager(self.fileManager)
+        self.toolManager = uilib.toolManager(self.fileManager, self.simulationManager)
         self.preferencesChanged.connect(self.toolManager.setPreferences)
         self.toolManager.setupMenu(self.menuTools)
         self.toolManager.changeApplied.connect(self.updateGrainTable)

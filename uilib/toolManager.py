@@ -2,22 +2,26 @@ from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QAction, QMenu
 from PyQt5.QtCore import pyqtSignal
 
-from .tools import changeDiameterTool, initialKNTool
+from .tools import changeDiameterTool, initialKNTool, maxKNTool
 
 class toolManager(QObject):
 
     changeApplied = pyqtSignal()
 
-    def __init__(self, fileManager):
+    def __init__(self, fileManager, simulationManager):
         super().__init__()
 
         self.fileManager = fileManager
+        self.simulationManager = simulationManager
 
-        self.tools = {'Set': [changeDiameterTool(self), initialKNTool(self)],
+        self.tools = {'Set': [changeDiameterTool(self), initialKNTool(self), maxKNTool(self)],
                       'Optimize': [],
                       'Design': []}
 
-        self.motor = None
+        for toolCategory in self.tools.keys():
+            for tool in self.tools[toolCategory]:
+                self.simulationManager.simulationDone.connect(tool.simDone)
+                self.simulationManager.simCanceled.connect(tool.simCanceled)
 
     def setPreferences(self, pref):
         for toolCategory in self.tools.keys():
@@ -39,3 +43,7 @@ class toolManager(QObject):
     def updateMotor(self, motor):
         self.fileManager.addNewMotorHistory(motor)
         self.changeApplied.emit()
+
+    def requestSimulation(self):
+        motor = self.fileManager.getCurrentMotor()
+        self.simulationManager.runSimulation(motor, False)

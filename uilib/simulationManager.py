@@ -21,12 +21,9 @@ class simulationProgressDialog(QDialog):
         self.progressBar.setValue(0)
         super().show()
 
-    def close(self):
-        super().close()
-
     def closeEvent(self, event = None):
-        self.close()
         self.simulationCanceled.emit()
+        self.close()
 
     def progressUpdate(self, progress):
         self.progressBar.setValue(int(progress * 100))
@@ -73,13 +70,14 @@ class simulationManager(QObject):
     simulationDone = pyqtSignal(object)
     newSimulationResult = pyqtSignal(object)
     simProgress = pyqtSignal(float)
+    simCanceled = pyqtSignal()
 
     def __init__(self):
         super().__init__()
 
         self.progDialog = simulationProgressDialog()
         self.simProgress.connect(self.progDialog.progressUpdate)
-        self.simulationDone.connect(self.progDialog.close)
+        self.simulationDone.connect(self.progDialog.hide)
         self.progDialog.simulationCanceled.connect(self.cancelSim)
 
         self.alertsDialog = simulationAlertsDialog()
@@ -94,17 +92,17 @@ class simulationManager(QObject):
     def setPreferences(self, preferences):
         self.preferences = preferences
 
-    def runSimulation(self, motor):
+    def runSimulation(self, motor, show = True): # Show sets if the results will be reported on newSimulationResult and shown in UI
         self.motor = motor
         self.threadStopped = False
         self.progDialog.show()
-        self.currentSimThread = Thread(target = self._simThread)
+        self.currentSimThread = Thread(target = self._simThread, args = [show])
         self.currentSimThread.start()
 
-    def _simThread(self):
+    def _simThread(self, show):
         simRes = self.motor.runSimulation(self.preferences, self.updateProgressBar)
         self.simulationDone.emit(simRes)
-        if simRes.success:
+        if simRes.success and show:
             self.newSimulationResult.emit(simRes)
 
     def updateProgressBar(self, prog):
@@ -113,3 +111,4 @@ class simulationManager(QObject):
 
     def cancelSim(self):
         self.threadStopped = True
+        self.simCanceled.emit()

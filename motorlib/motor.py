@@ -240,7 +240,7 @@ class motor():
             if callback is not None:
                 progress = max([g.getWebLeft(r) / g.getWebLeft(0) for g,r in zip(self.grains, perGrainReg)]) # Grain with the largest percentage of its web left
                 if callback(1 - progress):
-                    return
+                    return simRes
 
         t.append(t[-1] + ts)
         k.append(0)

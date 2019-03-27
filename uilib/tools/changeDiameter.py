@@ -8,10 +8,10 @@ class changeDiameterTool(tool):
         super().__init__(manager,
                             'Motor diameter',
                             'Use this tool to set the diameter of all grains in the motor',
-                            props)
+                            props,
+                            False)
 
-    def applyChanges(self, inp):
-        motor = self.manager.getMotor()
+    def applyChanges(self, inp, motor, sim):
         for grain in motor.grains:
             grain.setProperties({'diameter': inp['diameter']})
         self.manager.updateMotor(motor)
