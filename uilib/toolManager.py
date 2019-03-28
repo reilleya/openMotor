@@ -8,15 +8,16 @@ class toolManager(QObject):
 
     changeApplied = pyqtSignal()
 
-    def __init__(self, fileManager, simulationManager):
+    def __init__(self, fileManager, simulationManager, propellantManager):
         super().__init__()
 
         self.fileManager = fileManager
         self.simulationManager = simulationManager
+        self.propellantManager = propellantManager
 
         self.tools = {'Set': [changeDiameterTool(self), initialKNTool(self), maxKNTool(self)],
                       'Optimize': [expansionTool(self)],
-                      'Design': []}
+                      'Design': [neutralBatesTool(self)]}
 
         for toolCategory in self.tools.keys():
             for tool in self.tools[toolCategory]:
@@ -39,6 +40,12 @@ class toolManager(QObject):
 
     def getMotor(self):
         return self.fileManager.getCurrentMotor()
+
+    def getPropellantNames(self):
+        return self.propellantManager.getNames()
+
+    def getPropellantByName(self, name):
+        return self.propellantManager.getPropellantByName(name)
 
     def updateMotor(self, motor):
         self.fileManager.addNewMotorHistory(motor)

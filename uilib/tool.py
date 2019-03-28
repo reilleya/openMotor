@@ -24,14 +24,13 @@ class tool(QDialog):
         self.setLayout(QVBoxLayout())
 
         self.descLabel = QLabel(self.description)
+        self.descLabel.setWordWrap(True)
         self.layout().addWidget(self.descLabel)
 
         self.editor = collectionEditor(self, True)
         self.editor.changeApplied.connect(self.applyPressed)
         self.editor.closed.connect(self.hide)
         self.layout().addWidget(self.editor)
-
-        self.setFixedSize(self.minimumSize()) # Prevent resizing
 
     def setPreferences(self, pref):
         self.preferences = pref
