@@ -1,10 +1,10 @@
-from .. import perforatedGrain
+from .. import fmmGrain
 from ..properties import *
 from .. import simAlert, simAlertLevel, simAlertType
 
 import numpy as np
 
-class cGrain(perforatedGrain):
+class cGrain(fmmGrain):
     geomName = 'C Grain'
     def __init__(self):
         super().__init__()

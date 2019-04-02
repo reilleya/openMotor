@@ -46,7 +46,7 @@ class simulationResult():
         return max(self.kn)
 
     def getAveragePressure(self):
-        return sum(self.pressure)/len(self.pressure)
+        return sum(self.pressure) / len(self.pressure)
 
     def getMaxPressure(self):
         return max(self.pressure)
@@ -64,6 +64,8 @@ class simulationResult():
 
     def getDesignation(self):
         imp = self.getImpulse()
+        if imp == 0: # This is to avoid a domain error finding log(0)
+            return 'N/A'
         return chr(int(math.log(imp/2.5, 2)) + 66) + str(int(self.getAverageForce()))
 
     def getPeakMassFlux(self):

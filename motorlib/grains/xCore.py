@@ -1,10 +1,10 @@
-from .. import perforatedGrain
+from .. import fmmGrain
 from ..properties import *
 from .. import simAlert, simAlertLevel, simAlertType
 
 import numpy as np
 
-class xCore(perforatedGrain):
+class xCore(fmmGrain):
     geomName = 'X Core'
     def __init__(self):
         super().__init__()
