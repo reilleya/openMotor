@@ -5,7 +5,7 @@ from PyQt5.QtCore import pyqtSignal
 
 from threading import Thread
 
-from motorlib import simAlertLevel, simAlertType
+from motorlib import simAlertLevel, simAlertType, alertLevelNames, alertTypeNames
 
 class simulationProgressDialog(QDialog):
 
@@ -27,18 +27,6 @@ class simulationProgressDialog(QDialog):
 
     def progressUpdate(self, progress):
         self.progressBar.setValue(int(progress * 100))
-
-
-alertLevelNames = {
-                    simAlertLevel.ERROR: 'Error', 
-                    simAlertLevel.WARNING: 'Warning', 
-                    simAlertLevel.MESSAGE: 'Message'
-                }
-
-alertTypeNames = {
-                    simAlertType.GEOMETRY: 'Geometry',
-                    simAlertType.CONSTRAINT: 'Constraint'
-                }
 
 class simulationAlertsDialog(QDialog):
     def __init__(self):

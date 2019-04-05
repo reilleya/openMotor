@@ -371,6 +371,14 @@ if __name__ == '__main__':
                 motor = motorlib.motor()
                 motor.loadDict(motorData)
                 simres = motor.runSimulation(preferences)
+                for alert in simres.alerts:
+                    print(motorlib.alertLevelNames[alert.level] + '(' + motorlib.alertTypeNames[alert.type] + ', ' + alert.location + '): ' + alert.description)
+                print()
+                if '-o' in sys.argv:
+                    with open(sys.argv[sys.argv.index('-o') + 1], 'w') as outputFile:
+                        outputFile.write(simres.getCSV(preferences))
+                else:
+                    print(simres.getCSV(preferences))
     else:
         app = QApplication(sys.argv)
         startupFile = None

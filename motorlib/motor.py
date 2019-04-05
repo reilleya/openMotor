@@ -149,8 +149,8 @@ class motor():
                     perGrainMassFlux[gid] = grain.getPeakMassFlux(mf, ts, perGrainReg[gid], reg, self.propellant.getProperty('density')) # Find the mass flux through the grain based on the mass flow fed into from grains above it
                     perGrainMass[gid] = grain.getVolumeAtRegression(perGrainReg[gid]) * self.propellant.getProperty('density') # Find the mass of the grain after regression
                     mf += (simRes.channels['mass'].getLast()[gid] - perGrainMass[gid]) / ts # Add the change in grain mass to the mass flow
-                    perGrainMassFlow[gid] = mf
                     perGrainReg[gid] += reg # Apply the regression
+                perGrainMassFlow[gid] = mf
 
             simRes.channels['mass'].addData(perGrainMass)
             simRes.channels['massFlow'].addData(perGrainMassFlow)

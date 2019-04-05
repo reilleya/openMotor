@@ -13,6 +13,17 @@ class simAlertType(Enum):
     GEOMETRY = 1
     CONSTRAINT = 2
 
+alertLevelNames = {
+                    simAlertLevel.ERROR: 'Error',
+                    simAlertLevel.WARNING: 'Warning',
+                    simAlertLevel.MESSAGE: 'Message'
+                }
+
+alertTypeNames = {
+                    simAlertType.GEOMETRY: 'Geometry',
+                    simAlertType.CONSTRAINT: 'Constraint'
+                }
+
 class simAlert():
     def __init__(self, level, alertType, description, location = None):
         self.level = level
@@ -134,4 +145,48 @@ class simulationResult():
         for alert in self.alerts:
             if alert.level == level:
                 out.append(alert)
+        return out
+
+    def getCSV(self, pref = None, channels = None):
+        out = ''
+        outUnits = {}
+        for ch in self.channels:
+            # Get unit from preferences
+            if pref is not None:
+                outUnits[ch] = pref.getUnit(self.channels[ch].unit)
+            else:
+                outUnits[ch] = self.channels[ch].unit
+            # Add title for column
+            if self.channels[ch].valueType in (float, int):
+                out += self.channels[ch].name
+                if outUnits[ch] != '':
+                    out += '(' + outUnits[ch] + ')'
+                out += ','
+            elif self.channels[ch].valueType in (list, tuple):
+                for grain in range(1, len(self.channels[ch].getLast()) + 1):
+                    out += self.channels[ch].name + '('
+                    out += 'G' + str(grain)
+                    if outUnits[ch] != '':
+                        out += ';' + outUnits[ch]
+                    out += '),'
+
+        out = out[:-1] # Remove the last comma
+        out += '\n'
+
+        places = 5
+        for ind, t in enumerate(self.channels['time'].getData()):
+            out += str(round(t, places)) + ','
+            for ch in self.channels:
+                if ch != 'time':
+                    if self.channels[ch].valueType in (float, int):
+                        conv = round(units.convert(self.channels[ch].getPoint(ind), self.channels[ch].unit, outUnits[ch]), places)
+                        out += str(conv) + ','
+                    elif self.channels[ch].valueType in (list, tuple):
+                        for grainVal in self.channels[ch].getPoint(ind):
+                            conv = round(units.convert(grainVal, self.channels[ch].unit, outUnits[ch]), places)
+                            out += str(conv) + ','
+
+            out = out[:-1] # Remove the last comma
+            out += '\n'
+
         return out
