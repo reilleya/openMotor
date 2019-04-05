@@ -62,7 +62,7 @@ class engExportMenu(QDialog):
 
     def acceptSimResult(self, simRes):
         self.motorDesignation = simRes.getDesignation()
-        self.times = simRes.time
-        self.thrustCurve = simRes.force
+        self.times = simRes.channels['time'].getData()
+        self.thrustCurve = simRes.channels['force'].getData()
         self.thrustCurve[0] += 0.01
-        self.propMass = sum([grain[0] for grain in simRes.mass])
+        self.propMass = simRes.getPropellantMass()

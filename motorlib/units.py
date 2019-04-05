@@ -1,4 +1,4 @@
-unitLabels = {'m': 'Length', 'm/s': 'Velocity', 'N': 'Force', 'Ns': 'Impulse', 'Pa': 'Pressure', 'kg': 'Mass', 'kg/m^3': 'Density', 'kg/(m^2*s)': 'Mass Flux', 'm/(s*Pa^n)': 'Burn Rate Coefficient'}
+unitLabels = {'m': 'Length', 'm/s': 'Velocity', 'N': 'Force', 'Ns': 'Impulse', 'Pa': 'Pressure', 'kg': 'Mass', 'kg/m^3': 'Density', 'kg/s': 'Mass Flow', 'kg/(m^2*s)': 'Mass Flux', 'm/(s*Pa^n)': 'Burn Rate Coefficient'}
 
 unitTable = [
 ('m', 'cm', 100),
@@ -20,6 +20,8 @@ unitTable = [
 ('kg', 'oz', 2.205 * 16),
 
 ('kg/m^3', 'lb/in^3', 3.61273e-5),
+
+('kg/s', 'lb/s', 2.205),
 
 ('kg/(m^2*s)', 'lb/(in^2*s)', 0.001422),
 

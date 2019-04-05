@@ -32,9 +32,9 @@ class graphWidget(FigureCanvas):
 
         pressureUnit = self.preferences.getUnit('Pa')
         forceUnit = self.preferences.getUnit('N')
-        self.plot.plot(simResult.time, simResult.kn)
-        self.plot.plot(simResult.time, [motorlib.convert(pr, 'Pa', pressureUnit) for pr in simResult.pressure])
-        self.plot.plot(simResult.time, [motorlib.convert(fr, 'N', forceUnit) for fr in simResult.force])
+        self.plot.plot(simResult.channels['time'].getData(), simResult.channels['kn'].getData())
+        self.plot.plot(simResult.channels['time'].getData(), simResult.channels['pressure'].getData(pressureUnit))
+        self.plot.plot(simResult.channels['time'].getData(), simResult.channels['force'].getData(forceUnit))
         self.plot.legend(["Kn", "Pressure - " + pressureUnit, "Force - " + forceUnit])
         self.draw()
 

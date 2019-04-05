@@ -9,58 +9,88 @@ from . import simAlert, simAlertLevel, simAlertType
 import math
 import numpy as np
 
+class logChannel():
+    def __init__(self, name, valueType, unit):
+        if valueType not in (int, float, list, tuple):
+            raise TypeError('Value type not in allowed set')
+        self.name = name
+        self.unit = unit
+        self.valueType = valueType
+        self.data = []
+
+    def getData(self, unit = None):
+        if unit is None:
+            return self.data
+        else:
+            return [units.convert(p, self.unit, unit) for p in self.data]
+
+    def getPoint(self, i):
+        return self.data[i]
+
+    def getLast(self):
+        return self.data[-1]
+
+    def addData(self, data):
+        self.data.append(data)
+
+    def getAverage(self):
+        if self.valueType in (int, float):
+            return sum(self.data) / len(self.data)
+        elif self.valueType in (list, tuple):
+            raise NotImplementedError('Average not supported for list types')
+
+    def getMax(self):
+        if self.valueType in (int, float):
+            return max(self.data)
+        elif self.valueType in (list, tuple):
+            return max([max(l) for l in self.data])
+
+
 class simulationResult():
-    def __init__(self, nozzle, grains):
+    def __init__(self, motor):
+        self.motor = motor
+
         self.alerts = []
         self.success = False
 
-        self.nozzle = nozzle
-        self.grains = grains
-        self.time = None
-        self.kn = None
-        self.pressure = None
-        self.force = None
-        self.mass = None
-        self.massFlow = None
-        self.massFlux = None
-
-    def addSimData(self, time, kn, pressure, force, mass, massFlow, massFlux):
-        self.time = time
-        self.kn = kn
-        self.pressure = pressure
-        self.force = force
-        self.mass = mass
-        self.massFlow = massFlow
-        self.massFlux = massFlux
+        self.channels = {
+                            'time': logChannel('Time', float, 's'),
+                            'kn': logChannel('KN', float, ''),
+                            'pressure': logChannel('Chamber Pressure', float, 'pa'),
+                            'force': logChannel('Thrust', float, 'n'),
+                            'mass': logChannel('Propellant Mass', tuple, 'kg'),
+                            'massFlow': logChannel('Mass Flow', tuple, 'kg/s'),
+                            'massFlux': logChannel('Mass Flux', tuple, 'kg/(m^2*s)')
+                        }
 
     def addAlert(self, alert):
         self.alerts.append(alert)
 
     def getBurnTime(self):
-        return self.time[-1]
+        return self.channels['time'].getLast()
 
     def getInitialKN(self):
-        return self.kn[1]
+        return self.channels['kn'].getPoint(1)
 
     def getPeakKN(self):
-        return max(self.kn)
+        return self.channels['kn'].getMax()
 
     def getAveragePressure(self):
-        return sum(self.pressure) / len(self.pressure)
+        return self.channels['pressure'].getAverage()
 
     def getMaxPressure(self):
-        return max(self.pressure)
+        return self.channels['pressure'].getMax()
 
     def getImpulse(self):
         impulse = 0
         lastTime = 0
-        for time, force in zip(self.time, self.force):
+        for time, force in zip(self.channels['time'].data, self.channels['force'].data):
             impulse += force * (time - lastTime)
             lastTime = time
         return impulse
 
     def getAverageForce(self):
-        return sum(self.force)/len(self.force)
+        return self.channels['force'].getAverage()
 
     def getDesignation(self):
         imp = self.getImpulse()
@@ -69,23 +99,23 @@ class simulationResult():
         return chr(int(math.log(imp/2.5, 2)) + 66) + str(int(self.getAverageForce()))
 
     def getPeakMassFlux(self):
-        return max([max(mf) for mf in self.massFlux])
+        return self.channels['massFlux'].getMax()
 
     def getISP(self):
-        return self.getImpulse() / (sum([grainMass[0] for grainMass in self.mass]) * 9.80665)
+        return self.getImpulse() / (self.getPropellantMass() * 9.80665)
 
     def getPortRatio(self):
-        aftPort = self.grains[-1].getPortArea(0)
+        aftPort = self.motor.grains[-1].getPortArea(0)
         if aftPort is not None:
-            return aftPort / geometry.circleArea(self.nozzle.props['throat'].getValue())
+            return aftPort / geometry.circleArea(self.motor.nozzle.props['throat'].getValue())
         else:
             return None
 
     def getPropellantLength(self):
-        return sum([g.props['length'].getValue() for g in self.grains])
+        return sum([g.props['length'].getValue() for g in self.motor.grains])
 
     def getPropellantMass(self):
-        return sum([m[0] for m in self.mass])
+        return sum(self.channels['mass'].getPoint(0))
 
     def getAlertsByLevel(self, level):
         out = []
@@ -175,7 +205,7 @@ class motor():
             burnoutThrustThres = 0.1
             ts = 0.01
 
-        simRes = simulationResult(self.nozzle, self.grains)
+        simRes = simulationResult(self)
 
         # Check for geometry errors
         for gid, grain in enumerate(self.grains):
@@ -194,13 +224,23 @@ class motor():
         # Setup initial values
         perGrainReg = [0 for grain in self.grains]
 
-        t = [0, ts]
-        k = [0, self.calcKN(perGrainReg, burnoutWebThres)]
-        p = [0, self.calcIdealPressure(perGrainReg, None, burnoutWebThres)]
-        f = [0, self.calcForce(perGrainReg, None, ambientPressure, burnoutWebThres)]
-        mass = [[grain.getVolumeAtRegression(0) * self.propellant.getProperty('density'), grain.getVolumeAtRegression(0) * self.propellant.getProperty('density')] for grain in self.grains]
-        m_flow = [[0, 0] for grain in self.grains]
-        m_flux = [[0, 0] for grain in self.grains]
+        # At t=0, the motor hasn't yet ignited
+        simRes.channels['time'].addData(0)
+        simRes.channels['kn'].addData(0)
+        simRes.channels['pressure'].addData(0)
+        simRes.channels['force'].addData(0)
+        simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * self.propellant.getProperty('density') for grain in self.grains])
+        simRes.channels['massFlow'].addData([0 for grain in self.grains])
+        simRes.channels['massFlux'].addData([0 for grain in self.grains])
+
+        # At t = ts, the motor has ignited
+        simRes.channels['time'].addData(ts)
+        simRes.channels['kn'].addData(self.calcKN(perGrainReg, burnoutWebThres))
+        simRes.channels['pressure'].addData(self.calcIdealPressure(perGrainReg, None, burnoutWebThres))
+        simRes.channels['force'].addData(self.calcForce(perGrainReg, None, ambientPressure, burnoutWebThres))
+        simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * self.propellant.getProperty('density') for grain in self.grains])
+        simRes.channels['massFlow'].addData([0 for grain in self.grains])
+        simRes.channels['massFlux'].addData([0 for grain in self.grains])
 
         # Check port/throat ratio and add a warning if it is large enough
         aftPort = self.grains[-1].getPortArea(0)
@@ -212,53 +252,49 @@ class motor():
                 simRes.addAlert(simAlert(simAlertLevel.WARNING, simAlertType.CONSTRAINT, desc, 'N/A'))
 
         # Perform timesteps
-        while f[-1] > burnoutThrustThres * 0.01 * max(f): # 0.01 to convert to a percentage
+        while simRes.channels['force'].getLast() > burnoutThrustThres * 0.01 * simRes.channels['force'].getMax(): # 0.01 to convert to a percentage
             # Calculate regression
             mf = 0
+            perGrainMass = [0 for grain in self.grains]
+            perGrainMassFlow = [0 for grain in self.grains]
+            perGrainMassFlux = [0 for grain in self.grains]
             for gid, grain in enumerate(self.grains):
                 if grain.getWebLeft(perGrainReg[gid]) > burnoutWebThres:
-                    reg = ts * self.propellant.getProperty('a') * (p[-1]**self.propellant.getProperty('n'))
-                    
-                    m_flux[gid].append(grain.getPeakMassFlux(mf, ts, perGrainReg[gid], reg, self.propellant.getProperty('density')))
-                    
-                    mass[gid].append(grain.getVolumeAtRegression(perGrainReg[gid]) * self.propellant.getProperty('density'))
+                    reg = ts * self.propellant.getProperty('a') * (simRes.channels['pressure'].getLast()**self.propellant.getProperty('n')) # Calculate regression at the current pressure
+                    perGrainMassFlux[gid] = grain.getPeakMassFlux(mf, ts, perGrainReg[gid], reg, self.propellant.getProperty('density')) # Find the mass flux through the grain based on the mass flow fed into from grains above it
+                    perGrainMass[gid] = grain.getVolumeAtRegression(perGrainReg[gid]) * self.propellant.getProperty('density') # Find the mass of the grain after regression
+                    mf += (simRes.channels['mass'].getLast()[gid] - perGrainMass[gid]) / ts # Add the change in grain mass to the mass flow
+                    perGrainMassFlow[gid] = mf
+                    perGrainReg[gid] += reg # Apply the regression
 
-                    mf += (mass[gid][-2] - mass[gid][-1]) / ts
-                    m_flow[gid].append(mf)
-                    
-                    perGrainReg[gid] += reg
+            simRes.channels['mass'].addData(perGrainMass)
+            simRes.channels['massFlow'].addData(perGrainMassFlow)
+            simRes.channels['massFlux'].addData(perGrainMassFlux)
 
             # Calculate KN
-            k.append(self.calcKN(perGrainReg, burnoutWebThres))
+            simRes.channels['kn'].addData(self.calcKN(perGrainReg, burnoutWebThres))
 
             # Calculate Pressure
-            p.append(self.calcIdealPressure(perGrainReg, k[-1], burnoutWebThres))
+            simRes.channels['pressure'].addData(self.calcIdealPressure(perGrainReg, simRes.channels['kn'].getLast(), burnoutWebThres))
 
             # Calculate force
-            f.append(self.calcForce(perGrainReg, p[-1], ambientPressure, burnoutWebThres))
+            simRes.channels['force'].addData(self.calcForce(perGrainReg, simRes.channels['pressure'].getLast(), ambientPressure, burnoutWebThres))
 
-            t.append(t[-1] + ts)
+            simRes.channels['time'].addData(simRes.channels['time'].getLast() + ts)
 
             if callback is not None:
                 progress = max([g.getWebLeft(r) / g.getWebLeft(0) for g,r in zip(self.grains, perGrainReg)]) # Grain with the largest percentage of its web left
-                if callback(1 - progress):
+                if callback(1 - progress): # If the callback returns true, it is time to cancel
                     return simRes
 
-        t.append(t[-1] + ts)
-        k.append(0)
-        p.append(0)
-        f.append(0)
+        simRes.channels['time'].addData(simRes.channels['time'].getLast() + ts)
+        simRes.channels['kn'].addData(0)
+        simRes.channels['pressure'].addData(0)
+        simRes.channels['force'].addData(0)
+        simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * self.propellant.getProperty('density') for grain in self.grains])
+        simRes.channels['massFlow'].addData([0 for grain in self.grains])
+        simRes.channels['massFlux'].addData([0 for grain in self.grains])
 
-        for g in mass:
-            g.append(0)
-
-        for g in m_flow:
-            g.append(0)
-
-        for g in m_flux:
-            g.append(0)
-
-        simRes.addSimData(t, k, p, f, mass, m_flow, m_flux)
         simRes.success = True
 
         return simRes
