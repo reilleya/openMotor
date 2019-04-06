@@ -7,10 +7,10 @@ class neutralBatesTool(tool):
         props = {'length': motorlib.floatProperty('Propellant length', 'm', 0, 10),
                  'diameter': motorlib.floatProperty('Propellant diameter', 'm', 0, 1),
                  'grainSpace': motorlib.floatProperty('Grain spacer length', 'm', 0, 1),
-                 'kn': motorlib.floatProperty('Initial KN', '', 0, 1000)
+                 'Kn': motorlib.floatProperty('Initial Kn', '', 0, 1000)
         }
         super().__init__(manager,
-                            'Neutral BATES Geometry', 
+                            'Neutral BATES Geometry',
                             'Use this tool to generate the geometry for a neutral BATES motor of a specified diameter and length. The length field should be the total length that the propellant fits into, including spacers.',
                             props,
                             False)
@@ -30,7 +30,7 @@ class neutralBatesTool(tool):
             grain.simulationSetup(self.preferences) # Just in case this does something for BATES grains eventually
 
         surfArea = sum([g.getSurfaceAreaAtRegression(0) for g in newMotor.grains])
-        throatArea = surfArea / inp['kn']
+        throatArea = surfArea / inp['Kn']
         newMotor.nozzle.props['throat'].setValue(motorlib.geometry.circleDiameterFromArea(throatArea))
         newMotor.nozzle.props['exit'].setValue(motorlib.geometry.circleDiameterFromArea(throatArea * 7)) # Usually pretty close to optimal expansion. Should probably actually optimize it.
         newMotor.nozzle.props['efficiency'].setValue(0.85)

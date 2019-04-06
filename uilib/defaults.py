@@ -7,9 +7,9 @@ clProps = {'name': 'Cherry Limeade', 'density': 1680, 'a': 3.517054143255937e-05
 def defaultMotor():
     dm = motorlib.motor()
     bg = motorlib.batesGrain()
-    bg.setProperties({'diameter': 3.27/39.37, 
-              'length': 5.5/39.37, 
-              'coreDiameter': 1.25/39.37, 
+    bg.setProperties({'diameter': 3.27/39.37,
+              'length': 5.5/39.37,
+              'coreDiameter': 1.25/39.37,
               'inhibitedEnds': 'Neither'
               })
     dm.grains.append(bg)
@@ -31,11 +31,11 @@ def defaultPreferences():
 
     pref.units.props['m'].setValue('in')
     pref.units.props['m/s'].setValue('ft/s')
-    pref.units.props['pa'].setValue('psi')
+    pref.units.props['Pa'].setValue('psi')
     pref.units.props['kg'].setValue('lb')
     pref.units.props['kg/m^3'].setValue('lb/in^3')
     pref.units.props['kg/(m^2*s)'].setValue('lb/(in^2*s)')
-    pref.units.props['m/(s*pa^n)'].setValue('in/(s*psi^n)')
+    pref.units.props['m/(s*Pa^n)'].setValue('in/(s*psi^n)')
 
     return pref
 
