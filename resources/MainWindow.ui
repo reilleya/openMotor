@@ -317,7 +317,7 @@
            <item>
             <widget class="QLabel" name="labelPeakKNText">
              <property name="text">
-              <string>Peak KN:</string>
+              <string>Peak Kn:</string>
              </property>
             </widget>
            </item>
@@ -353,7 +353,7 @@
            <item>
             <widget class="QLabel" name="labelInitialKNText">
              <property name="text">
-              <string>Initial KN:</string>
+              <string>Initial Kn:</string>
              </property>
             </widget>
            </item>
