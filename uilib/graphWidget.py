@@ -25,17 +25,17 @@ class graphWidget(FigureCanvas):
 
     def setLabels(self):
         self.plot.set_xlabel('Time (s)')
-    
+
     def showData(self, simResult):
         self.plot.clear()
         self.setLabels()
 
-        pressureUnit = self.preferences.getUnit('pa')
-        forceUnit = self.preferences.getUnit('n')
+        pressureUnit = self.preferences.getUnit('Pa')
+        forceUnit = self.preferences.getUnit('N')
         self.plot.plot(simResult.time, simResult.kn)
-        self.plot.plot(simResult.time, [motorlib.convert(pr, 'pa', pressureUnit) for pr in simResult.pressure])
-        self.plot.plot(simResult.time, [motorlib.convert(fr, 'n', forceUnit) for fr in simResult.force])
-        self.plot.legend(["KN", "Pressure - " + pressureUnit, "Force - " + forceUnit])
+        self.plot.plot(simResult.time, [motorlib.convert(pr, 'Pa', pressureUnit) for pr in simResult.pressure])
+        self.plot.plot(simResult.time, [motorlib.convert(fr, 'N', forceUnit) for fr in simResult.force])
+        self.plot.legend(["Kn", "Pressure - " + pressureUnit, "Force - " + forceUnit])
         self.draw()
 
     def resetPlot(self):

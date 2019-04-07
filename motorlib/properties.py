@@ -64,7 +64,8 @@ class propertyCollection():
 
     def setProperties(self, props):
         for p in props.keys():
-            self.props[p].setValue(props[p])
+            if p in self.props: # This allows loading settings when the name of a field has changed
+                self.props[p].setValue(props[p])
 
     def getProperties(self, props = None):
         if props is None:

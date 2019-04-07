@@ -119,7 +119,7 @@ class Window(QMainWindow):
     def setupGrainTable(self):
         self.tableWidgetGrainList.clearContents()
 
-        header = self.tableWidgetGrainList.horizontalHeader()       
+        header = self.tableWidgetGrainList.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(1, QHeaderView.Stretch)
 
@@ -201,7 +201,7 @@ class Window(QMainWindow):
             elif gid == len(cm.grains):
                 self.pushButtonMoveGrainUp.setEnabled(False)
                 self.pushButtonMoveGrainDown.setEnabled(False)
-                self.pushButtonDeleteGrain.setEnabled(False) 
+                self.pushButtonDeleteGrain.setEnabled(False)
         else:
             self.toggleGrainEditButtons(False, False)
 
@@ -255,12 +255,12 @@ class Window(QMainWindow):
 
     def updateMotorStats(self, simResult):
         self.labelMotorDesignation.setText(simResult.getDesignation())
-        self.labelImpulse.setText(self.formatMotorStat(simResult.getImpulse(), 'ns'))
+        self.labelImpulse.setText(self.formatMotorStat(simResult.getImpulse(), 'Ns'))
         self.labelDeliveredISP.setText(self.formatMotorStat(simResult.getISP(), 's'))
         self.labelBurnTime.setText(self.formatMotorStat(simResult.getBurnTime(), 's'))
 
-        self.labelAveragePressure.setText(self.formatMotorStat(simResult.getAveragePressure(), 'pa'))
-        self.labelPeakPressure.setText(self.formatMotorStat(simResult.getMaxPressure(), 'pa'))
+        self.labelAveragePressure.setText(self.formatMotorStat(simResult.getAveragePressure(), 'Pa'))
+        self.labelPeakPressure.setText(self.formatMotorStat(simResult.getMaxPressure(), 'Pa'))
         self.labelInitialKN.setText(self.formatMotorStat(simResult.getInitialKN(), ''))
         self.labelPeakKN.setText(self.formatMotorStat(simResult.getPeakKN(), ''))
 

@@ -157,7 +157,7 @@ class propellantEditor(collectionEditor):
         k = self.propertyEditors['k'].getValue()
         t = self.propertyEditors['t'].getValue()
         m = self.propertyEditors['m'].getValue()
-        r = 8314 
+        r = 8314
         num = (k * r/m * t)**0.5
         denom = k * ((2/(k+1))**((k+1)/(k-1)))**0.5
         charVel = num / denom
@@ -184,7 +184,7 @@ class propellantEditor(collectionEditor):
     def loadProperties(self, collection): # Override for ballisitc coefficient units
         props = collection.getProperties()
         # Convert the ballistic coefficient based on the exponent
-        ballisticCoeffUnit = self.preferences.getUnit('m/(s*pa^n)')
+        ballisticCoeffUnit = self.preferences.getUnit('m/(s*Pa^n)')
         if ballisticCoeffUnit == 'in/(s*psi^n)':
             props['a'] /= 1/(6895**props['n'])
         # Create a new propellant instance using the new A
