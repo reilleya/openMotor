@@ -36,12 +36,15 @@ class Window(QMainWindow):
 
         self.engExporter = uilib.engExportMenu()
         self.preferencesChanged.connect(self.engExporter.setPreferences)
+        self.csvExporter = uilib.csvExportMenu()
+        self.preferencesChanged.connect(self.csvExporter.setPreferences)
 
         self.simulationManager = uilib.simulationManager()
         self.preferencesChanged.connect(self.simulationManager.setPreferences)
         self.simulationManager.newSimulationResult.connect(self.updateMotorStats)
         self.simulationManager.newSimulationResult.connect(self.graphWidget.showData)
         self.simulationManager.newSimulationResult.connect(self.engExporter.acceptSimResult)
+        self.simulationManager.newSimulationResult.connect(self.csvExporter.acceptSimResult)
 
         self.aboutDialog = uilib.aboutDialog()
 
@@ -89,6 +92,7 @@ class Window(QMainWindow):
         self.actionSaveAs.triggered.connect(self.fileManager.saveAs)
         self.actionOpen.triggered.connect(self.loadMotor)
         self.actionENGFile.triggered.connect(self.engExporter.open)
+        self.actionCSV.triggered.connect(self.csvExporter.open)
         self.actionQuit.triggered.connect(self.closeEvent)
 
         #Edit menu

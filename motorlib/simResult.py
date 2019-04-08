@@ -78,9 +78,9 @@ class simulationResult():
 
         self.channels = {
                             'time': logChannel('Time', float, 's'),
-                            'kn': logChannel('KN', float, ''),
-                            'pressure': logChannel('Chamber Pressure', float, 'pa'),
-                            'force': logChannel('Thrust', float, 'n'),
+                            'kn': logChannel('Kn', float, ''),
+                            'pressure': logChannel('Chamber Pressure', float, 'Pa'),
+                            'force': logChannel('Thrust', float, 'N'),
                             'mass': logChannel('Propellant Mass', tuple, 'kg'),
                             'massFlow': logChannel('Mass Flow', tuple, 'kg/s'),
                             'massFlux': logChannel('Mass Flux', tuple, 'kg/(m^2*s)')

@@ -34,6 +34,7 @@ def defaultPreferences():
     pref.units.props['Pa'].setValue('psi')
     pref.units.props['kg'].setValue('lb')
     pref.units.props['kg/m^3'].setValue('lb/in^3')
+    pref.units.props['kg/s'].setValue('lb/s')
     pref.units.props['kg/(m^2*s)'].setValue('lb/(in^2*s)')
     pref.units.props['m/(s*Pa^n)'].setValue('in/(s*psi^n)')
 
