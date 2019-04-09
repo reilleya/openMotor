@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Export CSV</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>oMIconCycles.png</normaloff>oMIconCycles.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -22,12 +26,15 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="widget" native="true">
+    <widget class="QGroupBox" name="groupBoxChecks">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Channels</string>
      </property>
     </widget>
    </item>

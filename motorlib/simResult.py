@@ -147,10 +147,12 @@ class simulationResult():
                 out.append(alert)
         return out
 
-    def getCSV(self, pref = None, channels = None):
+    def getCSV(self, pref = None, exclude = []):
         out = ''
         outUnits = {}
         for ch in self.channels:
+            if ch in exclude:
+                continue
             # Get unit from preferences
             if pref is not None:
                 outUnits[ch] = pref.getUnit(self.channels[ch].unit)
@@ -177,6 +179,8 @@ class simulationResult():
         for ind, t in enumerate(self.channels['time'].getData()):
             out += str(round(t, places)) + ','
             for ch in self.channels:
+                if ch in exclude:
+                    continue
                 if ch != 'time':
                     if self.channels[ch].valueType in (float, int):
                         conv = round(units.convert(self.channels[ch].getPoint(ind), self.channels[ch].unit, outUnits[ch]), places)
