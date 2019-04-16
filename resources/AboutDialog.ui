@@ -54,7 +54,7 @@
      <item>
       <widget class="QLabel" name="labelText">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;openMotor alpha&lt;/p&gt;&lt;p&gt;Released under the GNU GPL V3 License.&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/reilleya/openMotor&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://github.com/reilleya/openMotor&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;Warning: Rocket motors can be dangerous! Always verify calculations before testing a motor, &lt;br/&gt;and test far enough away from people and structures to avoid damage. The results from this&lt;br/&gt; program are provided as an estimate and come with no guarantees.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;openMotor ###&lt;/p&gt;&lt;p&gt;Released under the GNU GPL V3 License.&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/reilleya/openMotor&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://github.com/reilleya/openMotor&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;Warning: Rocket motors can be dangerous! Always verify calculations before testing a motor, &lt;br/&gt;and test far enough away from people and structures to avoid damage. The results from this&lt;br/&gt;program are provided as an estimate and come with no guarantees.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>

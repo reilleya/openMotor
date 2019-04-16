@@ -15,6 +15,8 @@ class Window(QMainWindow):
         QWidget.__init__(self)
         loadUi("resources/MainWindow.ui", self)
 
+        self.appVersion = '0.0.0'
+
         self.preferences = uilib.defaultPreferences()
         self.loadPreferences()
         self.preferencesWindow = uilib.PreferencesWindow()
@@ -46,7 +48,7 @@ class Window(QMainWindow):
         self.simulationManager.newSimulationResult.connect(self.engExporter.acceptSimResult)
         self.simulationManager.newSimulationResult.connect(self.csvExporter.acceptSimResult)
 
-        self.aboutDialog = uilib.aboutDialog()
+        self.aboutDialog = uilib.aboutDialog(self.appVersion)
 
         self.toolManager = uilib.toolManager(self.fileManager, self.simulationManager, self.propManager)
         self.preferencesChanged.connect(self.toolManager.setPreferences)
