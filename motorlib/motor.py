@@ -95,8 +95,11 @@ class motor():
         # Check for geometry errors
         for gid, grain in enumerate(self.grains):
             for alert in grain.getGeometryErrors():
-                alert.location = "Grain " + str(gid + 1)
+                alert.location = 'Grain' + str(gid + 1)
                 simRes.addAlert(alert)
+        for alert in self.nozzle.getGeometryErrors():
+            alert.location = 'Nozzle'
+            simRes.addAlert(alert)
 
         # If any geometry errors occurred, stop simulation and return an empty sim with errors
         if len(simRes.getAlertsByLevel(simAlertLevel.ERROR)) > 0:

@@ -1,5 +1,7 @@
 from .properties import *
 from . import geometry
+from . import simAlert, simAlertLevel, simAlertType
+
 from scipy.optimize import fsolve
 
 def eRatioFromPRatio(k, pr):
@@ -27,3 +29,11 @@ class nozzle(propertyCollection):
 
     def getExitPressure(self, k, inputPressure):
         return fsolve(lambda x: (1/self.calcExpansion()) - eRatioFromPRatio(k, x / inputPressure), 50000)[0]
+
+    def getGeometryErrors(self):
+        errors = []
+        if self.props['throat'].getValue() == 0:
+            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Throat diameter must not be 0'))
+        if self.props['exit'].getValue() < self.props['throat'].getValue():
+            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Exit diameter must not be smaller than throat diameter'))
+        return errors
