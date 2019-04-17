@@ -113,3 +113,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# openMotor user files
+preferences.yaml
+propellants.yaml
