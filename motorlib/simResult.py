@@ -124,6 +124,13 @@ class simulationResult():
     def getPeakMassFlux(self):
         return self.channels['massFlux'].getMax()
 
+    def getPeakMassFluxLocation(self):
+        value = self.getPeakMassFlux()
+        # Find the value to get the location
+        for frame in self.channels['massFlux'].getData():
+            if value in frame:
+                return frame.index(value)
+
     def getISP(self):
         return self.getImpulse() / (self.getPropellantMass() * 9.80665)
 

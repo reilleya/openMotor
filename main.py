@@ -278,7 +278,7 @@ class Window(QMainWindow):
 
         if simResult.getPortRatio() is not None:
             self.labelPortThroatRatio.setText(self.formatMotorStat(simResult.getPortRatio(), ''))
-            self.labelPeakMassFlux.setText(self.formatMotorStat(simResult.getPeakMassFlux(), 'kg/(m^2*s)'))
+            self.labelPeakMassFlux.setText(self.formatMotorStat(simResult.getPeakMassFlux(), 'kg/(m^2*s)') + ' (G: ' + str(simResult.getPeakMassFluxLocation() + 1) + ')')
 
         else:
             self.labelPortThroatRatio.setText('-')
