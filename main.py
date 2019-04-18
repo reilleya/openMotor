@@ -61,7 +61,7 @@ class Window(QMainWindow):
         self.setupGrainTable()
         self.setupGraph()
 
-        self.comboBoxPropellant.setCurrentText(self.fileManager.getCurrentMotor().propellant.getProperty("name")) # This will go away when we remove the startup motor
+        self.updatePropBoxSelection() # This will go away when we remove the startup motor
 
         if startupFile is not None:
             self.loadMotor(startupFile)
@@ -94,7 +94,7 @@ class Window(QMainWindow):
         self.actionNew.triggered.connect(self.newMotor)
         self.actionSave.triggered.connect(self.fileManager.save)
         self.actionSaveAs.triggered.connect(self.fileManager.saveAs)
-        self.actionOpen.triggered.connect(self.loadMotor)
+        self.actionOpen.triggered.connect(lambda x: self.loadMotor(None)) # Lambda because the signal passes in an argument
         self.actionENGFile.triggered.connect(self.engExporter.open)
         self.actionCSV.triggered.connect(self.csvExporter.open)
         self.actionQuit.triggered.connect(self.closeEvent)
@@ -116,13 +116,21 @@ class Window(QMainWindow):
         self.populatePropSelector()
         self.comboBoxPropellant.currentIndexChanged.connect(self.propChooserChanged)
 
-    def disablePropSelector(self):
-        self.pushButtonPropEditor.pressed.disconnect()
-        self.comboBoxPropellant.currentIndexChanged.disconnect()
-
     def populatePropSelector(self):
         self.comboBoxPropellant.clear()
         self.comboBoxPropellant.addItems(self.propManager.getNames())
+
+    def disablePropSelector(self):
+        self.comboBoxPropellant.blockSignals(True)
+
+    def enablePropSelector(self):
+        self.comboBoxPropellant.blockSignals(False)
+
+    def updatePropBoxSelection(self):
+        self.disablePropSelector()
+        cm = self.fileManager.getCurrentMotor()
+        self.comboBoxPropellant.setCurrentText(self.fileManager.getCurrentMotor().propellant.getProperty("name"))
+        self.enablePropSelector()
 
     def setupGrainTable(self):
         self.tableWidgetGrainList.clearContents()
@@ -165,8 +173,8 @@ class Window(QMainWindow):
             self.propManager.propellants.append(cm.propellant)
             self.propManager.savePropellants()
         self.populatePropSelector()
-        self.setupPropSelector()
-        self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
+        self.updatePropBoxSelection()
+        self.enablePropSelector()
 
     def propChooserChanged(self):
         cm = self.fileManager.getCurrentMotor()
@@ -298,20 +306,17 @@ class Window(QMainWindow):
         self.fileManager.undo()
         self.updateGrainTable()
         self.checkGrainSelection()
-        cm = self.fileManager.getCurrentMotor()
-        self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
+        self.updatePropBoxSelection()
 
     def redo(self):
         self.fileManager.redo()
         self.updateGrainTable()
         self.checkGrainSelection()
-        cm = self.fileManager.getCurrentMotor()
-        self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
+        self.updatePropBoxSelection()
 
     def newMotor(self):
         self.fileManager.newFile()
-        cm = self.fileManager.getCurrentMotor()
-        self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
+        self.updatePropBoxSelection()
         self.resetOutput()
 
     def loadMotor(self, path = None):
@@ -338,10 +343,9 @@ class Window(QMainWindow):
                     self.showMessage('The propellant from the loaded motor matches an existing item in the library, but they have different properties. The propellant from the motor has been added to the library as "' + cm.propellant.getProperty('name') + '"',
                         'New propellant added')
 
-            self.setupPropSelector()
-            self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
-        else:
-            self.setupPropSelector()
+            self.populatePropSelector()
+            self.updatePropBoxSelection()
+        self.enablePropSelector()
 
     def showMessage(self, message, title = 'openMotor'):
         msg = QMessageBox()
