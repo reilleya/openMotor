@@ -15,7 +15,7 @@ class Window(QMainWindow):
         QWidget.__init__(self)
         loadUi("resources/MainWindow.ui", self)
 
-        self.appVersion = '0.0.0'
+        self.appVersion = uilib.fileIO.appVersion
 
         self.preferences = uilib.defaultPreferences()
         self.loadPreferences()
@@ -328,6 +328,8 @@ class Window(QMainWindow):
 
             self.setupPropSelector()
             self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
+        else:
+            self.setupPropSelector()
 
     def closeEvent(self, event = None):
         if self.fileManager.unsavedCheck():
@@ -339,16 +341,14 @@ class Window(QMainWindow):
 
     def loadPreferences(self):
         try:
-            with open('preferences.yaml', 'r') as prefFile:
-                prefDict = yaml.load(prefFile)
-                self.preferences.applyDict(prefDict)
+            prefDict = uilib.loadFile('preferences.yaml', uilib.fileTypes.PREFERENCES)
+            self.preferences.applyDict(prefDict)
         except FileNotFoundError:
             self.savePreferences()
 
     def savePreferences(self):
         try:
-            with open('preferences.yaml', 'w') as prefFile:
-                yaml.dump(self.preferences.getDict(), prefFile)
+            uilib.saveFile('preferences.yaml', self.preferences.getDict(), uilib.fileTypes.PREFERENCES)
         except:
             print('Unable to save preferences')
 

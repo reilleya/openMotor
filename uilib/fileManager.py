@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import pyqtSignal
-from . import defaults
+from . import defaults, saveFile, loadFile, fileTypes
 import motorlib
 import yaml
 
@@ -30,10 +30,12 @@ class fileManager(QObject):
         if self.fileName is None:
             self.saveAs()
         else:
-            with open(self.fileName, 'w') as saveFile:
-                yaml.dump(self.fileHistory[self.currentVersion], saveFile)
+            try:
+                saveFile(self.fileName, self.fileHistory[self.currentVersion], fileTypes.MOTOR)
                 self.savedVersion = self.currentVersion
                 self.sendTitleUpdate()
+            except Exception as e:
+                self.showException(e)
 
     def saveAs(self):
         fn = self.showSaveDialog()
@@ -46,15 +48,26 @@ class fileManager(QObject):
             if path is None:
                 path = QFileDialog.getOpenFileName(None, 'Load motor', '', 'Motor Files (*.ric)')[0]
             if path != '': # If they cancel the dialog, path will be an empty string
-                with open(path, 'r') as loadFile:
-                    motorData = yaml.load(loadFile)
-                    self.fileHistory = [motorData]
-                    self.currentVersion = 0
-                    self.savedVersion = 0
-                    self.fileName = path
-                    self.sendTitleUpdate()
-                    return True
+                try:
+                    res = loadFile(path, fileTypes.MOTOR)
+                    if res is not None:
+                        self.fileHistory = [res]
+                        self.currentVersion = 0
+                        self.savedVersion = 0
+                        self.fileName = path
+                        self.sendTitleUpdate()
+                        return True
+                except Exception as e:
+                    self.showException(e)
+
         return False # If no file is loaded, return false
+
+    def showException(self, exception):
+        msg = QMessageBox()
+        msg.setText("An error occured accessing the file:")
+        msg.setInformativeText(str(exception))
+        msg.setWindowTitle("Error")
+        msg.exec_()
 
     def getCurrentMotor(self):
         nm = motorlib.motor()

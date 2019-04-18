@@ -10,6 +10,7 @@ from motorlib import propellant
 
 from . import collectionEditor
 from . import defaultPropellants
+from . import loadFile, saveFile, fileTypes
 
 class propellantManager(QObject):
 
@@ -25,20 +26,18 @@ class propellantManager(QObject):
 
     def loadPropellants(self):
         try:
-            with open('propellants.yaml', 'r') as propFile:
-                for propDict in yaml.load(propFile):
-                    newProp = propellant()
-                    newProp.setProperties(propDict)
-                    self.propellants.append(newProp)
+            propList = loadFile('propellants.yaml', fileTypes.PROPELLANTS)
+            for propDict in propList:
+                newProp = propellant()
+                newProp.setProperties(propDict)
+                self.propellants.append(newProp)
         except FileNotFoundError:
             self.propellants = defaultPropellants()
             self.savePropellants()
 
     def savePropellants(self):
         try:
-            with open('propellants.yaml', 'w') as propFile:
-                propDicts = [prop.getProperties() for prop in self.propellants]
-                yaml.dump(propDicts, propFile)
+            saveFile('propellants.yaml', [prop.getProperties() for prop in self.propellants], fileTypes.PROPELLANTS)
         except:
             print('Unable to save propellants!')
 
