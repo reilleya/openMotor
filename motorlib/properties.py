@@ -74,3 +74,6 @@ class propertyCollection():
 
     def getProperty(self, prop):
         return self.props[prop].getValue()
+
+    def setProperty(self, prop, value):
+        self.props[prop].setValue(value)

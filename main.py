@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QTableWidgetItem, QHeaderView
+from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QTableWidgetItem, QHeaderView, QMessageBox
 from PyQt5.QtCore import pyqtSlot, pyqtSignal
 from PyQt5.uic import loadUi
 import sys
@@ -31,10 +31,7 @@ class Window(QMainWindow):
                                 self.labelPropellantMass, self.labelPropellantLength, self.labelPortThroatRatio, self.labelPeakMassFlux]
 
         self.fileManager = uilib.fileManager()
-        self.fileManager.newFile()
         self.fileManager.fileNameChanged.connect(self.updateWindowTitle)
-        if startupFile is not None:
-            self.fileManager.load(startupFile)
 
         self.engExporter = uilib.engExportMenu()
         self.preferencesChanged.connect(self.engExporter.setPreferences)
@@ -63,6 +60,11 @@ class Window(QMainWindow):
         self.setupPropSelector()
         self.setupGrainTable()
         self.setupGraph()
+
+        self.comboBoxPropellant.setCurrentText(self.fileManager.getCurrentMotor().propellant.getProperty("name")) # This will go away when we remove the startup motor
+
+        if startupFile is not None:
+            self.loadMotor(startupFile)
 
         self.show()
 
@@ -159,8 +161,9 @@ class Window(QMainWindow):
         self.disablePropSelector()
         cm = self.fileManager.getCurrentMotor()
         if cm.propellant.getProperty("name") not in self.propManager.getNames():
-            print("Motor's propellant must have been deleted, readding")
+            self.showMessage("The current motor's propellant has been removed from the library. It has been added back.")
             self.propManager.propellants.append(cm.propellant)
+            self.propManager.savePropellants()
         self.populatePropSelector()
         self.setupPropSelector()
         self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
@@ -307,29 +310,44 @@ class Window(QMainWindow):
 
     def newMotor(self):
         self.fileManager.newFile()
+        cm = self.fileManager.getCurrentMotor()
+        self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
         self.resetOutput()
 
-    def loadMotor(self):
+    def loadMotor(self, path = None):
         self.disablePropSelector()
-        if self.fileManager.load():
+        if self.fileManager.load(path):
             self.resetOutput()
             self.updateGrainTable()
 
             cm = self.fileManager.getCurrentMotor()
             if cm.propellant.getProperty('name') not in self.propManager.getNames():
-                print("Propellant not in library, adding")
+                self.showMessage('The propellant from the loaded motor was not in the library, so it was added as "' + cm.propellant.getProperty('name') + '"',
+                        'New propellant added')
                 self.propManager.propellants.append(cm.propellant)
                 self.propManager.savePropellants()
             else:
                 if cm.propellant.getProperties() != self.propManager.getPropellantByName(cm.propellant.getProperty('name')).getProperties():
-                    print("Loaded propellant name matches existing propellant, but properties differ. Using propellant from library.")
-                    cm.propellant = self.propManager.getPropellantByName(cm.propellant.getProperty('name'))
-                    self.fileManager.addNewMotorHistory(cm)
+                    addedNumber = 1
+                    while cm.propellant.getProperty('name') + ' (' + str(addedNumber) + ')' in self.propManager.getNames():
+                        addedNumber += 1
+                    cm.propellant.setProperty('name', cm.propellant.getProperty('name') + ' (' + str(addedNumber) + ')')
+                    self.propManager.propellants.append(cm.propellant)
+                    self.propManager.savePropellants()
+                    self.fileManager.overrideCurrentMotor(cm) # To change the propellant name while disallowing an undo to the wrong name
+                    self.showMessage('The propellant from the loaded motor matches an existing item in the library, but they have different properties. The propellant from the motor has been added to the library as "' + cm.propellant.getProperty('name') + '"',
+                        'New propellant added')
 
             self.setupPropSelector()
             self.comboBoxPropellant.setCurrentText(cm.propellant.getProperty("name"))
         else:
             self.setupPropSelector()
+
+    def showMessage(self, message, title = 'openMotor'):
+        msg = QMessageBox()
+        msg.setText(message)
+        msg.setWindowTitle(title)
+        msg.exec_()
 
     def closeEvent(self, event = None):
         if self.fileManager.unsavedCheck():

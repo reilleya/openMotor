@@ -18,6 +18,8 @@ class fileManager(QObject):
 
         self.fileName = None
 
+        self.newFile()
+
     def newFile(self):
         if self.unsavedCheck():
             self.fileHistory = [defaults.defaultMotor().getDict()]
@@ -74,13 +76,16 @@ class fileManager(QObject):
         nm.loadDict(self.fileHistory[self.currentVersion])
         return nm
 
-    def addNewMotorHistory(self, motor):
+    def addNewMotorHistory(self, motor): # Add a new version of the motor to the motor history. Should be used for all user interactions.
         if motor.getDict() != self.fileHistory[self.currentVersion]:
             if self.canRedo():
                 del self.fileHistory[self.currentVersion + 1:]
             self.fileHistory.append(motor.getDict())
             self.currentVersion += 1
             self.sendTitleUpdate()
+
+    def overrideCurrentMotor(self, motor): # Changes the current motor without adding undo history. Should not be used after user interaction.
+        self.fileHistory[-1] = motor.getDict()
 
     def canUndo(self):
         return self.currentVersion > 0
