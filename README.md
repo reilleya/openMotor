@@ -21,11 +21,24 @@ Planned Features:
 
 The calculations involved were sourced from Rocket Propulsion Elements by George Sutton and from Richard Nakka's website (https://www.nakka-rocketry.net/rtheory.html).
 
-Usage
+Download
 -------
 The easiest way to use openMotor is to navigate to the 'releases' tab above and download latest version for your system. From there, just unzip the file and run it. 
 
-Alternatively, you can run it from source. To do so, clone the repository, navigate to the directory, and run main.py. The program is currently being developed using python 3.6, but it also works with 3.7. Its dependencies include PyQt5, matplotlib, numpy, scipy, scikit-fmm, and scikit-image.
+Building from Source
+--------------------
+The program is currently being developed using python 3.6, but it also works with 3.7. Its dependencies are outlined in `requirements.txt`, the main ones include `PyQt5`, `matplot`, `numpy`, `scipy`, `scikit-fmm`, and `scikit-image`.
+The easiest way to build/run from source code is to clone the repository and install the required dependencies into a virtual enviornment:
+```
+$ git clone https://github.com/reilleya/openMotor
+$ cd openMotor
+$ python3 -m venv .venv
+$ source .venv/bin/activate
+$ pip install -r requirements.txt
+```
+When everything is set up, you can start openMotor by running: `python3 main.py`
+#### Note: On some systems python 2 and 3 are installed simultaneously, so you may have to specify which version to run.  
+
 
 License
 -------
