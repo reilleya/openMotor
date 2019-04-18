@@ -5,6 +5,7 @@ from . import propellant
 from . import geometry
 from . import units
 from . import simulationResult, simAlert, simAlertLevel, simAlertType
+from . import endBurningGrain
 
 import math
 import numpy as np
@@ -93,12 +94,15 @@ class motor():
         simRes = simulationResult(self)
 
         # Check for geometry errors
+        if len(self.grains) == 0:
+            simRes.addAlert(simAlert(simAlertLevel.ERROR, simAlertType.CONSTRAINT, 'Motor must have at least one propellant grain.', 'Motor'))
         for gid, grain in enumerate(self.grains):
+            if type(grain) is endBurningGrain and gid != 0: # Endburners have to be at the foward end
+                simRes.addAlert(simAlert(simAlertLevel.ERROR, simAlertType.CONSTRAINT, 'End burning grains must be the forward-most grain in the motor.', 'Grain ' + str(gid + 1)))
             for alert in grain.getGeometryErrors():
-                alert.location = 'Grain' + str(gid + 1)
+                alert.location = 'Grain ' + str(gid + 1)
                 simRes.addAlert(alert)
         for alert in self.nozzle.getGeometryErrors():
-            alert.location = 'Nozzle'
             simRes.addAlert(alert)
 
         # If any geometry errors occurred, stop simulation and return an empty sim with errors
