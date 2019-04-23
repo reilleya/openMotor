@@ -391,11 +391,15 @@ if __name__ == '__main__':
         if len(sys.argv) < 3:
             print('Not enough arguments. Headless mode requires an input file.')
         else:
-            with open(sys.argv[-1], 'r') as motorFile, open('preferences.yaml', 'r') as prefFile:
-                prefDict = yaml.load(prefFile)
-                preferences = uilib.preferences()
+            preferences = uilib.defaultPreferences()
+            try:
+                prefDict = uilib.loadFile('preferences.yaml', uilib.fileTypes.PREFERENCES)
                 preferences.applyDict(prefDict)
-                motorData = yaml.load(motorFile)
+            except:
+                print('Preferences could not be loaded, using default')
+
+            try:
+                motorData = uilib.loadFile(sys.argv[-1], uilib.fileTypes.MOTOR)
                 motor = motorlib.motor()
                 motor.loadDict(motorData)
                 simres = motor.runSimulation(preferences)
@@ -407,6 +411,9 @@ if __name__ == '__main__':
                         outputFile.write(simres.getCSV(preferences))
                 else:
                     print(simres.getCSV(preferences))
+            except:
+                print('Motor could not be loaded')
+
     else:
         app = QApplication(sys.argv)
         startupFile = None
