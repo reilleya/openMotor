@@ -57,6 +57,8 @@ class finocyl(fmmGrain):
 
         if self.props['finWidth'].getValue() == 0:
             errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Fin width must not be 0'))
-        # TODO: Come up with fin width constraint based on the corners of the fins intersecting
+        if self.props['numFins'].getValue() != 0:
+            if 2 * (self.props['coreDiameter'].getValue() / 2 + self.props['finLength'].getValue()) * np.tan(np.pi / self.props['numFins'].getValue()) < self.props['finWidth'].getValue():
+                errors.append(simAlert(simAlertLevel.WARNING, simAlertType.GEOMETRY, 'Fin tips intersect'))
 
         return errors
