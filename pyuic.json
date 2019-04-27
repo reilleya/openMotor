@@ -1,0 +1,12 @@
+{
+    "files": [
+        [
+            "uilib/views/forms/*.ui",
+            "uilib/views"
+        ]
+    ],
+    "pyrcc": "pyrcc5",
+    "pyrcc_options": "",
+    "pyuic": "pyuic5",
+    "pyuic_options": "--from-imports"
+}
