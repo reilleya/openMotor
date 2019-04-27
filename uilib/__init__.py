@@ -1,6 +1,6 @@
 from .fileIO import saveFile, loadFile, fileTypes, appVersion
 from .graphWidget import *
-from .grainPreviewWidget import *
+from .grainPreviewWidget import grainPreviewGraph, grainPreviewWidget
 from .propertyEditor import *
 from .collectionEditor import *
 from .motorEditor import *

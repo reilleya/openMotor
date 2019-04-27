@@ -1,8 +1,11 @@
 from PyQt5.QtWidgets import QDialog
-from PyQt5.uic import loadUi
+from .views.AboutDialog_ui import Ui_AboutDialog
+
 
 class aboutDialog(QDialog):
     def __init__(self, version):
         QDialog.__init__(self)
-        loadUi("resources/AboutDialog.ui", self)
-        self.labelText.setText(self.labelText.text().replace('###', '.'.join(str(num) for num in version)))
+        self.ui = Ui_AboutDialog()
+        self.ui.setupUi(self)
+
+        self.ui.labelText.setText(version)

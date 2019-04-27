@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QWidget, QDialog
-from PyQt5.uic import loadUi
 from PyQt5.QtCore import pyqtSignal
 
 from motorlib import propertyCollection, floatProperty, intProperty, enumProperty
@@ -40,18 +39,21 @@ class PreferencesWindow(QDialog):
 
     def __init__(self):
         QDialog.__init__(self)
+        from .views.Preferences_ui import Ui_PreferencesDialog
 
-        loadUi("resources/Preferences.ui", self)
-        self.buttonBox.accepted.connect(self.apply)
-        self.buttonBox.rejected.connect(self.cancel)
+        self.ui = Ui_PreferencesDialog()
+        self.ui.setupUi(self)
+
+        self.ui.buttonBox.accepted.connect(self.apply)
+        self.ui.buttonBox.rejected.connect(self.cancel)
 
     def load(self, pref):
-        self.settingsEditorGeneral.setPreferences(pref)
-        self.settingsEditorGeneral.loadProperties(pref.general)
-        self.settingsEditorUnits.loadProperties(pref.units)
+        self.ui.settingsEditorGeneral.setPreferences(pref)
+        self.ui.settingsEditorGeneral.loadProperties(pref.general)
+        self.ui.settingsEditorUnits.loadProperties(pref.units)
 
     def apply(self):
-        self.preferencesApplied.emit({'general': self.settingsEditorGeneral.getProperties(), 'units': self.settingsEditorUnits.getProperties()})
+        self.preferencesApplied.emit({'general': self.ui.settingsEditorGeneral.getProperties(), 'units': self.ui.settingsEditorUnits.getProperties()})
         self.hide()
 
     def cancel(self):
