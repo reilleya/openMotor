@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import QDialog
-from .views.AboutDialog_ui import Ui_AboutDialog
 
 
 class aboutDialog(QDialog):
     def __init__(self, version):
+        from .views.AboutDialog_ui import Ui_AboutDialog
         QDialog.__init__(self)
         self.ui = Ui_AboutDialog()
         self.ui.setupUi(self)

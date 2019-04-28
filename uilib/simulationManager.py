@@ -6,15 +6,13 @@ from threading import Thread
 
 from motorlib import simAlertLevel, simAlertType, alertLevelNames, alertTypeNames
 
-from .views.SimulatingDialog_ui import Ui_SimProgressDialog
-from .views.SimulationAlertsDialog_ui import Ui_SimAlertsDialog
-
 
 class simulationProgressDialog(QDialog):
 
     simulationCanceled = pyqtSignal()
 
     def __init__(self):
+        from .views.SimulatingDialog_ui import Ui_SimProgressDialog
         QDialog.__init__(self)
         self.ui = Ui_SimProgressDialog()
         self.ui.setupUi(self)
@@ -34,6 +32,7 @@ class simulationProgressDialog(QDialog):
 
 class simulationAlertsDialog(QDialog):
     def __init__(self):
+        from .views.SimulationAlertsDialog_ui import Ui_SimAlertsDialog
         QDialog.__init__(self)
         self.ui = Ui_SimAlertsDialog()
         self.ui.setupUi(self)

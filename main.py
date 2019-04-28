@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QTableWidgetItem, QHeaderView, QMessageBox
 from PyQt5.QtCore import pyqtSlot, pyqtSignal
-from PyQt5.uic import loadUi
 import sys
 import yaml
 

@@ -1,0 +1,9 @@
+# include .ui forms
+recursive-include uilib/views/forms *
+
+# include resource files
+recursive-include resources *
+
+# include pyuic config
+include pyuic.json
+
