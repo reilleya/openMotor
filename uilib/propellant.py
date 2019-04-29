@@ -155,7 +155,7 @@ class propellantEditor(collectionEditor):
         self.labelCStar.hide()
         self.stats.addWidget(self.labelCStar)
 
-    def update(self):
+    def propertyUpdate(self):
         k = self.propertyEditors['k'].getValue()
         t = self.propertyEditors['t'].getValue()
         m = self.propertyEditors['m'].getValue()

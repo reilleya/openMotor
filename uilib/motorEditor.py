@@ -24,7 +24,7 @@ class motorEditor(collectionEditor):
         self.nozzle = True
         self.grainClass = None
 
-    def update(self):
+    def propertyUpdate(self):
         if self.nozzle:
             exit = self.propertyEditors['exit'].getValue()
             throat = self.propertyEditors['throat'].getValue()
@@ -45,7 +45,7 @@ class motorEditor(collectionEditor):
         if isinstance(grain, perforatedGrain):
             self.grainClass = type(grain)
             self.grainPreview.show()
-            self.update()
+            self.propertyUpdate()
         else:
             self.grainClass = None
             self.grainPreview.hide()

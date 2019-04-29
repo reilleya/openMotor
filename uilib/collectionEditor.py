@@ -46,7 +46,7 @@ class collectionEditor(QWidget):
             self.buttons.addWidget(self.applyButton)
             self.buttons.addWidget(self.cancelButton)
 
-    def update(self):
+    def propertyUpdate(self):
         pass
 
     def close(self):
@@ -66,12 +66,12 @@ class collectionEditor(QWidget):
         self.cleanup()
         for prop in object.props:
             self.propertyEditors[prop] = propertyEditor(self, object.props[prop], self.preferences)
-            self.propertyEditors[prop].valueChanged.connect(self.update)
+            self.propertyEditors[prop].valueChanged.connect(self.propertyUpdate)
             self.form.addRow(QLabel(object.props[prop].dispName + ':'), self.propertyEditors[prop])
         if self.buttons:
             self.applyButton.show()
             self.cancelButton.show()
-        self.update()
+        self.propertyUpdate()
 
     def cleanup(self):
         for prop in self.propertyEditors:
@@ -81,6 +81,7 @@ class collectionEditor(QWidget):
         if self.buttons:
             self.applyButton.hide()
             self.cancelButton.hide()
+        self.repaint()
 
     def getProperties(self):
         res = {}
