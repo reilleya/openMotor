@@ -390,6 +390,7 @@ class Window(QMainWindow):
         self.preferencesWindow.load(self.preferences)
         self.preferencesWindow.show()
 
+
 if __name__ == '__main__':
     if '-h' in sys.argv:
         if len(sys.argv) < 3:

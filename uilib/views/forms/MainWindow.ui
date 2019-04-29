@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>oMIconCycles.png</normaloff>oMIconCycles.png</iconset>
+    <normaloff>resources/oMIconCycles.png</normaloff>resources/oMIconCycles.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="minimumSize">
