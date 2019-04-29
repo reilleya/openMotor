@@ -265,8 +265,8 @@ class Window(QMainWindow):
         cm.grains.append(newGrain)
         self.fileManager.addNewMotorHistory(cm)
         self.updateGrainTable()
-        self.tableWidgetGrainList.selectRow(len(cm.grains) - 1)
-        self.motorEditor.loadGrain(cm.grains[-1])
+        self.ui.tableWidgetGrainList.selectRow(len(cm.grains) - 1)
+        self.ui.motorEditor.loadGrain(cm.grains[-1])
         self.checkGrainSelection()
         self.toggleGrainButtons(False)
 
