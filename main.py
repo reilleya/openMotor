@@ -182,7 +182,7 @@ class Window(QMainWindow):
 
     def propChooserChanged(self):
         cm = self.fileManager.getCurrentMotor()
-        cm.propellant = self.propManager.propellants[self.comboBoxPropellant.currentIndex()]
+        cm.propellant = self.propManager.propellants[self.ui.comboBoxPropellant.currentIndex()]
         self.fileManager.addNewMotorHistory(cm)
 
     def updateGrainTable(self):
