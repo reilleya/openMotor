@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>PropellantDialog</class>
+ <widget class="QDialog" name="PropellantDialog">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
@@ -30,7 +30,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>oMIconCycles.png</normaloff>oMIconCycles.png</iconset>
+    <normaloff>resources/oMIconCycles.png</normaloff>resources/oMIconCycles.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -136,7 +136,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>PropellantDialog</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">

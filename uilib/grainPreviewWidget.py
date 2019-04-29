@@ -1,9 +1,8 @@
 from PyQt5.QtWidgets import QWidget
-from PyQt5.uic import loadUi
 from PyQt5.QtCore import pyqtSignal
 
 import matplotlib
-matplotlib.use('Qt4Agg')
+matplotlib.use('Qt5Agg')
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -12,6 +11,7 @@ from itertools import cycle
 from threading import Thread
 
 import motorlib
+
 
 class grainPreviewGraph(FigureCanvas):
     def __init__(self):
@@ -74,17 +74,22 @@ class grainPreviewGraph(FigureCanvas):
         self.plot.clear()
         self.setupGraphPlot()
 
+
 class grainPreviewWidget(QWidget):
 
     previewReady = pyqtSignal(tuple)
 
     def __init__(self):
-        super().__init__()
-        loadUi("resources/GrainPreview.ui", self)
+        # TODO: this "hack" is to avoid circular imports.
+        from .views.GrainPreview_ui import Ui_GrainPreview
 
-        self.tabFace.setupImagePlot()
-        self.tabRegression.setupImagePlot()
-        self.tabAreaGraph.setupGraphPlot()
+        super().__init__()
+        self.ui = Ui_GrainPreview()
+        self.ui.setupUi(self)
+
+        self.ui.tabFace.setupImagePlot()
+        self.ui.tabRegression.setupImagePlot()
+        self.ui.tabAreaGraph.setupGraphPlot()
 
         self.previewReady.connect(self.updateView)
 
@@ -104,13 +109,13 @@ class grainPreviewWidget(QWidget):
     def updateView(self, data):
         coreIm, regImage, contours, contourLengths = data
 
-        self.tabFace.cleanup()
-        self.tabFace.showImage(coreIm)
+        self.ui.tabFace.cleanup()
+        self.ui.tabFace.showImage(coreIm)
 
         if regImage is not None:
-            self.tabRegression.cleanup()
-            self.tabRegression.showImage(regImage)
-            self.tabRegression.showContours(contours)
+            self.ui.tabRegression.cleanup()
+            self.ui.tabRegression.showImage(regImage)
+            self.ui.tabRegression.showContours(contours)
 
             points = [[], []]
 
@@ -118,11 +123,11 @@ class grainPreviewWidget(QWidget):
                 points[0].append(k)
                 points[1].append(contourLengths[k])
 
-            self.tabAreaGraph.cleanup()
-            self.tabAreaGraph.showGraph(points)
+            self.ui.tabAreaGraph.cleanup()
+            self.ui.tabAreaGraph.showGraph(points)
 
     def cleanup(self):
-        self.tabRegression.cleanup()
-        self.tabFace.cleanup()
-        self.tabAreaGraph.cleanup()
-        self.tabAreaGraph.resetGraphBounds()
+        self.ui.tabRegression.cleanup()
+        self.ui.tabFace.cleanup()
+        self.ui.tabAreaGraph.cleanup()
+        self.ui.tabAreaGraph.resetGraphBounds()

@@ -1,55 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>CSVExporter</class>
+ <widget class="QDialog" name="CSVExporter">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>400</height>
+    <height>300</height>
    </rect>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>400</width>
-    <height>400</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>400</width>
-    <height>400</height>
-   </size>
-  </property>
   <property name="windowTitle">
-   <string>Export .eng file</string>
+   <string>Export CSV</string>
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>oMIconCycles.png</normaloff>oMIconCycles.png</iconset>
+    <normaloff>resources/oMIconCycles.png</normaloff>resources/oMIconCycles.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
      <property name="text">
-      <string>Simulation must have been run to export a RASP .eng file.</string>
+      <string>Simulation must have been run to export a CSV.</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="engExportEditor" name="motorStats" native="true">
+    <widget class="QGroupBox" name="groupBoxChecks">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Channels</string>
      </property>
     </widget>
    </item>
@@ -65,20 +50,12 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>engExportEditor</class>
-   <extends>QWidget</extends>
-   <header location="global">uilib</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>CSVExporter</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -94,7 +71,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>CSVExporter</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

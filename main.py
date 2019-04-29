@@ -1,11 +1,13 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QTableWidgetItem, QHeaderView, QMessageBox
 from PyQt5.QtCore import pyqtSlot, pyqtSignal
-from PyQt5.uic import loadUi
 import sys
 import yaml
 
 import motorlib
 import uilib
+
+from uilib.views.MainWindow_ui import Ui_MainWindow
+
 
 class Window(QMainWindow):
 
@@ -13,9 +15,11 @@ class Window(QMainWindow):
 
     def __init__(self, startupFile = None):
         QWidget.__init__(self)
-        loadUi("resources/MainWindow.ui", self)
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
 
         self.appVersion = uilib.fileIO.appVersion
+        self.appVersionStr = uilib.fileIO.appVersionStr
 
         self.preferences = uilib.defaultPreferences()
         self.loadPreferences()
@@ -26,9 +30,9 @@ class Window(QMainWindow):
         self.propManager.updated.connect(self.propListChanged)
         self.preferencesChanged.connect(self.propManager.setPreferences)
 
-        self.motorStatLabels = [self.labelMotorDesignation, self.labelImpulse, self.labelDeliveredISP, self.labelBurnTime,
-                                self.labelAveragePressure, self.labelPeakPressure, self.labelInitialKN, self.labelPeakKN,
-                                self.labelPropellantMass, self.labelPropellantLength, self.labelPortThroatRatio, self.labelPeakMassFlux]
+        self.motorStatLabels = [self.ui.labelMotorDesignation, self.ui.labelImpulse, self.ui.labelDeliveredISP, self.ui.labelBurnTime,
+                                self.ui.labelAveragePressure, self.ui.labelPeakPressure, self.ui.labelInitialKN, self.ui.labelPeakKN,
+                                self.ui.labelPropellantMass, self.ui.labelPropellantLength, self.ui.labelPortThroatRatio, self.ui.labelPeakMassFlux]
 
         self.fileManager = uilib.fileManager()
         self.fileManager.fileNameChanged.connect(self.updateWindowTitle)
@@ -41,15 +45,15 @@ class Window(QMainWindow):
         self.simulationManager = uilib.simulationManager()
         self.preferencesChanged.connect(self.simulationManager.setPreferences)
         self.simulationManager.newSimulationResult.connect(self.updateMotorStats)
-        self.simulationManager.newSimulationResult.connect(self.graphWidget.showData)
+        self.simulationManager.newSimulationResult.connect(self.ui.graphWidget.showData)
         self.simulationManager.newSimulationResult.connect(self.engExporter.acceptSimResult)
         self.simulationManager.newSimulationResult.connect(self.csvExporter.acceptSimResult)
 
-        self.aboutDialog = uilib.aboutDialog(self.appVersion)
+        self.aboutDialog = uilib.aboutDialog(self.appVersionStr)
 
         self.toolManager = uilib.toolManager(self.fileManager, self.simulationManager, self.propManager)
         self.preferencesChanged.connect(self.toolManager.setPreferences)
-        self.toolManager.setupMenu(self.menuTools)
+        self.toolManager.setupMenu(self.ui.menuTools)
         self.toolManager.changeApplied.connect(self.updateGrainTable)
 
         self.preferencesChanged.emit(self.preferences)
@@ -80,80 +84,80 @@ class Window(QMainWindow):
             label.setText("-")
 
     def setupMotorEditor(self):
-        self.motorEditor.setPreferences(self.preferences)
-        self.pushButtonEditGrain.pressed.connect(self.editGrain)
-        self.motorEditor.changeApplied.connect(self.applyChange)
-        self.motorEditor.closed.connect(self.checkGrainSelection) # Enables only buttons for actions possible given the selected grain
+        self.ui.motorEditor.setPreferences(self.preferences)
+        self.ui.pushButtonEditGrain.pressed.connect(self.editGrain)
+        self.ui.motorEditor.changeApplied.connect(self.applyChange)
+        self.ui.motorEditor.closed.connect(self.checkGrainSelection) # Enables only buttons for actions possible given the selected grain
 
     def setupGrainAddition(self):
-        self.comboBoxGrainGeometry.addItems(motorlib.grainTypes.keys())
-        self.pushButtonAddGrain.pressed.connect(self.addGrain)
+        self.ui.comboBoxGrainGeometry.addItems(motorlib.grainTypes.keys())
+        self.ui.pushButtonAddGrain.pressed.connect(self.addGrain)
 
     def setupMenu(self):
         #File menu
-        self.actionNew.triggered.connect(self.newMotor)
-        self.actionSave.triggered.connect(self.fileManager.save)
-        self.actionSaveAs.triggered.connect(self.fileManager.saveAs)
-        self.actionOpen.triggered.connect(lambda x: self.loadMotor(None)) # Lambda because the signal passes in an argument
-        self.actionENGFile.triggered.connect(self.engExporter.open)
-        self.actionCSV.triggered.connect(self.csvExporter.open)
-        self.actionQuit.triggered.connect(self.closeEvent)
+        self.ui.actionNew.triggered.connect(self.newMotor)
+        self.ui.actionSave.triggered.connect(self.fileManager.save)
+        self.ui.actionSaveAs.triggered.connect(self.fileManager.saveAs)
+        self.ui.actionOpen.triggered.connect(lambda x: self.loadMotor(None)) # Lambda because the signal passes in an argument
+        self.ui.actionENGFile.triggered.connect(self.engExporter.open)
+        self.ui.actionCSV.triggered.connect(self.csvExporter.open)
+        self.ui.actionQuit.triggered.connect(self.closeEvent)
 
         #Edit menu
-        self.actionUndo.triggered.connect(self.undo)
-        self.actionRedo.triggered.connect(self.redo)
-        self.actionPreferences.triggered.connect(self.showPreferences)
-        self.actionPropellantEditor.triggered.connect(self.propManager.showMenu)
+        self.ui.actionUndo.triggered.connect(self.undo)
+        self.ui.actionRedo.triggered.connect(self.redo)
+        self.ui.actionPreferences.triggered.connect(self.showPreferences)
+        self.ui.actionPropellantEditor.triggered.connect(self.propManager.showMenu)
 
         #Sim
-        self.actionRunSimulation.triggered.connect(self.runSimulation)
+        self.ui.actionRunSimulation.triggered.connect(self.runSimulation)
 
         #Help
-        self.actionAboutOpenMotor.triggered.connect(self.aboutDialog.show)
+        self.ui.actionAboutOpenMotor.triggered.connect(self.aboutDialog.show)
 
     def setupPropSelector(self):
-        self.pushButtonPropEditor.pressed.connect(self.propManager.showMenu)
+        self.ui.pushButtonPropEditor.pressed.connect(self.propManager.showMenu)
         self.populatePropSelector()
-        self.comboBoxPropellant.currentIndexChanged.connect(self.propChooserChanged)
+        self.ui.comboBoxPropellant.currentIndexChanged.connect(self.propChooserChanged)
 
     def populatePropSelector(self):
-        self.comboBoxPropellant.clear()
-        self.comboBoxPropellant.addItems(self.propManager.getNames())
+        self.ui.comboBoxPropellant.clear()
+        self.ui.comboBoxPropellant.addItems(self.propManager.getNames())
 
     def disablePropSelector(self):
-        self.comboBoxPropellant.blockSignals(True)
+        self.ui.comboBoxPropellant.blockSignals(True)
 
     def enablePropSelector(self):
-        self.comboBoxPropellant.blockSignals(False)
+        self.ui.comboBoxPropellant.blockSignals(False)
 
     def updatePropBoxSelection(self):
         self.disablePropSelector()
         cm = self.fileManager.getCurrentMotor()
-        self.comboBoxPropellant.setCurrentText(self.fileManager.getCurrentMotor().propellant.getProperty("name"))
+        self.ui.comboBoxPropellant.setCurrentText(self.fileManager.getCurrentMotor().propellant.getProperty("name"))
         self.enablePropSelector()
 
     def setupGrainTable(self):
-        self.tableWidgetGrainList.clearContents()
+        self.ui.tableWidgetGrainList.clearContents()
 
-        header = self.tableWidgetGrainList.horizontalHeader()
+        header = self.ui.tableWidgetGrainList.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(1, QHeaderView.Stretch)
 
         self.updateGrainTable()
 
-        self.pushButtonMoveGrainUp.pressed.connect(lambda: self.moveGrain(-1))
-        self.pushButtonMoveGrainDown.pressed.connect(lambda: self.moveGrain(1))
-        self.pushButtonDeleteGrain.pressed.connect(self.deleteGrain)
+        self.ui.pushButtonMoveGrainUp.pressed.connect(lambda: self.moveGrain(-1))
+        self.ui.pushButtonMoveGrainDown.pressed.connect(lambda: self.moveGrain(1))
+        self.ui.pushButtonDeleteGrain.pressed.connect(self.deleteGrain)
 
-        self.tableWidgetGrainList.itemSelectionChanged.connect(self.checkGrainSelection)
+        self.ui.tableWidgetGrainList.itemSelectionChanged.connect(self.checkGrainSelection)
         self.checkGrainSelection()
 
     def setupGraph(self):
-        self.graphWidget.resetPlot()
-        self.graphWidget.setPreferences(self.preferences)
+        self.ui.graphWidget.resetPlot()
+        self.ui.graphWidget.setPreferences(self.preferences)
 
     def applyChange(self, propDict):
-        ind = self.tableWidgetGrainList.selectionModel().selectedRows()
+        ind = self.ui.tableWidgetGrainList.selectionModel().selectedRows()
         cm = self.fileManager.getCurrentMotor()
         if len(ind) > 0:
             gid = ind[0].row()
@@ -183,69 +187,69 @@ class Window(QMainWindow):
 
     def updateGrainTable(self):
         cm = self.fileManager.getCurrentMotor()
-        self.tableWidgetGrainList.setRowCount(len(cm.grains) + 1)
+        self.ui.tableWidgetGrainList.setRowCount(len(cm.grains) + 1)
         for gid, grain in enumerate(cm.grains):
-            self.tableWidgetGrainList.setItem(gid, 0, QTableWidgetItem(grain.geomName))
-            self.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString(self.preferences)))
+            self.ui.tableWidgetGrainList.setItem(gid, 0, QTableWidgetItem(grain.geomName))
+            self.ui.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString(self.preferences)))
 
-        self.tableWidgetGrainList.setItem(len(cm.grains), 0, QTableWidgetItem('Nozzle'))
-        self.tableWidgetGrainList.setItem(len(cm.grains), 1, QTableWidgetItem(cm.nozzle.getDetailsString(self.preferences)))
+        self.ui.tableWidgetGrainList.setItem(len(cm.grains), 0, QTableWidgetItem('Nozzle'))
+        self.ui.tableWidgetGrainList.setItem(len(cm.grains), 1, QTableWidgetItem(cm.nozzle.getDetailsString(self.preferences)))
 
     def toggleGrainEditButtons(self, state, grainTable = True):
         if grainTable:
-            self.tableWidgetGrainList.setEnabled(state)
-        self.pushButtonDeleteGrain.setEnabled(state)
-        self.pushButtonEditGrain.setEnabled(state)
-        self.pushButtonMoveGrainDown.setEnabled(state)
-        self.pushButtonMoveGrainUp.setEnabled(state)
+            self.ui.tableWidgetGrainList.setEnabled(state)
+        self.ui.pushButtonDeleteGrain.setEnabled(state)
+        self.ui.pushButtonEditGrain.setEnabled(state)
+        self.ui.pushButtonMoveGrainDown.setEnabled(state)
+        self.ui.pushButtonMoveGrainUp.setEnabled(state)
 
     def toggleGrainButtons(self, state):
         self.toggleGrainEditButtons(state)
-        self.comboBoxPropellant.setEnabled(state)
-        self.comboBoxGrainGeometry.setEnabled(state)
-        self.pushButtonAddGrain.setEnabled(state)
+        self.ui.comboBoxPropellant.setEnabled(state)
+        self.ui.comboBoxGrainGeometry.setEnabled(state)
+        self.ui.pushButtonAddGrain.setEnabled(state)
 
     def checkGrainSelection(self):
-        ind = self.tableWidgetGrainList.selectionModel().selectedRows()
+        ind = self.ui.tableWidgetGrainList.selectionModel().selectedRows()
         cm = self.fileManager.getCurrentMotor()
         if len(ind) > 0:
             gid = ind[0].row()
             self.toggleGrainButtons(True)
             if gid == 0: # Top grain selected
-                self.pushButtonMoveGrainUp.setEnabled(False)
+                self.ui.pushButtonMoveGrainUp.setEnabled(False)
             if gid == len(cm.grains) - 1: # Bottom grain selected
-                self.pushButtonMoveGrainDown.setEnabled(False)
+                self.ui.pushButtonMoveGrainDown.setEnabled(False)
             elif gid == len(cm.grains):
-                self.pushButtonMoveGrainUp.setEnabled(False)
-                self.pushButtonMoveGrainDown.setEnabled(False)
-                self.pushButtonDeleteGrain.setEnabled(False)
+                self.ui.pushButtonMoveGrainUp.setEnabled(False)
+                self.ui.pushButtonMoveGrainDown.setEnabled(False)
+                self.ui.pushButtonDeleteGrain.setEnabled(False)
         else:
             self.toggleGrainEditButtons(False, False)
 
     def moveGrain(self, offset):
         cm = self.fileManager.getCurrentMotor()
-        ind = self.tableWidgetGrainList.selectionModel().selectedRows()
+        ind = self.ui.tableWidgetGrainList.selectionModel().selectedRows()
         if len(ind) > 0:
             gid = ind[0].row()
             if gid < len(cm.grains) and gid + offset < len(cm.grains) and gid + offset >= 0:
                 cm.grains[gid + offset], cm.grains[gid] = cm.grains[gid], cm.grains[gid + offset]
-                self.tableWidgetGrainList.selectRow(gid + offset)
+                self.ui.tableWidgetGrainList.selectRow(gid + offset)
                 self.fileManager.addNewMotorHistory(cm)
                 self.updateGrainTable()
 
     def editGrain(self):
-        ind = self.tableWidgetGrainList.selectionModel().selectedRows()
+        ind = self.ui.tableWidgetGrainList.selectionModel().selectedRows()
         cm = self.fileManager.getCurrentMotor()
         if len(ind) > 0:
             gid = ind[0].row()
             if gid < len(cm.grains):
-                self.motorEditor.loadGrain(cm.grains[gid])
+                self.ui.motorEditor.loadGrain(cm.grains[gid])
             else:
-                self.motorEditor.loadNozzle(cm.nozzle)
+                self.ui.motorEditor.loadNozzle(cm.nozzle)
             self.toggleGrainButtons(False)
 
     def deleteGrain(self):
-        ind = self.tableWidgetGrainList.selectionModel().selectedRows()
+        ind = self.ui.tableWidgetGrainList.selectionModel().selectedRows()
         cm = self.fileManager.getCurrentMotor()
         if len(ind) > 0:
             gid = ind[0].row()
@@ -257,7 +261,7 @@ class Window(QMainWindow):
 
     def addGrain(self):
         cm = self.fileManager.getCurrentMotor()
-        newGrain = motorlib.grainTypes[self.comboBoxGrainGeometry.currentText()]()
+        newGrain = motorlib.grainTypes[self.ui.comboBoxGrainGeometry.currentText()]()
         cm.grains.append(newGrain)
         self.fileManager.addNewMotorHistory(cm)
         self.updateGrainTable()
@@ -271,26 +275,26 @@ class Window(QMainWindow):
         return str(round(motorlib.convert(quantity, inUnit, convUnit), 3)) + ' ' + convUnit
 
     def updateMotorStats(self, simResult):
-        self.labelMotorDesignation.setText(simResult.getDesignation())
-        self.labelImpulse.setText(self.formatMotorStat(simResult.getImpulse(), 'Ns'))
-        self.labelDeliveredISP.setText(self.formatMotorStat(simResult.getISP(), 's'))
-        self.labelBurnTime.setText(self.formatMotorStat(simResult.getBurnTime(), 's'))
+        self.ui.labelMotorDesignation.setText(simResult.getDesignation())
+        self.ui.labelImpulse.setText(self.formatMotorStat(simResult.getImpulse(), 'Ns'))
+        self.ui.labelDeliveredISP.setText(self.formatMotorStat(simResult.getISP(), 's'))
+        self.ui.labelBurnTime.setText(self.formatMotorStat(simResult.getBurnTime(), 's'))
 
-        self.labelAveragePressure.setText(self.formatMotorStat(simResult.getAveragePressure(), 'Pa'))
-        self.labelPeakPressure.setText(self.formatMotorStat(simResult.getMaxPressure(), 'Pa'))
-        self.labelInitialKN.setText(self.formatMotorStat(simResult.getInitialKN(), ''))
-        self.labelPeakKN.setText(self.formatMotorStat(simResult.getPeakKN(), ''))
+        self.ui.labelAveragePressure.setText(self.formatMotorStat(simResult.getAveragePressure(), 'Pa'))
+        self.ui.labelPeakPressure.setText(self.formatMotorStat(simResult.getMaxPressure(), 'Pa'))
+        self.ui.labelInitialKN.setText(self.formatMotorStat(simResult.getInitialKN(), ''))
+        self.ui.labelPeakKN.setText(self.formatMotorStat(simResult.getPeakKN(), ''))
 
-        self.labelPropellantMass.setText(self.formatMotorStat(simResult.getPropellantMass(), 'kg'))
-        self.labelPropellantLength.setText(self.formatMotorStat(simResult.getPropellantLength(), 'm'))
+        self.ui.labelPropellantMass.setText(self.formatMotorStat(simResult.getPropellantMass(), 'kg'))
+        self.ui.labelPropellantLength.setText(self.formatMotorStat(simResult.getPropellantLength(), 'm'))
 
         if simResult.getPortRatio() is not None:
-            self.labelPortThroatRatio.setText(self.formatMotorStat(simResult.getPortRatio(), ''))
-            self.labelPeakMassFlux.setText(self.formatMotorStat(simResult.getPeakMassFlux(), 'kg/(m^2*s)') + ' (G: ' + str(simResult.getPeakMassFluxLocation() + 1) + ')')
+            self.ui.labelPortThroatRatio.setText(self.formatMotorStat(simResult.getPortRatio(), ''))
+            self.ui.labelPeakMassFlux.setText(self.formatMotorStat(simResult.getPeakMassFlux(), 'kg/(m^2*s)') + ' (G: ' + str(simResult.getPeakMassFluxLocation() + 1) + ')')
 
         else:
-            self.labelPortThroatRatio.setText('-')
-            self.labelPeakMassFlux.setText('-')
+            self.ui.labelPortThroatRatio.setText('-')
+            self.ui.labelPeakMassFlux.setText('-')
 
     def runSimulation(self):
         self.resetOutput()
@@ -299,7 +303,7 @@ class Window(QMainWindow):
 
     def resetOutput(self):
         self.setupMotorStats()
-        self.graphWidget.resetPlot()
+        self.ui.graphWidget.resetPlot()
         self.updateGrainTable()
 
     def undo(self):
@@ -385,6 +389,7 @@ class Window(QMainWindow):
     def showPreferences(self):
         self.preferencesWindow.load(self.preferences)
         self.preferencesWindow.show()
+
 
 if __name__ == '__main__':
     if '-h' in sys.argv:

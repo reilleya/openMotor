@@ -1,24 +1,26 @@
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QDialog, QTableWidgetItem, QHeaderView
-from PyQt5.uic import loadUi
 from PyQt5.QtCore import pyqtSignal
 
 from threading import Thread
 
 from motorlib import simAlertLevel, simAlertType, alertLevelNames, alertTypeNames
 
+
 class simulationProgressDialog(QDialog):
 
     simulationCanceled = pyqtSignal()
 
     def __init__(self):
+        from .views.SimulatingDialog_ui import Ui_SimProgressDialog
         QDialog.__init__(self)
-        loadUi("resources/SimulatingDialog.ui", self)
+        self.ui = Ui_SimProgressDialog()
+        self.ui.setupUi(self)
 
-        self.buttonBox.rejected.connect(self.closeEvent)
+        self.ui.buttonBox.rejected.connect(self.closeEvent)
 
     def show(self):
-        self.progressBar.setValue(0)
+        self.ui.progressBar.setValue(0)
         super().show()
 
     def closeEvent(self, event = None):
@@ -26,14 +28,16 @@ class simulationProgressDialog(QDialog):
         self.close()
 
     def progressUpdate(self, progress):
-        self.progressBar.setValue(int(progress * 100))
+        self.ui.progressBar.setValue(int(progress * 100))
 
 class simulationAlertsDialog(QDialog):
     def __init__(self):
+        from .views.SimulationAlertsDialog_ui import Ui_SimAlertsDialog
         QDialog.__init__(self)
-        loadUi("resources/SimulationAlertsDialog.ui", self)
+        self.ui = Ui_SimAlertsDialog()
+        self.ui.setupUi(self)
 
-        header = self.tableWidgetAlerts.horizontalHeader()       
+        header = self.ui.tableWidgetAlerts.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
@@ -42,14 +46,14 @@ class simulationAlertsDialog(QDialog):
         self.hide()
 
     def displayAlerts(self, simRes):
-        self.tableWidgetAlerts.setRowCount(0) # Clear the table
+        self.ui.tableWidgetAlerts.setRowCount(0) # Clear the table
         if len(simRes.alerts) > 0:
             self.tableWidgetAlerts.setRowCount(len(simRes.alerts))
             for row, alert in enumerate(simRes.alerts):
-                self.tableWidgetAlerts.setItem(row, 0, QTableWidgetItem(alertLevelNames[alert.level]))
-                self.tableWidgetAlerts.setItem(row, 1, QTableWidgetItem(alertTypeNames[alert.type]))
-                self.tableWidgetAlerts.setItem(row, 2, QTableWidgetItem(alert.location))
-                self.tableWidgetAlerts.setItem(row, 3, QTableWidgetItem(alert.description))
+                self.ui.tableWidgetAlerts.setItem(row, 0, QTableWidgetItem(alertLevelNames[alert.level]))
+                self.ui.tableWidgetAlerts.setItem(row, 1, QTableWidgetItem(alertTypeNames[alert.type]))
+                self.ui.tableWidgetAlerts.setItem(row, 2, QTableWidgetItem(alert.location))
+                self.ui.tableWidgetAlerts.setItem(row, 3, QTableWidgetItem(alert.description))
             self.show()
 
 

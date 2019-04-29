@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox
-from PyQt5.uic import loadUi
 from motorlib import propertyCollection, floatProperty, stringProperty
+
 from . import collectionEditor
 
 class engExportEditor(collectionEditor):
@@ -18,13 +18,17 @@ class engSettings(propertyCollection):
 
 class engExportMenu(QDialog):
     def __init__(self):
+        from .views.EngExporter_ui import Ui_EngExporterDialog
+
         QDialog.__init__(self)
-        loadUi('resources/EngExporter.ui', self)
+        self.ui = Ui_EngExporterDialog()
+        self.ui.setupUi(self)
+
         self.motorDesignation = ''
         self.times = None
         self.thrustCurve = None
         self.propMass = None
-        self.buttonBox.accepted.connect(self.exportEng)
+        self.ui.buttonBox.accepted.connect(self.exportEng)
 
     def exportEng(self):
         path = QFileDialog.getSaveFileName(None, 'Save motor', '', 'RASP Files (*.eng)')[0]
@@ -33,7 +37,7 @@ class engExportMenu(QDialog):
                 path += '.eng'
 
             with open(path, 'w') as outFile:
-                stats = self.motorStats.getProperties()
+                stats = self.ui.motorStats.getProperties()
                 contents = ' '.join([stats['designation'], 
                                    str(round(stats['diameter'] * 1000, 6)), 
                                    str(round(stats['length'] * 1000, 6)),
@@ -51,13 +55,13 @@ class engExportMenu(QDialog):
                 outFile.write(contents)
 
     def setPreferences(self, pref):
-        self.motorStats.setPreferences(pref)
+        self.ui.motorStats.setPreferences(pref)
 
     def open(self):
         newSettings = engSettings()
         newSettings.setProperties({'designation': self.motorDesignation})
-        self.motorStats.loadProperties(newSettings)
-        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(self.times is not None)
+        self.ui.motorStats.loadProperties(newSettings)
+        self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(self.times is not None)
         self.show()
 
     def acceptSimResult(self, simRes):

@@ -2,6 +2,7 @@ import yaml
 from enum import Enum
 
 appVersion = (0, 1, 0)
+appVersionStr = '.'.join(map(str, appVersion))
 
 class fileTypes(Enum):
     PREFERENCES = 1
