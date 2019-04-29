@@ -8,4 +8,4 @@ class aboutDialog(QDialog):
         self.ui = Ui_AboutDialog()
         self.ui.setupUi(self)
 
-        self.ui.labelText.setText(version)
+        self.ui.labelText.setText(self.ui.labelText.text().replace('###', version))

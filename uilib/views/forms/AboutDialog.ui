@@ -47,7 +47,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap>oMIconCyclesSmall.png</pixmap>
+        <pixmap>resources/oMIconCyclesSmall.png</pixmap>
        </property>
       </widget>
      </item>
