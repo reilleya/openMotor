@@ -367,14 +367,14 @@ class Window(QMainWindow):
 
     def loadPreferences(self):
         try:
-            prefDict = uilib.loadFile('preferences.yaml', uilib.fileTypes.PREFERENCES)
+            prefDict = uilib.loadFile(uilib.fileIO.getConfigPath() + 'preferences.yaml', uilib.fileTypes.PREFERENCES)
             self.preferences.applyDict(prefDict)
         except FileNotFoundError:
             self.savePreferences()
 
     def savePreferences(self):
         try:
-            uilib.saveFile('preferences.yaml', self.preferences.getDict(), uilib.fileTypes.PREFERENCES)
+            uilib.saveFile(uilib.fileIO.getConfigPath() + 'preferences.yaml', self.preferences.getDict(), uilib.fileTypes.PREFERENCES)
         except:
             print('Unable to save preferences')
 

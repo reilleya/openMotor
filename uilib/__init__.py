@@ -1,4 +1,4 @@
-from .fileIO import saveFile, loadFile, fileTypes, appVersion
+from .fileIO import saveFile, loadFile, fileTypes, appVersion, getConfigPath
 from .graphWidget import *
 from .grainPreviewWidget import grainPreviewGraph, grainPreviewWidget
 from .propertyEditor import *
