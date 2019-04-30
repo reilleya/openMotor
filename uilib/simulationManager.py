@@ -48,7 +48,7 @@ class simulationAlertsDialog(QDialog):
     def displayAlerts(self, simRes):
         self.ui.tableWidgetAlerts.setRowCount(0) # Clear the table
         if len(simRes.alerts) > 0:
-            self.tableWidgetAlerts.setRowCount(len(simRes.alerts))
+            self.ui.tableWidgetAlerts.setRowCount(len(simRes.alerts))
             for row, alert in enumerate(simRes.alerts):
                 self.ui.tableWidgetAlerts.setItem(row, 0, QTableWidgetItem(alertLevelNames[alert.level]))
                 self.ui.tableWidgetAlerts.setItem(row, 1, QTableWidgetItem(alertTypeNames[alert.type]))
