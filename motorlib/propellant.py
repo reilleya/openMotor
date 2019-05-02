@@ -11,3 +11,12 @@ class propellant(propertyCollection):
         self.props['k'] = floatProperty('Specific Heat Ratio', '', 1+1e-6, 10)
         self.props['t'] = floatProperty('Combustion Temperature', 'K', 0, 10000)
         self.props['m'] = floatProperty('Exhaust Molar Mass', 'g/mol', 1e-6, 100)
+
+    def getCStar(self):
+        k = self.props['k'].getValue()
+        t = self.props['t'].getValue()
+        m = self.props['m'].getValue()
+        r = 8314
+        num = (k * r/m * t)**0.5
+        denom = k * ((2/(k+1))**((k+1)/(k-1)))**0.5
+        return num / denom
