@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QTableWidgetItem, QHeaderView, QMessageBox
+from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QTableWidgetItem, QHeaderView, QMessageBox, QTableWidget
 from PyQt5.QtCore import pyqtSlot, pyqtSignal
 import sys
 import yaml
@@ -145,6 +145,7 @@ class Window(QMainWindow):
 
     def setupGrainTable(self):
         self.ui.tableWidgetGrainList.clearContents()
+        self.ui.tableWidgetGrainList.setEditTriggers(QTableWidget.NoEditTriggers)
 
         header = self.ui.tableWidgetGrainList.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
