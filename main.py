@@ -156,6 +156,7 @@ class Window(QMainWindow):
         self.ui.pushButtonMoveGrainUp.pressed.connect(lambda: self.moveGrain(-1))
         self.ui.pushButtonMoveGrainDown.pressed.connect(lambda: self.moveGrain(1))
         self.ui.pushButtonDeleteGrain.pressed.connect(self.deleteGrain)
+        self.ui.pushButtonCopyGrain.pressed.connect(self.copyGrain)
 
         self.ui.tableWidgetGrainList.itemSelectionChanged.connect(self.checkGrainSelection)
         self.checkGrainSelection()
@@ -208,6 +209,7 @@ class Window(QMainWindow):
             self.ui.tableWidgetGrainList.setEnabled(state)
         self.ui.pushButtonDeleteGrain.setEnabled(state)
         self.ui.pushButtonEditGrain.setEnabled(state)
+        self.ui.pushButtonCopyGrain.setEnabled(state)
         self.ui.pushButtonMoveGrainDown.setEnabled(state)
         self.ui.pushButtonMoveGrainUp.setEnabled(state)
 
@@ -227,10 +229,11 @@ class Window(QMainWindow):
                 self.ui.pushButtonMoveGrainUp.setEnabled(False)
             if gid == len(cm.grains) - 1: # Bottom grain selected
                 self.ui.pushButtonMoveGrainDown.setEnabled(False)
-            elif gid == len(cm.grains):
+            elif gid == len(cm.grains): # Nozzle selected
                 self.ui.pushButtonMoveGrainUp.setEnabled(False)
                 self.ui.pushButtonMoveGrainDown.setEnabled(False)
                 self.ui.pushButtonDeleteGrain.setEnabled(False)
+                self.ui.pushButtonCopyGrain.setEnabled(False)
         else:
             self.toggleGrainEditButtons(False, False)
 
@@ -255,6 +258,17 @@ class Window(QMainWindow):
             else:
                 self.ui.motorEditor.loadNozzle(cm.nozzle)
             self.toggleGrainButtons(False)
+
+    def copyGrain(self):
+        ind = self.ui.tableWidgetGrainList.selectionModel().selectedRows()
+        cm = self.fileManager.getCurrentMotor()
+        if len(ind) > 0:
+            gid = ind[0].row()
+            if gid < len(cm.grains):
+                cm.grains.append(cm.grains[gid])
+                self.fileManager.addNewMotorHistory(cm)
+                self.updateGrainTable()
+                self.checkGrainSelection()
 
     def deleteGrain(self):
         ind = self.ui.tableWidgetGrainList.selectionModel().selectedRows()
