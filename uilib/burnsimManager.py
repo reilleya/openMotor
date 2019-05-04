@@ -142,8 +142,12 @@ class burnsimManager(QObject):
                         propellant.setProperty('a', motorlib.convert(a, 'in/(s*psi^n)', 'm/(s*Pa^n)')) # Conversion only does in/s to m/s, the rest is handled above
                         propellant.setProperty('density', motorlib.convert(float(impProp.attrib['Density']), 'lb/in^3', 'kg/m^3'))
                         propellant.setProperty('k', float(impProp.attrib['SpecificHeatRatio']))
-                        propellant.setProperty('m', 23.67) # BurnSim does't provide this value
-                        propellant.setProperty('t', 3500) # Or this one. TODO: modulate this to make the ISP correct
+                        impMolarMass = impProp.attrib['MolarMass']
+                        if impMolarMass == '0':
+                            propellant.setProperty('m', 23.67) # If the user has entered 0, override it to match the default propellant.
+                        else:
+                            propellant.setProperty('m', float(impMolarMass))
+                        propellant.setProperty('t', 3500) # Burnsim doesn't provide this property. Set it to match the default propellant.
                         motor.propellant = propellant
                         propSet = True
 

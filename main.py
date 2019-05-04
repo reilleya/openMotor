@@ -284,6 +284,8 @@ class Window(QMainWindow):
     def addGrain(self):
         cm = self.fileManager.getCurrentMotor()
         newGrain = motorlib.grainTypes[self.ui.comboBoxGrainGeometry.currentText()]()
+        if len(cm.grains) != 0:
+            newGrain.setProperty('diameter', cm.grains[-1].getProperty('diameter'))
         cm.grains.append(newGrain)
         self.fileManager.addNewMotorHistory(cm)
         self.updateGrainTable()
