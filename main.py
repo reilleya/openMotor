@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QTableWidgetItem, QHeaderView, QMessageBox
+from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QTableWidgetItem, QHeaderView, QMessageBox, QTableWidget
 from PyQt5.QtCore import pyqtSlot, pyqtSignal
 import sys
 import yaml
@@ -56,6 +56,8 @@ class Window(QMainWindow):
         self.toolManager.setupMenu(self.ui.menuTools)
         self.toolManager.changeApplied.connect(self.updateGrainTable)
 
+        self.burnsimManager = uilib.burnsimManager(self.fileManager)
+
         self.preferencesChanged.emit(self.preferences)
         self.setupMotorStats()
         self.setupMotorEditor()
@@ -94,25 +96,30 @@ class Window(QMainWindow):
         self.ui.pushButtonAddGrain.pressed.connect(self.addGrain)
 
     def setupMenu(self):
-        #File menu
+        # File menu
         self.ui.actionNew.triggered.connect(self.newMotor)
         self.ui.actionSave.triggered.connect(self.fileManager.save)
         self.ui.actionSaveAs.triggered.connect(self.fileManager.saveAs)
         self.ui.actionOpen.triggered.connect(lambda x: self.loadMotor(None)) # Lambda because the signal passes in an argument
+        # Import
+        self.ui.actionImportBurnSim.triggered.connect(self.burnSimImport)
+        # Export 
         self.ui.actionENGFile.triggered.connect(self.engExporter.open)
         self.ui.actionCSV.triggered.connect(self.csvExporter.open)
+        self.ui.actionExportBurnSim.triggered.connect(self.burnsimManager.showExportMenu)
+
         self.ui.actionQuit.triggered.connect(self.closeEvent)
 
-        #Edit menu
+        # Edit menu
         self.ui.actionUndo.triggered.connect(self.undo)
         self.ui.actionRedo.triggered.connect(self.redo)
         self.ui.actionPreferences.triggered.connect(self.showPreferences)
         self.ui.actionPropellantEditor.triggered.connect(self.propManager.showMenu)
 
-        #Sim
+        # Sim
         self.ui.actionRunSimulation.triggered.connect(self.runSimulation)
 
-        #Help
+        # Help
         self.ui.actionAboutOpenMotor.triggered.connect(self.aboutDialog.show)
 
     def setupPropSelector(self):
@@ -138,6 +145,7 @@ class Window(QMainWindow):
 
     def setupGrainTable(self):
         self.ui.tableWidgetGrainList.clearContents()
+        self.ui.tableWidgetGrainList.setEditTriggers(QTableWidget.NoEditTriggers)
 
         header = self.ui.tableWidgetGrainList.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
@@ -148,6 +156,7 @@ class Window(QMainWindow):
         self.ui.pushButtonMoveGrainUp.pressed.connect(lambda: self.moveGrain(-1))
         self.ui.pushButtonMoveGrainDown.pressed.connect(lambda: self.moveGrain(1))
         self.ui.pushButtonDeleteGrain.pressed.connect(self.deleteGrain)
+        self.ui.pushButtonCopyGrain.pressed.connect(self.copyGrain)
 
         self.ui.tableWidgetGrainList.itemSelectionChanged.connect(self.checkGrainSelection)
         self.checkGrainSelection()
@@ -200,6 +209,7 @@ class Window(QMainWindow):
             self.ui.tableWidgetGrainList.setEnabled(state)
         self.ui.pushButtonDeleteGrain.setEnabled(state)
         self.ui.pushButtonEditGrain.setEnabled(state)
+        self.ui.pushButtonCopyGrain.setEnabled(state)
         self.ui.pushButtonMoveGrainDown.setEnabled(state)
         self.ui.pushButtonMoveGrainUp.setEnabled(state)
 
@@ -219,10 +229,11 @@ class Window(QMainWindow):
                 self.ui.pushButtonMoveGrainUp.setEnabled(False)
             if gid == len(cm.grains) - 1: # Bottom grain selected
                 self.ui.pushButtonMoveGrainDown.setEnabled(False)
-            elif gid == len(cm.grains):
+            elif gid == len(cm.grains): # Nozzle selected
                 self.ui.pushButtonMoveGrainUp.setEnabled(False)
                 self.ui.pushButtonMoveGrainDown.setEnabled(False)
                 self.ui.pushButtonDeleteGrain.setEnabled(False)
+                self.ui.pushButtonCopyGrain.setEnabled(False)
         else:
             self.toggleGrainEditButtons(False, False)
 
@@ -248,6 +259,17 @@ class Window(QMainWindow):
                 self.ui.motorEditor.loadNozzle(cm.nozzle)
             self.toggleGrainButtons(False)
 
+    def copyGrain(self):
+        ind = self.ui.tableWidgetGrainList.selectionModel().selectedRows()
+        cm = self.fileManager.getCurrentMotor()
+        if len(ind) > 0:
+            gid = ind[0].row()
+            if gid < len(cm.grains):
+                cm.grains.append(cm.grains[gid])
+                self.fileManager.addNewMotorHistory(cm)
+                self.updateGrainTable()
+                self.checkGrainSelection()
+
     def deleteGrain(self):
         ind = self.ui.tableWidgetGrainList.selectionModel().selectedRows()
         cm = self.fileManager.getCurrentMotor()
@@ -262,6 +284,8 @@ class Window(QMainWindow):
     def addGrain(self):
         cm = self.fileManager.getCurrentMotor()
         newGrain = motorlib.grainTypes[self.ui.comboBoxGrainGeometry.currentText()]()
+        if len(cm.grains) != 0:
+            newGrain.setProperty('diameter', cm.grains[-1].getProperty('diameter'))
         cm.grains.append(newGrain)
         self.fileManager.addNewMotorHistory(cm)
         self.updateGrainTable()
@@ -323,33 +347,43 @@ class Window(QMainWindow):
         self.updatePropBoxSelection()
         self.resetOutput()
 
+    def burnSimImport(self):
+        self.disablePropSelector()
+        if self.burnsimManager.showImportMenu():
+            self.postLoadUpdate()
+        self.enablePropSelector()
+
     def loadMotor(self, path = None):
         self.disablePropSelector()
         if self.fileManager.load(path):
-            self.resetOutput()
-            self.updateGrainTable()
+            self.postLoadUpdate()
+        self.enablePropSelector()
 
-            cm = self.fileManager.getCurrentMotor()
-            if cm.propellant.getProperty('name') not in self.propManager.getNames():
-                self.showMessage('The propellant from the loaded motor was not in the library, so it was added as "' + cm.propellant.getProperty('name') + '"',
-                        'New propellant added')
+    # Handle the current motor's propellant not being the library
+    def postLoadUpdate(self):
+        self.resetOutput()
+        self.updateGrainTable()
+
+        cm = self.fileManager.getCurrentMotor()
+        if cm.propellant.getProperty('name') not in self.propManager.getNames():
+            self.showMessage('The propellant from the loaded motor was not in the library, so it was added as "' + cm.propellant.getProperty('name') + '"',
+                    'New propellant added')
+            self.propManager.propellants.append(cm.propellant)
+            self.propManager.savePropellants()
+        else:
+            if cm.propellant.getProperties() != self.propManager.getPropellantByName(cm.propellant.getProperty('name')).getProperties():
+                addedNumber = 1
+                while cm.propellant.getProperty('name') + ' (' + str(addedNumber) + ')' in self.propManager.getNames():
+                    addedNumber += 1
+                cm.propellant.setProperty('name', cm.propellant.getProperty('name') + ' (' + str(addedNumber) + ')')
                 self.propManager.propellants.append(cm.propellant)
                 self.propManager.savePropellants()
-            else:
-                if cm.propellant.getProperties() != self.propManager.getPropellantByName(cm.propellant.getProperty('name')).getProperties():
-                    addedNumber = 1
-                    while cm.propellant.getProperty('name') + ' (' + str(addedNumber) + ')' in self.propManager.getNames():
-                        addedNumber += 1
-                    cm.propellant.setProperty('name', cm.propellant.getProperty('name') + ' (' + str(addedNumber) + ')')
-                    self.propManager.propellants.append(cm.propellant)
-                    self.propManager.savePropellants()
-                    self.fileManager.overrideCurrentMotor(cm) # To change the propellant name while disallowing an undo to the wrong name
-                    self.showMessage('The propellant from the loaded motor matches an existing item in the library, but they have different properties. The propellant from the motor has been added to the library as "' + cm.propellant.getProperty('name') + '"',
-                        'New propellant added')
+                self.fileManager.overrideCurrentMotor(cm) # To change the propellant name while disallowing an undo to the wrong name
+                self.showMessage('The propellant from the loaded motor matches an existing item in the library, but they have different properties. The propellant from the motor has been added to the library as "' + cm.propellant.getProperty('name') + '"',
+                    'New propellant added')
 
-            self.populatePropSelector()
-            self.updatePropBoxSelection()
-        self.enablePropSelector()
+        self.populatePropSelector()
+        self.updatePropBoxSelection()
 
     def showMessage(self, message, title = 'openMotor'):
         msg = QMessageBox()

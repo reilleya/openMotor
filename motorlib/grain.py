@@ -114,7 +114,7 @@ class perforatedGrain(grain): # A grain with a hole of some shape through the ce
         uncored = geometry.circleArea(self.props['diameter'].getValue())
         return uncored - faceArea
 
-    def getMassFlux(self, massIn, dt, r, dr, position, density): # This duplicates a lot of code from bates. Time to make bates a perforated grain?
+    def getMassFlux(self, massIn, dt, r, dr, position, density):
         diameter = self.props['diameter'].getValue()
 
         bLength = self.getRegressedLength(r)

@@ -15,3 +15,4 @@ from .simulationManager import *
 from .aboutDialog import *
 from .tool import *
 from .toolManager import *
+from .burnsimManager import *

@@ -68,9 +68,15 @@
         </property>
         <item>
          <widget class="QComboBox" name="comboBoxPropellant">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="maximumSize">
            <size>
-            <width>200</width>
+            <width>250</width>
             <height>16777215</height>
            </size>
           </property>
@@ -79,7 +85,7 @@
         <item>
          <widget class="QPushButton" name="pushButtonPropEditor">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -92,7 +98,7 @@
           </property>
           <property name="maximumSize">
            <size>
-            <width>120</width>
+            <width>16777215</width>
             <height>16777215</height>
            </size>
           </property>
@@ -157,15 +163,27 @@
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QPushButton" name="pushButtonMoveGrainUp">
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text">
-           <string>Up</string>
+           <string>↑</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="pushButtonMoveGrainDown">
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text">
-           <string>Down</string>
+           <string>↓</string>
           </property>
          </widget>
         </item>
@@ -173,6 +191,13 @@
          <widget class="QPushButton" name="pushButtonEditGrain">
           <property name="text">
            <string>Edit</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonCopyGrain">
+          <property name="text">
+           <string>Copy</string>
           </property>
          </widget>
         </item>
@@ -484,14 +509,20 @@
      <addaction name="actionENGFile"/>
      <addaction name="actionImage"/>
      <addaction name="actionCSV"/>
-     <addaction name="actionBurnsimFile"/>
+     <addaction name="actionExportBurnSim"/>
+    </widget>
+    <widget class="QMenu" name="menuImport">
+     <property name="title">
+      <string>Import</string>
+     </property>
+     <addaction name="actionImportBurnSim"/>
     </widget>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
     <addaction name="separator"/>
-    <addaction name="actionImport"/>
+    <addaction name="menuImport"/>
     <addaction name="menuExport"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -502,7 +533,6 @@
     </property>
     <addaction name="separator"/>
     <addaction name="actionRunSimulation"/>
-    <addaction name="actionGenerateReport"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -666,14 +696,14 @@
     <string>Ctrl+Shift+S</string>
    </property>
   </action>
-  <action name="actionBurnsimFile">
+  <action name="actionExportBurnSim">
    <property name="text">
     <string>Burnsim File</string>
    </property>
   </action>
-  <action name="actionImport">
+  <action name="actionImportBurnSim">
    <property name="text">
-    <string>Import</string>
+    <string>BurnSim File</string>
    </property>
   </action>
  </widget>

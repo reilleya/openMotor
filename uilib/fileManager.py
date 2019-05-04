@@ -20,17 +20,23 @@ class fileManager(QObject):
 
         self.newFile()
 
+    # Check if current motor has unsaved changes and start over from default motor. Called when the menu item is triggered.
     def newFile(self):
         if self.unsavedCheck():
-            self.fileHistory = [defaults.defaultMotor().getDict()]
-            self.currentVersion = 0
-            self.savedVersion = 0
-            self.fileName = None
-            self.sendTitleUpdate()
+            self.startFromMotor(defaults.defaultMotor())
 
+    # Reset to empty motor history and set current motor to what is passed in
+    def startFromMotor(self, motor, filename = None):
+        self.fileHistory = [motor.getDict()]
+        self.currentVersion = 0
+        self.savedVersion = 0
+        self.fileName = filename
+        self.sendTitleUpdate()
+
+    # Asks the user for a filename if they haven't provided one. Otherwise, dump the motor to a file and show any resulting errors in a popup. Called when the menu item is triggered.
     def save(self):
         if self.fileName is None:
-            self.saveAs()
+            self.saveAs() # Though this function calls save again, the above condition will be false on the second time around and the file will save
         else:
             try:
                 saveFile(self.fileName, self.fileHistory[self.currentVersion], fileTypes.MOTOR)
@@ -39,12 +45,14 @@ class fileManager(QObject):
             except Exception as e:
                 self.showException(e)
 
+    # Asks for a new file name and saves the motor
     def saveAs(self):
         fn = self.showSaveDialog()
         if fn is not None:
             self.fileName = fn
             self.save()
 
+    # Checks for unsaved changes, asks for a filename, and loads the file 
     def load(self, path = None):
         if self.unsavedCheck():
             if path is None:
@@ -53,17 +61,16 @@ class fileManager(QObject):
                 try:
                     res = loadFile(path, fileTypes.MOTOR)
                     if res is not None:
-                        self.fileHistory = [res]
-                        self.currentVersion = 0
-                        self.savedVersion = 0
-                        self.fileName = path
-                        self.sendTitleUpdate()
+                        motor = motorlib.motor()
+                        motor.loadDict(res)
+                        self.startFromMotor(motor, path)
                         return True
                 except Exception as e:
                     self.showException(e)
 
         return False # If no file is loaded, return false
 
+    # Display a popup to output file errors
     def showException(self, exception):
         msg = QMessageBox()
         msg.setText("An error occured accessing the file:")
@@ -71,11 +78,13 @@ class fileManager(QObject):
         msg.setWindowTitle("Error")
         msg.exec_()
 
+    # Return the recent end of the motor history
     def getCurrentMotor(self):
         nm = motorlib.motor()
         nm.loadDict(self.fileHistory[self.currentVersion])
         return nm
 
+    # Add a new entry to motor history
     def addNewMotorHistory(self, motor): # Add a new version of the motor to the motor history. Should be used for all user interactions.
         if motor.getDict() != self.fileHistory[self.currentVersion]:
             if self.canRedo():
@@ -84,25 +93,31 @@ class fileManager(QObject):
             self.currentVersion += 1
             self.sendTitleUpdate()
 
-    def overrideCurrentMotor(self, motor): # Changes the current motor without adding undo history. Should not be used after user interaction.
+    # Changes the current motor without adding undo history. Should not be used after user interaction.
+    def overrideCurrentMotor(self, motor):
         self.fileHistory[-1] = motor.getDict()
 
+    # Returns true if there is history before the current motor
     def canUndo(self):
         return self.currentVersion > 0
 
+    # Rolls back the current motor to point at the motor before it in the history 
     def undo(self):
         if self.canUndo():
             self.currentVersion -= 1
             self.sendTitleUpdate()
 
+    # Returns true if there is history ahead of the current motor
     def canRedo(self):
         return self.currentVersion < len(self.fileHistory) - 1
 
+    # Changes current motor to be the next motor in history
     def redo(self):
         if self.canRedo():
             self.currentVersion += 1
             self.sendTitleUpdate()
 
+    # If there is unsaved history, ask the user if they want to save it. Returns true if it is safe to start a new motor (save, discard) or false if not (cancel)
     def unsavedCheck(self):
         if self.savedVersion != self.currentVersion:
             msg = QMessageBox()
@@ -122,9 +137,11 @@ class fileManager(QObject):
 
         return True
 
+    # Outputs the filename component of the title
     def sendTitleUpdate(self):
         self.fileNameChanged.emit(self.fileName, self.savedVersion == self.currentVersion)
 
+    # Pops up a save file dialog and returns the path, or None if it is canceled
     def showSaveDialog(self):
         path = QFileDialog.getSaveFileName(None, 'Save motor', '', 'Motor Files (*.ric)')[0]
         if path == '' or path is None:
