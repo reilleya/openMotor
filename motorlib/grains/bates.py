@@ -68,9 +68,9 @@ class batesGrain(perforatedGrain):
                 layerContours = measure.find_contours(regressionMap, dist, fully_connected='high')
                 for contour in layerContours:
                     contours[-1].append(contour)
-                    contourLengths[dist] += geometry.length(contour)
+                    contourLengths[dist] += geometry.length(contour, mapDim)
 
-        except ValueError: # If there aren't any contours, do nothing
-            pass
+        except ValueError as e: # If there aren't any contours, do nothing
+            print(e)
 
         return (masked, regressionMap, contours, contourLengths)

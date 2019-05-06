@@ -30,3 +30,8 @@ def length(contour, mapSize, tolerance = 3):
     valid = radius < (mapSize / 2) - tolerance
 
     return np.sum(l[valid])
+
+def clean(contour, mapSize, tolerance): # Removes the points in a contour near the edge (inhibits the casting tube)
+    offset = np.array([[mapSize / 2, mapSize / 2]])
+    l = np.linalg.norm(contour - offset, axis = 1)
+    return contour[l < (mapSize / 2) - tolerance]

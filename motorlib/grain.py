@@ -240,7 +240,7 @@ class fmmGrain(perforatedGrain):
                 contourLengths[dist] = 0
                 layerContours = measure.find_contours(self.regressionMap, dist, fully_connected='low')
                 for contour in layerContours:
-                    contours[-1].append(contour)
+                    contours[-1].append(geometry.clean(contour, self.mapDim, 3))
                     contourLengths[dist] += geometry.length(contour, self.mapDim)
 
         except ValueError as e: # If there aren't any contours, do nothing

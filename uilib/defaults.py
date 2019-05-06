@@ -23,7 +23,7 @@ def defaultMotor():
 def defaultPreferences():
     pref = preferences()
 
-    pref.general.props['burnoutWebThres'].setValue(0.03 / 39.37)
+    pref.general.props['burnoutWebThres'].setValue(0.01 / 39.37)
     pref.general.props['burnoutThrustThres'].setValue(0.1)
     pref.general.props['timestep'].setValue(0.03)
     pref.general.props['ambPressure'].setValue(101325)
