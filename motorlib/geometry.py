@@ -19,10 +19,17 @@ def cylinderArea(d, h):
 def cylinderVolume(d, h):
     return h * circleArea(d)
 
-def length(contour): # Adds up the length of each segment in a contour
+# Returns the total length of all segments in a contour that aren't within 'tolerance' of the edge of 'mapSize' diameter circle
+def length(contour, mapSize, tolerance = 3):
     offset = np.roll(contour.T, 1, axis = 1)
     l = np.linalg.norm(contour.T - offset, axis = 0)
-    return sum(list(l)[1:])
+
+    centerOffset = np.array([[mapSize / 2, mapSize / 2]])
+    radius = np.linalg.norm(contour - centerOffset, axis = 1)
+
+    valid = radius < (mapSize / 2) - tolerance
+
+    return np.sum(l[valid])
 
 def clean(contour, mapSize, tolerance): # Removes the points in a contour near the edge (inhibits the casting tube)
     offset = np.array([[mapSize / 2, mapSize / 2]])

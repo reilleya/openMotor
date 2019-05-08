@@ -197,10 +197,9 @@ class fmmGrain(perforatedGrain):
         mapDist = self.normalize(r)
 
         corePerimeter = 0
-        contours = measure.find_contours(self.regressionMap, mapDist, fully_connected='high')
+        contours = measure.find_contours(self.regressionMap, mapDist, fully_connected='low')
         for contour in contours:
-            contour = geometry.clean(contour, self.mapDim, 3)
-            corePerimeter += self.mapToLength(geometry.length(contour))
+            corePerimeter += self.mapToLength(geometry.length(contour, self.mapDim))
 
         return corePerimeter
 
@@ -239,13 +238,12 @@ class fmmGrain(perforatedGrain):
             for dist in np.linspace(0, regmax, numContours):
                 contours.append([])
                 contourLengths[dist] = 0
-                layerContours = measure.find_contours(self.regressionMap, dist, fully_connected='high')
+                layerContours = measure.find_contours(self.regressionMap, dist, fully_connected='low')
                 for contour in layerContours:
-                    cleaned = geometry.clean(contour, mapDim, 3)
-                    contours[-1].append(cleaned)
-                    contourLengths[dist] += geometry.length(cleaned)
+                    contours[-1].append(geometry.clean(contour, self.mapDim, 3))
+                    contourLengths[dist] += geometry.length(contour, self.mapDim)
 
-        except ValueError: # If there aren't any contours, do nothing
-            pass
+        except ValueError as e: # If there aren't any contours, do nothing
+            print(e)
 
         return (masked, regressionMap, contours, contourLengths)
