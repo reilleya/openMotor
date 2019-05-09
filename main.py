@@ -203,6 +203,7 @@ class Window(QMainWindow):
 
         self.ui.tableWidgetGrainList.setItem(len(cm.grains), 0, QTableWidgetItem('Nozzle'))
         self.ui.tableWidgetGrainList.setItem(len(cm.grains), 1, QTableWidgetItem(cm.nozzle.getDetailsString(self.preferences)))
+        self.repaint() # OSX needs this
 
     def toggleGrainEditButtons(self, state, grainTable = True):
         if grainTable:
@@ -236,6 +237,7 @@ class Window(QMainWindow):
                 self.ui.pushButtonCopyGrain.setEnabled(False)
         else:
             self.toggleGrainEditButtons(False, False)
+        self.repaint() # OSX needs this
 
     def moveGrain(self, offset):
         cm = self.fileManager.getCurrentMotor()
