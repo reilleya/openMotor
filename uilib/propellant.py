@@ -87,6 +87,7 @@ class propellantMenu(QDialog):
     def setupButtons(self):
         self.ui.pushButtonEdit.setEnabled(False)
         self.ui.pushButtonDelete.setEnabled(False)
+        self.repaint() # OSX needs this
 
     def setupPropList(self):
         self.ui.listWidgetPropellants.clear()
@@ -111,6 +112,7 @@ class propellantMenu(QDialog):
         self.manager.savePropellants()
         self.setupPropList()
         self.setupButtons()
+        self.repaint() # OSX needs this
 
     def editProp(self):
         prop = self.manager.propellants[self.ui.listWidgetPropellants.currentRow()]
@@ -126,6 +128,7 @@ class propellantMenu(QDialog):
         self.manager.propellants[self.ui.listWidgetPropellants.currentRow()].setProperties(propDict)
         self.setupPropList()
         self.manager.savePropellants()
+        self.repaint() # OSX needs this
 
     def propSelected(self):
         self.ui.pushButtonEdit.setEnabled(True)
@@ -140,6 +143,7 @@ class propellantMenu(QDialog):
         self.ui.pushButtonEdit.setEnabled(not editing)
         self.ui.pushButtonDelete.setEnabled(not editing)
         self.ui.buttonBox.setEnabled(not editing)
+        self.repaint() # OSX needs this
 
     def close(self):
         super().close()
