@@ -28,7 +28,7 @@ class floatProperty(property):
             super().setValue(value)
 
     def dispFormat(self, unit):
-        return str(round(units.convert(self.value, self.unit, unit), 3)) + ' ' + unit
+        return str(round(units.convert(self.value, self.unit, unit), 6)) + ' ' + unit
 
 class enumProperty(property):
     def __init__(self, dispName, values):
