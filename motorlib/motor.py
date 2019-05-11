@@ -11,21 +11,30 @@ import math
 import numpy as np
 
 class motor():
-    def __init__(self):
+    def __init__(self, propDict = None):
         self.grains = []
-        self.propellant = propellant()
+        self.propellant = None
         self.nozzle = nozzle.nozzle()
+
+        if propDict is not None:
+            self.applyDict(propDict)
 
     def getDict(self):
         motorData = {}
         motorData['nozzle'] = self.nozzle.getProperties()
-        motorData['propellant'] = self.propellant.getProperties()
+        if self.propellant is not None:
+            motorData['propellant'] = self.propellant.getProperties()
+        else:
+            motorData['propellant'] = None
         motorData['grains'] = [{'type': grain.geomName, 'properties': grain.getProperties()} for grain in self.grains]
         return motorData
 
-    def loadDict(self, dictionary):
+    def applyDict(self, dictionary):
         self.nozzle.setProperties(dictionary['nozzle'])
-        self.propellant.setProperties(dictionary['propellant'])
+        if dictionary['propellant'] is not None:
+            self.propellant = propellant(dictionary['propellant'])
+        else:
+            self.propellant = None
         self.grains = []
         for entry in dictionary['grains']:
             self.grains.append(grainTypes[entry['type']]())
@@ -95,17 +104,22 @@ class motor():
 
         # Check for geometry errors
         if len(self.grains) == 0:
-            simRes.addAlert(simAlert(simAlertLevel.ERROR, simAlertType.CONSTRAINT, 'Motor must have at least one propellant grain.', 'Motor'))
+            simRes.addAlert(simAlert(simAlertLevel.ERROR, simAlertType.CONSTRAINT, 'Motor must have at least one propellant grain', 'Motor'))
         for gid, grain in enumerate(self.grains):
             if type(grain) is endBurningGrain and gid != 0: # Endburners have to be at the foward end
-                simRes.addAlert(simAlert(simAlertLevel.ERROR, simAlertType.CONSTRAINT, 'End burning grains must be the forward-most grain in the motor.', 'Grain ' + str(gid + 1)))
+                simRes.addAlert(simAlert(simAlertLevel.ERROR, simAlertType.CONSTRAINT, 'End burning grains must be the forward-most grain in the motor', 'Grain ' + str(gid + 1)))
             for alert in grain.getGeometryErrors():
                 alert.location = 'Grain ' + str(gid + 1)
                 simRes.addAlert(alert)
         for alert in self.nozzle.getGeometryErrors():
             simRes.addAlert(alert)
 
-        # If any geometry errors occurred, stop simulation and return an empty sim with errors
+        # Make sure the motor has a propellant set
+        if self.propellant is None:
+            alert = simAlert(simAlertLevel.ERROR, simAlertType.CONSTRAINT, 'Motor must have a propellant set', 'Motor')
+            simRes.addAlert(alert)
+
+        # If any errors occurred, stop simulation and return an empty sim with errors
         if len(simRes.getAlertsByLevel(simAlertLevel.ERROR)) > 0:
             return simRes
 
