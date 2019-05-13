@@ -156,7 +156,10 @@ class burnsimManager(QObject):
                         errors += "File contains a " + unsupportedGrainTable[child.attrib['Type']] + " grain, which can't be imported.\n"
                     else:
                         errors += "File contains an unknown grain of type " + child.attrib['Type'] + '.\n'
-        
+
+            if child.tag == 'TestData':
+                errors += "\nFile contains test data, which is not imported."
+
         if errors != '':
             self.showWarning(errors + '\nThe rest of the motor will be imported.')
 
