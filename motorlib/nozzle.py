@@ -37,5 +37,5 @@ class nozzle(propertyCollection):
         if self.props['exit'].getValue() < self.props['throat'].getValue():
             errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Exit diameter must not be smaller than throat diameter', 'Nozzle'))
         if self.props['efficiency'].getValue() == 0:
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.CONSTRAINT, 'Efficiency should not be 0', 'Nozzle'))
+            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.CONSTRAINT, 'Efficiency most not be 0', 'Nozzle'))
         return errors

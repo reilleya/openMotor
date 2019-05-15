@@ -11,12 +11,12 @@ Current Features:
 * A propellant editor that allows the user to enter the properties of as many propellants as they wish
 * The grain editor displays how a grain will regress to cut down on the guesswork involved in tweaking geometry
 * ENG file exporting
+* Burnsim importing and exporting
 * A UI that supports saving and loading designs along with undo and redo.
 
 Planned Features:
 * Erosivity simulation
 * Loading custom grain geometry from SVG files
-* Burnsim importing and exporting
 * Detailed output of every calculated parameter at any time and position along the motor
 
 The calculations involved were sourced from Rocket Propulsion Elements by George Sutton and from Richard Nakka's website (https://www.nakka-rocketry.net/rtheory.html).
@@ -54,7 +54,7 @@ Once everything is set up, you can start openMotor by running: `python main.py`
 
 License
 -------
-openMotor is released under the GNU GPL v3 license. The source code is distributed so you don't have to trust the calculations are being done correctly and can check for yourself if you doubt the results.
+openMotor is released under the GNU GPL v3 license. The source code is distributed so you can build cool stuff with it, and so you don't have to trust the calculations are being done correctly and can check for yourself if you doubt the results.
 
 Contributing
 ------------

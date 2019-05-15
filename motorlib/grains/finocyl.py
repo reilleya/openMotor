@@ -39,7 +39,7 @@ class finocyl(fmmGrain):
 
     def getDetailsString(self, preferences):
         lengthUnit = preferences.units.getProperty('m')
-        return 'Core: ' + self.props['coreDiameter'].dispFormat(lengthUnit) + ', Fins: ' + str(self.props['numFins'].getValue())
+        return 'Length: ' + self.props['length'].dispFormat(lengthUnit) + ', Core: ' + self.props['coreDiameter'].dispFormat(lengthUnit) + ', Fins: ' + str(self.props['numFins'].getValue())
 
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()
