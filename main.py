@@ -129,6 +129,7 @@ class Window(QMainWindow):
 
     def populatePropSelector(self):
         self.ui.comboBoxPropellant.clear()
+        self.ui.comboBoxPropellant.addItem('-')
         self.ui.comboBoxPropellant.addItems(self.propManager.getNames())
 
     def disablePropSelector(self):
@@ -140,7 +141,11 @@ class Window(QMainWindow):
     def updatePropBoxSelection(self):
         self.disablePropSelector()
         cm = self.fileManager.getCurrentMotor()
-        self.ui.comboBoxPropellant.setCurrentText(self.fileManager.getCurrentMotor().propellant.getProperty("name"))
+        prop = self.fileManager.getCurrentMotor().propellant
+        if prop is None:
+            self.ui.comboBoxPropellant.setCurrentText('-')
+        else:
+            self.ui.comboBoxPropellant.setCurrentText(prop.getProperty("name"))
         self.enablePropSelector()
 
     def setupGrainTable(self):
@@ -181,17 +186,26 @@ class Window(QMainWindow):
         self.resetOutput()
         self.disablePropSelector()
         cm = self.fileManager.getCurrentMotor()
-        if cm.propellant.getProperty("name") not in self.propManager.getNames():
-            self.showMessage("The current motor's propellant has been removed from the library. It has been added back.")
-            self.propManager.propellants.append(cm.propellant)
-            self.propManager.savePropellants()
+        if cm.propellant is not None and cm.propellant.getProperty("name") not in self.propManager.getNames():
+            reply = QMessageBox.question(self, "Propellant deleted",
+                "The current motor's propellant has been removed from the library. Would you like to add it back?",
+                QMessageBox.Yes | QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                self.propManager.propellants.append(cm.propellant)
+                self.propManager.savePropellants()
+            else:
+                cm.propellant = None
+                self.fileManager.addNewMotorHistory(cm)
         self.populatePropSelector()
         self.updatePropBoxSelection()
         self.enablePropSelector()
 
     def propChooserChanged(self):
         cm = self.fileManager.getCurrentMotor()
-        cm.propellant = self.propManager.propellants[self.ui.comboBoxPropellant.currentIndex()]
+        if self.ui.comboBoxPropellant.currentIndex() == 0:
+            cm.propellant = None
+        else:
+            cm.propellant = self.propManager.propellants[self.ui.comboBoxPropellant.currentIndex() - 1]
         self.fileManager.addNewMotorHistory(cm)
 
     def updateGrainTable(self):
@@ -367,22 +381,23 @@ class Window(QMainWindow):
         self.updateGrainTable()
 
         cm = self.fileManager.getCurrentMotor()
-        if cm.propellant.getProperty('name') not in self.propManager.getNames():
-            self.showMessage('The propellant from the loaded motor was not in the library, so it was added as "' + cm.propellant.getProperty('name') + '"',
-                    'New propellant added')
-            self.propManager.propellants.append(cm.propellant)
-            self.propManager.savePropellants()
-        else:
-            if cm.propellant.getProperties() != self.propManager.getPropellantByName(cm.propellant.getProperty('name')).getProperties():
-                addedNumber = 1
-                while cm.propellant.getProperty('name') + ' (' + str(addedNumber) + ')' in self.propManager.getNames():
-                    addedNumber += 1
-                cm.propellant.setProperty('name', cm.propellant.getProperty('name') + ' (' + str(addedNumber) + ')')
+        if cm.propellant is not None:
+            if cm.propellant.getProperty('name') not in self.propManager.getNames():
+                self.showMessage('The propellant from the loaded motor was not in the library, so it was added as "' + cm.propellant.getProperty('name') + '"',
+                        'New propellant added')
                 self.propManager.propellants.append(cm.propellant)
                 self.propManager.savePropellants()
-                self.fileManager.overrideCurrentMotor(cm) # To change the propellant name while disallowing an undo to the wrong name
-                self.showMessage('The propellant from the loaded motor matches an existing item in the library, but they have different properties. The propellant from the motor has been added to the library as "' + cm.propellant.getProperty('name') + '"',
-                    'New propellant added')
+            else:
+                if cm.propellant.getProperties() != self.propManager.getPropellantByName(cm.propellant.getProperty('name')).getProperties():
+                    addedNumber = 1
+                    while cm.propellant.getProperty('name') + ' (' + str(addedNumber) + ')' in self.propManager.getNames():
+                        addedNumber += 1
+                    cm.propellant.setProperty('name', cm.propellant.getProperty('name') + ' (' + str(addedNumber) + ')')
+                    self.propManager.propellants.append(cm.propellant)
+                    self.propManager.savePropellants()
+                    self.fileManager.overrideCurrentMotor(cm) # To change the propellant name while disallowing an undo to the wrong name
+                    self.showMessage('The propellant from the loaded motor matches an existing item in the library, but they have different properties. The propellant from the motor has been added to the library as "' + cm.propellant.getProperty('name') + '"',
+                        'New propellant added')
 
         self.populatePropSelector()
         self.updatePropBoxSelection()
