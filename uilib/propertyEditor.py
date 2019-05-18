@@ -1,4 +1,5 @@
 import motorlib
+from . import PolygonEditor
 
 import math
 
@@ -62,6 +63,14 @@ class propertyEditor(QWidget):
 
             self.layout().addWidget(self.editor)
 
+        elif type(prop) is motorlib.polygonProperty:
+            self.editor = PolygonEditor(self)
+
+            self.editor.pointsChanged.connect(self.valueChanged.emit)
+            self.editor.points = self.prop.getValue()
+
+            self.layout().addWidget(self.editor)
+
     def getValue(self):
         if type(self.prop) is motorlib.floatProperty:
             return motorlib.convert(self.editor.value(), self.dispUnit, self.prop.unit)
@@ -74,3 +83,6 @@ class propertyEditor(QWidget):
 
         elif type(self.prop) is motorlib.enumProperty:
             return self.editor.currentText()
+
+        elif type(self.prop) is motorlib.polygonProperty:
+            return self.editor.points
