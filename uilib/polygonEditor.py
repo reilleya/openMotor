@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QHBoxLayout, QFileDialog
 from PyQt5.QtCore import pyqtSignal
 
 import ezdxf
+import motorlib
 
 class PolygonEditor(QWidget):
 
@@ -17,6 +18,8 @@ class PolygonEditor(QWidget):
 
         self.points = []
 
+        self.preferences = None
+
     def loadDXF(self, path = None):
         if path is None:
             path = QFileDialog.getOpenFileName(None, 'Load core geometry', '', 'DXF Files (*.dxf)')[0]
@@ -26,8 +29,13 @@ class PolygonEditor(QWidget):
 
             self.points = []
 
+            if self.preferences is None:
+                inUnit = 'in'
+            else:
+                inUnit = self.preferences.getUnit('m')
+
             for lwpl in msp.query('LWPOLYLINE'):
                 with lwpl.points() as points:
-                    self.points.append([(p[0] / 39.37, p[1] / 39.37) for p in points])
+                    self.points.append([(motorlib.convert(p[0], inUnit, 'm'), motorlib.convert(p[1], inUnit, 'm')) for p in points])
 
             self.pointsChanged.emit()

@@ -68,6 +68,7 @@ class propertyEditor(QWidget):
 
             self.editor.pointsChanged.connect(self.valueChanged.emit)
             self.editor.points = self.prop.getValue()
+            self.editor.preferences = self.preferences
 
             self.layout().addWidget(self.editor)
 
