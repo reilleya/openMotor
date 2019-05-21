@@ -13,8 +13,8 @@ class CustomGrain(fmmGrain):
 
     def generateCoreMap(self):
         for polygon in self.props['points'].getValue():
-            r = [self.mapDim - (self.normalize(p[1])  * (self.mapDim / 2)) for p in polygon]
-            c = [self.normalize(p[0]) * (self.mapDim / 2) for p in polygon]
+            r = [(self.mapDim - (self.normalize(p[1]) * (self.mapDim / 2))) / 2 for p in polygon]
+            c = [(self.mapDim / 2) + (self.normalize(p[0]) * (self.mapDim / 2)) / 2 for p in polygon]
             rr, cc = draw.polygon(r, c)
             self.coreMap[rr, cc] = 0
 
