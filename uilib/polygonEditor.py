@@ -3,6 +3,7 @@ from PyQt5.QtCore import pyqtSignal
 
 import ezdxf
 import math
+import itertools
 import motorlib
 
 class PolygonEditor(QWidget):
@@ -23,24 +24,20 @@ class PolygonEditor(QWidget):
 
     def loadDXF(self, path = None):
         if path is None:
-            path = QFileDialog.getOpenFileName(None, 'Load core geometry', '', 'DXF Files (*.dxf)')[0]
+            path = QFileDialog.getOpenFileName(None, 'Load core geometry', '', 'DXF Files (*.dxf *.DXF)')[0]
         if path != '': # If they cancel the dialog, path will be an empty string
             dwg = ezdxf.readfile(path)
             msp = dwg.modelspace()
 
-            self.points = [[]]
+            self.points = []
+            chunks = []
 
             for ent in msp:
                 if ent.dxftype() == 'ARC':
-                    print('ARC:')
                     arcPoints = 20
                     part = []
                     sa = ent.dxf.start_angle
                     ea = ent.dxf.end_angle
-                    print(sa)
-                    print(ea)
-                    print()
-
                     if sa > ea:
                         ea += 360
                     for i in range(0, arcPoints):
@@ -49,42 +46,52 @@ class PolygonEditor(QWidget):
                         py = ent.dxf.center[1] + (math.sin(a * 3.14159 / 180) * ent.dxf.radius)
                         part.append((px, py))
 
-                    print('Goal: ' + str(self.points[-1][-1]))
-                    print('Start: ' + str(part[0]))
-                    print('End: ' + str(part[-1]))
+                    chunks.append(part)
 
-                    sDist = motorlib.dist(part[0], self.points[-1][-1])
-                    eDist = motorlib.dist(part[-1], self.points[-1][-1])
-                    print(sDist)
-                    print(eDist)
+                elif ent.dxftype() == 'CIRCLE':
+                    part = []
+                    circlePoints = 36
+                    for i in range(0, circlePoints):
+                        a = 2 * 3.14159 * (i / circlePoints)
+                        px = ent.dxf.center[0] + (math.cos(a) * ent.dxf.radius)
+                        py = ent.dxf.center[1] + (math.sin(a) * ent.dxf.radius)
+                        part.append((px, py))
 
-                    if eDist < sDist:
-                        part.reverse()
-
-                    self.points[-1] += part
-                    print('----------------------------')
+                    self.points.append(part)
 
                 elif ent.dxftype() == 'LINE':
-                    print('LINE: ')
-                    lStart = ent.dxf.end[:2]
-                    lEnd = ent.dxf.start[:2]
-                    if len(self.points[-1]) > 0 and motorlib.dist(lStart, self.points[-1][-1]) > 0.1:
-                        self.points.append([])
+                    p1 = ent.dxf.end[:2]
+                    p2 = ent.dxf.start[:2]
 
-                    if len(self.points[-1]) > 0:
-                        print('Goal: ' + str(self.points[-1][-1]))
-                    print('Start: ' + str(lStart))
-                    print('End: ' + str(lEnd))
-
-                    self.points[-1].append(lStart)
-                    self.points[-1].append(lEnd)
-                    print('***************************')
+                    chunks.append([p1, p2])
 
                 elif ent.dxftype() == 'LWPOLYLINE':
-                    with lwpl.points() as points:
+                    with ent.points() as points:
                         self.points.append(points)
-                    self.points.append([])
+
+            close = 0.01
+            join = None
+            while join != []:
+                join = []
+                for (chunkId, chunk), (compChunkID, compChunk) in itertools.combinations(enumerate(chunks), 2):
+                    if motorlib.dist(chunk[0], compChunk[-1]) < close:
+                        join = [compChunkID, chunkId, False]
+                        break
+                    elif motorlib.dist(chunk[-1], compChunk[0]) < close:
+                        join = [chunkId, compChunkID, False]
+                        break
+                    elif motorlib.dist(chunk[-1], compChunk[-1]) < close:
+                        join = [chunkId, compChunkID, True]
+                        break
+                    elif motorlib.dist(chunk[0], compChunk[0]) < close:
+                        join = [chunkId, compChunkID, True]
+                        break
+                if join != []:
+                    addChunk = chunks[join[1]]
+                    if join[2]:
+                        addChunk.reverse()
+                    chunks[join[0]] += addChunk
+                    del chunks[join[1]]
+            self.points += chunks
 
             self.pointsChanged.emit()
-
-# Todo: Circle/ellipse, core sep, props to set core position, comments
