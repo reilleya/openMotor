@@ -28,39 +28,63 @@ class PolygonEditor(QWidget):
             dwg = ezdxf.readfile(path)
             msp = dwg.modelspace()
 
-            self.points = []
-
-            if self.preferences is None:
-                inUnit = 'in'
-            else:
-                inUnit = self.preferences.getUnit('m')
-
-            for lwpl in msp.query('LWPOLYLINE'):
-                with lwpl.points() as points:
-                    self.points.append([(motorlib.convert(p[0], inUnit, 'm'), motorlib.convert(p[1], inUnit, 'm')) for p in points])
-
-            p = []
+            self.points = [[]]
 
             for ent in msp:
                 if ent.dxftype() == 'ARC':
+                    print('ARC:')
+                    arcPoints = 20
                     part = []
                     sa = ent.dxf.start_angle
                     ea = ent.dxf.end_angle
+                    print(sa)
+                    print(ea)
+                    print()
+
                     if sa > ea:
                         ea += 360
-                    for i in range(0, 10):
-                        a = sa + ((ea - sa) * (i / 9))
+                    for i in range(0, arcPoints):
+                        a = sa + ((ea - sa) * (i / (arcPoints - 1)))
                         px = ent.dxf.center[0] + (math.cos(a * 3.14159 / 180) * ent.dxf.radius)
                         py = ent.dxf.center[1] + (math.sin(a * 3.14159 / 180) * ent.dxf.radius)
-                        part.append((motorlib.convert(px, inUnit, 'm'), motorlib.convert(py, inUnit, 'm')))
-                    if motorlib.dist(part[-1], p[-1]) < motorlib.dist(part[0], p[-1]):
+                        part.append((px, py))
+
+                    print('Goal: ' + str(self.points[-1][-1]))
+                    print('Start: ' + str(part[0]))
+                    print('End: ' + str(part[-1]))
+
+                    sDist = motorlib.dist(part[0], self.points[-1][-1])
+                    eDist = motorlib.dist(part[-1], self.points[-1][-1])
+                    print(sDist)
+                    print(eDist)
+
+                    if eDist < sDist:
                         part.reverse()
-                    p += part
 
-                if ent.dxftype() == 'LINE':
-                    p.append((motorlib.convert(ent.dxf.end[0], inUnit, 'm'), motorlib.convert(ent.dxf.end[1], inUnit, 'm')))
-                    p.append((motorlib.convert(ent.dxf.start[0], inUnit, 'm'), motorlib.convert(ent.dxf.start[1], inUnit, 'm')))
+                    self.points[-1] += part
+                    print('----------------------------')
 
-            self.points.append(p)
+                elif ent.dxftype() == 'LINE':
+                    print('LINE: ')
+                    lStart = ent.dxf.end[:2]
+                    lEnd = ent.dxf.start[:2]
+                    if len(self.points[-1]) > 0 and motorlib.dist(lStart, self.points[-1][-1]) > 0.1:
+                        self.points.append([])
+
+                    if len(self.points[-1]) > 0:
+                        print('Goal: ' + str(self.points[-1][-1]))
+                    print('Start: ' + str(lStart))
+                    print('End: ' + str(lEnd))
+
+                    self.points[-1].append(lStart)
+                    self.points[-1].append(lEnd)
+                    print('***************************')
+
+                elif ent.dxftype() == 'LWPOLYLINE':
+                    with lwpl.points() as points:
+                        self.points.append(points)
+                    self.points.append([])
 
             self.pointsChanged.emit()
+
+# Todo: Circle/ellipse, core sep, props to set core position, comments
