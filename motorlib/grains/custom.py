@@ -18,7 +18,7 @@ class CustomGrain(fmmGrain):
         for polygon in self.props['points'].getValue():
             r = [(self.mapDim / 2) + (-self.normalize(convert(p[1], inUnit, 'm')) * (self.mapDim / 2)) for p in polygon]
             c = [(self.mapDim / 2) + (self.normalize(convert(p[0], inUnit, 'm')) * (self.mapDim / 2)) for p in polygon]
-            rr, cc = draw.polygon(r, c)
+            rr, cc = draw.polygon(r, c, self.coreMap.shape)
             self.coreMap[rr, cc] = 0
 
     def getGeometryErrors(self):

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QPushButton, QHBoxLayout, QFileDialog
+from PyQt5.QtWidgets import QWidget, QPushButton, QHBoxLayout, QFileDialog, QMessageBox
 from PyQt5.QtCore import pyqtSignal
 
 import ezdxf
@@ -29,30 +29,31 @@ class PolygonEditor(QWidget):
             dwg = ezdxf.readfile(path)
             msp = dwg.modelspace()
 
-            self.points = []
-            chunks = []
+            alerts = []
+            self.points = [] # Closed contours go here
+            chunks = [] # Individual segments of lines or arcs go here
 
             for ent in msp:
                 if ent.dxftype() == 'ARC':
-                    arcPoints = 20
+                    arcPoints = 20 # Number of segments in the arc
                     part = []
                     sa = ent.dxf.start_angle
                     ea = ent.dxf.end_angle
-                    if sa > ea:
+                    if sa > ea: # This ensures that the angle step (ea - sa) is not negative
                         ea += 360
                     for i in range(0, arcPoints):
                         a = sa + ((ea - sa) * (i / (arcPoints - 1)))
-                        px = ent.dxf.center[0] + (math.cos(a * 3.14159 / 180) * ent.dxf.radius)
-                        py = ent.dxf.center[1] + (math.sin(a * 3.14159 / 180) * ent.dxf.radius)
+                        px = ent.dxf.center[0] + (math.cos(a * math.pi / 180) * ent.dxf.radius)
+                        py = ent.dxf.center[1] + (math.sin(a * math.pi / 180) * ent.dxf.radius)
                         part.append((px, py))
 
                     chunks.append(part)
 
                 elif ent.dxftype() == 'CIRCLE':
                     part = []
-                    circlePoints = 36
+                    circlePoints = 36 # Number of segments in the arc
                     for i in range(0, circlePoints):
-                        a = 2 * 3.14159 * (i / circlePoints)
+                        a = 2 * math.pi * (i / circlePoints)
                         px = ent.dxf.center[0] + (math.cos(a) * ent.dxf.radius)
                         py = ent.dxf.center[1] + (math.sin(a) * ent.dxf.radius)
                         part.append((px, py))
@@ -69,10 +70,14 @@ class PolygonEditor(QWidget):
                     with ent.points() as points:
                         self.points.append(points)
 
-            close = 0.01
+                else:
+                    alerts.append("Can't import entity of type: " + ent.dxftype())
+
+            # Join together the segments in chunks to closed contours
+            close = 0.001 # Max distance between endpoints of adjacent segments
             join = None
             while join != []:
-                join = []
+                join = [] # Will be populated like [ida, idb, flip] if there is work to do
                 for (chunkId, chunk), (compChunkID, compChunk) in itertools.combinations(enumerate(chunks), 2):
                     if motorlib.dist(chunk[0], compChunk[-1]) < close:
                         join = [compChunkID, chunkId, False]
@@ -86,12 +91,28 @@ class PolygonEditor(QWidget):
                     elif motorlib.dist(chunk[0], compChunk[0]) < close:
                         join = [chunkId, compChunkID, True]
                         break
-                if join != []:
+                if join != []: # Add the second chunk on to the first and flip it if the bool is true
                     addChunk = chunks[join[1]]
                     if join[2]:
                         addChunk.reverse()
                     chunks[join[0]] += addChunk
                     del chunks[join[1]]
-            self.points += chunks
+
+            oldLen = len(chunks)
+            chunks = list(filter(lambda chunk: motorlib.dist(chunk[0], chunk[-1]) < close, chunks))
+            if len(chunks) != oldLen:
+                alerts.append('Open contours cannot be imported')
+
+            self.points += chunks # Add the now-closed contours to the poly list
 
             self.pointsChanged.emit()
+
+            if len(alerts) > 0:
+                self.showAlert(alerts)
+
+    # Show a dialog displaying some text
+    def showAlert(self, messages):
+        msg = QMessageBox()
+        msg.setText('\n'.join(messages))
+        msg.setWindowTitle("DXF import warnings")
+        msg.exec_()

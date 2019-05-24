@@ -103,7 +103,7 @@ class grainPreviewWidget(QWidget):
         dataThread.start()
 
     def _genData(self, grain):
-        out = grain.getRegressionData(200)
+        out = grain.getRegressionData(250)
         self.previewReady.emit(out)
 
     def updateView(self, data):
