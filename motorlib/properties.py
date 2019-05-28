@@ -58,6 +58,11 @@ class stringProperty(property):
     def __init__(self, dispName):
         super().__init__(dispName, '', str)
 
+class polygonProperty(property):
+    def __init__(self, dispName):
+        super().__init__(dispName, '', list)
+        self.value = []
+
 class propertyCollection():
     def __init__(self):
         self.props = {}
