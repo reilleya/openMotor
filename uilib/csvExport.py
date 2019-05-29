@@ -12,25 +12,11 @@ class csvExportMenu(QDialog):
         self.simRes = None
         self.preferences = None
         self.ui.buttonBox.accepted.connect(self.exportCSV)
-        self.checks = {}
 
-        # Populate list of checks to toggle channels
-        checkLayout = QVBoxLayout()
-        self.ui.groupBoxChecks.setLayout(checkLayout)
-        sr = simulationResult(motor()) # This simres is only used to get the list of channels available
-        for c in sr.channels:
-            check = QCheckBox(sr.channels[c].name)
-            check.setCheckState(2) # Every field is checked by default
-            if c == "time": # Time must be set
-                check.setEnabled(False)
-            checkLayout.addWidget(check)
-            self.checks[c] = check
+        self.ui.channelSelector.setupChecks(True, disabled = ["time"])
 
     def exportCSV(self):
-        exclude = []
-        for c in self.checks:
-            if not self.checks[c].isChecked():
-                exclude.append(c)
+        exclude = self.ui.channelSelector.getUnselectedChannels()
 
         path = QFileDialog.getSaveFileName(None, 'Save CSV', '', 'CSV Files (*.csv)')[0]
         if path is not None and path != '':
@@ -44,8 +30,6 @@ class csvExportMenu(QDialog):
 
     def open(self):
         self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(self.simRes is not None)
-        for check in self.checks.values(): # Make sure all checks are set when the dialog is reopened
-            check.setCheckState(2)
         self.show()
 
     def acceptSimResult(self, simRes):

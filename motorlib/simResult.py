@@ -45,7 +45,10 @@ class logChannel():
         if unit is None:
             return self.data
         else:
-            return [units.convert(p, self.unit, unit) for p in self.data]
+            if self.valueType in (int, float):
+                return [units.convert(p, self.unit, unit) for p in self.data]
+            elif self.valueType in (list, tuple):
+                return [[units.convert(d, self.unit, unit) for d in p] for p in self.data]
 
     def getPoint(self, i):
         return self.data[i]

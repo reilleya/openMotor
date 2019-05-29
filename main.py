@@ -41,6 +41,8 @@ class Window(QMainWindow):
         self.preferencesChanged.connect(self.engExporter.setPreferences)
         self.csvExporter = uilib.csvExportMenu()
         self.preferencesChanged.connect(self.csvExporter.setPreferences)
+        self.imageExporter = uilib.ImageExportMenu()
+        self.preferencesChanged.connect(self.imageExporter.setPreferences)
 
         self.simulationManager = uilib.simulationManager()
         self.preferencesChanged.connect(self.simulationManager.setPreferences)
@@ -48,6 +50,7 @@ class Window(QMainWindow):
         self.simulationManager.newSimulationResult.connect(self.ui.graphWidget.showData)
         self.simulationManager.newSimulationResult.connect(self.engExporter.acceptSimResult)
         self.simulationManager.newSimulationResult.connect(self.csvExporter.acceptSimResult)
+        self.simulationManager.newSimulationResult.connect(self.imageExporter.acceptSimResult)
 
         self.aboutDialog = uilib.aboutDialog(self.appVersionStr)
 
@@ -105,6 +108,7 @@ class Window(QMainWindow):
         self.ui.actionImportBurnSim.triggered.connect(self.burnSimImport)
         # Export 
         self.ui.actionENGFile.triggered.connect(self.engExporter.open)
+        self.ui.actionImage.triggered.connect(self.imageExporter.open)
         self.ui.actionCSV.triggered.connect(self.csvExporter.open)
         self.ui.actionExportBurnSim.triggered.connect(self.burnsimManager.showExportMenu)
 

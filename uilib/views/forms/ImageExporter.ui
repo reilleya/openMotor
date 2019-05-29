@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CSVExporter</class>
- <widget class="QDialog" name="CSVExporter">
+ <class>ImageExporter</class>
+ <widget class="QDialog" name="ImageExporter">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Export CSV</string>
+   <string>Export Image</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -21,12 +21,12 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Simulation must have been run to export a CSV.</string>
+      <string>Simulation must have been run to export an image.</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="ChannelSelector" name="channelSelector">
+    <widget class="ChannelSelector" name="independent">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
        <horstretch>0</horstretch>
@@ -34,7 +34,20 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Channels</string>
+      <string>X Axis</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="ChannelSelector" name="dependent">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Y Axis</string>
      </property>
     </widget>
    </item>
@@ -63,7 +76,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>CSVExporter</receiver>
+   <receiver>ImageExporter</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -79,7 +92,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>CSVExporter</receiver>
+   <receiver>ImageExporter</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
