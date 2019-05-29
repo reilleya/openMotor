@@ -8,6 +8,7 @@ openMotor is an open-source internal ballistics simulator for rocket motor exper
 Current Features:
 * Metric and imperial units
 * Support for common grain geometries such as BATES, Finocyl, Star and more
+* Loading custom grain geometry from DXF files
 * A propellant editor that allows the user to enter the properties of as many propellants as they wish
 * The grain editor displays how a grain will regress to cut down on the guesswork involved in tweaking geometry
 * ENG file exporting
@@ -16,7 +17,6 @@ Current Features:
 
 Planned Features:
 * Erosivity simulation
-* Loading custom grain geometry from SVG files
 * Detailed output of every calculated parameter at any time and position along the motor
 
 The calculations involved were sourced from Rocket Propulsion Elements by George Sutton and from Richard Nakka's website (https://www.nakka-rocketry.net/rtheory.html).
