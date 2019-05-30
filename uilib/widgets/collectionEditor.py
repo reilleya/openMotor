@@ -1,17 +1,17 @@
-from . import propertyEditor
+from .propertyEditor import propertyEditor
 
 from PyQt5.QtWidgets import QWidget, QFormLayout, QVBoxLayout, QHBoxLayout
 from PyQt5.QtWidgets import QLabel, QPushButton
 from PyQt5.QtWidgets import QSpacerItem, QSizePolicy
 from PyQt5.QtCore import pyqtSignal
 
-class collectionEditor(QWidget):
+class CollectionEditor(QWidget):
 
     changeApplied = pyqtSignal(dict)
     closed = pyqtSignal()
 
     def __init__(self, parent, buttons):
-        super(collectionEditor, self).__init__(QWidget(parent))
+        super(CollectionEditor, self).__init__(QWidget(parent))
 
         self.preferences = None
 

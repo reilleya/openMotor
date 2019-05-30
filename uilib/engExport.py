@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox
 from motorlib import propertyCollection, floatProperty, stringProperty
 
-from . import collectionEditor
+from .widgets.collectionEditor import CollectionEditor
 
-class engExportEditor(collectionEditor):
+class engExportEditor(CollectionEditor):
     def __init__(self, parent):
         super().__init__(parent, False)
 

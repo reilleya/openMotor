@@ -57,7 +57,7 @@
   <customwidget>
    <class>settingsEditor</class>
    <extends>QWidget</extends>
-   <header location="global">uilib</header>
+   <header location="global">uilib.widgets.settingsEditor</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

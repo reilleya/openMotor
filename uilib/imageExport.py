@@ -2,7 +2,6 @@ from matplotlib import pyplot as plt
 from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox, QMessageBox
 
 from motorlib import propertyCollection, simulationResult, motor
-from . import collectionEditor
 
 class ImageExportMenu(QDialog):
     def __init__(self):

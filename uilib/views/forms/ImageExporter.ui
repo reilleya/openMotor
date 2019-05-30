@@ -67,7 +67,7 @@
   <customwidget>
    <class>ChannelSelector</class>
    <extends>QGroupBox</extends>
-   <header location="global">uilib</header>
+   <header location="global">uilib.widgets</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

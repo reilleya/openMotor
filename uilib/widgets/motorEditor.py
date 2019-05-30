@@ -1,6 +1,5 @@
-from . import propertyEditor
-from . import collectionEditor
-from . import grainPreviewWidget
+from .collectionEditor import CollectionEditor
+from .grainPreviewWidget import grainPreviewWidget
 
 from motorlib import perforatedGrain
 
@@ -9,7 +8,7 @@ from PyQt5.QtWidgets import QDoubleSpinBox, QSpinBox, QLabel, QPushButton
 from PyQt5.QtWidgets import QSpacerItem, QSizePolicy
 from PyQt5.QtCore import pyqtSignal
 
-class motorEditor(collectionEditor):
+class motorEditor(CollectionEditor):
     def __init__(self, parent):
         super().__init__(parent, True)
 

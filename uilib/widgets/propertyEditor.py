@@ -1,5 +1,5 @@
 import motorlib
-from . import PolygonEditor
+from .polygonEditor import PolygonEditor
 
 import math
 

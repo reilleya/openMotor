@@ -127,7 +127,7 @@
   <customwidget>
    <class>propellantEditor</class>
    <extends>QWidget</extends>
-   <header location="global">uilib</header>
+   <header location="global">uilib.widgets.propellantEditor</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

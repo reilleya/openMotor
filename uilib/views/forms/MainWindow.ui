@@ -711,13 +711,13 @@
   <customwidget>
    <class>graphWidget</class>
    <extends>QWidget</extends>
-   <header location="global">uilib</header>
+   <header location="global">uilib.widgets.graphWidget</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>motorEditor</class>
    <extends>QWidget</extends>
-   <header location="global">uilib</header>
+   <header location="global">uilib.widgets.motorEditor</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

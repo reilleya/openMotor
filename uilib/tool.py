@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel
 from PyQt5.QtGui import QIcon
 
-from . import collectionEditor
+from .widgets.collectionEditor import CollectionEditor
 
 import motorlib
 
@@ -27,7 +27,7 @@ class tool(QDialog):
         self.descLabel.setWordWrap(True)
         self.layout().addWidget(self.descLabel)
 
-        self.editor = collectionEditor(self, True)
+        self.editor = CollectionEditor(self, True)
         self.editor.changeApplied.connect(self.applyPressed)
         self.editor.closed.connect(self.hide)
         self.layout().addWidget(self.editor)

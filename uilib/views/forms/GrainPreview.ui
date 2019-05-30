@@ -63,7 +63,7 @@
   <customwidget>
    <class>grainPreviewGraph</class>
    <extends>QWidget</extends>
-   <header location="global">uilib</header>
+   <header location="global">uilib.widgets.grainPreviewGraph</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
