@@ -1,5 +1,5 @@
 from .collectionEditor import CollectionEditor
-from .grainPreviewWidget import grainPreviewWidget
+from .grainPreviewWidget import GrainPreviewWidget
 
 from motorlib import perforatedGrain
 
@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QDoubleSpinBox, QSpinBox, QLabel, QPushButton
 from PyQt5.QtWidgets import QSpacerItem, QSizePolicy
 from PyQt5.QtCore import pyqtSignal
 
-class motorEditor(CollectionEditor):
+class MotorEditor(CollectionEditor):
     def __init__(self, parent):
         super().__init__(parent, True)
 
@@ -16,7 +16,7 @@ class motorEditor(CollectionEditor):
         self.expRatioLabel.hide()
         self.stats.addWidget(self.expRatioLabel)
 
-        self.grainPreview = grainPreviewWidget()
+        self.grainPreview = GrainPreviewWidget()
         self.grainPreview.hide()
         self.stats.addWidget(self.grainPreview)
 

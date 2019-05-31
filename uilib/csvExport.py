@@ -1,9 +1,11 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox, QCheckBox, QVBoxLayout
 from motorlib import propertyCollection, floatProperty, stringProperty, simulationResult, motor
 
+from .views.CSVExporter_ui import Ui_CSVExporter
+
+
 class csvExportMenu(QDialog):
     def __init__(self):
-        from .views.CSVExporter_ui import Ui_CSVExporter
         QDialog.__init__(self)
         self.ui = Ui_CSVExporter()
         self.ui.setupUi(self)

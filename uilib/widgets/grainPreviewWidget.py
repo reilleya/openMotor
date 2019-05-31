@@ -7,7 +7,7 @@ from ..views.GrainPreview_ui import Ui_GrainPreview
 
 import motorlib
 
-class grainPreviewWidget(QWidget):
+class GrainPreviewWidget(QWidget):
 
     previewReady = pyqtSignal(tuple)
 

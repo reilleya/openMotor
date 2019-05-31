@@ -1,66 +1,16 @@
-import yaml
-
 from PyQt5.QtWidgets import QDialog, QLabel
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import pyqtSignal
 
-from motorlib import propertyCollection, floatProperty, enumProperty
-from motorlib import unitLabels, getAllConversions, convert
+from ..views.PropMenu_ui import Ui_PropellantDialog
 from motorlib import propellant
 
-from . import defaultPropellants
-from . import loadFile, saveFile, fileTypes, getConfigPath
 
-
-class propellantManager(QObject):
-
-    updated = pyqtSignal()
-
-    def __init__(self):
-        super().__init__()
-        self.propellants = []
-        self.loadPropellants()
-
-        self.propMenu = propellantMenu(self)
-        self.propMenu.closed.connect(self.updated.emit)
-
-    def loadPropellants(self):
-        try:
-            propList = loadFile(getConfigPath() + 'propellants.yaml', fileTypes.PROPELLANTS)
-            for propDict in propList:
-                newProp = propellant()
-                newProp.setProperties(propDict)
-                self.propellants.append(newProp)
-        except FileNotFoundError:
-            self.propellants = defaultPropellants()
-            self.savePropellants()
-
-    def savePropellants(self):
-        try:
-            saveFile(getConfigPath() + 'propellants.yaml', [prop.getProperties() for prop in self.propellants], fileTypes.PROPELLANTS)
-        except:
-            print('Unable to save propellants!')
-
-    def getNames(self):
-        return [prop.getProperty('name') for prop in self.propellants]
-
-    def getPropellantByName(self, name):
-        return self.propellants[self.getNames().index(name)]
-
-    def showMenu(self):
-        self.propMenu.setupPropList()
-        self.propMenu.show()
-
-    def setPreferences(self, pref):
-        self.propMenu.ui.propEditor.setPreferences(pref)
-
-class propellantMenu(QDialog):
+class PropellantMenu(QDialog):
 
     propellantEdited = pyqtSignal(dict)
     closed = pyqtSignal()
 
     def __init__(self, manager):
-        from .views.PropMenu_ui import Ui_PropellantDialog
-
         QDialog.__init__(self)
         self.ui = Ui_PropellantDialog()
         self.ui.setupUi(self)

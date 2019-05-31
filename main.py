@@ -52,7 +52,7 @@ class Window(QMainWindow):
         self.simulationManager.newSimulationResult.connect(self.csvExporter.acceptSimResult)
         self.simulationManager.newSimulationResult.connect(self.imageExporter.acceptSimResult)
 
-        self.aboutDialog = uilib.aboutDialog(self.appVersionStr)
+        self.aboutDialog = uilib.widgets.aboutDialog.AboutDialog(self.appVersionStr)
 
         self.toolManager = uilib.toolManager(self.fileManager, self.simulationManager, self.propManager)
         self.preferencesChanged.connect(self.toolManager.setPreferences)
