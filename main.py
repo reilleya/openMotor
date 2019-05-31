@@ -8,6 +8,16 @@ import uilib
 
 from uilib.views.MainWindow_ui import Ui_MainWindow
 
+import uilib.propellantManager
+import uilib.simulationManager
+import uilib.fileManager
+import uilib.toolManager
+
+import uilib.engExport
+import uilib.csvExport
+import uilib.imageExport
+
+import uilib.widgets.aboutDialog
 
 class Window(QMainWindow):
 
@@ -26,7 +36,7 @@ class Window(QMainWindow):
         self.preferencesWindow = uilib.PreferencesWindow()
         self.preferencesWindow.preferencesApplied.connect(self.applyPreferences)
 
-        self.propManager = uilib.propellantManager()
+        self.propManager = uilib.propellantManager.PropellantManager()
         self.propManager.updated.connect(self.propListChanged)
         self.preferencesChanged.connect(self.propManager.setPreferences)
 
@@ -34,17 +44,17 @@ class Window(QMainWindow):
                                 self.ui.labelAveragePressure, self.ui.labelPeakPressure, self.ui.labelInitialKN, self.ui.labelPeakKN,
                                 self.ui.labelPropellantMass, self.ui.labelPropellantLength, self.ui.labelPortThroatRatio, self.ui.labelPeakMassFlux]
 
-        self.fileManager = uilib.fileManager()
+        self.fileManager = uilib.fileManager.FileManager()
         self.fileManager.fileNameChanged.connect(self.updateWindowTitle)
 
-        self.engExporter = uilib.engExportMenu()
+        self.engExporter = uilib.engExport.engExportMenu()
         self.preferencesChanged.connect(self.engExporter.setPreferences)
-        self.csvExporter = uilib.csvExportMenu()
+        self.csvExporter = uilib.csvExport.csvExportMenu()
         self.preferencesChanged.connect(self.csvExporter.setPreferences)
-        self.imageExporter = uilib.ImageExportMenu()
+        self.imageExporter = uilib.imageExport.ImageExportMenu()
         self.preferencesChanged.connect(self.imageExporter.setPreferences)
 
-        self.simulationManager = uilib.simulationManager()
+        self.simulationManager = uilib.simulationManager.SimulationManager()
         self.preferencesChanged.connect(self.simulationManager.setPreferences)
         self.simulationManager.newSimulationResult.connect(self.updateMotorStats)
         self.simulationManager.newSimulationResult.connect(self.ui.graphWidget.showData)
@@ -54,7 +64,7 @@ class Window(QMainWindow):
 
         self.aboutDialog = uilib.widgets.aboutDialog.AboutDialog(self.appVersionStr)
 
-        self.toolManager = uilib.toolManager(self.fileManager, self.simulationManager, self.propManager)
+        self.toolManager = uilib.toolManager.ToolManager(self.fileManager, self.simulationManager, self.propManager)
         self.preferencesChanged.connect(self.toolManager.setPreferences)
         self.toolManager.setupMenu(self.ui.menuTools)
         self.toolManager.changeApplied.connect(self.updateGrainTable)

@@ -4,7 +4,7 @@ from PyQt5.QtCore import pyqtSignal
 
 from .tools import *
 
-class toolManager(QObject):
+class ToolManager(QObject):
 
     changeApplied = pyqtSignal()
 

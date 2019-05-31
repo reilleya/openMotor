@@ -10,7 +10,7 @@ class CollectionEditor(QWidget):
     changeApplied = pyqtSignal(dict)
     closed = pyqtSignal()
 
-    def __init__(self, parent, buttons):
+    def __init__(self, parent, buttons=False):
         super(CollectionEditor, self).__init__(QWidget(parent))
 
         self.preferences = None

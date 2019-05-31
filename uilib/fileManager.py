@@ -5,7 +5,7 @@ from . import defaults, saveFile, loadFile, fileTypes
 import motorlib
 import yaml
 
-class fileManager(QObject):
+class FileManager(QObject):
 
     fileNameChanged = pyqtSignal(str, bool)
 

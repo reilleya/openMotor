@@ -44,7 +44,7 @@
     </widget>
    </item>
    <item>
-    <widget class="engExportEditor" name="motorStats" native="true">
+    <widget class="CollectionEditor" name="motorStats" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
        <horstretch>0</horstretch>
@@ -67,9 +67,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>engExportEditor</class>
+   <class>CollectionEditor</class>
    <extends>QWidget</extends>
-   <header location="global">uilib</header>
+   <header location="global">uilib.widgets.collectionEditor</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QTableWidgetItem, QHeaderView
 from ..views.SimulationAlertsDialog_ui import Ui_SimAlertsDialog
-
+from motorlib import alertLevelNames, alertTypeNames
 
 class SimulationAlertsDialog(QDialog):
     def __init__(self):

@@ -8,7 +8,7 @@ from . import defaultPropellants
 from . import loadFile, saveFile, fileTypes, getConfigPath
 from .widgets.propellantMenu import PropellantMenu
 
-class propellantManager(QObject):
+class PropellantManager(QObject):
 
     updated = pyqtSignal()
 

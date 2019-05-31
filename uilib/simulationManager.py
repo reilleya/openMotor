@@ -8,7 +8,7 @@ from motorlib import simAlertLevel, simAlertType, alertLevelNames, alertTypeName
 from .widgets.simulationAlertsDialog import SimulationAlertsDialog
 from .widgets.simulationProgressDialog import SimulationProgressDialog
 
-class simulationManager(QObject):
+class SimulationManager(QObject):
 
     simulationDone = pyqtSignal(object)
     newSimulationResult = pyqtSignal(object)

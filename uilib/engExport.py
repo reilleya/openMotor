@@ -3,9 +3,6 @@ from motorlib import propertyCollection, floatProperty, stringProperty
 
 from .widgets.collectionEditor import CollectionEditor
 
-class engExportEditor(CollectionEditor): # Delete me!
-    def __init__(self, parent):
-        super().__init__(parent, False)
 
 class engSettings(propertyCollection):
     def __init__(self):
