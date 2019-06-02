@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QLabel
-
+from motorlib import convert, propellant
 from .collectionEditor import CollectionEditor
 
-class propellantEditor(CollectionEditor):
+class PropellantEditor(CollectionEditor):
     def __init__(self, parent):
         super().__init__(parent, True)
 

@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QAction, QMenu
+from PyQt5.QtWidgets import QAction
 from PyQt5.QtCore import pyqtSignal
 
 from .tools import *
@@ -19,23 +19,23 @@ class ToolManager(QObject):
                       'Optimize': [expansionTool(self)],
                       'Design': [neutralBatesTool(self)]}
 
-        for toolCategory in self.tools.keys():
-            for tool in self.tools[toolCategory]:
-                self.simulationManager.simulationDone.connect(tool.simDone)
-                self.simulationManager.simCanceled.connect(tool.simCanceled)
+        for toolCategory in self.tools:
+            for toolToAdd in self.tools[toolCategory]:
+                self.simulationManager.simulationDone.connect(toolToAdd.simDone)
+                self.simulationManager.simCanceled.connect(toolToAdd.simCanceled)
 
     def setPreferences(self, pref):
-        for toolCategory in self.tools.keys():
-            for tool in self.tools[toolCategory]:
-                tool.setPreferences(pref)
+        for toolCategory in self.tools:
+            for toolToSet in self.tools[toolCategory]:
+                toolToSet.setPreferences(pref)
 
     def setupMenu(self, menu):
-        for toolCategory in self.tools.keys():
+        for toolCategory in self.tools:
             category = menu.addMenu(toolCategory)
-            for tool in self.tools[toolCategory]:
-                toolAction = QAction(tool.name, category)
-                toolAction.setStatusTip(tool.description)
-                toolAction.triggered.connect(tool.show)
+            for toolToSetup in self.tools[toolCategory]:
+                toolAction = QAction(toolToSetup.name, category)
+                toolAction.setStatusTip(toolToSetup.description)
+                toolAction.triggered.connect(toolToSetup.show)
                 category.addAction(toolAction)
 
     def getMotor(self):

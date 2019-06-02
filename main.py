@@ -18,6 +18,7 @@ import uilib.csvExport
 import uilib.imageExport
 
 import uilib.widgets.aboutDialog
+import uilib.widgets.preferencesMenu
 
 class Window(QMainWindow):
 
@@ -33,8 +34,8 @@ class Window(QMainWindow):
 
         self.preferences = uilib.defaultPreferences()
         self.loadPreferences()
-        self.preferencesWindow = uilib.PreferencesWindow()
-        self.preferencesWindow.preferencesApplied.connect(self.applyPreferences)
+        self.preferencesMenu = uilib.widgets.preferencesMenu.PreferencesMenu()
+        self.preferencesMenu.preferencesApplied.connect(self.applyPreferences)
 
         self.propManager = uilib.propellantManager.PropellantManager()
         self.propManager.updated.connect(self.propListChanged)
@@ -452,8 +453,8 @@ class Window(QMainWindow):
         self.preferencesChanged.emit(self.preferences)
 
     def showPreferences(self):
-        self.preferencesWindow.load(self.preferences)
-        self.preferencesWindow.show()
+        self.preferencesMenu.load(self.preferences)
+        self.preferencesMenu.show()
 
 
 if __name__ == '__main__':
