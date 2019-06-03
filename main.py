@@ -8,6 +8,7 @@ import uilib
 
 from uilib.views.MainWindow_ui import Ui_MainWindow
 
+import uilib.preferencesManager
 import uilib.propellantManager
 import uilib.simulationManager
 import uilib.fileManager
@@ -21,9 +22,6 @@ import uilib.widgets.aboutDialog
 import uilib.widgets.preferencesMenu
 
 class Window(QMainWindow):
-
-    preferencesChanged = pyqtSignal(object)
-
     def __init__(self, startupFile = None):
         QWidget.__init__(self)
         self.ui = Ui_MainWindow()
@@ -32,14 +30,12 @@ class Window(QMainWindow):
         self.appVersion = uilib.fileIO.appVersion
         self.appVersionStr = uilib.fileIO.appVersionStr
 
-        self.preferences = uilib.defaultPreferences()
-        self.loadPreferences()
-        self.preferencesMenu = uilib.widgets.preferencesMenu.PreferencesMenu()
-        self.preferencesMenu.preferencesApplied.connect(self.applyPreferences)
+        self.preferencesManager = uilib.preferencesManager.PreferencesManager()
+        self.preferencesManager.preferencesChanged.connect(self.applyPreferences)
 
         self.propManager = uilib.propellantManager.PropellantManager()
         self.propManager.updated.connect(self.propListChanged)
-        self.preferencesChanged.connect(self.propManager.setPreferences)
+        self.preferencesManager.preferencesChanged.connect(self.propManager.setPreferences)
 
         self.motorStatLabels = [self.ui.labelMotorDesignation, self.ui.labelImpulse, self.ui.labelDeliveredISP, self.ui.labelBurnTime,
                                 self.ui.labelAveragePressure, self.ui.labelPeakPressure, self.ui.labelInitialKN, self.ui.labelPeakKN,
@@ -49,14 +45,14 @@ class Window(QMainWindow):
         self.fileManager.fileNameChanged.connect(self.updateWindowTitle)
 
         self.engExporter = uilib.engExport.engExportMenu()
-        self.preferencesChanged.connect(self.engExporter.setPreferences)
+        self.preferencesManager.preferencesChanged.connect(self.engExporter.setPreferences)
         self.csvExporter = uilib.csvExport.csvExportMenu()
-        self.preferencesChanged.connect(self.csvExporter.setPreferences)
+        self.preferencesManager.preferencesChanged.connect(self.csvExporter.setPreferences)
         self.imageExporter = uilib.imageExport.ImageExportMenu()
-        self.preferencesChanged.connect(self.imageExporter.setPreferences)
+        self.preferencesManager.preferencesChanged.connect(self.imageExporter.setPreferences)
 
         self.simulationManager = uilib.simulationManager.SimulationManager()
-        self.preferencesChanged.connect(self.simulationManager.setPreferences)
+        self.preferencesManager.preferencesChanged.connect(self.simulationManager.setPreferences)
         self.simulationManager.newSimulationResult.connect(self.updateMotorStats)
         self.simulationManager.newSimulationResult.connect(self.ui.graphWidget.showData)
         self.simulationManager.newSimulationResult.connect(self.engExporter.acceptSimResult)
@@ -66,13 +62,13 @@ class Window(QMainWindow):
         self.aboutDialog = uilib.widgets.aboutDialog.AboutDialog(self.appVersionStr)
 
         self.toolManager = uilib.toolManager.ToolManager(self.fileManager, self.simulationManager, self.propManager)
-        self.preferencesChanged.connect(self.toolManager.setPreferences)
+        self.preferencesManager.preferencesChanged.connect(self.toolManager.setPreferences)
         self.toolManager.setupMenu(self.ui.menuTools)
         self.toolManager.changeApplied.connect(self.updateGrainTable)
 
         self.burnsimManager = uilib.burnsimManager(self.fileManager)
 
-        self.preferencesChanged.emit(self.preferences)
+        self.preferencesManager.publishPreferences()
         self.setupMotorStats()
         self.setupMotorEditor()
         self.setupGrainAddition()
@@ -100,7 +96,7 @@ class Window(QMainWindow):
             label.setText("-")
 
     def setupMotorEditor(self):
-        self.ui.motorEditor.setPreferences(self.preferences)
+        self.ui.motorEditor.setPreferences(self.preferencesManager.preferences)
         self.ui.pushButtonEditGrain.pressed.connect(self.editGrain)
         self.ui.motorEditor.changeApplied.connect(self.applyChange)
         self.ui.motorEditor.closed.connect(self.checkGrainSelection) # Enables only buttons for actions possible given the selected grain
@@ -128,7 +124,7 @@ class Window(QMainWindow):
         # Edit menu
         self.ui.actionUndo.triggered.connect(self.undo)
         self.ui.actionRedo.triggered.connect(self.redo)
-        self.ui.actionPreferences.triggered.connect(self.showPreferences)
+        self.ui.actionPreferences.triggered.connect(self.preferencesManager.showMenu)
         self.ui.actionPropellantEditor.triggered.connect(self.propManager.showMenu)
 
         # Sim
@@ -183,7 +179,7 @@ class Window(QMainWindow):
 
     def setupGraph(self):
         self.ui.graphWidget.resetPlot()
-        self.ui.graphWidget.setPreferences(self.preferences)
+        self.ui.graphWidget.setPreferences(self.preferencesManager.preferences)
 
     def applyChange(self, propDict):
         ind = self.ui.tableWidgetGrainList.selectionModel().selectedRows()
@@ -228,10 +224,10 @@ class Window(QMainWindow):
         self.ui.tableWidgetGrainList.setRowCount(len(cm.grains) + 1)
         for gid, grain in enumerate(cm.grains):
             self.ui.tableWidgetGrainList.setItem(gid, 0, QTableWidgetItem(grain.geomName))
-            self.ui.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString(self.preferences)))
+            self.ui.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString(self.preferencesManager.preferences)))
 
         self.ui.tableWidgetGrainList.setItem(len(cm.grains), 0, QTableWidgetItem('Nozzle'))
-        self.ui.tableWidgetGrainList.setItem(len(cm.grains), 1, QTableWidgetItem(cm.nozzle.getDetailsString(self.preferences)))
+        self.ui.tableWidgetGrainList.setItem(len(cm.grains), 1, QTableWidgetItem(cm.nozzle.getDetailsString(self.preferencesManager.preferences)))
         self.repaint() # OSX needs this
 
     def toggleGrainEditButtons(self, state, grainTable = True):
@@ -326,7 +322,7 @@ class Window(QMainWindow):
         self.toggleGrainButtons(False)
 
     def formatMotorStat(self, quantity, inUnit):
-        convUnit = self.preferences.getUnit(inUnit)
+        convUnit = self.preferencesManager.preferences.getUnit(inUnit)
         return str(round(motorlib.convert(quantity, inUnit, convUnit), 3)) + ' ' + convUnit
 
     def updateMotorStats(self, simResult):
@@ -431,30 +427,10 @@ class Window(QMainWindow):
                 if type(event) is not bool:
                     event.ignore()
 
-    def loadPreferences(self):
-        try:
-            prefDict = uilib.loadFile(uilib.fileIO.getConfigPath() + 'preferences.yaml', uilib.fileTypes.PREFERENCES)
-            self.preferences.applyDict(prefDict)
-        except FileNotFoundError:
-            self.savePreferences()
-
-    def savePreferences(self):
-        try:
-            uilib.saveFile(uilib.fileIO.getConfigPath() + 'preferences.yaml', self.preferences.getDict(), uilib.fileTypes.PREFERENCES)
-        except:
-            print('Unable to save preferences')
-
     def applyPreferences(self, prefDict):
-        self.preferences.applyDict(prefDict)
-        self.savePreferences()
         self.updateGrainTable()
         self.setupMotorStats()
         self.setupGraph()
-        self.preferencesChanged.emit(self.preferences)
-
-    def showPreferences(self):
-        self.preferencesMenu.load(self.preferences)
-        self.preferencesMenu.show()
 
 
 if __name__ == '__main__':
@@ -462,27 +438,21 @@ if __name__ == '__main__':
         if len(sys.argv) < 3:
             print('Not enough arguments. Headless mode requires an input file.')
         else:
-            preferences = uilib.defaultPreferences()
-            try:
-                prefDict = uilib.loadFile('preferences.yaml', uilib.fileTypes.PREFERENCES)
-                preferences.applyDict(prefDict)
-            except:
-                print('Preferences could not be loaded, using default')
-
+            preferencesManager = uilib.preferencesManager.PreferencesManager(makeMenu=False)
             try:
                 motorData = uilib.loadFile(sys.argv[-1], uilib.fileTypes.MOTOR)
                 motor = motorlib.motor()
-                motor.loadDict(motorData)
-                simres = motor.runSimulation(preferences)
+                motor.applyDict(motorData)
+                simres = motor.runSimulation(preferencesManager.preferences)
                 for alert in simres.alerts:
                     print(motorlib.alertLevelNames[alert.level] + '(' + motorlib.alertTypeNames[alert.type] + ', ' + alert.location + '): ' + alert.description)
                 print()
                 if '-o' in sys.argv:
                     with open(sys.argv[sys.argv.index('-o') + 1], 'w') as outputFile:
-                        outputFile.write(simres.getCSV(preferences))
+                        outputFile.write(simres.getCSV(preferencesManager.preferences))
                 else:
-                    print(simres.getCSV(preferences))
-            except:
+                    print(simres.getCSV(preferencesManager.preferences))
+            except FileNotFoundError:
                 print('Motor could not be loaded')
 
     else:

@@ -2,6 +2,9 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from motorlib import propertyCollection, floatProperty, intProperty, enumProperty
 from motorlib import unitLabels, getAllConversions
 
+from .fileIO import loadFile, saveFile, getConfigPath, fileTypes
+from .defaults import defaultPreferencesDict
+from .widgets import preferencesMenu
 
 class Preferences():
     def __init__(self, propDict=None):
@@ -38,5 +41,37 @@ class PreferencesManager(QObject):
 
     preferencesChanged = pyqtSignal(object)
 
-    def __init__(self):
+    def __init__(self, makeMenu=True):
         super().__init__()
+        self.preferences = Preferences(defaultPreferencesDict())
+        if makeMenu:
+            self.menu = preferencesMenu.PreferencesMenu()
+            self.menu.preferencesApplied.connect(self.newPreferences)
+        self.loadPreferences()
+
+    def newPreferences(self, prefDict):
+        self.preferences.applyDict(prefDict)
+        self.savePreferences()
+        self.publishPreferences()
+
+    def loadPreferences(self):
+        try:
+            prefDict = loadFile(getConfigPath() + 'preferences.yaml', fileTypes.PREFERENCES)
+            self.preferences.applyDict(prefDict)
+            self.publishPreferences()
+        except FileNotFoundError:
+            print('Unable to load preferences, creating new file')
+            self.savePreferences()
+
+    def savePreferences(self):
+        try:
+            saveFile(getConfigPath() + 'preferences.yaml', self.preferences.getDict(), fileTypes.PREFERENCES)
+        except:
+            print('Unable to save preferences')
+
+    def showMenu(self):
+        self.menu.load(self.preferences)
+        self.menu.show()
+
+    def publishPreferences(self):
+        self.preferencesChanged.emit(self.preferences)

@@ -1,7 +1,5 @@
 import motorlib
 
-from .preferences import Preferences
-
 CLPROPS = {'name': 'Cherry Limeade',
            'density': 1680,
            'a': 3.517054143255937e-05,
@@ -27,25 +25,26 @@ def defaultMotor():
 
     return defMotor
 
-def defaultPreferences():
-    pref = Preferences()
-
-    pref.general.props['burnoutWebThres'].setValue(0.01 / 39.37)
-    pref.general.props['burnoutThrustThres'].setValue(0.1)
-    pref.general.props['timestep'].setValue(0.03)
-    pref.general.props['ambPressure'].setValue(101325)
-    pref.general.props['mapDim'].setValue(750)
-
-    pref.units.props['m'].setValue('in')
-    pref.units.props['m/s'].setValue('ft/s')
-    pref.units.props['Pa'].setValue('psi')
-    pref.units.props['kg'].setValue('lb')
-    pref.units.props['kg/m^3'].setValue('lb/in^3')
-    pref.units.props['kg/s'].setValue('lb/s')
-    pref.units.props['kg/(m^2*s)'].setValue('lb/(in^2*s)')
-    pref.units.props['m/(s*Pa^n)'].setValue('in/(s*psi^n)')
-
-    return pref
+def defaultPreferencesDict():
+    prefDict = {}
+    prefDict['general'] = {
+                            'burnoutWebThres': 0.01 / 39.37,
+                            'burnoutThrustThres': 0.1,
+                            'timestep': 0.03,
+                            'ambPressure': 101325,
+                            'mapDim': 750
+                          }
+    prefDict['units'] = {
+                            'm': 'in',
+                            'm/s': 'ft/s',
+                            'Pa': 'psi',
+                            'kg': 'lb',
+                            'kg/m^3': 'lb/in^3',
+                            'kg/s': 'lb/s',
+                            'kg/(m^2*s)': 'lb/(in^2*s)',
+                            'm/(s*Pa^n)': 'in/(s*psi^n)'
+                        }
+    return prefDict
 
 def defaultPropellants():
 
