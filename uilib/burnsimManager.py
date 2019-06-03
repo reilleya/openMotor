@@ -54,7 +54,7 @@ def inToM(value):
 def mToIn(value):
     return str(motorlib.convert(value, 'm', 'in'))
 
-class burnsimManager(QObject):
+class BurnsimManager(QObject):
     def __init__(self, fileManager):
         super().__init__()
         self.fileManager = fileManager

@@ -1,8 +1,8 @@
-from .. import tool
+from ..tool import Tool
 
 import motorlib
 
-class neutralBatesTool(tool):
+class NeutralBatesTool(Tool):
     def __init__(self, manager):
         props = {'length': motorlib.floatProperty('Propellant length', 'm', 0, 10),
                  'diameter': motorlib.floatProperty('Propellant diameter', 'm', 0, 1),

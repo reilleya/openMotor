@@ -5,7 +5,7 @@ from .widgets.collectionEditor import CollectionEditor
 
 import motorlib
 
-class tool(QDialog):
+class Tool(QDialog):
     def __init__(self, manager, name, description, propDict, needsSimulation):
         super().__init__()
         self.manager = manager

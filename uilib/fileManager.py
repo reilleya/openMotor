@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import pyqtSignal
-from . import defaults, saveFile, loadFile, fileTypes
+from .fileIO import saveFile, loadFile, fileTypes
 import motorlib
 import yaml
 

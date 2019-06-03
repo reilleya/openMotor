@@ -1,8 +1,8 @@
-from .. import tool
+from ..tool import Tool
 
 import motorlib
 
-class expansionTool(tool):
+class ExpansionTool(Tool):
     def __init__(self, manager):
         props = {}
         super().__init__(manager,

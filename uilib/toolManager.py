@@ -15,9 +15,9 @@ class ToolManager(QObject):
         self.simulationManager = simulationManager
         self.propellantManager = propellantManager
 
-        self.tools = {'Set': [changeDiameterTool(self), initialKNTool(self), maxKNTool(self)],
-                      'Optimize': [expansionTool(self)],
-                      'Design': [neutralBatesTool(self)]}
+        self.tools = {'Set': [ChangeDiameterTool(self), InitialKNTool(self), MaxKNTool(self)],
+                      'Optimize': [ExpansionTool(self)],
+                      'Design': [NeutralBatesTool(self)]}
 
         for toolCategory in self.tools:
             for toolToAdd in self.tools[toolCategory]:

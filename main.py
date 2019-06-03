@@ -13,6 +13,7 @@ import uilib.propellantManager
 import uilib.simulationManager
 import uilib.fileManager
 import uilib.toolManager
+import uilib.burnsimManager
 
 import uilib.engExport
 import uilib.csvExport
@@ -66,7 +67,7 @@ class Window(QMainWindow):
         self.toolManager.setupMenu(self.ui.menuTools)
         self.toolManager.changeApplied.connect(self.updateGrainTable)
 
-        self.burnsimManager = uilib.burnsimManager(self.fileManager)
+        self.burnsimManager = uilib.burnsimManager.BurnsimManager(self.fileManager)
 
         self.preferencesManager.publishPreferences()
         self.setupMotorStats()

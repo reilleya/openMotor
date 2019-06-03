@@ -1,8 +1,8 @@
-from .. import tool
+from ..tool import Tool
 
 import motorlib
 
-class changeDiameterTool(tool):
+class ChangeDiameterTool(Tool):
     def __init__(self, manager):
         props = {'diameter': motorlib.floatProperty('Diameter', 'm', 0, 1)}
         super().__init__(manager,

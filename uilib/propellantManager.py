@@ -4,8 +4,8 @@ from PyQt5.QtCore import QObject, pyqtSignal
 
 from motorlib import propellant
 
-from . import defaultPropellants
-from . import loadFile, saveFile, fileTypes, getConfigPath
+from .defaults import defaultPropellants
+from .fileIO import loadFile, saveFile, fileTypes, getConfigPath
 from .widgets.propellantMenu import PropellantMenu
 
 class PropellantManager(QObject):

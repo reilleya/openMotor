@@ -1,8 +1,8 @@
-from .. import tool
+from ..tool import Tool
 
 import motorlib
 
-class maxKNTool(tool):
+class MaxKNTool(Tool):
     def __init__(self, manager):
         props = {'Kn': motorlib.floatProperty('Kn', '', 0, 1000)}
         super().__init__(manager,
