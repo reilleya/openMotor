@@ -1,12 +1,10 @@
-from .collectionEditor import CollectionEditor
-from .grainPreviewWidget import GrainPreviewWidget
+from PyQt5.QtWidgets import QLabel
 
 from motorlib import perforatedGrain
 
-from PyQt5.QtWidgets import QWidget, QGroupBox, QFormLayout, QVBoxLayout, QHBoxLayout
-from PyQt5.QtWidgets import QDoubleSpinBox, QSpinBox, QLabel, QPushButton
-from PyQt5.QtWidgets import QSpacerItem, QSizePolicy
-from PyQt5.QtCore import pyqtSignal
+from .collectionEditor import CollectionEditor
+from .grainPreviewWidget import GrainPreviewWidget
+
 
 class MotorEditor(CollectionEditor):
     def __init__(self, parent):
@@ -25,12 +23,12 @@ class MotorEditor(CollectionEditor):
 
     def propertyUpdate(self):
         if self.nozzle:
-            exit = self.propertyEditors['exit'].getValue()
-            throat = self.propertyEditors['throat'].getValue()
-            if throat == 0:
+            exitDia = self.propertyEditors['exit'].getValue()
+            throatDia = self.propertyEditors['throat'].getValue()
+            if throatDia == 0:
                 self.expRatioLabel.setText('Expansion ratio: -')
             else:
-                self.expRatioLabel.setText('Expansion ratio: ' + str((exit / throat) ** 2))
+                self.expRatioLabel.setText('Expansion ratio: ' + str((exitDia / throatDia) ** 2))
 
         if self.grainClass is not None:
             testgrain = self.grainClass()
@@ -62,6 +60,7 @@ class MotorEditor(CollectionEditor):
         if self.grainClass is not None:
             self.grainPreview.hide()
             self.grainPreview.cleanup()
-            self.grainClass = None # Needed so it isn't trying to update the preview grain while loading in properties. Refactor this!
+            # Needed so it isn't trying to update the preview grain while loading in properties. Refactor this!
+            self.grainClass = None
         super().cleanup()
     

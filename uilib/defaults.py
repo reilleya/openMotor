@@ -28,22 +28,22 @@ def defaultMotor():
 def defaultPreferencesDict():
     prefDict = {}
     prefDict['general'] = {
-                            'burnoutWebThres': 0.01 / 39.37,
-                            'burnoutThrustThres': 0.1,
-                            'timestep': 0.03,
-                            'ambPressure': 101325,
-                            'mapDim': 750
-                          }
+        'burnoutWebThres': 0.01 / 39.37,
+        'burnoutThrustThres': 0.1,
+        'timestep': 0.03,
+        'ambPressure': 101325,
+        'mapDim': 750
+    }
     prefDict['units'] = {
-                            'm': 'in',
-                            'm/s': 'ft/s',
-                            'Pa': 'psi',
-                            'kg': 'lb',
-                            'kg/m^3': 'lb/in^3',
-                            'kg/s': 'lb/s',
-                            'kg/(m^2*s)': 'lb/(in^2*s)',
-                            'm/(s*Pa^n)': 'in/(s*psi^n)'
-                        }
+        'm': 'in',
+        'm/s': 'ft/s',
+        'Pa': 'psi',
+        'kg': 'lb',
+        'kg/m^3': 'lb/in^3',
+        'kg/s': 'lb/s',
+        'kg/(m^2*s)': 'lb/(in^2*s)',
+        'm/(s*Pa^n)': 'in/(s*psi^n)'
+    }
     return prefDict
 
 def defaultPropellants():

@@ -1,18 +1,20 @@
-import motorlib
-from .polygonEditor import PolygonEditor
-
 import math
 
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit
 from PyQt5.QtWidgets import QDoubleSpinBox, QSpinBox, QComboBox
 from PyQt5.QtCore import pyqtSignal
 
-class propertyEditor(QWidget):
+import motorlib
+
+from .polygonEditor import PolygonEditor
+
+
+class PropertyEditor(QWidget):
 
     valueChanged = pyqtSignal()
 
     def __init__(self, parent, prop, preferences):
-        super(propertyEditor, self).__init__(QWidget(parent))
+        super(PropertyEditor, self).__init__(QWidget(parent))
         self.preferences = preferences
         self.setLayout(QVBoxLayout())
         self.prop = prop
@@ -22,7 +24,7 @@ class propertyEditor(QWidget):
         else:
             self.dispUnit = self.prop.unit
 
-        if type(prop) is motorlib.floatProperty:
+        if isinstance(prop, motorlib.floatProperty):
             self.editor = QDoubleSpinBox()
 
             self.editor.setSuffix(' ' + self.dispUnit)
@@ -38,7 +40,7 @@ class propertyEditor(QWidget):
             self.editor.valueChanged.connect(self.valueChanged.emit)
             self.layout().addWidget(self.editor)
 
-        elif type(prop) is motorlib.intProperty:
+        elif isinstance(prop, motorlib.intProperty):
             self.editor = QSpinBox()
 
             convMin = motorlib.convert(self.prop.min, self.prop.unit, self.dispUnit)
@@ -49,12 +51,12 @@ class propertyEditor(QWidget):
             self.editor.valueChanged.connect(self.valueChanged.emit)
             self.layout().addWidget(self.editor)
 
-        elif type(prop) is motorlib.stringProperty:
+        elif isinstance(prop, motorlib.stringProperty):
             self.editor = QLineEdit()
             self.editor.setText(self.prop.getValue())
             self.layout().addWidget(self.editor)
 
-        elif type(prop) is motorlib.enumProperty:
+        elif isinstance(prop, motorlib.enumProperty):
             self.editor = QComboBox()
 
             self.editor.addItems(self.prop.values)
@@ -63,7 +65,7 @@ class propertyEditor(QWidget):
 
             self.layout().addWidget(self.editor)
 
-        elif type(prop) is motorlib.polygonProperty:
+        elif isinstance(prop, motorlib.polygonProperty):
             self.editor = PolygonEditor(self)
 
             self.editor.pointsChanged.connect(self.valueChanged.emit)
@@ -73,17 +75,19 @@ class propertyEditor(QWidget):
             self.layout().addWidget(self.editor)
 
     def getValue(self):
-        if type(self.prop) is motorlib.floatProperty:
+        if isinstance(self.prop, motorlib.floatProperty):
             return motorlib.convert(self.editor.value(), self.dispUnit, self.prop.unit)
 
-        elif type(self.prop) is motorlib.intProperty:
+        if isinstance(self.prop, motorlib.intProperty):
             return motorlib.convert(self.editor.value(), self.dispUnit, self.prop.unit)
 
-        elif type(self.prop) is motorlib.stringProperty:
+        if isinstance(self.prop, motorlib.stringProperty):
             return self.editor.text()
 
-        elif type(self.prop) is motorlib.enumProperty:
+        if isinstance(self.prop, motorlib.enumProperty):
             return self.editor.currentText()
 
-        elif type(self.prop) is motorlib.polygonProperty:
+        if isinstance(self.prop, motorlib.polygonProperty):
             return self.editor.points
+
+        return None

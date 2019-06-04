@@ -25,7 +25,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="settingsEditor" name="settingsEditorGeneral" native="true"/>
+        <widget class="SettingsEditor" name="settingsEditorGeneral" native="true"/>
        </item>
       </layout>
      </widget>
@@ -35,7 +35,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="settingsEditor" name="settingsEditorUnits" native="true"/>
+        <widget class="SettingsEditor" name="settingsEditorUnits" native="true"/>
        </item>
       </layout>
      </widget>
@@ -55,7 +55,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>settingsEditor</class>
+   <class>SettingsEditor</class>
    <extends>QWidget</extends>
    <header location="global">uilib.widgets.settingsEditor</header>
    <container>1</container>

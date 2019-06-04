@@ -1,9 +1,10 @@
-from .propertyEditor import propertyEditor
-
 from PyQt5.QtWidgets import QWidget, QFormLayout, QVBoxLayout, QHBoxLayout
 from PyQt5.QtWidgets import QLabel, QPushButton
 from PyQt5.QtWidgets import QSpacerItem, QSizePolicy
 from PyQt5.QtCore import pyqtSignal
+
+from .propertyEditor import PropertyEditor
+
 
 class CollectionEditor(QWidget):
 
@@ -18,7 +19,7 @@ class CollectionEditor(QWidget):
 
         self.propertyEditors = {}
         self.setLayout(QVBoxLayout())
-        self.layout().setSpacing(0) # Todo: reduce it further somehow
+        self.layout().setSpacing(0)
 
         self.form = QFormLayout()
         self.layout().addLayout(self.form)
@@ -29,7 +30,7 @@ class CollectionEditor(QWidget):
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.layout().addItem(self.verticalSpacer)
-        
+
         self.buttons = buttons
         if self.buttons:
             self.buttons = QHBoxLayout()
@@ -62,12 +63,12 @@ class CollectionEditor(QWidget):
     def setPreferences(self, pref):
         self.preferences = pref
 
-    def loadProperties(self, object):
+    def loadProperties(self, obj):
         self.cleanup()
-        for prop in object.props:
-            self.propertyEditors[prop] = propertyEditor(self, object.props[prop], self.preferences)
+        for prop in obj.props:
+            self.propertyEditors[prop] = PropertyEditor(self, obj.props[prop], self.preferences)
             self.propertyEditors[prop].valueChanged.connect(self.propertyUpdate)
-            label = QLabel(object.props[prop].dispName + ':')
+            label = QLabel(obj.props[prop].dispName + ':')
             label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.form.addRow(label, self.propertyEditors[prop])
         if self.buttons:

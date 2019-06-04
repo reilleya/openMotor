@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import pyqtSignal
+
 from ..views.SimulatingDialog_ui import Ui_SimProgressDialog
 
 
@@ -18,7 +19,7 @@ class SimulationProgressDialog(QDialog):
         self.ui.progressBar.setValue(0)
         super().show()
 
-    def closeEvent(self, event = None):
+    def closeEvent(self, event=None):
         self.simulationCanceled.emit()
         self.close()
 

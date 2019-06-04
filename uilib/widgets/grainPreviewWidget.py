@@ -1,11 +1,11 @@
+from threading import Thread
+
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtSignal
 
-from threading import Thread
+import motorlib
 
 from ..views.GrainPreview_ui import Ui_GrainPreview
-
-import motorlib
 
 class GrainPreviewWidget(QWidget):
 
@@ -28,7 +28,7 @@ class GrainPreviewWidget(QWidget):
             if alert.level == motorlib.simAlertLevel.ERROR:
                 return
 
-        dataThread = Thread(target = self._genData, args = [grain])
+        dataThread = Thread(target=self._genData, args=[grain])
         dataThread.start()
 
     def _genData(self, grain):

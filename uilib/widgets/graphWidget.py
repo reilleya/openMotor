@@ -1,11 +1,10 @@
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-import motorlib
 
-class graphWidget(FigureCanvas):
+class GraphWidget(FigureCanvas):
     def __init__(self, parent):
-        super(graphWidget, self).__init__(Figure())
+        super(GraphWidget, self).__init__(Figure())
         self.setParent(None)
         self.setupPlot()
         self.setLabels()

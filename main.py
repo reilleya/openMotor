@@ -45,9 +45,9 @@ class Window(QMainWindow):
         self.fileManager = uilib.fileManager.FileManager()
         self.fileManager.fileNameChanged.connect(self.updateWindowTitle)
 
-        self.engExporter = uilib.engExport.engExportMenu()
+        self.engExporter = uilib.engExport.ENGExportMenu()
         self.preferencesManager.preferencesChanged.connect(self.engExporter.setPreferences)
-        self.csvExporter = uilib.csvExport.csvExportMenu()
+        self.csvExporter = uilib.csvExport.CSVExportMenu()
         self.preferencesManager.preferencesChanged.connect(self.csvExporter.setPreferences)
         self.imageExporter = uilib.imageExport.ImageExportMenu()
         self.preferencesManager.preferencesChanged.connect(self.imageExporter.setPreferences)

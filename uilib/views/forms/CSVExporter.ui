@@ -54,7 +54,7 @@
   <customwidget>
    <class>ChannelSelector</class>
    <extends>QGroupBox</extends>
-   <header location="global">uilib.widgets</header>
+   <header location="global">uilib.widgets.channelSelector</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

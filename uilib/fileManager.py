@@ -1,9 +1,11 @@
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import pyqtSignal
-from .fileIO import saveFile, loadFile, fileTypes
+
 import motorlib
-import yaml
+
+from .fileIO import saveFile, loadFile, fileTypes
+
 
 class FileManager(QObject):
 
@@ -20,13 +22,13 @@ class FileManager(QObject):
 
         self.newFile()
 
-    # Check if current motor has unsaved changes and start over from default motor. Called when the menu item is triggered.
+    # Check if current motor is unsaved and start over from default motor. Called when the menu item is triggered.
     def newFile(self):
         if self.unsavedCheck():
             self.startFromMotor(motorlib.motor())
 
     # Reset to empty motor history and set current motor to what is passed in
-    def startFromMotor(self, motor, filename = None):
+    def startFromMotor(self, motor, filename=None):
         self.fileHistory = [motor.getDict()]
         self.currentVersion = 0
         self.savedVersion = 0
@@ -42,18 +44,18 @@ class FileManager(QObject):
                 saveFile(self.fileName, self.fileHistory[self.currentVersion], fileTypes.MOTOR)
                 self.savedVersion = self.currentVersion
                 self.sendTitleUpdate()
-            except Exception as e:
-                self.showException(e)
+            except Exception as exc:
+                self.showException(exc)
 
     # Asks for a new file name and saves the motor
     def saveAs(self):
-        fn = self.showSaveDialog()
-        if fn is not None:
-            self.fileName = fn
+        fileName = self.showSaveDialog()
+        if fileName is not None:
+            self.fileName = fileName
             self.save()
 
-    # Checks for unsaved changes, asks for a filename, and loads the file 
-    def load(self, path = None):
+    # Checks for unsaved changes, asks for a filename, and loads the file
+    def load(self, path=None):
         if self.unsavedCheck():
             if path is None:
                 path = QFileDialog.getOpenFileName(None, 'Load motor', '', 'Motor Files (*.ric)')[0]
@@ -65,8 +67,8 @@ class FileManager(QObject):
                         motor.applyDict(res)
                         self.startFromMotor(motor, path)
                         return True
-                except Exception as e:
-                    self.showException(e)
+                except Exception as exc:
+                    self.showException(exc)
 
         return False # If no file is loaded, return false
 
@@ -80,9 +82,9 @@ class FileManager(QObject):
 
     # Return the recent end of the motor history
     def getCurrentMotor(self):
-        nm = motorlib.motor()
-        nm.applyDict(self.fileHistory[self.currentVersion])
-        return nm
+        newMotor = motorlib.motor()
+        newMotor.applyDict(self.fileHistory[self.currentVersion])
+        return newMotor
 
     # Add a new entry to motor history
     def addNewMotorHistory(self, motor): # Add a new version of the motor to the motor history. Should be used for all user interactions.
@@ -101,7 +103,7 @@ class FileManager(QObject):
     def canUndo(self):
         return self.currentVersion > 0
 
-    # Rolls back the current motor to point at the motor before it in the history 
+    # Rolls back the current motor to point at the motor before it in the history
     def undo(self):
         if self.canUndo():
             self.currentVersion -= 1
@@ -130,10 +132,9 @@ class FileManager(QObject):
             if res == QMessageBox.Save:
                 self.save()
                 return True
-            elif res == QMessageBox.Discard:
+            if res == QMessageBox.Discard:
                 return True
-            else:
-                return False
+            return False
 
         return True
 
@@ -145,7 +146,7 @@ class FileManager(QObject):
     def showSaveDialog(self):
         path = QFileDialog.getSaveFileName(None, 'Save motor', '', 'Motor Files (*.ric)')[0]
         if path == '' or path is None:
-            return
+            return None
         if path[-4:] != '.ric':
             path += '.ric'
         return path

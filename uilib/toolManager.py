@@ -2,7 +2,9 @@ from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtCore import pyqtSignal
 
-from .tools import *
+from .tools import ChangeDiameterTool, InitialKNTool, MaxKNTool
+from .tools import ExpansionTool
+from .tools import NeutralBatesTool
 
 class ToolManager(QObject):
 

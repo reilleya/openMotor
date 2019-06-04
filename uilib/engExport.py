@@ -1,10 +1,8 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox
 from motorlib import propertyCollection, floatProperty, stringProperty
 
-from .widgets.collectionEditor import CollectionEditor
 
-
-class engSettings(propertyCollection):
+class ENGSettings(propertyCollection):
     def __init__(self):
         super().__init__()
         self.props['diameter'] = floatProperty('Motor Diameter', 'm', 0, 1)
@@ -13,7 +11,7 @@ class engSettings(propertyCollection):
         self.props['designation'] = stringProperty('Motor Designation')
         self.props['manufacturer'] = stringProperty('Motor Manufacturer')
 
-class engExportMenu(QDialog):
+class ENGExportMenu(QDialog):
     def __init__(self):
         from .views.EngExporter_ui import Ui_EngExporterDialog
 
@@ -35,14 +33,14 @@ class engExportMenu(QDialog):
 
             with open(path, 'w') as outFile:
                 stats = self.ui.motorStats.getProperties()
-                contents = ' '.join([stats['designation'], 
-                                   str(round(stats['diameter'] * 1000, 6)), 
-                                   str(round(stats['length'] * 1000, 6)),
-                                   'P',
-                                   str(round(self.propMass, 6)),
-                                   str(round(self.propMass + stats['hardwareMass'], 6)),
-                                   stats['manufacturer']
-                                   ]) + '\n'
+                contents = ' '.join([stats['designation'],
+                                     str(round(stats['diameter'] * 1000, 6)),
+                                     str(round(stats['length'] * 1000, 6)),
+                                     'P',
+                                     str(round(self.propMass, 6)),
+                                     str(round(self.propMass + stats['hardwareMass'], 6)),
+                                     stats['manufacturer']
+                                     ]) + '\n'
 
                 for time, force in zip(self.times, self.thrustCurve):
                     contents += str(round(time, 4)) + ' ' + str(round(force, 4)) + '\n'
@@ -55,7 +53,7 @@ class engExportMenu(QDialog):
         self.ui.motorStats.setPreferences(pref)
 
     def open(self):
-        newSettings = engSettings()
+        newSettings = ENGSettings()
         newSettings.setProperties({'designation': self.motorDesignation})
         self.ui.motorStats.loadProperties(newSettings)
         self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(self.times is not None)

@@ -1,8 +1,9 @@
-import yaml
-import platform
-import os
-import appdirs
 from enum import Enum
+import os
+import platform
+
+import yaml
+import appdirs
 
 appVersion = (0, 2, 0)
 appVersionStr = '.'.join(map(str, appVersion))
@@ -12,15 +13,18 @@ class fileTypes(Enum):
     PROPELLANTS = 2
     MOTOR = 3
 
-def futureVersion(a, b): # Returns true if a is newer than b
-    return (a[0] > b[0]) or (a[0] == b[0] and a[1] > b[1]) or (a[0] == b[0] and a[1] == b[1] and a[2] > b[2])
+def futureVersion(verA, verB): # Returns true if a is newer than b
+    major = verA[0] > verB[0]
+    minor = verA[0] == verB[0] and verA[1] > verB[1]
+    fix = verA[0] == verB[0] and verA[1] == verB[1] and verA[2] > verB[2]
+    return major or minor or fix
 
 def saveFile(path, data, dataType):
     output = {
                 'version': appVersion,
                 'type': dataType,
                 'data': data
-            }
+    }
 
     with open(path, 'w') as saveLocation:
         yaml.dump(output, saveLocation)
@@ -37,13 +41,15 @@ def loadFile(path, dataType):
 
         if fileData['version'] == appVersion: # Check if the file is from the current version
             return fileData['data'] # If so, the data is current and can be returned
-        else:
-            if futureVersion(fileData['version'], appVersion): # If the data is from a future version, it can't be loaded
-                new = '.'.join(str(num) for num in fileData['version'])
-                old = '.'.join(str(num) for num in appVersion)
-                raise ValueError("Data is from a future version (" + new + " vs " + old + ") and can't be loaded.")
-            else: # Otherwise it is from a past version and will be migrated
-                return fileData['data'] # Migrate file, will be implemented later when an incompatible version is made
+
+        # If the data is from a future version, it can't be loaded
+        if futureVersion(fileData['version'], appVersion):
+            new = '.'.join(str(num) for num in fileData['version'])
+            old = '.'.join(str(num) for num in appVersion)
+            raise ValueError("Data is from a future version (" + new + " vs " + old + ") and can't be loaded.")
+
+        # Otherwise it is from a past version and will be migrated
+        return fileData['data'] # Migrate file, will be implemented later when an incompatible version is made
 
 def getConfigPath(): # Returns the path that files like preferences and propellant library should be in
     if platform.system() == 'Darwin': # On OSX, the configuration files should live in the library
@@ -51,5 +57,5 @@ def getConfigPath(): # Returns the path that files like preferences and propella
         if not os.path.isdir(path): # Create directory if it doesn't exist
             os.mkdir(path)
         return path + '/'
-    else: # On other platforms they can live in this directory
-        return ''
+    # On other platforms they can live in this directory
+    return ''

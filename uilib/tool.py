@@ -1,9 +1,10 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel
 from PyQt5.QtGui import QIcon
 
+import motorlib
+
 from .widgets.collectionEditor import CollectionEditor
 
-import motorlib
 
 class Tool(QDialog):
     def __init__(self, manager, name, description, propDict, needsSimulation):

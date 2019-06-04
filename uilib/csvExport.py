@@ -1,10 +1,9 @@
-from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox, QCheckBox, QVBoxLayout
-from motorlib import propertyCollection, floatProperty, stringProperty, simulationResult, motor
+from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox
 
 from .views.CSVExporter_ui import Ui_CSVExporter
 
 
-class csvExportMenu(QDialog):
+class CSVExportMenu(QDialog):
     def __init__(self):
         QDialog.__init__(self)
         self.ui = Ui_CSVExporter()
@@ -13,7 +12,7 @@ class csvExportMenu(QDialog):
         self.preferences = None
         self.ui.buttonBox.accepted.connect(self.exportCSV)
 
-        self.ui.channelSelector.setupChecks(True, disabled = ["time"])
+        self.ui.channelSelector.setupChecks(True, disabled=["time"])
 
     def exportCSV(self):
         exclude = self.ui.channelSelector.getUnselectedChannels()

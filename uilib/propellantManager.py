@@ -1,5 +1,3 @@
-import yaml
-
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from motorlib import propellant

@@ -1,11 +1,10 @@
 from matplotlib import pyplot as plt
 from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox, QMessageBox
+from .views.ImageExporter_ui import Ui_ImageExporter
 
-from motorlib import propertyCollection, simulationResult, motor
 
 class ImageExportMenu(QDialog):
     def __init__(self):
-        from .views.ImageExporter_ui import Ui_ImageExporter
         QDialog.__init__(self)
         self.ui = Ui_ImageExporter()
         self.ui.setupUi(self)
@@ -27,29 +26,28 @@ class ImageExportMenu(QDialog):
         if path is not None and path != '':
             if path[-4:] != '.png':
                 path += '.png'
-            with open(path, 'w') as outFile:
-                legend = []
-                for channelName in yChannels:
-                    channel = self.simRes.channels[channelName]
-                    yUnit = self.preferences.getUnit(channel.unit)
-                    plt.plot(self.simRes.channels[xChannel].getData(xAxisUnit), channel.getData(yUnit))
-                    if channel.valueType in (int, float):
-                        if yUnit != '':
-                            legend.append(channel.name + ' - ' + yUnit)
-                        else:
-                            legend.append(channel.name)
-                    elif channel.valueType in (list, tuple):
-                        if yUnit != '':
-                            for i in range(len(channel.getData()[0])):
-                                legend.append(channel.name + ' - Grain ' + str(i + 1) + ' - ' + yUnit)
-                        else:
-                            for i in range(len(channel.getData()[0])):
-                                legend.append(channel.name + ' - Grain ' + str(i + 1))
-                plt.legend(legend, ncol = 1, bbox_to_anchor = (1.04, 1))
-                plt.xlabel(self.simRes.channels[xChannel].name + ' - ' + xAxisUnit)
+            legend = []
+            for channelName in yChannels:
+                channel = self.simRes.channels[channelName]
+                yUnit = self.preferences.getUnit(channel.unit)
+                plt.plot(self.simRes.channels[xChannel].getData(xAxisUnit), channel.getData(yUnit))
+                if channel.valueType in (int, float):
+                    if yUnit != '':
+                        legend.append(channel.name + ' - ' + yUnit)
+                    else:
+                        legend.append(channel.name)
+                elif channel.valueType in (list, tuple):
+                    if yUnit != '':
+                        for i in range(len(channel.getData()[0])):
+                            legend.append(channel.name + ' - Grain ' + str(i + 1) + ' - ' + yUnit)
+                    else:
+                        for i in range(len(channel.getData()[0])):
+                            legend.append(channel.name + ' - Grain ' + str(i + 1))
+            plt.legend(legend, ncol=1, bbox_to_anchor=(1.04, 1))
+            plt.xlabel(self.simRes.channels[xChannel].name + ' - ' + xAxisUnit)
 
-                plt.title(self.simRes.getDesignation())
-                plt.savefig(path, bbox_inches="tight")
+            plt.title(self.simRes.getDesignation())
+            plt.savefig(path, bbox_inches="tight")
 
     def setPreferences(self, pref):
         self.preferences = pref

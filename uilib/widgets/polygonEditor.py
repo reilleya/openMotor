@@ -1,9 +1,10 @@
+import math
+import itertools
+
 from PyQt5.QtWidgets import QWidget, QPushButton, QHBoxLayout, QFileDialog, QMessageBox
 from PyQt5.QtCore import pyqtSignal
 
 import ezdxf
-import math
-import itertools
 import motorlib
 
 class PolygonEditor(QWidget):
@@ -22,7 +23,7 @@ class PolygonEditor(QWidget):
 
         self.preferences = None
 
-    def loadDXF(self, path = None):
+    def loadDXF(self, path=None):
         if path is None:
             path = QFileDialog.getOpenFileName(None, 'Load core geometry', '', 'DXF Files (*.dxf *.DXF)')[0]
         if path != '': # If they cancel the dialog, path will be an empty string
@@ -37,15 +38,15 @@ class PolygonEditor(QWidget):
                 if ent.dxftype() == 'ARC':
                     arcPoints = 20 # Number of segments in the arc
                     part = []
-                    sa = ent.dxf.start_angle
-                    ea = ent.dxf.end_angle
-                    if sa > ea: # This ensures that the angle step (ea - sa) is not negative
-                        ea += 360
+                    startAngle = ent.dxf.start_angle
+                    endAngle = ent.dxf.end_angle
+                    if startAngle > endAngle: # This ensures that the angle step (ea - sa) is not negative
+                        endAngle += 360
                     for i in range(0, arcPoints):
-                        a = sa + ((ea - sa) * (i / (arcPoints - 1)))
-                        px = ent.dxf.center[0] + (math.cos(a * math.pi / 180) * ent.dxf.radius)
-                        py = ent.dxf.center[1] + (math.sin(a * math.pi / 180) * ent.dxf.radius)
-                        part.append((px, py))
+                        angle = startAngle + ((endAngle - startAngle) * (i / (arcPoints - 1)))
+                        pointX = ent.dxf.center[0] + (math.cos(angle * math.pi / 180) * ent.dxf.radius)
+                        pointY = ent.dxf.center[1] + (math.sin(angle * math.pi / 180) * ent.dxf.radius)
+                        part.append((pointX, pointY))
 
                     chunks.append(part)
 
@@ -53,18 +54,18 @@ class PolygonEditor(QWidget):
                     part = []
                     circlePoints = 36 # Number of segments in the arc
                     for i in range(0, circlePoints):
-                        a = 2 * math.pi * (i / circlePoints)
-                        px = ent.dxf.center[0] + (math.cos(a) * ent.dxf.radius)
-                        py = ent.dxf.center[1] + (math.sin(a) * ent.dxf.radius)
-                        part.append((px, py))
+                        angle = 2 * math.pi * (i / circlePoints)
+                        pointX = ent.dxf.center[0] + (math.cos(angle) * ent.dxf.radius)
+                        pointY = ent.dxf.center[1] + (math.sin(angle) * ent.dxf.radius)
+                        part.append((pointX, pointY))
 
                     self.points.append(part)
 
                 elif ent.dxftype() == 'LINE':
-                    p1 = ent.dxf.end[:2]
-                    p2 = ent.dxf.start[:2]
+                    point1 = ent.dxf.end[:2]
+                    point2 = ent.dxf.start[:2]
 
-                    chunks.append([p1, p2])
+                    chunks.append([point1, point2])
 
                 elif ent.dxftype() == 'LWPOLYLINE':
                     with ent.points() as points:

@@ -40,17 +40,17 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="grainPreviewGraph" name="tabFace">
+     <widget class="GrainPreviewGraph" name="tabFace">
       <attribute name="title">
        <string>Face</string>
       </attribute>
      </widget>
-     <widget class="grainPreviewGraph" name="tabRegression">
+     <widget class="GrainPreviewGraph" name="tabRegression">
       <attribute name="title">
        <string>Regression</string>
       </attribute>
      </widget>
-     <widget class="grainPreviewGraph" name="tabAreaGraph">
+     <widget class="GrainPreviewGraph" name="tabAreaGraph">
       <attribute name="title">
        <string>Area Graph</string>
       </attribute>
@@ -61,7 +61,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>grainPreviewGraph</class>
+   <class>GrainPreviewGraph</class>
    <extends>QWidget</extends>
    <header location="global">uilib.widgets.grainPreviewGraph</header>
    <container>1</container>

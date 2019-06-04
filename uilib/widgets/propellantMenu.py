@@ -1,8 +1,9 @@
-from PyQt5.QtWidgets import QDialog, QLabel
+from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import pyqtSignal
 
-from ..views.PropMenu_ui import Ui_PropellantDialog
 from motorlib import propellant
+
+from ..views.PropMenu_ui import Ui_PropellantDialog
 
 
 class PropellantMenu(QDialog):
@@ -49,9 +50,15 @@ class PropellantMenu(QDialog):
             while propName + " " + str(propNumber) in self.manager.getNames():
                 propNumber += 1
             propName = propName + " " + str(propNumber)
-        np = propellant()
-        np.setProperties({'name': propName, 'density': 1680, 'a': 3.517054143255937e-05, 'n': 0.3273, 't': 2800, 'm': 23.67, 'k': 1.21})
-        self.manager.propellants.append(np)
+        newProp = propellant()
+        newProp.setProperties({'name': propName,
+                               'density': 1680,
+                               'a': 3.517054143255937e-05,
+                               'n': 0.3273,
+                               't': 2800,
+                               'm': 23.67,
+                               'k': 1.21})
+        self.manager.propellants.append(newProp)
         self.setupPropList()
         self.setupButtons()
         self.manager.savePropellants()

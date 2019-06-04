@@ -1,50 +1,50 @@
+import xml.etree.ElementTree as ET
+
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
-
-import xml.etree.ElementTree as ET
 
 import motorlib
 
 # BS type -> oM class for all grains we can import
-supportedGrainTable = {
-                '1': motorlib.grains.batesGrain,
-                '2': motorlib.grains.dGrain,
-                '3': motorlib.grains.moonBurner,
-                '5': motorlib.grains.cGrain,
-                '6': motorlib.grains.xCore,
-                '7': motorlib.grains.finocyl 
-             }
+SUPPORTED_GRAINS = {
+    '1': motorlib.grains.batesGrain,
+    '2': motorlib.grains.dGrain,
+    '3': motorlib.grains.moonBurner,
+    '5': motorlib.grains.cGrain,
+    '6': motorlib.grains.xCore,
+    '7': motorlib.grains.finocyl
+}
 
 # BS type -> label for grains we know about but can't import
-unsupportedGrainTable = {
-                '4': 'Star',
-                '8': 'Tablet',
-                '9': 'Pie Segment'
-            }
+UNSUPPORTED_GRAINS = {
+    '4': 'Star',
+    '8': 'Tablet',
+    '9': 'Pie Segment'
+}
 
 # oM class -> BS type for grains we can export
-exportTypeTable = {
-                motorlib.grains.batesGrain: '1',
-                motorlib.grains.endBurner: '1',
-                motorlib.grains.dGrain: '2',
-                motorlib.grains.moonBurner: '3',
-                motorlib.grains.cGrain: '5',
-                motorlib.grains.xCore: '6',
-                motorlib.grains.finocyl: '7' 
-            }
+EXPORT_TYPES = {
+    motorlib.grains.batesGrain: '1',
+    motorlib.grains.endBurner: '1',
+    motorlib.grains.dGrain: '2',
+    motorlib.grains.moonBurner: '3',
+    motorlib.grains.cGrain: '5',
+    motorlib.grains.xCore: '6',
+    motorlib.grains.finocyl: '7'
+}
 
 # Attributes for the root element of the BSX file
 bsxMotorAttrib = {
-                'Name': '',
-                'DiameterMM': '0',
-                'Length': '0',
-                'Delays': '0',
-                'HardwareWeight': '0',
-                'MFGCode': '',
-                'ThrustMethod': '1',
-                'ThrustCoefGiven': '1.2',
-                'UnitsLinear': '1'
-            }
+    'Name': '',
+    'DiameterMM': '0',
+    'Length': '0',
+    'Delays': '0',
+    'HardwareWeight': '0',
+    'MFGCode': '',
+    'ThrustMethod': '1',
+    'ThrustCoefGiven': '1.2',
+    'UnitsLinear': '1'
+}
 
 # Converts a string containing a value in inches to a float of meters
 def inToM(value):
@@ -97,8 +97,8 @@ class BurnsimManager(QObject):
                 motor.nozzle.setProperty('exit', inToM(child.attrib['ExitDia']))
                 motor.nozzle.setProperty('efficiency', float(child.attrib['NozzleEfficiency']) / 100)
             if child.tag == 'Grain':
-                if child.attrib['Type'] in supportedGrainTable:
-                    motor.grains.append(supportedGrainTable[child.attrib['Type']]())
+                if child.attrib['Type'] in SUPPORTED_GRAINS:
+                    motor.grains.append(SUPPORTED_GRAINS[child.attrib['Type']]())
                     motor.grains[-1].setProperty('diameter', inToM(child.attrib['Diameter']))
                     motor.grains[-1].setProperty('length', inToM(child.attrib['Length']))
 
@@ -136,24 +136,31 @@ class BurnsimManager(QObject):
                         impProp = child.find('Propellant')
                         propellant = motorlib.propellant()
                         propellant.setProperty('name', impProp.attrib['Name'])
-                        n = float(impProp.attrib['BallisticN'])
-                        a = float(impProp.attrib['BallisticA']) * 1/(6895**n)
-                        propellant.setProperty('n', n)
-                        propellant.setProperty('a', motorlib.convert(a, 'in/(s*psi^n)', 'm/(s*Pa^n)')) # Conversion only does in/s to m/s, the rest is handled above
-                        propellant.setProperty('density', motorlib.convert(float(impProp.attrib['Density']), 'lb/in^3', 'kg/m^3'))
+                        ballN = float(impProp.attrib['BallisticN'])
+                        ballA = float(impProp.attrib['BallisticA']) * 1/(6895**ballN)
+                        propellant.setProperty('n', ballN)
+                        # Conversion only does in/s to m/s, the rest is handled above
+                        ballA = motorlib.convert(ballA, 'in/(s*psi^n)', 'm/(s*Pa^n)')
+                        propellant.setProperty('a', ballA)
+                        density = motorlib.convert(float(impProp.attrib['Density']), 'lb/in^3', 'kg/m^3')
+                        propellant.setProperty('density', density)
                         propellant.setProperty('k', float(impProp.attrib['SpecificHeatRatio']))
                         impMolarMass = impProp.attrib['MolarMass']
+                        # If the user has entered 0, override it to match the default propellant.
                         if impMolarMass == '0':
-                            propellant.setProperty('m', 23.67) # If the user has entered 0, override it to match the default propellant.
+                            propellant.setProperty('m', 23.67)
                         else:
                             propellant.setProperty('m', float(impMolarMass))
-                        propellant.setProperty('t', 3500) # Burnsim doesn't provide this property. Set it to match the default propellant.
+                        # Burnsim doesn't provide this property. Set it to match the default propellant.
+                        propellant.setProperty('t', 3500)
                         motor.propellant = propellant
                         propSet = True
 
                 else:
-                    if child.attrib['Type'] in unsupportedGrainTable:
-                        errors += "File contains a " + unsupportedGrainTable[child.attrib['Type']] + " grain, which can't be imported.\n"
+                    if child.attrib['Type'] in UNSUPPORTED_GRAINS:
+                        errors += "File contains a "
+                        errors += UNSUPPORTED_GRAINS[child.attrib['Type']]
+                        errors += " grain, which can't be imported.\n"
                     else:
                         errors += "File contains an unknown grain of type " + child.attrib['Type'] + '.\n'
 
@@ -180,14 +187,14 @@ class BurnsimManager(QObject):
         outNozzle.attrib['AmbientPressure'] = '14.7'
 
         for gid, grain in enumerate(motor.grains):
-            if type(grain) in exportTypeTable:
+            if type(grain) in EXPORT_TYPES:
                 outGrain = ET.SubElement(outMotor, 'Grain')
-                outGrain.attrib['Type'] = exportTypeTable[type(grain)]
+                outGrain.attrib['Type'] = EXPORT_TYPES[type(grain)]
                 outGrain.attrib['Propellant'] = motor.propellant.getProperty('name')
                 outGrain.attrib['Diameter'] = mToIn(grain.getProperty('diameter'))
                 outGrain.attrib['Length'] = mToIn(grain.getProperty('length'))
 
-                if type(grain) is motorlib.grains.endBurner:
+                if isinstance(grain, motorlib.grains.endBurner):
                     outGrain.attrib['CoreDiameter'] = '0'
                     outGrain.attrib['EndsInhibited'] = '1'
                 else:
@@ -198,50 +205,51 @@ class BurnsimManager(QObject):
                         outGrain.attrib['EndsInhibited'] = '1'
                     else:
                         outGrain.attrib['EndsInhibited'] = '2'
-
-                    if type(grain) in (motorlib.grains.batesGrain, motorlib.grains.finocyl, motorlib.grains.moonBurner): # Grains with core diameter
+                    # Grains with core diameter
+                    if type(grain) in (motorlib.grains.batesGrain, motorlib.grains.finocyl, motorlib.grains.moonBurner):
                         outGrain.attrib['CoreDiameter'] = mToIn(grain.getProperty('coreDiameter'))
 
-                    if type(grain) is motorlib.grains.dGrain:
+                    if isinstance(grain, motorlib.grains.dGrain):
                         outGrain.attrib['EdgeOffset'] = mToIn(grain.getProperty('slotOffset'))
 
-                    elif type(grain) is motorlib.grains.moonBurner:
+                    elif isinstance(grain) is motorlib.grains.moonBurner:
                         outGrain.attrib['CoreOffset'] = mToIn(grain.getProperty('coreOffset'))
 
-                    elif type(grain) is motorlib.grains.cGrain:
+                    elif isinstance(grain, motorlib.grains.cGrain):
                         outGrain.attrib['SlotWidth'] = mToIn(grain.getProperty('slotWidth'))
                         radius = motor.grains[-1].getProperty('diameter') / 2
-                        outGrain.attrib['SlotDepth'] = mToIn(grain.getProperty('slotOffset') - r)
+                        outGrain.attrib['SlotDepth'] = mToIn(grain.getProperty('slotOffset') - radius)
 
-                    elif type(grain) is motorlib.grains.xCore:
+                    elif isinstance(grain, motorlib.grains.xCore):
                         outGrain.attrib['SlotWidth'] = mToIn(grain.getProperty('slotWidth'))
                         outGrain.attrib['CoreDiameter'] = mToIn(2 * grain.getProperty('slotLength'))
 
-                    elif type(grain) is motorlib.grains.finocyl:
+                    elif isinstance(grain, motorlib.grains.finocyl):
                         outGrain.attrib['FinCount'] = str(grain.getProperty('numFins'))
                         outGrain.attrib['FinLength'] = mToIn(grain.getProperty('finLength'))
                         outGrain.attrib['FinWidth'] = mToIn(grain.getProperty('finWidth'))
 
                 outProp = ET.SubElement(outGrain, 'Propellant')
                 outProp.attrib['Name'] = motor.propellant.getProperty('name')
-                a = motor.propellant.getProperty('a')
-                n = motor.propellant.getProperty('n')
-                a = motorlib.convert(a * (6895**n), 'm/(s*Pa^n)', 'in/(s*psi^n)')
-                outProp.attrib['BallisticA'] = str(a)
-                outProp.attrib['BallisticN'] = str(n)
-                outProp.attrib['Density'] = str(motorlib.convert(motor.propellant.getProperty('density'), 'kg/m^3', 'lb/in^3'))
+                ballA = motor.propellant.getProperty('a')
+                ballN = motor.propellant.getProperty('n')
+                ballA = motorlib.convert(ballA * (6895**ballN), 'm/(s*Pa^n)', 'in/(s*psi^n)')
+                outProp.attrib['BallisticA'] = str(ballA)
+                outProp.attrib['BallisticN'] = str(ballN)
+                density = str(motorlib.convert(motor.propellant.getProperty('density'), 'kg/m^3', 'lb/in^3'))
+                outProp.attrib['Density'] = density
                 outProp.attrib['SpecificHeatRatio'] = str(motor.propellant.getProperty('k'))
                 outProp.attrib['MolarMass'] = str(motor.propellant.getProperty('m'))
                 outProp.attrib['CombustionTemp'] = '0' # Unclear if this is used anyway
                 ispStar = motor.propellant.getCStar() / 9.80665
                 outProp.attrib['ISPStar'] = str(ispStar)
-
-                outNotes = ET.SubElement(outProp, 'Notes')
+                # Add empty notes section
+                ET.SubElement(outProp, 'Notes')
 
             else:
                 errors += "Can't export grain #" + str(gid + 1) + " because it has type " + grain.geomName + ".\n"
-
-        outNotes = ET.SubElement(outMotor, 'MotorNotes')
+        # Add empty notes section
+        ET.SubElement(outMotor, 'MotorNotes')
 
         if errors != '':
             self.showWarning(errors + '\nThe rest of the motor will be exported.')

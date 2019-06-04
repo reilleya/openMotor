@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QDialog
+from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import pyqtSignal
+
 from ..views.Preferences_ui import Ui_PreferencesDialog
 
 
@@ -22,7 +23,8 @@ class PreferencesMenu(QDialog):
         self.ui.settingsEditorUnits.loadProperties(pref.units)
 
     def apply(self):
-        self.preferencesApplied.emit({'general': self.ui.settingsEditorGeneral.getProperties(), 'units': self.ui.settingsEditorUnits.getProperties()})
+        self.preferencesApplied.emit({'general': self.ui.settingsEditorGeneral.getProperties(),
+                                      'units': self.ui.settingsEditorUnits.getProperties()})
         self.hide()
 
     def cancel(self):

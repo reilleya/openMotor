@@ -1,9 +1,7 @@
-from PyQt5.QtCore import QObject
-from PyQt5.QtCore import pyqtSignal
-
 from threading import Thread
 
-from motorlib import simAlertLevel, simAlertType, alertLevelNames, alertTypeNames
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import pyqtSignal
 
 from .widgets.simulationAlertsDialog import SimulationAlertsDialog
 from .widgets.simulationProgressDialog import SimulationProgressDialog
@@ -35,11 +33,11 @@ class SimulationManager(QObject):
     def setPreferences(self, preferences):
         self.preferences = preferences
 
-    def runSimulation(self, motor, show = True): # Show sets if the results will be reported on newSimulationResult and shown in UI
+    def runSimulation(self, motor, show=True): # Show sets if the results will be reported on newSimulationResult and shown in UI
         self.motor = motor
         self.threadStopped = False
         self.progDialog.show()
-        self.currentSimThread = Thread(target = self._simThread, args = [show])
+        self.currentSimThread = Thread(target=self._simThread, args=[show])
         self.currentSimThread.start()
 
     def _simThread(self, show):
