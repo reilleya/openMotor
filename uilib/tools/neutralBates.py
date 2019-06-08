@@ -37,6 +37,4 @@ class NeutralBatesTool(Tool):
         newMotor.nozzle.props['exit'].setValue(motorlib.geometry.circleDiameterFromArea(throatArea * 7))
         newMotor.nozzle.props['efficiency'].setValue(0.85)
 
-        newMotor.propellant = self.manager.getPropellantByName(self.manager.getPropellantNames()[0])
-
         self.manager.updateMotor(newMotor)

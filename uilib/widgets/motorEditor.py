@@ -28,7 +28,7 @@ class MotorEditor(CollectionEditor):
             if throatDia == 0:
                 self.expRatioLabel.setText('Expansion ratio: -')
             else:
-                self.expRatioLabel.setText('Expansion ratio: ' + str((exitDia / throatDia) ** 2))
+                self.expRatioLabel.setText('Expansion ratio: ' + str(round((exitDia / throatDia) ** 2, 3)))
 
         if self.grainClass is not None:
             testgrain = self.grainClass()
