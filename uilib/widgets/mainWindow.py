@@ -11,7 +11,7 @@ from uilib.views.MainWindow_ui import Ui_MainWindow
 
 class Window(QMainWindow):
     def __init__(self, app):
-        QWidget.__init__(self)
+        QMainWindow.__init__(self)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
@@ -89,7 +89,7 @@ class Window(QMainWindow):
         self.ui.actionOpen.triggered.connect(lambda x: self.loadMotor(None)) # Lambda because the signal passes in an argument
         # Import
         self.ui.actionImportBurnSim.triggered.connect(self.burnSimImport)
-        # Export 
+        # Export
         self.ui.actionENGFile.triggered.connect(self.engExporter.open)
         self.ui.actionImage.triggered.connect(self.imageExporter.open)
         self.ui.actionCSV.triggered.connect(self.csvExporter.open)
@@ -175,8 +175,8 @@ class Window(QMainWindow):
         cm = self.app.fileManager.getCurrentMotor()
         if cm.propellant is not None and cm.propellant.getProperty("name") not in self.app.propellantManager.getNames():
             reply = QMessageBox.question(self, "Propellant deleted",
-                "The current motor's propellant has been removed from the library. Would you like to add it back?",
-                QMessageBox.Yes | QMessageBox.No)
+                                         "The current motor's propellant has been removed from the library. Would you like to add it back?",
+                                         QMessageBox.Yes | QMessageBox.No)
             if reply == QMessageBox.Yes:
                 self.app.propellantManager.propellants.append(cm.propellant)
                 self.app.propellantManager.savePropellants()
@@ -206,7 +206,7 @@ class Window(QMainWindow):
         self.ui.tableWidgetGrainList.setItem(len(cm.grains), 1, QTableWidgetItem(cm.nozzle.getDetailsString(self.app.preferencesManager.preferences)))
         self.repaint() # OSX needs this
 
-    def toggleGrainEditButtons(self, state, grainTable = True):
+    def toggleGrainEditButtons(self, state, grainTable=True):
         if grainTable:
             self.ui.tableWidgetGrainList.setEnabled(state)
         self.ui.pushButtonDeleteGrain.setEnabled(state)
@@ -356,7 +356,7 @@ class Window(QMainWindow):
             self.postLoadUpdate()
         self.enablePropSelector()
 
-    def loadMotor(self, path = None):
+    def loadMotor(self, path=None):
         self.disablePropSelector()
         if self.app.fileManager.load(path):
             self.postLoadUpdate()
@@ -369,12 +369,12 @@ class Window(QMainWindow):
         self.populatePropSelector()
         self.updatePropBoxSelection()
 
-    def closeEvent(self, event = None):
+    def closeEvent(self, event=None):
         if self.app.fileManager.unsavedCheck():
             sys.exit()
         else:
             if event is not None:
-                if type(event) is not bool:
+                if not isinstance(event, bool):
                     event.ignore()
 
     def applyPreferences(self, prefDict):
