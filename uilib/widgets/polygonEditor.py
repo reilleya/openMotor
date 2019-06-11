@@ -1,7 +1,7 @@
 import math
 import itertools
 
-from PyQt5.QtWidgets import QWidget, QPushButton, QHBoxLayout, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QWidget, QPushButton, QHBoxLayout, QFileDialog, QApplication
 from PyQt5.QtCore import pyqtSignal
 
 import ezdxf
@@ -109,11 +109,4 @@ class PolygonEditor(QWidget):
             self.pointsChanged.emit()
 
             if len(alerts) > 0:
-                self.showAlert(alerts)
-
-    # Show a dialog displaying some text
-    def showAlert(self, messages):
-        msg = QMessageBox()
-        msg.setText('\n'.join(messages))
-        msg.setWindowTitle("DXF import warnings")
-        msg.exec_()
+                QApplication.instance().outputMessage('\n'.join(alerts), "DXF import warnings")

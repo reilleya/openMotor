@@ -1,5 +1,5 @@
 from matplotlib import pyplot as plt
-from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox, QMessageBox
+from PyQt5.QtWidgets import QDialog, QApplication, QFileDialog, QDialogButtonBox
 from .views.ImageExporter_ui import Ui_ImageExporter
 
 
@@ -17,7 +17,7 @@ class ImageExportMenu(QDialog):
 
     def exportImage(self):
         if len(self.ui.independent.getSelectedChannels()) != 1 or len(self.ui.dependent.getSelectedChannels()) == 0:
-            self.showAlert("You must select an independent channel and at least one dependent channel.")
+            QApplication.instance().outputMessage("You must select an independent channel and at least one dependent channel.")
             return
         xChannel = self.ui.independent.getSelectedChannels()[0]
         yChannels = self.ui.dependent.getSelectedChannels()
@@ -58,10 +58,3 @@ class ImageExportMenu(QDialog):
 
     def acceptSimResult(self, simRes):
         self.simRes = simRes
-
-    # Show a dialog displaying some text
-    def showAlert(self, message):
-        msg = QMessageBox()
-        msg.setText(message)
-        msg.setWindowTitle("Image Exporter")
-        msg.exec_()

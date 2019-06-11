@@ -11,8 +11,9 @@ class FileManager(QObject):
 
     fileNameChanged = pyqtSignal(str, bool)
 
-    def __init__(self):
+    def __init__(self, app):
         super().__init__()
+        self.app = app
 
         self.fileHistory = []
         self.currentVersion = 0
@@ -45,7 +46,7 @@ class FileManager(QObject):
                 self.savedVersion = self.currentVersion
                 self.sendTitleUpdate()
             except Exception as exc:
-                self.showException(exc)
+                self.app.outputException(exc, "An error occurred while saving the file: ")
 
     # Asks for a new file name and saves the motor
     def saveAs(self):
@@ -68,17 +69,9 @@ class FileManager(QObject):
                         self.startFromMotor(motor, path)
                         return True
                 except Exception as exc:
-                    self.showException(exc)
+                    self.app.outputException(exc, "An error occurred while loading the file: ")
 
         return False # If no file is loaded, return false
-
-    # Display a popup to output file errors
-    def showException(self, exception):
-        msg = QMessageBox()
-        msg.setText("An error occured accessing the file:")
-        msg.setInformativeText(str(exception))
-        msg.setWindowTitle("Error")
-        msg.exec_()
 
     # Return the recent end of the motor history
     def getCurrentMotor(self):

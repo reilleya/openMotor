@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
 from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QFileDialog, QApplication
 
 import motorlib
 
@@ -168,7 +168,7 @@ class BurnsimManager(QObject):
                 errors += "\nFile contains test data, which is not imported."
 
         if errors != '':
-            self.showWarning(errors + '\nThe rest of the motor will be imported.')
+            QApplication.instance().outputMessage(errors + '\nThe rest of the motor will be imported.')
 
         self.fileManager.startFromMotor(motor)
         return True
@@ -252,7 +252,7 @@ class BurnsimManager(QObject):
         ET.SubElement(outMotor, 'MotorNotes')
 
         if errors != '':
-            self.showWarning(errors + '\nThe rest of the motor will be exported.')
+            QApplication.instance().outputMessage(errors + '\nThe rest of the motor will be exported.')
 
         with open(path, 'wb') as outFile:
             outFile.write(ET.tostring(outMotor))
