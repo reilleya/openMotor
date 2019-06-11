@@ -30,6 +30,7 @@ class FileManager(QObject):
 
     # Reset to empty motor history and set current motor to what is passed in
     def startFromMotor(self, motor, filename=None):
+        motor = self.checkPropellant(motor)
         self.fileHistory = [motor.getDict()]
         self.currentVersion = 0
         self.savedVersion = 0
@@ -143,3 +144,23 @@ class FileManager(QObject):
         if path[-4:] != '.ric':
             path += '.ric'
         return path
+
+    # Checks if a motor's propellant is in the library, adds it if it isn't, and also looks for conflicts
+    def checkPropellant(self, motor):
+        if motor.propellant is not None:
+            if motor.propellant.getProperty('name') not in self.app.propellantManager.getNames():
+                self.app.outputMessage('The propellant from the loaded motor was not in the library, so it was added as "' + motor.propellant.getProperty('name') + '"',
+                        'New propellant added')
+                self.app.propellantManager.propellants.append(motor.propellant)
+                self.app.propellantManager.savePropellants()
+            else:
+                if motor.propellant.getProperties() != self.app.propellantManager.getPropellantByName(motor.propellant.getProperty('name')).getProperties():
+                    addedNumber = 1
+                    while motor.propellant.getProperty('name') + ' (' + str(addedNumber) + ')' in self.app.propellantManager.getNames():
+                        addedNumber += 1
+                    motor.propellant.setProperty('name', motor.propellant.getProperty('name') + ' (' + str(addedNumber) + ')')
+                    self.app.propellantManager.propellants.append(motor.propellant)
+                    self.app.propellantManager.savePropellants()
+                    self.app.outputMessage('The propellant from the loaded motor matches an existing item in the library, but they have different properties. The propellant from the motor has been added to the library as "' + motor.propellant.getProperty('name') + '"',
+                        'New propellant added')
+        return motor

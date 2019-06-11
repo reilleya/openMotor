@@ -366,26 +366,6 @@ class Window(QMainWindow):
     def postLoadUpdate(self):
         self.resetOutput()
         self.updateGrainTable()
-
-        cm = self.app.fileManager.getCurrentMotor()
-        if cm.propellant is not None:
-            if cm.propellant.getProperty('name') not in self.app.propellantManager.getNames():
-                self.app.outputMessage('The propellant from the loaded motor was not in the library, so it was added as "' + cm.propellant.getProperty('name') + '"',
-                        'New propellant added')
-                self.app.propellantManager.propellants.append(cm.propellant)
-                self.app.propellantManager.savePropellants()
-            else:
-                if cm.propellant.getProperties() != self.app.propellantManager.getPropellantByName(cm.propellant.getProperty('name')).getProperties():
-                    addedNumber = 1
-                    while cm.propellant.getProperty('name') + ' (' + str(addedNumber) + ')' in self.app.propellantManager.getNames():
-                        addedNumber += 1
-                    cm.propellant.setProperty('name', cm.propellant.getProperty('name') + ' (' + str(addedNumber) + ')')
-                    self.app.propellantManager.propellants.append(cm.propellant)
-                    self.app.propellantManager.savePropellants()
-                    self.app.fileManager.overrideCurrentMotor(cm) # To change the propellant name while disallowing an undo to the wrong name
-                    self.app.outputMessage('The propellant from the loaded motor matches an existing item in the library, but they have different properties. The propellant from the motor has been added to the library as "' + cm.propellant.getProperty('name') + '"',
-                        'New propellant added')
-
         self.populatePropSelector()
         self.updatePropBoxSelection()
 
