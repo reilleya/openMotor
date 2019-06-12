@@ -122,7 +122,7 @@ class simulationResult():
         imp = self.getImpulse()
         if imp < 1.25: # This is to avoid a domain error finding log(0)
             return 'N/A'
-        return chr(int(math.log(imp/2.5, 2)) + 66) + str(int(self.getAverageForce()))
+        return chr(int(math.log(imp/1.25, 2)) + 65) + str(int(self.getAverageForce()))
 
     def getPeakMassFlux(self):
         return self.channels['massFlux'].getMax()
