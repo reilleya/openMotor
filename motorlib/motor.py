@@ -82,7 +82,7 @@ class motor():
         sr = (t1 * t2 * t3) ** 0.5
 
         f = self.nozzle.props['efficiency'].getValue() * t_a * p_c * sr + (p_e - p_a) * e_a
-        if np.isnan(f):
+        if np.isnan(f) or f < 0:
             f = 0
 
         return f

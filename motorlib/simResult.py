@@ -120,7 +120,7 @@ class simulationResult():
 
     def getDesignation(self):
         imp = self.getImpulse()
-        if imp == 0: # This is to avoid a domain error finding log(0)
+        if imp < 1.25: # This is to avoid a domain error finding log(0)
             return 'N/A'
         return chr(int(math.log(imp/2.5, 2)) + 66) + str(int(self.getAverageForce()))
 
