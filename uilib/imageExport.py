@@ -48,7 +48,7 @@ class ImageExportMenu(QDialog):
 
             plt.title(self.simRes.getDesignation())
             plt.savefig(path, bbox_inches="tight")
-            plt.clear()
+            plt.clf()
 
     def setPreferences(self, pref):
         self.preferences = pref
