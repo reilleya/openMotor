@@ -46,7 +46,7 @@ class Window(QMainWindow):
         self.aboutDialog = uilib.widgets.aboutDialog.AboutDialog(self.appVersionStr)
 
         self.app.toolManager.setupMenu(self.ui.menuTools)
-        self.app.toolManager.changeApplied.connect(self.updateGrainTable)
+        self.app.toolManager.changeApplied.connect(self.postLoadUpdate)
 
         self.burnsimManager = uilib.burnsimManager.BurnsimManager(self.app.fileManager)
 
@@ -57,8 +57,6 @@ class Window(QMainWindow):
         self.setupPropSelector()
         self.setupGrainTable()
         self.setupGraph()
-
-        self.updatePropBoxSelection() # This will go away when we remove the startup motor
 
     def updateWindowTitle(self, name, saved):
         unsavedStr = '*' if not saved else ''
@@ -370,8 +368,9 @@ class Window(QMainWindow):
             self.postLoadUpdate()
         self.enablePropSelector()
 
-    # Handle the current motor's propellant not being the library
+    # Clear out all info related to old motor/sim in the interface
     def postLoadUpdate(self):
+        self.disablePropSelector() # It is enabled again at the end of updatePropBoxSelection
         self.resetOutput()
         self.updateGrainTable()
         self.populatePropSelector()

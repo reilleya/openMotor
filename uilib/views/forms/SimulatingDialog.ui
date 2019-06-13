@@ -31,6 +31,10 @@
   <property name="modal">
    <bool>true</bool>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>resources/oMIconCycles.png</normaloff>resources/oMIconCycles.png</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">

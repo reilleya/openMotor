@@ -10,12 +10,12 @@ class ToolManager(QObject):
 
     changeApplied = pyqtSignal()
 
-    def __init__(self, fileManager, simulationManager, propellantManager):
+    def __init__(self, app):
         super().__init__()
 
-        self.fileManager = fileManager
-        self.simulationManager = simulationManager
-        self.propellantManager = propellantManager
+        self.fileManager = app.fileManager
+        self.simulationManager = app.simulationManager
+        self.propellantManager = app.propellantManager
 
         self.tools = {'Set': [ChangeDiameterTool(self), InitialKNTool(self), MaxKNTool(self)],
                       'Optimize': [ExpansionTool(self)],

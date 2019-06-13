@@ -17,6 +17,7 @@ class MotorConfig(propertyCollection):
         # Limits
         self.props['maxPressure'] = floatProperty('Maximum Allowed Pressure', 'Pa', 0, 7e7)
         self.props['maxMassFlux'] = floatProperty('Maximum Allowed Mass Flux', 'kg/(m^2*s)', 0, 1e4)
+        self.props['minPortThroat'] = floatProperty('Minimum Allowed Port/Throat Ratio', '', 1, 4)
         # Simulation
         self.props['burnoutWebThres'] = floatProperty('Web Burnout Threshold', 'm', 2.54e-5, 3.175e-3)
         self.props['burnoutThrustThres'] = floatProperty('Thrust Burnout Threshold', '%', 0.01, 10)
@@ -133,6 +134,11 @@ class motor():
         if len(simRes.getAlertsByLevel(simAlertLevel.ERROR)) > 0:
             return simRes
 
+        # Pull the required numbers from the propellant
+        density = self.propellant.getProperty('density')
+        ballA = self.propellant.getProperty('a')
+        ballN = self.propellant.getProperty('n')
+
         # Generate coremaps for perforated grains
         for grain in self.grains:
             grain.simulationSetup(self.config)
@@ -145,7 +151,7 @@ class motor():
         simRes.channels['kn'].addData(0)
         simRes.channels['pressure'].addData(0)
         simRes.channels['force'].addData(0)
-        simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * self.propellant.getProperty('density') for grain in self.grains])
+        simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
         simRes.channels['massFlow'].addData([0 for grain in self.grains])
         simRes.channels['massFlux'].addData([0 for grain in self.grains])
 
@@ -154,14 +160,14 @@ class motor():
         simRes.channels['kn'].addData(self.calcKN(perGrainReg, burnoutWebThres))
         simRes.channels['pressure'].addData(self.calcIdealPressure(perGrainReg, None, burnoutWebThres))
         simRes.channels['force'].addData(self.calcForce(perGrainReg, None, ambientPressure, burnoutWebThres))
-        simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * self.propellant.getProperty('density') for grain in self.grains])
+        simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
         simRes.channels['massFlow'].addData([0 for grain in self.grains])
         simRes.channels['massFlux'].addData([0 for grain in self.grains])
 
         # Check port/throat ratio and add a warning if it is large enough
         aftPort = self.grains[-1].getPortArea(0)
         if aftPort is not None:
-            minAllowed = 2 # TODO: Make the threshold configurable
+            minAllowed = self.config.getProperty('minPortThroat')
             ratio = aftPort / geometry.circleArea(self.nozzle.props['throat'].getValue())
             if ratio < minAllowed:
                 desc = 'Initial port/throat ratio of ' + str(round(ratio, 3)) + ' was less than ' + str(minAllowed)
@@ -176,9 +182,9 @@ class motor():
             perGrainMassFlux = [0 for grain in self.grains]
             for gid, grain in enumerate(self.grains):
                 if grain.getWebLeft(perGrainReg[gid]) > burnoutWebThres:
-                    reg = ts * self.propellant.getProperty('a') * (simRes.channels['pressure'].getLast()**self.propellant.getProperty('n')) # Calculate regression at the current pressure
-                    perGrainMassFlux[gid] = grain.getPeakMassFlux(mf, ts, perGrainReg[gid], reg, self.propellant.getProperty('density')) # Find the mass flux through the grain based on the mass flow fed into from grains above it
-                    perGrainMass[gid] = grain.getVolumeAtRegression(perGrainReg[gid]) * self.propellant.getProperty('density') # Find the mass of the grain after regression
+                    reg = ts * ballA * (simRes.channels['pressure'].getLast()**ballN) # Calculate regression at the current pressure
+                    perGrainMassFlux[gid] = grain.getPeakMassFlux(mf, ts, perGrainReg[gid], reg, density) # Find the mass flux through the grain based on the mass flow fed into from grains above it
+                    perGrainMass[gid] = grain.getVolumeAtRegression(perGrainReg[gid]) * density # Find the mass of the grain after regression
                     mf += (simRes.channels['mass'].getLast()[gid] - perGrainMass[gid]) / ts # Add the change in grain mass to the mass flow
                     perGrainReg[gid] += reg # Apply the regression
                 perGrainMassFlow[gid] = mf

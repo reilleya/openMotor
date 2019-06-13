@@ -70,6 +70,7 @@ def migratePref_0_2_0_to_0_3_0(data):
     defPref = defaultPreferencesDict()
     data['general']['maxPressure'] = defPref['general']['maxPressure']
     data['general']['maxMassFlux'] = defPref['general']['maxMassFlux']
+    data['general']['minPortThroat'] = defPref['general']['minPortThroat']
     return data
 
 def migrateMotor_0_2_0_to_0_3_0(data):

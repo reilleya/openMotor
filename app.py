@@ -25,7 +25,7 @@ class App(QApplication):
         if len(args) > 1 and args[-1][0] != '-':
             startupFileLoaded = self.fileManager.load(args[-1])
 
-        self.toolManager = uilib.toolManager.ToolManager(self.fileManager, self.simulationManager, self.propellantManager)
+        self.toolManager = uilib.toolManager.ToolManager(self)
         self.preferencesManager.preferencesChanged.connect(self.toolManager.setPreferences)
 
         if self.headless:
