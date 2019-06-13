@@ -28,6 +28,8 @@ def defaultMotor():
 def defaultPreferencesDict():
     prefDict = {}
     prefDict['general'] = {
+        'maxPressure': 1500 * 6895,
+        'maxMassFlux': 2 / 0.001422,
         'burnoutWebThres': 0.01 / 39.37,
         'burnoutThrustThres': 0.1,
         'timestep': 0.03,

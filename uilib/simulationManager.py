@@ -41,7 +41,7 @@ class SimulationManager(QObject):
         self.currentSimThread.start()
 
     def _simThread(self, show):
-        simRes = self.motor.runSimulation(self.preferences, self.updateProgressBar)
+        simRes = self.motor.runSimulation(self.updateProgressBar)
         self.simulationDone.emit(simRes)
         if simRes.success and show:
             self.newSimulationResult.emit(simRes)

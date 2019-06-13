@@ -6,15 +6,30 @@ from . import geometry
 from . import units
 from . import simulationResult, simAlert, simAlertLevel, simAlertType
 from . import endBurningGrain
+from . import propertyCollection, floatProperty, intProperty
 
 import math
 import numpy as np
+
+class MotorConfig(propertyCollection):
+    def __init__(self):
+        super().__init__()
+        # Limits
+        self.props['maxPressure'] = floatProperty('Maximum Allowed Pressure', 'Pa', 0, 7e7)
+        self.props['maxMassFlux'] = floatProperty('Maximum Allowed Mass Flux', 'kg/(m^2*s)', 0, 1e4)
+        # Simulation
+        self.props['burnoutWebThres'] = floatProperty('Web Burnout Threshold', 'm', 2.54e-5, 3.175e-3)
+        self.props['burnoutThrustThres'] = floatProperty('Thrust Burnout Threshold', '%', 0.01, 10)
+        self.props['timestep'] = floatProperty('Simulation Timestep', 's', 0.0001, 0.1)
+        self.props['ambPressure'] = floatProperty('Ambient Pressure', 'Pa', 0.0001, 102000)
+        self.props['mapDim'] = intProperty('Grain Map Dimension', '', 250, 2000)
 
 class motor():
     def __init__(self, propDict = None):
         self.grains = []
         self.propellant = None
         self.nozzle = nozzle.nozzle()
+        self.config = MotorConfig()
 
         if propDict is not None:
             self.applyDict(propDict)
@@ -27,6 +42,7 @@ class motor():
         else:
             motorData['propellant'] = None
         motorData['grains'] = [{'type': grain.geomName, 'properties': grain.getProperties()} for grain in self.grains]
+        motorData['config'] = self.config.getProperties()
         return motorData
 
     def applyDict(self, dictionary):
@@ -39,6 +55,7 @@ class motor():
         for entry in dictionary['grains']:
             self.grains.append(grainTypes[entry['type']]())
             self.grains[-1].setProperties(entry['properties'])
+        self.config.setProperties(dictionary['config'])
 
     def calcKN(self, r, burnoutWebThres = 0.00001):
         surfArea = sum([gr.getSurfaceAreaAtRegression(reg) * int(gr.isWebLeft(reg, burnoutWebThres)) for gr, reg in zip(self.grains, r)])
@@ -87,18 +104,11 @@ class motor():
 
         return f
 
-    def runSimulation(self, preferences = None, callback = None):
-        if preferences is not None:
-            ambientPressure = preferences.general.getProperty('ambPressure')
-            burnoutWebThres = preferences.general.getProperty('burnoutWebThres')
-            burnoutThrustThres = preferences.general.getProperty('burnoutThrustThres')
-            ts = preferences.general.getProperty('timestep')
-
-        else:
-            ambientPressure = 101325
-            burnoutWebThres = 0.00001
-            burnoutThrustThres = 0.1
-            ts = 0.01
+    def runSimulation(self, callback = None):
+        ambientPressure = self.config.getProperty('ambPressure')
+        burnoutWebThres = self.config.getProperty('burnoutWebThres')
+        burnoutThrustThres = self.config.getProperty('burnoutThrustThres')
+        ts = self.config.getProperty('timestep')
 
         simRes = simulationResult(self)
 
@@ -125,7 +135,7 @@ class motor():
 
         # Generate coremaps for perforated grains
         for grain in self.grains:
-            grain.simulationSetup(preferences)
+            grain.simulationSetup(self.config)
 
         # Setup initial values
         perGrainReg = [0 for grain in self.grains]
@@ -194,5 +204,15 @@ class motor():
                     return simRes
 
         simRes.success = True
+
+        if simRes.getPeakMassFlux() > self.config.getProperty('maxMassFlux'):
+            desc = 'Peak mass flux exceeded configured limit'
+            alert = simAlert(simAlertLevel.WARNING, simAlertType.CONSTRAINT, desc, 'Motor')
+            simRes.addAlert(alert)
+
+        if simRes.getMaxPressure() > self.config.getProperty('maxPressure'):
+            desc = 'Max pressure exceeded configured limit'
+            alert = simAlert(simAlertLevel.WARNING, simAlertType.CONSTRAINT, desc, 'Motor')
+            simRes.addAlert(alert)
 
         return simRes

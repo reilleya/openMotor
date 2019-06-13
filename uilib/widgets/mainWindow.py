@@ -164,8 +164,10 @@ class Window(QMainWindow):
             gid = ind[0].row()
             if gid < len(cm.grains):
                 cm.grains[gid].setProperties(propDict)
-            else:
+            elif gid == len(cm.grains):
                 cm.nozzle.setProperties(propDict)
+            else:
+                cm.config.setProperties(propDict)
         self.app.fileManager.addNewMotorHistory(cm)
         self.updateGrainTable()
 
@@ -197,13 +199,17 @@ class Window(QMainWindow):
 
     def updateGrainTable(self):
         cm = self.app.fileManager.getCurrentMotor()
-        self.ui.tableWidgetGrainList.setRowCount(len(cm.grains) + 1)
+        self.ui.tableWidgetGrainList.setRowCount(len(cm.grains) + 2)
         for gid, grain in enumerate(cm.grains):
             self.ui.tableWidgetGrainList.setItem(gid, 0, QTableWidgetItem(grain.geomName))
             self.ui.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString(self.app.preferencesManager.preferences)))
 
         self.ui.tableWidgetGrainList.setItem(len(cm.grains), 0, QTableWidgetItem('Nozzle'))
         self.ui.tableWidgetGrainList.setItem(len(cm.grains), 1, QTableWidgetItem(cm.nozzle.getDetailsString(self.app.preferencesManager.preferences)))
+
+        self.ui.tableWidgetGrainList.setItem(len(cm.grains) + 1, 0, QTableWidgetItem('Config'))
+        self.ui.tableWidgetGrainList.setItem(len(cm.grains) + 1, 1, QTableWidgetItem('-'))
+
         self.repaint() # OSX needs this
 
     def toggleGrainEditButtons(self, state, grainTable=True):
@@ -231,7 +237,7 @@ class Window(QMainWindow):
                 self.ui.pushButtonMoveGrainUp.setEnabled(False)
             if gid == len(cm.grains) - 1: # Bottom grain selected
                 self.ui.pushButtonMoveGrainDown.setEnabled(False)
-            elif gid == len(cm.grains): # Nozzle selected
+            if gid >= len(cm.grains): # Nozzle or config selected
                 self.ui.pushButtonMoveGrainUp.setEnabled(False)
                 self.ui.pushButtonMoveGrainDown.setEnabled(False)
                 self.ui.pushButtonDeleteGrain.setEnabled(False)
@@ -258,8 +264,10 @@ class Window(QMainWindow):
             gid = ind[0].row()
             if gid < len(cm.grains):
                 self.ui.motorEditor.loadGrain(cm.grains[gid])
-            else:
+            elif gid == len(cm.grains):
                 self.ui.motorEditor.loadNozzle(cm.nozzle)
+            else:
+                self.ui.motorEditor.loadConfig(cm.config)
             self.toggleGrainButtons(False)
 
     def copyGrain(self):

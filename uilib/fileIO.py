@@ -2,10 +2,13 @@ from enum import Enum
 import os
 import platform
 
+from PyQt5.QtWidgets import QApplication
 import yaml
 import appdirs
 
-appVersion = (0, 2, 0)
+from .defaults import defaultPreferencesDict
+
+appVersion = (0, 3, 0)
 appVersionStr = '.'.join(map(str, appVersion))
 
 class fileTypes(Enum):
@@ -49,7 +52,7 @@ def loadFile(path, dataType):
             raise ValueError("Data is from a future version (" + new + " vs " + old + ") and can't be loaded.")
 
         # Otherwise it is from a past version and will be migrated
-        return fileData['data'] # Migrate file, will be implemented later when an incompatible version is made
+        return doMigration(fileData)['data']
 
 def getConfigPath(): # Returns the path that files like preferences and propellant library should be in
     if platform.system() == 'Darwin': # On OSX, the configuration files should live in the library
@@ -59,3 +62,44 @@ def getConfigPath(): # Returns the path that files like preferences and propella
         return path + '/'
     # On other platforms they can live in this directory
     return ''
+
+def passthrough(data):
+    return data
+
+def migratePref_0_2_0_to_0_3_0(data):
+    defPref = defaultPreferencesDict()
+    data['general']['maxPressure'] = defPref['general']['maxPressure']
+    data['general']['maxMassFlux'] = defPref['general']['maxMassFlux']
+    return data
+
+def migrateMotor_0_2_0_to_0_3_0(data):
+    if QApplication.instance().preferencesManager:
+        config = QApplication.instance().preferencesManager.preferences.getDict()['general']
+    else:
+        config = defaultPreferencesDict()['general']
+    data['config'] = config
+    return data
+
+migrations = {
+    (0, 2, 0): {
+        'to': (0, 3, 0),
+        fileTypes.PREFERENCES: migratePref_0_2_0_to_0_3_0,
+        fileTypes.PROPELLANTS: passthrough,
+        fileTypes.MOTOR: migrateMotor_0_2_0_to_0_3_0
+    },
+    (0, 1, 0): {
+        'to': (0, 2, 0),
+        fileTypes.PREFERENCES: passthrough,
+        fileTypes.PROPELLANTS: passthrough,
+        fileTypes.MOTOR: passthrough
+    }
+}
+
+def doMigration(fileData):
+    print('Doing a migration of a ' + str(fileData["type"]) + ' from ' + str(fileData["version"]))
+    while fileData["version"] != appVersion:
+        migration = migrations[fileData["version"]]
+        print("\tUpgrading " + str(fileData["version"]) + " to " + str(migration["to"]))
+        fileData["data"] = migration[fileData["type"]](fileData["data"])
+        fileData["version"] = migration["to"]
+    return fileData

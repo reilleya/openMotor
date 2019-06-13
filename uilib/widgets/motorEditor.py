@@ -54,6 +54,13 @@ class MotorEditor(CollectionEditor):
         self.expRatioLabel.show()
         self.grainPreview.hide()
 
+    def loadConfig(self, config):
+        self.nozzle = False
+        self.grainClass = None
+        self.loadProperties(config)
+        self.expRatioLabel.hide()
+        self.grainPreview.hide()
+
     def cleanup(self):
         if self.nozzle:
             self.expRatioLabel.hide()

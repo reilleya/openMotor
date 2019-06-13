@@ -48,7 +48,7 @@ class grain(propertyCollection):
     def getDetailsString(self, preferences):
         return 'Length: ' + self.props['length'].dispFormat(preferences.units.getProperty('m'))
 
-    def simulationSetup(self, preferences): # Do anything needed to prepare this grain for simulation
+    def simulationSetup(self, config): # Do anything needed to prepare this grain for simulation
         return None
 
     def getGeometryErrors(self):
@@ -180,8 +180,8 @@ class fmmGrain(perforatedGrain):
     def generateCoreMap(self):
         pass
 
-    def simulationSetup(self, preferences):
-        mapSize = preferences.general.props['mapDim'].getValue()
+    def simulationSetup(self, config):
+        mapSize = config.getProperty("mapDim")
 
         self.initGeometry(mapSize)
         self.generateCoreMap()

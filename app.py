@@ -36,7 +36,7 @@ class App(QApplication):
                 sys.exit(1)
             else:
                 motor = self.fileManager.getCurrentMotor()
-                simres = motor.runSimulation(self.preferencesManager.preferences)
+                simres = motor.runSimulation()
                 for alert in simres.alerts:
                     print(motorlib.alertLevelNames[alert.level] + '(' + motorlib.alertTypeNames[alert.type] + ', ' + alert.location + '): ' + alert.description)
                 print()
