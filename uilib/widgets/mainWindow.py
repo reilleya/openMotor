@@ -76,7 +76,7 @@ class Window(QMainWindow):
         self.ui.motorEditor.closed.connect(self.checkGrainSelection) # Enables only buttons for actions possible given the selected grain
 
     def setupGrainAddition(self):
-        self.ui.comboBoxGrainGeometry.addItems(motorlib.grainTypes.keys())
+        self.ui.comboBoxGrainGeometry.addItems(motorlib.grains.grainTypes.keys())
         self.ui.pushButtonAddGrain.pressed.connect(self.addGrain)
 
     def setupMenu(self):
@@ -292,7 +292,7 @@ class Window(QMainWindow):
 
     def addGrain(self):
         cm = self.app.fileManager.getCurrentMotor()
-        newGrain = motorlib.grainTypes[self.ui.comboBoxGrainGeometry.currentText()]()
+        newGrain = motorlib.grains.grainTypes[self.ui.comboBoxGrainGeometry.currentText()]()
         if len(cm.grains) != 0:
             newGrain.setProperty('diameter', cm.grains[-1].getProperty('diameter'))
         cm.grains.append(newGrain)
@@ -305,7 +305,7 @@ class Window(QMainWindow):
 
     def formatMotorStat(self, quantity, inUnit):
         convUnit = self.app.preferencesManager.preferences.getUnit(inUnit)
-        return str(round(motorlib.convert(quantity, inUnit, convUnit), 3)) + ' ' + convUnit
+        return str(round(motorlib.units.convert(quantity, inUnit, convUnit), 3)) + ' ' + convUnit
 
     def updateMotorStats(self, simResult):
         self.ui.labelMotorDesignation.setText(simResult.getDesignation())

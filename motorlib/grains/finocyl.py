@@ -1,10 +1,10 @@
-from .. import fmmGrain
+from ..grain import FmmGrain
 from ..properties import *
-from .. import simAlert, simAlertLevel, simAlertType
+from ..simResult import simAlert, simAlertLevel, simAlertType
 
 import numpy as np
 
-class finocyl(fmmGrain):
+class Finocyl(FmmGrain):
     geomName = 'Finocyl'
     def __init__(self):
         super().__init__()
@@ -20,7 +20,7 @@ class finocyl(fmmGrain):
         finLength = self.normalize(self.props['finLength'].getValue()) + coreRadius # The user enters the length that the fin protrudes from the core, so we add the radius on
 
         # Open up core
-        self.coreMap[self.X**2 + self.Y**2 < coreRadius**2] = 0
+        self.coreMap[self.mapX**2 + self.mapY**2 < coreRadius**2] = 0
 
         # Add fins
         for i in range(0, numFins):
@@ -29,10 +29,10 @@ class finocyl(fmmGrain):
             a = np.cos(th)
             b = np.sin(th)
             # Select all points within half the width of the vector
-            vect = abs(a*self.X + b*self.Y) < finWidth / 2
+            vect = abs(a*self.mapX + b*self.mapY) < finWidth / 2
             # Set up two perpendicular vectors to cap off the ends
-            near = (b * self.X) - (a * self.Y) > 0 # Inside of the core
-            far = (b * self.X) - (a * self.Y) < finLength # At the casting tube end of the vector
+            near = (b * self.mapX) - (a * self.mapY) > 0 # Inside of the core
+            far = (b * self.mapX) - (a * self.mapY) < finLength # At the casting tube end of the vector
             ends = np.logical_and(far, near)
             # Open up the fin
             self.coreMap[np.logical_and(vect, ends)] = 0

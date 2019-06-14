@@ -25,7 +25,7 @@ class GrainPreviewWidget(QWidget):
     def loadGrain(self, grain):
         geomAlerts = grain.getGeometryErrors()
         for alert in geomAlerts:
-            if alert.level == motorlib.simAlertLevel.ERROR:
+            if alert.level == motorlib.simResult.simAlertLevel.ERROR:
                 return
 
         dataThread = Thread(target=self._genData, args=[grain])

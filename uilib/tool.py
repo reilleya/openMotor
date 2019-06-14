@@ -14,7 +14,7 @@ class Tool(QDialog):
         self.description = description
         self.needsSimulation = needsSimulation
         self.preferences = None
-        self.propCollection = motorlib.propertyCollection()
+        self.propCollection = motorlib.properties.propertyCollection()
         self.propCollection.props = propDict
 
         self.motor = None

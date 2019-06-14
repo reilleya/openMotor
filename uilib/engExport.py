@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox
-from motorlib import propertyCollection, floatProperty, stringProperty
-
+from motorlib.properties import propertyCollection, floatProperty, stringProperty
 
 class ENGSettings(propertyCollection):
     def __init__(self):

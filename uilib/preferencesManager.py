@@ -1,6 +1,8 @@
 from PyQt5.QtCore import QObject, pyqtSignal
-from motorlib import propertyCollection, floatProperty, intProperty, enumProperty
-from motorlib import unitLabels, getAllConversions, MotorConfig
+
+from motorlib.properties import propertyCollection, floatProperty, intProperty, enumProperty
+from motorlib.units import unitLabels, getAllConversions
+from motorlib.motor import MotorConfig
 
 from .fileIO import loadFile, saveFile, getConfigPath, fileTypes
 from .defaults import defaultPreferencesDict

@@ -1,12 +1,12 @@
-from .. import fmmGrain
+from ..grain import FmmGrain
 from ..properties import *
-from .. import simAlert, simAlertLevel, simAlertType
+from ..simResult import simAlert, simAlertLevel, simAlertType
 from ..units import getAllConversions, convert
 
 import numpy as np
 import skimage.draw as draw
 
-class CustomGrain(fmmGrain):
+class CustomGrain(FmmGrain):
     geomName = 'Custom Grain'
     def __init__(self):
         super().__init__()

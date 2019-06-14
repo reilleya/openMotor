@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QLabel
-from motorlib import convert, propellant
+from motorlib.units import convert
+from motorlib.propellant import Propellant
 from .collectionEditor import CollectionEditor
 
 class PropellantEditor(CollectionEditor):
@@ -47,7 +48,7 @@ class PropellantEditor(CollectionEditor):
         if ballisticCoeffUnit == 'in/(s*psi^n)':
             props['a'] /= 1/(6895**props['n'])
         # Create a new propellant instance using the new A
-        newProp = propellant()
+        newProp = Propellant()
         newProp.setProperties(props)
         super().loadProperties(newProp)
         self.labelCStar.show()

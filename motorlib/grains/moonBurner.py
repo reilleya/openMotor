@@ -1,10 +1,10 @@
-from .. import fmmGrain
+from ..grain import FmmGrain
 from ..properties import *
-from .. import simAlert, simAlertLevel, simAlertType
+from ..simResult import simAlert, simAlertLevel, simAlertType
 
 import numpy as np
 
-class moonBurner(fmmGrain):
+class MoonBurner(FmmGrain):
     geomName = 'Moon Burner'
     def __init__(self):
         super().__init__()
@@ -16,7 +16,7 @@ class moonBurner(fmmGrain):
         coreOffset = self.normalize(self.props['coreOffset'].getValue())
 
         # Open up core
-        self.coreMap[(self.X - coreOffset)**2 + self.Y**2 < coreRadius**2] = 0
+        self.coreMap[(self.mapX - coreOffset)**2 + self.mapY**2 < coreRadius**2] = 0
 
     def getDetailsString(self, preferences):
         lengthUnit = preferences.units.getProperty('m')

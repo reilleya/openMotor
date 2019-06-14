@@ -1,13 +1,13 @@
-from .. import perforatedGrain
+from ..grain import PerforatedGrain
 from .. import geometry
-from .. import simAlert, simAlertLevel, simAlertType
+from ..simResult import simAlert, simAlertLevel, simAlertType
 from ..properties import *
 
 import numpy as np
 import skfmm
 from skimage import measure
 
-class batesGrain(perforatedGrain):
+class BatesGrain(PerforatedGrain):
     geomName = "BATES"
     def __init__(self):
         super().__init__()

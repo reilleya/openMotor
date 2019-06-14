@@ -7,12 +7,12 @@ import motorlib
 
 # BS type -> oM class for all grains we can import
 SUPPORTED_GRAINS = {
-    '1': motorlib.grains.batesGrain,
-    '2': motorlib.grains.dGrain,
-    '3': motorlib.grains.moonBurner,
-    '5': motorlib.grains.cGrain,
-    '6': motorlib.grains.xCore,
-    '7': motorlib.grains.finocyl
+    '1': motorlib.grains.BatesGrain,
+    '2': motorlib.grains.DGrain,
+    '3': motorlib.grains.MoonBurner,
+    '5': motorlib.grains.CGrain,
+    '6': motorlib.grains.XCore,
+    '7': motorlib.grains.Finocyl
 }
 
 # BS type -> label for grains we know about but can't import
@@ -24,13 +24,13 @@ UNSUPPORTED_GRAINS = {
 
 # oM class -> BS type for grains we can export
 EXPORT_TYPES = {
-    motorlib.grains.batesGrain: '1',
-    motorlib.grains.endBurner: '1',
-    motorlib.grains.dGrain: '2',
-    motorlib.grains.moonBurner: '3',
-    motorlib.grains.cGrain: '5',
-    motorlib.grains.xCore: '6',
-    motorlib.grains.finocyl: '7'
+    motorlib.grains.BatesGrain: '1',
+    motorlib.grains.EndBurningGrain: '1',
+    motorlib.grains.DGrain: '2',
+    motorlib.grains.MoonBurner: '3',
+    motorlib.grains.CGrain: '5',
+    motorlib.grains.XCore: '6',
+    motorlib.grains.Finocyl: '7'
 }
 
 # Attributes for the root element of the BSX file

@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QGroupBox, QCheckBox, QRadioButton, QVBoxLayout
-from motorlib import simulationResult, motor
+
+import motorlib
 
 class ChannelSelector(QGroupBox):
     def __init__(self, parent):
@@ -10,7 +11,8 @@ class ChannelSelector(QGroupBox):
         self.setLayout(QVBoxLayout())
 
     def setupChecks(self, multiselect, disabled=[]):
-        simres = simulationResult(motor()) # This simres is only used to get the list of channels available
+        # This simres is only used to get the list of channels available
+        simres = motorlib.simResult.simulationResult(motorlib.motor.Motor())
         for channel in simres.channels:
             if multiselect:
                 check = QCheckBox(simres.channels[channel].name)

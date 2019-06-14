@@ -1,7 +1,7 @@
 from . import units
 from .properties import *
 
-class propellant(propertyCollection):
+class Propellant(propertyCollection):
     def __init__(self, propDict = None):
         super().__init__()
         self.props['name'] = stringProperty('Name')

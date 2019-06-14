@@ -5,10 +5,10 @@ from ..tool import Tool
 
 class NeutralBatesTool(Tool):
     def __init__(self, manager):
-        props = {'length': motorlib.floatProperty('Propellant length', 'm', 0, 10),
-                 'diameter': motorlib.floatProperty('Propellant diameter', 'm', 0, 1),
-                 'grainSpace': motorlib.floatProperty('Grain spacer length', 'm', 0, 1),
-                 'Kn': motorlib.floatProperty('Initial Kn', '', 0, 1000)}
+        props = {'length': motorlib.properties.floatProperty('Propellant length', 'm', 0, 10),
+                 'diameter': motorlib.properties.floatProperty('Propellant diameter', 'm', 0, 1),
+                 'grainSpace': motorlib.properties.floatProperty('Grain spacer length', 'm', 0, 1),
+                 'Kn': motorlib.properties.floatProperty('Initial Kn', '', 0, 1000)}
 
         super().__init__(manager,
                          'Neutral BATES Geometry',
@@ -19,9 +19,9 @@ class NeutralBatesTool(Tool):
     def applyChanges(self, inp, motor, simulation):
         grainLength = (inp['diameter'] * 1.68) + inp['grainSpace']
         numGrains = inp['length'] // grainLength
-        newMotor = motorlib.motor()
+        newMotor = motorlib.motor.Motor()
         for _ in range(0, int(numGrains)):
-            newGrain = motorlib.batesGrain()
+            newGrain = motorlib.grains.BatesGrain()
             newGrain.props['diameter'].setValue(inp['diameter'])
             newGrain.props['length'].setValue(grainLength - inp['grainSpace'])
             newGrain.props['coreDiameter'].setValue(inp['diameter'] * 0.35)

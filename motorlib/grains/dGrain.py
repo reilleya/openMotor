@@ -1,10 +1,10 @@
-from .. import fmmGrain
+from ..grain import FmmGrain
 from ..properties import *
-from .. import simAlert, simAlertLevel, simAlertType
+from ..simResult import simAlert, simAlertLevel, simAlertType
 
 import numpy as np
 
-class dGrain(fmmGrain):
+class DGrain(FmmGrain):
     geomName = 'D Grain'
     def __init__(self):
         super().__init__()
@@ -15,7 +15,7 @@ class dGrain(fmmGrain):
     def generateCoreMap(self):
         slotOffset = self.normalize(self.props['slotOffset'].getValue())
 
-        self.coreMap[self.X > slotOffset] = 0
+        self.coreMap[self.mapX > slotOffset] = 0
 
     def getDetailsString(self, preferences):
         lengthUnit = preferences.units.getProperty('m')

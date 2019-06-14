@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QLabel
 
-from motorlib import perforatedGrain
+from motorlib.grain import PerforatedGrain
 
 from .collectionEditor import CollectionEditor
 from .grainPreviewWidget import GrainPreviewWidget
@@ -39,7 +39,7 @@ class MotorEditor(CollectionEditor):
     def loadGrain(self, grain):
         self.nozzle = False
         self.loadProperties(grain)
-        if isinstance(grain, perforatedGrain):
+        if isinstance(grain, PerforatedGrain):
             self.grainClass = type(grain)
             self.grainPreview.show()
             self.propertyUpdate()

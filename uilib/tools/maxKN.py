@@ -5,7 +5,7 @@ from ..tool import Tool
 
 class MaxKNTool(Tool):
     def __init__(self, manager):
-        props = {'Kn': motorlib.floatProperty('Kn', '', 0, 1000)}
+        props = {'Kn': motorlib.properties.floatProperty('Kn', '', 0, 1000)}
         super().__init__(manager,
                          'Max Kn',
                          'Use this tool to set the nozzle throat to keep the Kn below a certain value during the burn.',

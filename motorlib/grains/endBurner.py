@@ -1,8 +1,8 @@
-from .. import grain
+from ..grain import Grain
 from ..import geometry
 from ..properties import *
 
-class endBurningGrain(grain):
+class EndBurningGrain(Grain):
     geomName = 'End Burner'
     def __init__(self):
         super().__init__()

@@ -1,10 +1,10 @@
-from .. import fmmGrain
+from ..grain import FmmGrain
 from ..properties import *
-from .. import simAlert, simAlertLevel, simAlertType
+from ..simResult import simAlert, simAlertLevel, simAlertType
 
 import numpy as np
 
-class starGrain(fmmGrain):
+class StarGrain(FmmGrain):
     geomName = 'Star Grain'
     def __init__(self):
         super().__init__()
@@ -22,8 +22,8 @@ class starGrain(fmmGrain):
             a = np.cos(th)
             b = np.sin(th)
 
-            vect = abs(a * self.X + b * self.Y) < pointWidth / 2 * (1 - (((self.X ** 2 + self.Y ** 2) ** 0.5) / pointLength))
-            near = b*self.X - a*self.Y > -0.025
+            vect = abs(a * self.mapX + b * self.mapY) < pointWidth / 2 * (1 - (((self.mapX ** 2 + self.mapY ** 2) ** 0.5) / pointLength))
+            near = b*self.mapX - a*self.mapY > -0.025
             self.coreMap[np.logical_and(vect, near)] = 0
 
     def getDetailsString(self, preferences):

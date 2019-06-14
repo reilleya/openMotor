@@ -1,10 +1,10 @@
-from .. import fmmGrain
+from ..grain import FmmGrain
 from ..properties import *
-from .. import simAlert, simAlertLevel, simAlertType
+from ..simResult import simAlert, simAlertLevel, simAlertType
 
 import numpy as np
 
-class xCore(fmmGrain):
+class XCore(FmmGrain):
     geomName = 'X Core'
     def __init__(self):
         super().__init__()
@@ -15,8 +15,8 @@ class xCore(fmmGrain):
         slotWidth = self.normalize(self.props['slotWidth'].getValue())
         slotLength = self.normalize(self.props['slotLength'].getValue())
 
-        self.coreMap[np.logical_and(np.abs(self.Y) < slotWidth/2, np.abs(self.X) < slotLength)] = 0
-        self.coreMap[np.logical_and(np.abs(self.X) < slotWidth/2, np.abs(self.Y) < slotLength)] = 0
+        self.coreMap[np.logical_and(np.abs(self.mapY) < slotWidth/2, np.abs(self.mapX) < slotLength)] = 0
+        self.coreMap[np.logical_and(np.abs(self.mapX) < slotWidth/2, np.abs(self.mapY) < slotLength)] = 0
 
     def getDetailsString(self, preferences):
         lengthUnit = preferences.units.getProperty('m')

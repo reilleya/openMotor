@@ -1,10 +1,10 @@
-from .. import fmmGrain
+from ..grain import FmmGrain
 from ..properties import *
-from .. import simAlert, simAlertLevel, simAlertType
+from ..simResult import simAlert, simAlertLevel, simAlertType
 
 import numpy as np
 
-class cGrain(fmmGrain):
+class CGrain(FmmGrain):
     geomName = 'C Grain'
     def __init__(self):
         super().__init__()
@@ -17,7 +17,7 @@ class cGrain(fmmGrain):
         slotWidth = self.normalize(self.props['slotWidth'].getValue())
         slotOffset = self.normalize(self.props['slotOffset'].getValue())
 
-        self.coreMap[np.logical_and(np.abs(self.Y)< slotWidth/2, self.X > slotOffset)] = 0
+        self.coreMap[np.logical_and(np.abs(self.mapY)< slotWidth/2, self.mapX > slotOffset)] = 0
 
     def getDetailsString(self, preferences):
         lengthUnit = preferences.units.getProperty('m')

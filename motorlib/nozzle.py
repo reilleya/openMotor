@@ -1,13 +1,13 @@
 from .properties import *
 from . import geometry
-from . import simAlert, simAlertLevel, simAlertType
+from .simResult import simAlert, simAlertLevel, simAlertType
 
 from scipy.optimize import fsolve
 
 def eRatioFromPRatio(k, pr):
     return (((k+1)/2)**(1/(k-1))) * (pr ** (1/k)) * ((((k+1)/(k-1))*(1-(pr**((k-1)/k))))**0.5)
 
-class nozzle(propertyCollection):
+class Nozzle(propertyCollection):
     def __init__(self):
         super().__init__()
         self.props['throat'] = floatProperty('Throat Diameter', 'm', 0, 0.5)
