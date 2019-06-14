@@ -1,9 +1,12 @@
 import xml.etree.ElementTree as ET
 
 from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QFileDialog, QApplication
+from PyQt5.QtWidgets import QFileDialog, QApplication, QMessageBox
 
-import motorlib
+import motorlib.grains
+import motorlib.units
+import motorlib.propellant
+import motorlib.motor
 
 # BS type -> oM class for all grains we can import
 SUPPORTED_GRAINS = {
@@ -46,29 +49,30 @@ bsxMotorAttrib = {
     'UnitsLinear': '1'
 }
 
-# Converts a string containing a value in inches to a float of meters
 def inToM(value):
-    return motorlib.convert(float(value), 'in', 'm')
+    """Converts a string containing a value in inches to a float of meters"""
+    return motorlib.units.convert(float(value), 'in', 'm')
 
-# Converts a float containing meters to a string of inches
 def mToIn(value):
-    return str(motorlib.convert(value, 'm', 'in'))
+    """Converts a float containing meters to a string of inches"""
+    return str(motorlib.units.convert(value, 'm', 'in'))
 
 class BurnsimManager(QObject):
-    def __init__(self, fileManager):
+    def __init__(self, app):
         super().__init__()
-        self.fileManager = fileManager
+        self.app = app
+        self.fileManager = app.fileManager
 
-    # Open a dialog to pick the file to load and load it. Returns true if they load something, false otherwise
     def showImportMenu(self):
+        """Open a dialog to pick the file to load and load it. Returns true if they load something, false otherwise"""
         if self.fileManager.unsavedCheck():
             path = QFileDialog.getOpenFileName(None, 'Import BurnSim motor', '', 'BurnSim Motor Files (*.bsx)')[0]
             if path != '' and path is not None:
                 return self.importFile(path)
         return False
 
-    # Open a dialog to pick the file to save to and dump the BSX version of the current motor to it
     def showExportMenu(self):
+        """Open a dialog to pick the file to save to and dump the BSX version of the current motor to it"""
         path = QFileDialog.getSaveFileName(None, 'Export BurnSim motor', '', 'BurnSim Motor Files (*.bsx)')[0]
         if path == '' or path is None:
             return
@@ -77,16 +81,17 @@ class BurnsimManager(QObject):
         motor = self.fileManager.getCurrentMotor()
         self.exportFile(path, motor)
 
-    # Show a dialog displaying some text
     def showWarning(self, text):
+        """Show a dialog displaying some text"""
         msg = QMessageBox()
         msg.setText(text)
         msg.setWindowTitle("Warning")
         msg.exec_()
 
-    # Opens the BSX file located at path, generates a motor from it, and starts motor history there
     def importFile(self, path):
-        motor = motorlib.motor()
+        """Opens the BSX file located at path, generates a motor from it, and starts motor history there"""
+        motor = motorlib.motor.Motor()
+        motor.config.setProperties(self.app.preferencesManager.preferences.general.getProperties())
         tree = ET.parse(path)
         root = tree.getroot()
         errors = ''
@@ -134,15 +139,15 @@ class BurnsimManager(QObject):
 
                     if not propSet: # Use propellant numbers from the forward grain
                         impProp = child.find('Propellant')
-                        propellant = motorlib.propellant()
+                        propellant = motorlib.propellant.Propellant()
                         propellant.setProperty('name', impProp.attrib['Name'])
                         ballN = float(impProp.attrib['BallisticN'])
                         ballA = float(impProp.attrib['BallisticA']) * 1/(6895**ballN)
                         propellant.setProperty('n', ballN)
                         # Conversion only does in/s to m/s, the rest is handled above
-                        ballA = motorlib.convert(ballA, 'in/(s*psi^n)', 'm/(s*Pa^n)')
+                        ballA = motorlib.units.convert(ballA, 'in/(s*psi^n)', 'm/(s*Pa^n)')
                         propellant.setProperty('a', ballA)
-                        density = motorlib.convert(float(impProp.attrib['Density']), 'lb/in^3', 'kg/m^3')
+                        density = motorlib.units.convert(float(impProp.attrib['Density']), 'lb/in^3', 'kg/m^3')
                         propellant.setProperty('density', density)
                         propellant.setProperty('k', float(impProp.attrib['SpecificHeatRatio']))
                         impMolarMass = impProp.attrib['MolarMass']
@@ -173,8 +178,8 @@ class BurnsimManager(QObject):
         self.fileManager.startFromMotor(motor)
         return True
 
-    # Takes a path to a bsx file and motor object and dumps the BSX version of the motor to the file
     def exportFile(self, path, motor):
+        """Takes a path to a bsx file and motor object and dumps the BSX version of the motor to the file"""
         errors = ''
 
         outMotor = ET.Element('Motor')
@@ -194,7 +199,7 @@ class BurnsimManager(QObject):
                 outGrain.attrib['Diameter'] = mToIn(grain.getProperty('diameter'))
                 outGrain.attrib['Length'] = mToIn(grain.getProperty('length'))
 
-                if isinstance(grain, motorlib.grains.endBurner):
+                if isinstance(grain, motorlib.grains.EndBurningGrain):
                     outGrain.attrib['CoreDiameter'] = '0'
                     outGrain.attrib['EndsInhibited'] = '1'
                 else:
@@ -206,25 +211,25 @@ class BurnsimManager(QObject):
                     else:
                         outGrain.attrib['EndsInhibited'] = '2'
                     # Grains with core diameter
-                    if type(grain) in (motorlib.grains.batesGrain, motorlib.grains.finocyl, motorlib.grains.moonBurner):
+                    if type(grain) in (motorlib.grains.BatesGrain, motorlib.grains.Finocyl, motorlib.grains.MoonBurner):
                         outGrain.attrib['CoreDiameter'] = mToIn(grain.getProperty('coreDiameter'))
 
-                    if isinstance(grain, motorlib.grains.dGrain):
+                    if isinstance(grain, motorlib.grains.DGrain):
                         outGrain.attrib['EdgeOffset'] = mToIn(grain.getProperty('slotOffset'))
 
-                    elif isinstance(grain) is motorlib.grains.moonBurner:
+                    elif isinstance(grain, motorlib.grains.MoonBurner):
                         outGrain.attrib['CoreOffset'] = mToIn(grain.getProperty('coreOffset'))
 
-                    elif isinstance(grain, motorlib.grains.cGrain):
+                    elif isinstance(grain, motorlib.grains.CGrain):
                         outGrain.attrib['SlotWidth'] = mToIn(grain.getProperty('slotWidth'))
                         radius = motor.grains[-1].getProperty('diameter') / 2
                         outGrain.attrib['SlotDepth'] = mToIn(grain.getProperty('slotOffset') - radius)
 
-                    elif isinstance(grain, motorlib.grains.xCore):
+                    elif isinstance(grain, motorlib.grains.XCore):
                         outGrain.attrib['SlotWidth'] = mToIn(grain.getProperty('slotWidth'))
                         outGrain.attrib['CoreDiameter'] = mToIn(2 * grain.getProperty('slotLength'))
 
-                    elif isinstance(grain, motorlib.grains.finocyl):
+                    elif isinstance(grain, motorlib.grains.Finocyl):
                         outGrain.attrib['FinCount'] = str(grain.getProperty('numFins'))
                         outGrain.attrib['FinLength'] = mToIn(grain.getProperty('finLength'))
                         outGrain.attrib['FinWidth'] = mToIn(grain.getProperty('finWidth'))
@@ -233,10 +238,10 @@ class BurnsimManager(QObject):
                 outProp.attrib['Name'] = motor.propellant.getProperty('name')
                 ballA = motor.propellant.getProperty('a')
                 ballN = motor.propellant.getProperty('n')
-                ballA = motorlib.convert(ballA * (6895**ballN), 'm/(s*Pa^n)', 'in/(s*psi^n)')
+                ballA = motorlib.units.convert(ballA * (6895**ballN), 'm/(s*Pa^n)', 'in/(s*psi^n)')
                 outProp.attrib['BallisticA'] = str(ballA)
                 outProp.attrib['BallisticN'] = str(ballN)
-                density = str(motorlib.convert(motor.propellant.getProperty('density'), 'kg/m^3', 'lb/in^3'))
+                density = str(motorlib.units.convert(motor.propellant.getProperty('density'), 'kg/m^3', 'lb/in^3'))
                 outProp.attrib['Density'] = density
                 outProp.attrib['SpecificHeatRatio'] = str(motor.propellant.getProperty('k'))
                 outProp.attrib['MolarMass'] = str(motor.propellant.getProperty('m'))

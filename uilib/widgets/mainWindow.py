@@ -48,7 +48,7 @@ class Window(QMainWindow):
         self.app.toolManager.setupMenu(self.ui.menuTools)
         self.app.toolManager.changeApplied.connect(self.postLoadUpdate)
 
-        self.burnsimManager = uilib.burnsimManager.BurnsimManager(self.app.fileManager)
+        self.burnsimManager = uilib.burnsimManager.BurnsimManager(self.app)
 
         self.setupMotorStats()
         self.setupMotorEditor()

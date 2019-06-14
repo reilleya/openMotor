@@ -698,7 +698,7 @@
   </action>
   <action name="actionExportBurnSim">
    <property name="text">
-    <string>Burnsim File</string>
+    <string>BurnSim File</string>
    </property>
   </action>
   <action name="actionImportBurnSim">

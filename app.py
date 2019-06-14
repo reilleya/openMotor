@@ -3,7 +3,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMessageBox
 
 import motorlib
-from uilib import preferencesManager, propellantManager, simulationManager, fileManager, toolManager, burnsimManager
+from uilib import preferencesManager, propellantManager, simulationManager, fileManager, toolManager
 import uilib.widgets.mainWindow
 
 class App(QApplication):
