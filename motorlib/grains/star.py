@@ -1,10 +1,13 @@
-from ..grain import FmmGrain
-from ..properties import *
-from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+"""Star grain submodule"""
 
 import numpy as np
 
+from ..grain import FmmGrain
+from ..properties import IntProperty, FloatProperty
+from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+
 class StarGrain(FmmGrain):
+    """A star grain has a core shaped like a star."""
     geomName = 'Star Grain'
     def __init__(self):
         super().__init__()
@@ -18,17 +21,21 @@ class StarGrain(FmmGrain):
         pointLength = self.normalize(self.props['pointLength'].getValue())
 
         for i in range(0, numPoints):
-            th = 2 * np.pi / numPoints * i
-            a = np.cos(th)
-            b = np.sin(th)
+            theta = 2 * np.pi / numPoints * i
+            comp0 = np.cos(theta)
+            comp1 = np.sin(theta)
 
-            vect = abs(a * self.mapX + b * self.mapY) < pointWidth / 2 * (1 - (((self.mapX ** 2 + self.mapY ** 2) ** 0.5) / pointLength))
-            near = b*self.mapX - a*self.mapY > -0.025
+            rect = abs(comp0 * self.mapX + comp1 * self.mapY)
+            width = pointWidth / 2 * (1 - (((self.mapX ** 2 + self.mapY ** 2) ** 0.5) / pointLength))
+            vect = rect < width
+            near = comp1*self.mapX - comp0*self.mapY > -0.025
             self.coreMap[np.logical_and(vect, near)] = 0
 
     def getDetailsString(self, preferences):
         lengthUnit = preferences.units.getProperty('m')
-        return 'Length: ' + self.props['length'].dispFormat(lengthUnit) + ', Points: ' + str(self.props['numPoints'].getValue())
+        out = 'Length: ' + self.props['length'].dispFormat(lengthUnit)
+        out += ', Points: ' + str(self.props['numPoints'].getValue())
+        return out
 
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()
@@ -38,8 +45,9 @@ class StarGrain(FmmGrain):
         if self.props['pointLength'].getValue() == 0:
             errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Point length must not be 0'))
         if self.props['pointLength'].getValue() * 2 > self.props['diameter'].getValue():
-            errors.append(SimAlert(SimAlertLevel.WARNING, SimAlertType.GEOMETRY, 'Point length should be less than or equal to grain radius'))
-        
+            aText = 'Point length should be less than or equal to grain radius'
+            errors.append(SimAlert(SimAlertLevel.WARNING, SimAlertType.GEOMETRY, aText))
+
         if self.props['pointWidth'].getValue() == 0:
             errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Point width must not be 0'))
 

@@ -1,10 +1,11 @@
+"""Moon burning grain submodule"""
+
 from ..grain import FmmGrain
-from ..properties import *
+from ..properties import FloatProperty
 from ..simResult import SimAlert, SimAlertLevel, SimAlertType
 
-import numpy as np
-
 class MoonBurner(FmmGrain):
+    """A moonburner is very similar to a BATES grain except the core is off center by a specified distance."""
     geomName = 'Moon Burner'
     def __init__(self):
         super().__init__()
@@ -20,16 +21,20 @@ class MoonBurner(FmmGrain):
 
     def getDetailsString(self, preferences):
         lengthUnit = preferences.units.getProperty('m')
-        return 'Length: ' + self.props['length'].dispFormat(lengthUnit) + ', Core: ' + self.props['coreDiameter'].dispFormat(lengthUnit)
+        out = 'Length: ' + self.props['length'].dispFormat(lengthUnit)
+        out += ', Core: ' + self.props['coreDiameter'].dispFormat(lengthUnit)
+        return out
 
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()
         if self.props['coreDiameter'].getValue() == 0:
             errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Core diameter must not be 0'))
         if self.props['coreDiameter'].getValue() >= self.props['diameter'].getValue():
-            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Core diameter must be less than or equal to grain diameter'))
+            aText = 'Core diameter must be less than or equal to grain diameter'
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, aText))
 
         if self.props['coreOffset'].getValue() * 2 > self.props['diameter'].getValue():
-            errors.append(SimAlert(SimAlertLevel.WARNING, SimAlertType.GEOMETRY, 'Core offset should be less than or equal to grain radius'))
+            aText = 'Core offset should be less than or equal to grain radius'
+            errors.append(SimAlert(SimAlertLevel.WARNING, SimAlertType.GEOMETRY, aText))
 
         return errors

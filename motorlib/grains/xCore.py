@@ -1,10 +1,13 @@
-from ..grain import FmmGrain
-from ..properties import *
-from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+"""X Core grain submodule"""
 
 import numpy as np
 
+from ..grain import FmmGrain
+from ..properties import FloatProperty
+from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+
 class XCore(FmmGrain):
+    """An X Core grain has a core shaped like a plus sign or an X."""
     geomName = 'X Core'
     def __init__(self):
         super().__init__()
@@ -20,18 +23,23 @@ class XCore(FmmGrain):
 
     def getDetailsString(self, preferences):
         lengthUnit = preferences.units.getProperty('m')
-        return 'Length: ' + self.props['length'].dispFormat(lengthUnit) + ', Slots: ' + self.props['slotWidth'].dispFormat(lengthUnit) + ' by ' + self.props['slotLength'].dispFormat(lengthUnit)
+        out = 'Length: ' + self.props['length'].dispFormat(lengthUnit)
+        out += ', Slots: ' + self.props['slotWidth'].dispFormat(lengthUnit)
+        out += ' by ' + self.props['slotLength'].dispFormat(lengthUnit)
+        return out
 
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()
         if self.props['slotWidth'].getValue() == 0:
             errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Slot width must not be 0'))
         if self.props['slotWidth'].getValue() > self.props['diameter'].getValue():
-            errors.append(SimAlert(SimAlertLevel.WARNING, SimAlertType.GEOMETRY, 'Slot width should be less than or equal to grain diameter'))
+            aText = 'Slot width should be less than or equal to grain diameter'
+            errors.append(SimAlert(SimAlertLevel.WARNING, SimAlertType.GEOMETRY, aText))
 
         if self.props['slotLength'].getValue() == 0:
             errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Slot length must not be 0'))
         if self.props['slotLength'].getValue() * 2 > self.props['diameter'].getValue():
-            errors.append(SimAlert(SimAlertLevel.WARNING, SimAlertType.GEOMETRY, 'Slot length should be less than or equal to grain radius'))
-          
+            aText = 'Slot length should be less than or equal to grain radius'
+            errors.append(SimAlert(SimAlertLevel.WARNING, SimAlertType.GEOMETRY, aText))
+
         return errors

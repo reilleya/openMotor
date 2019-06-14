@@ -1,26 +1,32 @@
+"""End Burner submodule"""
+
 from ..grain import Grain
 from ..import geometry
-from ..properties import *
 
 class EndBurningGrain(Grain):
+    """Defines an end-burning grain, which is a simple cylinder that burns on one end."""
     geomName = 'End Burner'
-    def __init__(self):
-        super().__init__()
 
-    def getSurfaceAreaAtRegression(self, r):
+    def getSurfaceAreaAtRegression(self, regDist):
         diameter = self.props['diameter'].getValue()
         return geometry.circleArea(diameter)
 
-    def getVolumeAtRegression(self, r):
-        bLength = self.getRegressedLength(r)
+    def getVolumeAtRegression(self, regDist):
+        bLength = self.getRegressedLength(regDist)
         diameter = self.props['diameter'].getValue()
         return geometry.cylinderVolume(diameter, bLength)
 
-    def getWebLeft(self, r):
-        return self.getRegressedLength(r)
+    def simulationSetup(self, config):
+        pass
 
-    def getMassFlux(self, massIn, dt, r, dr, position, density):
-        return 0 # Should return a simulation error if massIn != 0 
-        
-    def getEndPositions(self, r):
-        return [0, self.props['length'].getValue() - r]
+    def getWebLeft(self, regDist):
+        return self.getRegressedLength(regDist)
+
+    def getMassFlux(self, massIn, dTime, regDist, dRegDist, position, density):
+        return 0
+
+    def getPortArea(self, regDist):
+        return None
+
+    def getEndPositions(self, regDist):
+        return [0, self.props['length'].getValue() - regDist]
