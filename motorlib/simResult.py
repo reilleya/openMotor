@@ -1,38 +1,51 @@
-from . import geometry
-from . import units
+"""This module contains the classes that are returned from a simulation, including the main results class and
+the channels and components that it is comprised of."""
 
 import math
 from enum import Enum
 
-class simAlertLevel(Enum):
+from . import geometry
+from . import units
+
+class SimAlertLevel(Enum):
+    """Levels of severity for sim alerts"""
     ERROR = 1
     WARNING = 2
     MESSAGE = 3
 
-class simAlertType(Enum):
+class SimAlertType(Enum):
+    """Types of sim alerts"""
     GEOMETRY = 1
     CONSTRAINT = 2
 
 alertLevelNames = {
-                    simAlertLevel.ERROR: 'Error',
-                    simAlertLevel.WARNING: 'Warning',
-                    simAlertLevel.MESSAGE: 'Message'
-                }
+    SimAlertLevel.ERROR: 'Error',
+    SimAlertLevel.WARNING: 'Warning',
+    SimAlertLevel.MESSAGE: 'Message'
+}
 
 alertTypeNames = {
-                    simAlertType.GEOMETRY: 'Geometry',
-                    simAlertType.CONSTRAINT: 'Constraint'
-                }
+    SimAlertType.GEOMETRY: 'Geometry',
+    SimAlertType.CONSTRAINT: 'Constraint'
+}
 
-class simAlert():
-    def __init__(self, level, alertType, description, location = None):
+class SimAlert():
+    """A sim alert signifies a possible problem with a motor. It has levels of severity including 'error' (simulation
+    should not continue or has failed), 'warning' (values entered appear incorrect but can be simulated), and 'message'
+    (other information). The type describes the variety of issue the alert is associated with, and the description is
+    a human-readable version string with more details about the problem. The location can either be None or a string to
+    help the user find the problem."""
+    def __init__(self, level, alertType, description, location=None):
         self.level = level
         self.type = alertType
         self.description = description
         self.location = location
 
 
-class logChannel():
+class LogChannel():
+    """A log channel accepts data from a single source throughout a simulation. It has a human-readable name such as
+    'Pressure' to help the user interpret the result, a value type that data passed in will be cast to, and a unit to
+    aid in conversion and display. The data type can either be a scalar (float or int) or a list (list or tuple)."""
     def __init__(self, name, valueType, unit):
         if valueType not in (int, float, list, tuple):
             raise TypeError('Value type not in allowed set')
@@ -41,38 +54,46 @@ class logChannel():
         self.valueType = valueType
         self.data = []
 
-    def getData(self, unit = None):
-        if unit is None:
+    def getData(self, unit=None):
+        """Return all of the data in the channel, converting it if a type is specified."""
+        if unit is None: # No conversion needed
             return self.data
-        else:
-            if self.valueType in (int, float):
-                return [units.convert(p, self.unit, unit) for p in self.data]
-            elif self.valueType in (list, tuple):
-                return [[units.convert(d, self.unit, unit) for d in p] for p in self.data]
+
+        if self.valueType in (list, tuple):
+            return [[units.convert(d, self.unit, unit) for d in p] for p in self.data]
+        # If the data type isn't a list, it should be a scalar
+        return [units.convert(p, self.unit, unit) for p in self.data]
 
     def getPoint(self, i):
+        """Returns a specific datapoint by index."""
         return self.data[i]
 
     def getLast(self):
+        """Returns the last datapoint."""
         return self.data[-1]
 
     def addData(self, data):
+        """Adds a new datapoint to the end."""
         self.data.append(data)
 
     def getAverage(self):
-        if self.valueType in (int, float):
-            return sum(self.data) / len(self.data)
-        elif self.valueType in (list, tuple):
+        """Returns the average of the datapoints."""
+        if self.valueType in (list, tuple):
             raise NotImplementedError('Average not supported for list types')
+        return sum(self.data) / len(self.data)
 
     def getMax(self):
-        if self.valueType in (int, float):
-            return max(self.data)
-        elif self.valueType in (list, tuple):
+        """Returns the maximum value of all datapoints. For list datatypes, this operation finds the largest single
+        value in any list."""
+        if self.valueType in (list, tuple):
             return max([max(l) for l in self.data])
+        return max(self.data)
 
 
-class simulationResult():
+class SimulationResult():
+    """A SimulationResult instance contains all results from a single simulation. It has a number of LogChannels, each
+    capturing a single stream of outputs from the simulation. It also includes a flag of whether the simulation was
+    considered a sucess, along with a list of alerts that the simulation produced while it was running."""
     def __init__(self, motor):
         self.motor = motor
 
@@ -80,34 +101,42 @@ class simulationResult():
         self.success = False
 
         self.channels = {
-                            'time': logChannel('Time', float, 's'),
-                            'kn': logChannel('Kn', float, ''),
-                            'pressure': logChannel('Chamber Pressure', float, 'Pa'),
-                            'force': logChannel('Thrust', float, 'N'),
-                            'mass': logChannel('Propellant Mass', tuple, 'kg'),
-                            'massFlow': logChannel('Mass Flow', tuple, 'kg/s'),
-                            'massFlux': logChannel('Mass Flux', tuple, 'kg/(m^2*s)')
-                        }
+            'time': LogChannel('Time', float, 's'),
+            'kn': LogChannel('Kn', float, ''),
+            'pressure': LogChannel('Chamber Pressure', float, 'Pa'),
+            'force': LogChannel('Thrust', float, 'N'),
+            'mass': LogChannel('Propellant Mass', tuple, 'kg'),
+            'massFlow': LogChannel('Mass Flow', tuple, 'kg/s'),
+            'massFlux': LogChannel('Mass Flux', tuple, 'kg/(m^2*s)')
+        }
 
     def addAlert(self, alert):
+        """Add an entry to the list of alerts for the simulation."""
         self.alerts.append(alert)
 
     def getBurnTime(self):
+        """Returns the burntime of the simulated motor, which is the time from the start when it was last producing
+        thrust above the user's defined threshold."""
         return self.channels['time'].getLast()
 
     def getInitialKN(self):
+        """Returns the motor's Kn before it started firing."""
         return self.channels['kn'].getPoint(1)
 
     def getPeakKN(self):
+        """Returns the highest Kn that was observed during the motor's burn."""
         return self.channels['kn'].getMax()
 
     def getAveragePressure(self):
+        """Returns the average chamber pressure observed during the simulation."""
         return self.channels['pressure'].getAverage()
 
     def getMaxPressure(self):
+        """Returns the highest chamber pressure that was observed during the motor's burn."""
         return self.channels['pressure'].getMax()
 
     def getImpulse(self):
+        """Returns the impulse the simulated motor produced."""
         impulse = 0
         lastTime = 0
         for time, force in zip(self.channels['time'].data, self.channels['force'].data):
@@ -116,88 +145,102 @@ class simulationResult():
         return impulse
 
     def getAverageForce(self):
+        """Returns the average force the motor produced during its burn."""
         return self.channels['force'].getAverage()
 
     def getDesignation(self):
+        """Returns the standard amateur rocketry designation (H128, M1297) for the motor."""
         imp = self.getImpulse()
         if imp < 1.25: # This is to avoid a domain error finding log(0)
             return 'N/A'
         return chr(int(math.log(imp/1.25, 2)) + 65) + str(int(self.getAverageForce()))
 
     def getPeakMassFlux(self):
+        """Returns the maximum mass flux observed at any grain end."""
         return self.channels['massFlux'].getMax()
 
     def getPeakMassFluxLocation(self):
+        """Returns the grain number at which the peak mass flux was observed."""
         value = self.getPeakMassFlux()
         # Find the value to get the location
         for frame in self.channels['massFlux'].getData():
             if value in frame:
                 return frame.index(value)
+        return None
 
     def getISP(self):
+        """Returns the specific impulse that the simulated motor delivered."""
         return self.getImpulse() / (self.getPropellantMass() * 9.80665)
 
     def getPortRatio(self):
+        """Returns the port/throat ratio of the motor, or None if it doesn't have a port."""
         aftPort = self.motor.grains[-1].getPortArea(0)
         if aftPort is not None:
             return aftPort / geometry.circleArea(self.motor.nozzle.props['throat'].getValue())
-        else:
-            return None
+        return None
 
     def getPropellantLength(self):
+        """Returns the total length of all propellant before the simulated burn."""
         return sum([g.props['length'].getValue() for g in self.motor.grains])
 
     def getPropellantMass(self):
+        """Returns the total mass of all propellant before the simulated burn."""
         return sum(self.channels['mass'].getPoint(0))
 
     def getAlertsByLevel(self, level):
+        """Returns all simulation alerts of the specified level."""
         out = []
         for alert in self.alerts:
             if alert.level == level:
                 out.append(alert)
         return out
 
-    def getCSV(self, pref = None, exclude = []):
+    def getCSV(self, pref=None, exclude=[]):
+        """Returns a string that contains a CSV of the simulated data. Preferences can be passed in to set units that
+        the values will be converted to. All log channels are included unless their names are in the include
+        argument."""
         out = ''
         outUnits = {}
-        for ch in self.channels:
-            if ch in exclude:
+        for chan in self.channels:
+            if chan in exclude:
                 continue
             # Get unit from preferences
             if pref is not None:
-                outUnits[ch] = pref.getUnit(self.channels[ch].unit)
+                outUnits[chan] = pref.getUnit(self.channels[chan].unit)
             else:
-                outUnits[ch] = self.channels[ch].unit
+                outUnits[chan] = self.channels[chan].unit
             # Add title for column
-            if self.channels[ch].valueType in (float, int):
-                out += self.channels[ch].name
-                if outUnits[ch] != '':
-                    out += '(' + outUnits[ch] + ')'
+            if self.channels[chan].valueType in (float, int):
+                out += self.channels[chan].name
+                if outUnits[chan] != '':
+                    out += '(' + outUnits[chan] + ')'
                 out += ','
-            elif self.channels[ch].valueType in (list, tuple):
-                for grain in range(1, len(self.channels[ch].getLast()) + 1):
-                    out += self.channels[ch].name + '('
+            elif self.channels[chan].valueType in (list, tuple):
+                for grain in range(1, len(self.channels[chan].getLast()) + 1):
+                    out += self.channels[chan].name + '('
                     out += 'G' + str(grain)
-                    if outUnits[ch] != '':
-                        out += ';' + outUnits[ch]
+                    if outUnits[chan] != '':
+                        out += ';' + outUnits[chan]
                     out += '),'
 
         out = out[:-1] # Remove the last comma
         out += '\n'
 
         places = 5
-        for ind, t in enumerate(self.channels['time'].getData()):
-            out += str(round(t, places)) + ','
-            for ch in self.channels:
-                if ch in exclude:
+        for ind, time in enumerate(self.channels['time'].getData()):
+            out += str(round(time, places)) + ','
+            for chan in self.channels:
+                if chan in exclude:
                     continue
-                if ch != 'time':
-                    if self.channels[ch].valueType in (float, int):
-                        conv = round(units.convert(self.channels[ch].getPoint(ind), self.channels[ch].unit, outUnits[ch]), places)
-                        out += str(conv) + ','
-                    elif self.channels[ch].valueType in (list, tuple):
-                        for grainVal in self.channels[ch].getPoint(ind):
-                            conv = round(units.convert(grainVal, self.channels[ch].unit, outUnits[ch]), places)
+                if chan != 'time':
+                    if self.channels[chan].valueType in (float, int):
+                        orig = self.channels[chan].getPoint(ind)
+                        conv = units.convert(orig, self.channels[chan].unit, outUnits[chan])
+                        rounded = round(conv, places)
+                        out += str(rounded) + ','
+                    elif self.channels[chan].valueType in (list, tuple):
+                        for grainVal in self.channels[chan].getPoint(ind):
+                            conv = round(units.convert(grainVal, self.channels[chan].unit, outUnits[chan]), places)
                             out += str(conv) + ','
 
             out = out[:-1] # Remove the last comma

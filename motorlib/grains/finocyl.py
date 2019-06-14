@@ -1,6 +1,6 @@
 from ..grain import FmmGrain
 from ..properties import *
-from ..simResult import simAlert, simAlertLevel, simAlertType
+from ..simResult import SimAlert, SimAlertLevel, SimAlertType
 
 import numpy as np
 
@@ -8,10 +8,10 @@ class Finocyl(FmmGrain):
     geomName = 'Finocyl'
     def __init__(self):
         super().__init__()
-        self.props['numFins'] = intProperty('Number of fins', '', 0, 64)
-        self.props['finWidth'] = floatProperty('Fin width', 'm', 0, 1)
-        self.props['finLength'] = floatProperty('Fin length', 'm', 0, 1)
-        self.props['coreDiameter'] = floatProperty('Core diameter', 'm', 0, 1)
+        self.props['numFins'] = IntProperty('Number of fins', '', 0, 64)
+        self.props['finWidth'] = FloatProperty('Fin width', 'm', 0, 1)
+        self.props['finLength'] = FloatProperty('Fin length', 'm', 0, 1)
+        self.props['coreDiameter'] = FloatProperty('Core diameter', 'm', 0, 1)
 
     def generateCoreMap(self):
         coreRadius = self.normalize(self.props['coreDiameter'].getValue()) / 2
@@ -44,21 +44,21 @@ class Finocyl(FmmGrain):
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()
         if self.props['coreDiameter'].getValue() == 0:
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Core diameter must not be 0'))
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Core diameter must not be 0'))
         if self.props['coreDiameter'].getValue() >= self.props['diameter'].getValue():
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Core diameter must be less than or equal to grain diameter'))
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Core diameter must be less than or equal to grain diameter'))
 
         if self.props['finLength'].getValue() == 0:
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Fin length must not be 0'))
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Fin length must not be 0'))
         if self.props['finLength'].getValue() * 2 > self.props['diameter'].getValue():
-            errors.append(simAlert(simAlertLevel.WARNING, simAlertType.GEOMETRY, 'Fin length should be less than or equal to grain radius'))
+            errors.append(SimAlert(SimAlertLevel.WARNING, SimAlertType.GEOMETRY, 'Fin length should be less than or equal to grain radius'))
         if self.props['coreDiameter'].getValue() + (2 * self.props['finLength'].getValue()) > self.props['diameter'].getValue():
-            errors.append(simAlert(simAlertLevel.WARNING, simAlertType.GEOMETRY, 'Core radius plus fin length should be less than or equal to grain radius'))
+            errors.append(SimAlert(SimAlertLevel.WARNING, SimAlertType.GEOMETRY, 'Core radius plus fin length should be less than or equal to grain radius'))
 
         if self.props['finWidth'].getValue() == 0:
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Fin width must not be 0'))
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Fin width must not be 0'))
         if self.props['numFins'].getValue() > 1:
             if 2 * (self.props['coreDiameter'].getValue() / 2 + self.props['finLength'].getValue()) * np.tan(np.pi / self.props['numFins'].getValue()) < self.props['finWidth'].getValue():
-                errors.append(simAlert(simAlertLevel.WARNING, simAlertType.GEOMETRY, 'Fin tips intersect'))
+                errors.append(SimAlert(SimAlertLevel.WARNING, SimAlertType.GEOMETRY, 'Fin tips intersect'))
 
         return errors

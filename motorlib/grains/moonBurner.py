@@ -1,6 +1,6 @@
 from ..grain import FmmGrain
 from ..properties import *
-from ..simResult import simAlert, simAlertLevel, simAlertType
+from ..simResult import SimAlert, SimAlertLevel, SimAlertType
 
 import numpy as np
 
@@ -8,8 +8,8 @@ class MoonBurner(FmmGrain):
     geomName = 'Moon Burner'
     def __init__(self):
         super().__init__()
-        self.props['coreOffset'] = floatProperty('Core offset', 'm', 0, 1)
-        self.props['coreDiameter'] = floatProperty('Core diameter', 'm', 0, 1)
+        self.props['coreOffset'] = FloatProperty('Core offset', 'm', 0, 1)
+        self.props['coreDiameter'] = FloatProperty('Core diameter', 'm', 0, 1)
 
     def generateCoreMap(self):
         coreRadius = self.normalize(self.props['coreDiameter'].getValue()) / 2
@@ -25,11 +25,11 @@ class MoonBurner(FmmGrain):
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()
         if self.props['coreDiameter'].getValue() == 0:
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Core diameter must not be 0'))
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Core diameter must not be 0'))
         if self.props['coreDiameter'].getValue() >= self.props['diameter'].getValue():
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Core diameter must be less than or equal to grain diameter'))
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Core diameter must be less than or equal to grain diameter'))
 
         if self.props['coreOffset'].getValue() * 2 > self.props['diameter'].getValue():
-            errors.append(simAlert(simAlertLevel.WARNING, simAlertType.GEOMETRY, 'Core offset should be less than or equal to grain radius'))
+            errors.append(SimAlert(SimAlertLevel.WARNING, SimAlertType.GEOMETRY, 'Core offset should be less than or equal to grain radius'))
 
         return errors

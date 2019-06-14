@@ -1,6 +1,6 @@
 from ..grain import PerforatedGrain
 from .. import geometry
-from ..simResult import simAlert, simAlertLevel, simAlertType
+from ..simResult import SimAlert, SimAlertLevel, SimAlertType
 from ..properties import *
 
 import numpy as np
@@ -11,7 +11,7 @@ class BatesGrain(PerforatedGrain):
     geomName = "BATES"
     def __init__(self):
         super().__init__()
-        self.props['coreDiameter'] = floatProperty('Core Diameter', 'm', 0, 1)
+        self.props['coreDiameter'] = FloatProperty('Core Diameter', 'm', 0, 1)
 
     def simulationSetup(self, preferences):
         self.wallWeb = (self.props['diameter'].getValue() - self.props['coreDiameter'].getValue()) / 2
@@ -29,9 +29,9 @@ class BatesGrain(PerforatedGrain):
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()
         if self.props['coreDiameter'].getValue() == 0:
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Core diameter must not be 0'))
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Core diameter must not be 0'))
         if self.props['coreDiameter'].getValue() >= self.props['diameter'].getValue():
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Core diameter must be less than grain diameter'))
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Core diameter must be less than grain diameter'))
         return errors
 
     # These two functions have a lot of code reuse, but it is worth it because making BATES an fmmGrain would make it way slower

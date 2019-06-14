@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 
-from motorlib.properties import propertyCollection, floatProperty, intProperty, enumProperty
+from motorlib.properties import PropertyCollection, FloatProperty, IntProperty, EnumProperty
 from motorlib.units import unitLabels, getAllConversions
 from motorlib.motor import MotorConfig
 
@@ -11,9 +11,9 @@ from .widgets import preferencesMenu
 class Preferences():
     def __init__(self, propDict=None):
         self.general = MotorConfig()
-        self.units = propertyCollection()
+        self.units = PropertyCollection()
         for unit in unitLabels:
-            self.units.props[unit] = enumProperty(unitLabels[unit], getAllConversions(unit))
+            self.units.props[unit] = EnumProperty(unitLabels[unit], getAllConversions(unit))
 
         if propDict is not None:
             self.applyDict(propDict)

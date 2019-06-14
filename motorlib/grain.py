@@ -8,17 +8,17 @@ import skfmm
 from skimage import measure
 
 from . import geometry
-from .simResult import simAlert, simAlertLevel, simAlertType
-from .properties import floatProperty, enumProperty, propertyCollection
+from .simResult import SimAlert, SimAlertLevel, SimAlertType
+from .properties import FloatProperty, EnumProperty, PropertyCollection
 
-class Grain(propertyCollection):
+class Grain(PropertyCollection):
     """A basic propellant grain. This is the class that all grains inherit from. It provides a few properties and
     composed methods but otherwise it is up to the subclass to make a functional grain."""
     geomName = None
     def __init__(self):
         super().__init__()
-        self.props['diameter'] = floatProperty('Diameter', 'm', 0, 1)
-        self.props['length'] = floatProperty('Length', 'm', 0, 3)
+        self.props['diameter'] = FloatProperty('Diameter', 'm', 0, 1)
+        self.props['length'] = FloatProperty('Length', 'm', 0, 3)
 
     def getVolumeSlice(self, regDist, dRegDist):
         """Returns the amount of propellant volume consumed as the grain regresses from a distance of 'regDist' to
@@ -81,10 +81,11 @@ class Grain(propertyCollection):
         method, as it performs checks that still apply to its subclasses."""
         errors = []
         if self.props['diameter'].getValue() == 0:
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Diameter must not be 0'))
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Diameter must not be 0'))
         if self.props['length'].getValue() == 0:
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Length must not be 0'))
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Length must not be 0'))
         return errors
+
 
 class PerforatedGrain(Grain):
     """A grain with a hole of some shape through the center. Adds abstract methods related to the core to the
@@ -92,7 +93,7 @@ class PerforatedGrain(Grain):
     geomName = 'perfGrain'
     def __init__(self):
         super().__init__()
-        self.props['inhibitedEnds'] = enumProperty('Inhibited ends', ['Neither', 'Top', 'Bottom', 'Both'])
+        self.props['inhibitedEnds'] = EnumProperty('Inhibited ends', ['Neither', 'Top', 'Bottom', 'Both'])
         self.wallWeb = 0 # Max distance from the core to the wall
 
     def getEndPositions(self, regDist):
@@ -189,6 +190,7 @@ class PerforatedGrain(Grain):
         where color maps to regression depth, a list of contours (lists of (x,y) points in image space) of
         equal regression depth, and a list of corresponding contour lengths. The contours are equally spaced
         between 0 regression and burnout."""
+
 
 class FmmGrain(PerforatedGrain):
     """A grain that uses the fast marching method to calculate its regression. All a subclass has to do is

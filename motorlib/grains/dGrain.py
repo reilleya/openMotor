@@ -1,6 +1,6 @@
 from ..grain import FmmGrain
 from ..properties import *
-from ..simResult import simAlert, simAlertLevel, simAlertType
+from ..simResult import SimAlert, SimAlertLevel, SimAlertType
 
 import numpy as np
 
@@ -8,7 +8,7 @@ class DGrain(FmmGrain):
     geomName = 'D Grain'
     def __init__(self):
         super().__init__()
-        self.props['slotOffset'] = floatProperty('Slot offset', 'm', -1, 1)
+        self.props['slotOffset'] = FloatProperty('Slot offset', 'm', -1, 1)
 
         self.props['slotOffset'].setValue(0)
 
@@ -25,8 +25,8 @@ class DGrain(FmmGrain):
         errors = super().getGeometryErrors()
 
         if self.props['slotOffset'].getValue() > self.props['diameter'].getValue() / 2:
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Core offset must not be greater than grain radius'))
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Core offset must not be greater than grain radius'))
         if self.props['slotOffset'].getValue() < -self.props['diameter'].getValue() / 2:
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Core offset must be greater than negative grain radius'))
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Core offset must be greater than negative grain radius'))
 
         return errors

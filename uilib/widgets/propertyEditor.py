@@ -24,7 +24,7 @@ class PropertyEditor(QWidget):
         else:
             self.dispUnit = self.prop.unit
 
-        if isinstance(prop, motorlib.properties.floatProperty):
+        if isinstance(prop, motorlib.properties.FloatProperty):
             self.editor = QDoubleSpinBox()
 
             self.editor.setSuffix(' ' + self.dispUnit)
@@ -40,7 +40,7 @@ class PropertyEditor(QWidget):
             self.editor.valueChanged.connect(self.valueChanged.emit)
             self.layout().addWidget(self.editor)
 
-        elif isinstance(prop, motorlib.properties.intProperty):
+        elif isinstance(prop, motorlib.properties.IntProperty):
             self.editor = QSpinBox()
 
             convMin = motorlib.units.convert(self.prop.min, self.prop.unit, self.dispUnit)
@@ -51,12 +51,12 @@ class PropertyEditor(QWidget):
             self.editor.valueChanged.connect(self.valueChanged.emit)
             self.layout().addWidget(self.editor)
 
-        elif isinstance(prop, motorlib.properties.stringProperty):
+        elif isinstance(prop, motorlib.properties.StringProperty):
             self.editor = QLineEdit()
             self.editor.setText(self.prop.getValue())
             self.layout().addWidget(self.editor)
 
-        elif isinstance(prop, motorlib.properties.enumProperty):
+        elif isinstance(prop, motorlib.properties.EnumProperty):
             self.editor = QComboBox()
 
             self.editor.addItems(self.prop.values)
@@ -65,7 +65,7 @@ class PropertyEditor(QWidget):
 
             self.layout().addWidget(self.editor)
 
-        elif isinstance(prop, motorlib.properties.polygonProperty):
+        elif isinstance(prop, motorlib.properties.PolygonProperty):
             self.editor = PolygonEditor(self)
 
             self.editor.pointsChanged.connect(self.valueChanged.emit)
@@ -75,19 +75,19 @@ class PropertyEditor(QWidget):
             self.layout().addWidget(self.editor)
 
     def getValue(self):
-        if isinstance(self.prop, motorlib.properties.floatProperty):
+        if isinstance(self.prop, motorlib.properties.FloatProperty):
             return motorlib.units.convert(self.editor.value(), self.dispUnit, self.prop.unit)
 
-        if isinstance(self.prop, motorlib.properties.intProperty):
+        if isinstance(self.prop, motorlib.properties.IntProperty):
             return motorlib.units.convert(self.editor.value(), self.dispUnit, self.prop.unit)
 
-        if isinstance(self.prop, motorlib.properties.stringProperty):
+        if isinstance(self.prop, motorlib.properties.StringProperty):
             return self.editor.text()
 
-        if isinstance(self.prop, motorlib.properties.enumProperty):
+        if isinstance(self.prop, motorlib.properties.EnumProperty):
             return self.editor.currentText()
 
-        if isinstance(self.prop, motorlib.properties.polygonProperty):
+        if isinstance(self.prop, motorlib.properties.PolygonProperty):
             return self.editor.points
 
         return None

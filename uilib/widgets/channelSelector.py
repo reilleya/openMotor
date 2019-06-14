@@ -12,7 +12,7 @@ class ChannelSelector(QGroupBox):
 
     def setupChecks(self, multiselect, disabled=[]):
         # This simres is only used to get the list of channels available
-        simres = motorlib.simResult.simulationResult(motorlib.motor.Motor())
+        simres = motorlib.simResult.SimulationResult(motorlib.motor.Motor())
         for channel in simres.channels:
             if multiselect:
                 check = QCheckBox(simres.channels[channel].name)

@@ -1,6 +1,6 @@
 from ..grain import FmmGrain
 from ..properties import *
-from ..simResult import simAlert, simAlertLevel, simAlertType
+from ..simResult import SimAlert, SimAlertLevel, SimAlertType
 
 import numpy as np
 
@@ -8,9 +8,9 @@ class StarGrain(FmmGrain):
     geomName = 'Star Grain'
     def __init__(self):
         super().__init__()
-        self.props['numPoints'] = intProperty('Number of points', '', 0, 64)
-        self.props['pointLength'] = floatProperty('Point length', 'm', 0, 1)
-        self.props['pointWidth'] = floatProperty('Point base width', 'm', 0, 1)
+        self.props['numPoints'] = IntProperty('Number of points', '', 0, 64)
+        self.props['pointLength'] = FloatProperty('Point length', 'm', 0, 1)
+        self.props['pointWidth'] = FloatProperty('Point base width', 'm', 0, 1)
 
     def generateCoreMap(self):
         numPoints = self.props['numPoints'].getValue()
@@ -33,14 +33,14 @@ class StarGrain(FmmGrain):
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()
         if self.props['numPoints'].getValue() == 0:
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Star grain has 0 points'))
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Star grain has 0 points'))
 
         if self.props['pointLength'].getValue() == 0:
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Point length must not be 0'))
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Point length must not be 0'))
         if self.props['pointLength'].getValue() * 2 > self.props['diameter'].getValue():
-            errors.append(simAlert(simAlertLevel.WARNING, simAlertType.GEOMETRY, 'Point length should be less than or equal to grain radius'))
+            errors.append(SimAlert(SimAlertLevel.WARNING, SimAlertType.GEOMETRY, 'Point length should be less than or equal to grain radius'))
         
         if self.props['pointWidth'].getValue() == 0:
-            errors.append(simAlert(simAlertLevel.ERROR, simAlertType.GEOMETRY, 'Point width must not be 0'))
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Point width must not be 0'))
 
         return errors

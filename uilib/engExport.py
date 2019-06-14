@@ -1,14 +1,14 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox
-from motorlib.properties import propertyCollection, floatProperty, stringProperty
+from motorlib.properties import PropertyCollection, FloatProperty, StringProperty
 
-class ENGSettings(propertyCollection):
+class ENGSettings(PropertyCollection):
     def __init__(self):
         super().__init__()
-        self.props['diameter'] = floatProperty('Motor Diameter', 'm', 0, 1)
-        self.props['length'] = floatProperty('Motor Length', 'm', 0, 2)
-        self.props['hardwareMass'] = floatProperty('Hardware Mass', 'kg', 0, 1000)
-        self.props['designation'] = stringProperty('Motor Designation')
-        self.props['manufacturer'] = stringProperty('Motor Manufacturer')
+        self.props['diameter'] = FloatProperty('Motor Diameter', 'm', 0, 1)
+        self.props['length'] = FloatProperty('Motor Length', 'm', 0, 2)
+        self.props['hardwareMass'] = FloatProperty('Hardware Mass', 'kg', 0, 1000)
+        self.props['designation'] = StringProperty('Motor Designation')
+        self.props['manufacturer'] = StringProperty('Motor Manufacturer')
 
 class ENGExportMenu(QDialog):
     def __init__(self):

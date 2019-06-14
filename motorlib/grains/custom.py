@@ -1,6 +1,6 @@
 from ..grain import FmmGrain
 from ..properties import *
-from ..simResult import simAlert, simAlertLevel, simAlertType
+from ..simResult import SimAlert, SimAlertLevel, SimAlertType
 from ..units import getAllConversions, convert
 
 import numpy as np
@@ -11,7 +11,7 @@ class CustomGrain(FmmGrain):
     def __init__(self):
         super().__init__()
         self.props['points'] = polygonProperty('Core geometry')
-        self.props['dxfUnit'] = enumProperty('DXF Unit', getAllConversions('m'))
+        self.props['dxfUnit'] = EnumProperty('DXF Unit', getAllConversions('m'))
 
     def generateCoreMap(self):
         inUnit = self.props['dxfUnit'].getValue()
@@ -25,6 +25,6 @@ class CustomGrain(FmmGrain):
         errors = super().getGeometryErrors()
 
         if len(self.props['points'].getValue()) > 1:
-            errors.append(simAlert(simAlertLevel.WARNING, simAlertType.GEOMETRY, 'Support for custom grains with multiple cores is experimental'))
+            errors.append(SimAlert(SimAlertLevel.WARNING, SimAlertType.GEOMETRY, 'Support for custom grains with multiple cores is experimental'))
 
         return errors

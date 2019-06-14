@@ -5,10 +5,10 @@ from ..tool import Tool
 
 class NeutralBatesTool(Tool):
     def __init__(self, manager):
-        props = {'length': motorlib.properties.floatProperty('Propellant length', 'm', 0, 10),
-                 'diameter': motorlib.properties.floatProperty('Propellant diameter', 'm', 0, 1),
-                 'grainSpace': motorlib.properties.floatProperty('Grain spacer length', 'm', 0, 1),
-                 'Kn': motorlib.properties.floatProperty('Initial Kn', '', 0, 1000)}
+        props = {'length': motorlib.properties.FloatProperty('Propellant length', 'm', 0, 10),
+                 'diameter': motorlib.properties.FloatProperty('Propellant diameter', 'm', 0, 1),
+                 'grainSpace': motorlib.properties.FloatProperty('Grain spacer length', 'm', 0, 1),
+                 'Kn': motorlib.properties.FloatProperty('Initial Kn', '', 0, 1000)}
 
         super().__init__(manager,
                          'Neutral BATES Geometry',
