@@ -2,7 +2,6 @@ from matplotlib import pyplot as plt
 from PyQt5.QtWidgets import QDialog, QApplication, QFileDialog, QDialogButtonBox
 from .views.ImageExporter_ui import Ui_ImageExporter
 
-
 class ImageExportMenu(QDialog):
     def __init__(self):
         QDialog.__init__(self)
