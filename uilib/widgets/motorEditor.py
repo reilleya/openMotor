@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLabel, QListWidget, QSizePolicy
 
 from motorlib.grain import PerforatedGrain
 
@@ -18,6 +18,16 @@ class MotorEditor(CollectionEditor):
         self.grainPreview.hide()
         self.stats.addWidget(self.grainPreview)
 
+        self.geometryErrorList = QListWidget()
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        self.geometryErrorList.setSizePolicy(sizePolicy)
+        self.geometryErrorList.setMaximumWidth(330)
+        self.geometryErrorList.setMaximumHeight(100)
+        self.geometryErrorList.hide()
+        self.stats.addWidget(self.geometryErrorList)
+
         self.nozzle = True
         self.grainClass = None
 
@@ -33,7 +43,9 @@ class MotorEditor(CollectionEditor):
         if self.grainClass is not None:
             testgrain = self.grainClass()
             testgrain.setProperties(self.getProperties())
-
+            self.geometryErrorList.clear()
+            for err in testgrain.getGeometryErrors():
+                self.geometryErrorList.addItem(err.description)
             self.grainPreview.loadGrain(testgrain)
 
     def loadGrain(self, grain):
@@ -46,6 +58,7 @@ class MotorEditor(CollectionEditor):
         else:
             self.grainClass = None
             self.grainPreview.hide()
+        self.geometryErrorList.show()
 
     def loadNozzle(self, nozzle):
         self.nozzle = True
@@ -53,6 +66,7 @@ class MotorEditor(CollectionEditor):
         self.loadProperties(nozzle)
         self.expRatioLabel.show()
         self.grainPreview.hide()
+        self.geometryErrorList.hide()
 
     def loadConfig(self, config):
         self.nozzle = False
@@ -64,9 +78,11 @@ class MotorEditor(CollectionEditor):
     def cleanup(self):
         if self.nozzle:
             self.expRatioLabel.hide()
+            self.geometryErrorList.hide()
         if self.grainClass is not None:
             self.grainPreview.hide()
             self.grainPreview.cleanup()
+            self.geometryErrorList.hide()
             # Needed so it isn't trying to update the preview grain while loading in properties. Refactor this!
             self.grainClass = None
         super().cleanup()
