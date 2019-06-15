@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import pyqtSignal
 
-from motorlib import propellant
+import motorlib.propellant
 
 from ..views.PropMenu_ui import Ui_PropellantDialog
 
@@ -50,7 +50,7 @@ class PropellantMenu(QDialog):
             while propName + " " + str(propNumber) in self.manager.getNames():
                 propNumber += 1
             propName = propName + " " + str(propNumber)
-        newProp = propellant()
+        newProp = motorlib.propellant.Propellant()
         newProp.setProperties({'name': propName,
                                'density': 1680,
                                'a': 3.517054143255937e-05,

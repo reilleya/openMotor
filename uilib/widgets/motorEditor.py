@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import QLabel, QListWidget, QSizePolicy
 
-from motorlib.grain import PerforatedGrain
+import motorlib.grain
+import motorlib.nozzle
+import motorlib.motor
 
 from .collectionEditor import CollectionEditor
 from .grainPreviewWidget import GrainPreviewWidget
-
 
 class MotorEditor(CollectionEditor):
     def __init__(self, parent):
@@ -32,58 +33,50 @@ class MotorEditor(CollectionEditor):
         self.grainClass = None
 
     def propertyUpdate(self):
-        if self.nozzle:
+        if issubclass(self.objType, motorlib.nozzle.Nozzle):
             exitDia = self.propertyEditors['exit'].getValue()
             throatDia = self.propertyEditors['throat'].getValue()
             if throatDia == 0:
                 self.expRatioLabel.setText('Expansion ratio: -')
             else:
                 self.expRatioLabel.setText('Expansion ratio: ' + str(round((exitDia / throatDia) ** 2, 3)))
-
-        if self.grainClass is not None:
-            testgrain = self.grainClass()
-            testgrain.setProperties(self.getProperties())
+            testNozzle = self.objType()
+            testNozzle.setProperties(self.getProperties())
             self.geometryErrorList.clear()
-            for err in testgrain.getGeometryErrors():
+            for err in testNozzle.getGeometryErrors():
                 self.geometryErrorList.addItem(err.description)
-            self.grainPreview.loadGrain(testgrain)
 
-    def loadGrain(self, grain):
-        self.nozzle = False
-        self.loadProperties(grain)
-        if isinstance(grain, PerforatedGrain):
-            self.grainClass = type(grain)
+        if issubclass(self.objType, motorlib.grain.PerforatedGrain):
+            testGrain = self.objType()
+            testGrain.setProperties(self.getProperties())
+            self.geometryErrorList.clear()
+            for err in testGrain.getGeometryErrors():
+                self.geometryErrorList.addItem(err.description)
+            self.grainPreview.loadGrain(testGrain)
+
+    def loadObject(self, obj):
+        self.objType = type(obj)
+        self.loadProperties(obj)
+
+        if issubclass(self.objType, motorlib.grain.PerforatedGrain):
             self.grainPreview.show()
+            self.geometryErrorList.show()
+            self.expRatioLabel.hide()
             self.propertyUpdate()
-        else:
-            self.grainClass = None
+
+        if issubclass(self.objType, motorlib.nozzle.Nozzle):
+            self.expRatioLabel.show()
+            self.geometryErrorList.show()
             self.grainPreview.hide()
-        self.geometryErrorList.show()
 
-    def loadNozzle(self, nozzle):
-        self.nozzle = True
-        self.grainClass = None
-        self.loadProperties(nozzle)
-        self.expRatioLabel.show()
-        self.grainPreview.hide()
-        self.geometryErrorList.hide()
-
-    def loadConfig(self, config):
-        self.nozzle = False
-        self.grainClass = None
-        self.loadProperties(config)
-        self.expRatioLabel.hide()
-        self.grainPreview.hide()
-
-    def cleanup(self):
-        if self.nozzle:
+        if issubclass(self.objType, motorlib.motor.MotorConfig):
             self.expRatioLabel.hide()
             self.geometryErrorList.hide()
-        if self.grainClass is not None:
             self.grainPreview.hide()
-            self.grainPreview.cleanup()
-            self.geometryErrorList.hide()
-            # Needed so it isn't trying to update the preview grain while loading in properties. Refactor this!
-            self.grainClass = None
+
+    def cleanup(self):
+        self.expRatioLabel.hide()
+        self.geometryErrorList.hide()
+        self.grainPreview.hide()
+        self.grainPreview.cleanup()
         super().cleanup()
-    
