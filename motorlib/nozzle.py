@@ -54,7 +54,7 @@ class Nozzle(PropertyCollection):
         http://rasaero.com/dloads/Departures%20from%20Ideal%20Performance.pdf"""
         throatAspect = self.props['throatLength'].getValue() / self.props['throat'].getValue()
         if throatAspect > 0.45:
-            return 0.905
+            return 0.95
         return 0.99 - (0.0333 * throatAspect)
 
     def getSkinLosses(self):

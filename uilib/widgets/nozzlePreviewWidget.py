@@ -1,8 +1,8 @@
 from math import radians, tan
 
-from PyQt5.QtWidgets import QWidget, QGraphicsView, QSizePolicy, QGraphicsScene, QGraphicsPolygonItem
+from PyQt5.QtWidgets import QWidget, QApplication, QGraphicsScene, QGraphicsPolygonItem
 from PyQt5.QtGui import QPolygonF, QBrush
-from PyQt5.QtCore import QPointF
+from PyQt5.QtCore import QPointF, Qt
 
 import motorlib
 from ..views.NozzlePreview_ui import Ui_NozzlePreview
@@ -43,25 +43,34 @@ class NozzlePreviewWidget(QWidget):
         throatRad = nozzle.props['throat'].getValue() / 2
         divAngle = radians(nozzle.props['divAngle'].getValue())
         exitRad = nozzle.props['exit'].getValue() / 2
+        outerRad = 1.25 * exitRad
+        if QApplication.instance() and QApplication.instance().fileManager: # Check if the app exists and has a fm
+            motor = QApplication.instance().fileManager.getCurrentMotor()
+            if len(motor.grains) > 0:
+                outerRad = motor.grains[0].getProperty('diameter') / 2
 
         scale = 100 / nozzle.props['exit'].getValue()
-        radDiff =  exitRad - throatRad
+        radDiff = exitRad - throatRad
         if divAngle != 0:
             divLen = radDiff / tan(divAngle)
         else:
             divLen = 0
         if convAngle != 0:
-            convLen = radDiff / tan(convAngle)
+            convLen = (outerRad - throatRad) / tan(convAngle)
         else:
             convLen = 0
         upperPoints = [
             [throatLen, throatRad],
             [0, throatRad],
             [-divLen, exitRad],
-            [throatLen + convLen, exitRad]
+            [-divLen, outerRad],
+            [throatLen + convLen, outerRad],
         ]
         lower = QPolygonF([QPointF(p[0] * scale, p[1] * scale) for p in upperPoints])
         upper = QPolygonF([QPointF(p[0] * scale, -p[1] * scale) for p in upperPoints])
 
         self.upper.setPolygon(upper)
         self.lower.setPolygon(lower)
+
+        self.scene.setSceneRect(self.scene.itemsBoundingRect())
+        self.ui.tabCrossSection.fitInView(self.scene.sceneRect(), Qt.KeepAspectRatio)
