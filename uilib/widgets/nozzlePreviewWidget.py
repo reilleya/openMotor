@@ -31,6 +31,9 @@ class NozzlePreviewWidget(QWidget):
         for err in geomAlerts:
             self.ui.tabAlerts.addItem(err.description)
 
+        self.upper.setPolygon(QPolygonF([]))
+        self.lower.setPolygon(QPolygonF([]))
+
         for alert in geomAlerts:
             if alert.level == motorlib.simResult.SimAlertLevel.ERROR:
                 return
@@ -43,11 +46,19 @@ class NozzlePreviewWidget(QWidget):
 
         scale = 100 / nozzle.props['exit'].getValue()
         radDiff =  exitRad - throatRad
+        if divAngle != 0:
+            divLen = radDiff / tan(divAngle)
+        else:
+            divLen = 0
+        if convAngle != 0:
+            convLen = radDiff / tan(convAngle)
+        else:
+            convLen = 0
         upperPoints = [
             [throatLen, throatRad],
             [0, throatRad],
-            [-radDiff / tan(divAngle), exitRad],
-            [throatLen + (radDiff / tan(convAngle)), exitRad]
+            [-divLen, exitRad],
+            [throatLen + convLen, exitRad]
         ]
         lower = QPolygonF([QPointF(p[0] * scale, p[1] * scale) for p in upperPoints])
         upper = QPolygonF([QPointF(p[0] * scale, -p[1] * scale) for p in upperPoints])

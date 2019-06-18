@@ -79,6 +79,9 @@ def migrateMotor_0_2_0_to_0_3_0(data):
     else:
         config = defaultPreferencesDict()['general']
     data['config'] = config
+    data['nozzle']['divAngle'] = 15
+    data['nozzle']['convAngle'] = 55
+    data['nozzle']['throatLength'] = 0.35 * data['nozzle']['throat']
     return data
 
 migrations = {
