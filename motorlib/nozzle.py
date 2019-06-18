@@ -1,4 +1,5 @@
 """This submodule houses the nozzle object and functions related to isentropic flow"""
+import math
 
 from scipy.optimize import fsolve
 
@@ -18,6 +19,9 @@ class Nozzle(PropertyCollection):
         self.props['throat'] = FloatProperty('Throat Diameter', 'm', 0, 0.5)
         self.props['exit'] = FloatProperty('Exit Diameter', 'm', 0, 1)
         self.props['efficiency'] = FloatProperty('Efficiency', '', 0, 2)
+        self.props['divAngle'] = FloatProperty('Divergence Half Angle', 'deg', 0, 90)
+        self.props['convAngle'] = FloatProperty('Convergence Half Angle', 'deg', 0, 90)
+        self.props['throatLength'] = FloatProperty('Throat Length', 'm', 0, 0.5)
 
     def getDetailsString(self, preferences):
         """Returns a human-readable string containing some details about the nozzle."""
@@ -39,6 +43,25 @@ class Nozzle(PropertyCollection):
     def getExitPressure(self, k, inputPressure):
         """Solves for the nozzle's exit pressure, given an input pressure and the gas's specific heat ratio."""
         return fsolve(lambda x: (1/self.calcExpansion()) - eRatioFromPRatio(k, x / inputPressure), 0)[0]
+
+    def getDivergenceLosses(self):
+        """Returns nozzle efficiency losses due to divergence angle"""
+        divAngleRad = math.radians(self.props["divAngle"].getValue())
+        return (1 + math.cos(divAngleRad)) / 2
+
+    def getThroatLosses(self):
+        """Returns the losses caused by the throat aspect ratio as described in this document:
+        http://rasaero.com/dloads/Departures%20from%20Ideal%20Performance.pdf"""
+        throatAspect = self.props['throatLength'].getValue() / self.props['throat'].getValue()
+        if throatAspect > 0.45:
+            return 0.905
+        return 0.99 - (0.0333 * throatAspect)
+
+    def getSkinLosses(self):
+        """Returns the losses due to drag on the nozzle surface as described here:
+        https://apps.dtic.mil/dtic/tr/fulltext/u2/a099791.pdf. This is a constant for now, as people likely don't have
+        a way to measure this themselves."""
+        return 0.99
 
     def getGeometryErrors(self):
         """Returns a list containing any errors with the nozzle's properties."""

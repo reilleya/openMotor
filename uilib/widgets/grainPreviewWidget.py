@@ -24,6 +24,11 @@ class GrainPreviewWidget(QWidget):
 
     def loadGrain(self, grain):
         geomAlerts = grain.getGeometryErrors()
+
+        self.ui.tabAlerts.clear()
+        for err in geomAlerts:
+            self.ui.tabAlerts.addItem(err.description)
+
         for alert in geomAlerts:
             if alert.level == motorlib.simResult.SimAlertLevel.ERROR:
                 return
@@ -56,6 +61,7 @@ class GrainPreviewWidget(QWidget):
             self.ui.tabAreaGraph.showGraph(points)
 
     def cleanup(self):
+        self.ui.tabAlerts.clear()
         self.ui.tabRegression.cleanup()
         self.ui.tabFace.cleanup()
         self.ui.tabAreaGraph.cleanup()

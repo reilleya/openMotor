@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>GrainPreview</class>
- <widget class="QWidget" name="GrainPreview">
+ <class>NozzlePreview</class>
+ <widget class="QWidget" name="NozzlePreview">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -45,33 +45,15 @@
        <string>Alerts</string>
       </attribute>
      </widget>
-     <widget class="GrainPreviewGraph" name="tabFace">
+     <widget class="QGraphicsView" name="tabCrossSection">
       <attribute name="title">
-       <string>Face</string>
-      </attribute>
-     </widget>
-     <widget class="GrainPreviewGraph" name="tabRegression">
-      <attribute name="title">
-       <string>Regression</string>
-      </attribute>
-     </widget>
-     <widget class="GrainPreviewGraph" name="tabAreaGraph">
-      <attribute name="title">
-       <string>Area Graph</string>
+       <string>Cross Section</string>
       </attribute>
      </widget>
     </widget>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>GrainPreviewGraph</class>
-   <extends>QWidget</extends>
-   <header location="global">uilib.widgets.grainPreviewGraph</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

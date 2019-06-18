@@ -96,37 +96,39 @@ class Motor():
         denom = ((gamma/((8314/molarMass)*temp))*((2/(gamma+1))**((gamma+1)/(gamma-1))))**0.5
         return (num/denom) ** exponent
 
-    def calcForce(self, regDepth, casePressure=None, ambientPressure=101325, burnoutWebThres=0.00001):
-        """Calculates the force of the motor at a given regression depth per grain. Calculates pressure
-        by default, but can also use a value passed in. Will soon be reworked to properly calculate and
-        use the thrust coefficient."""
-        gamma = self.propellant.getProperty('k')
-        throatArea = self.nozzle.getThroatArea()
-        exitArea = self.nozzle.getExitArea()
-
-        ambPres = ambientPressure
-        if casePressure is None:
-            chamberPres = self.calcIdealPressure(regDepth, None, burnoutWebThres)
-        else:
-            chamberPres = casePressure
-
+    def calcIdealThrustCoeff(self, chamberPres):
+        """Calculates C_f, the ideal thrust coefficient for the motor's nozzle and propellant, and the given chamber
+        pressure."""
         if chamberPres == 0:
             return 0
 
+        gamma = self.propellant.getProperty("k")
         exitPres = self.nozzle.getExitPressure(gamma, chamberPres)
+        ambPres = self.config.getProperty("ambPressure")
+        exitArea = self.nozzle.getExitArea()
+        throatArea = self.nozzle.getThroatArea()
 
         term1 = (2*(gamma**2))/(gamma-1)
         term2 = (2/(gamma+1))**((gamma+1)/(gamma-1))
         term3 = 1 - ((exitPres/chamberPres) ** ((gamma-1)/gamma))
 
-        term4 = (term1 * term2 * term3) ** 0.5
+        momentumThrust = (term1 * term2 * term3) ** 0.5
+        pressureThrust = ((exitPres - ambPres) * exitArea) / (throatArea * chamberPres)
 
-        force = self.nozzle.props['efficiency'].getValue() * throatArea * chamberPres * term4
-        force += (exitPres - ambPres) * exitArea
-        if np.isnan(force) or force < 0:
-            force = 0
+        return momentumThrust + pressureThrust
 
-        return force
+    def calcForce(self, chamberPres):
+        """Calculates the force of the motor at a given regression depth per grain. Calculates pressure by default,
+        but can also use a value passed in. This method uses a combination of the techniques described in these
+        resources to adjust the thrust coefficient: https://apps.dtic.mil/dtic/tr/fulltext/u2/a099791.pdf and 
+        http://rasaero.com/dloads/Departures%20from%20Ideal%20Performance.pdf."""
+        thrustCoeffIdeal = self.calcIdealThrustCoeff(chamberPres)
+        divLoss = self.nozzle.getDivergenceLosses()
+        throatLoss = self.nozzle.getThroatLosses()
+        skinLoss = self.nozzle.getSkinLosses()
+        efficiency = self.nozzle.getProperty('efficiency')
+        thrustCoeffAdj = divLoss * throatLoss * efficiency * (skinLoss * thrustCoeffIdeal + (1 - skinLoss))
+        return thrustCoeffAdj * self.nozzle.getThroatArea() * chamberPres
 
     def runSimulation(self, callback=None):
         """Runs a simulation of the motor and returns a simRes instance with the results. Constraints are checked,
@@ -191,7 +193,7 @@ class Motor():
         simRes.channels['time'].addData(dTime)
         simRes.channels['kn'].addData(self.calcKN(perGrainReg, burnoutWebThres))
         simRes.channels['pressure'].addData(self.calcIdealPressure(perGrainReg, None, burnoutWebThres))
-        simRes.channels['force'].addData(self.calcForce(perGrainReg, None, ambientPressure, burnoutWebThres))
+        simRes.channels['force'].addData(self.calcForce(simRes.channels['pressure'].getLast()))
         simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
         simRes.channels['massFlow'].addData([0 for grain in self.grains])
         simRes.channels['massFlux'].addData([0 for grain in self.grains])
@@ -238,7 +240,7 @@ class Motor():
             simRes.channels['pressure'].addData(pressure)
 
             # Calculate force
-            force = self.calcForce(perGrainReg, simRes.channels['pressure'].getLast(), ambientPressure, burnoutWebThres)
+            force = self.calcForce(simRes.channels['pressure'].getLast())
             simRes.channels['force'].addData(force)
 
             simRes.channels['time'].addData(simRes.channels['time'].getLast() + dTime)
