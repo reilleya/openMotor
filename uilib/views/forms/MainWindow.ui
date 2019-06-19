@@ -239,7 +239,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="GraphWidget" name="graphWidget" native="true"/>
+       <widget class="ResultsWidget" name="resultsWidget" native="true"/>
       </item>
       <item>
        <widget class="QGroupBox" name="groupBox">
@@ -709,9 +709,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>GraphWidget</class>
+   <class>ResultsWidget</class>
    <extends>QWidget</extends>
-   <header location="global">uilib.widgets.graphWidget</header>
+   <header location="global">uilib.widgets.resultsWidget</header>
    <container>1</container>
   </customwidget>
   <customwidget>

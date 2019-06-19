@@ -1,8 +1,12 @@
 from PyQt5.QtWidgets import QGroupBox, QCheckBox, QRadioButton, QVBoxLayout
+from PyQt5.QtCore import pyqtSignal
 
 import motorlib
 
 class ChannelSelector(QGroupBox):
+
+    checksChanged = pyqtSignal()
+
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -10,19 +14,26 @@ class ChannelSelector(QGroupBox):
         # Populate list of checks to toggle channels
         self.setLayout(QVBoxLayout())
 
-    def setupChecks(self, multiselect, disabled=[]):
+    def setupChecks(self, multiselect, disabled=[], default=None, exclude=[]):
         # This simres is only used to get the list of channels available
         simres = motorlib.simResult.SimulationResult(motorlib.motor.Motor())
         for channel in simres.channels:
-            if multiselect:
-                check = QCheckBox(simres.channels[channel].name)
-                check.setCheckState(2) # Every field is checked by default
-            else:
-                check = QRadioButton(simres.channels[channel].name)
-            if channel in disabled:
-                check.setEnabled(False)
-            self.layout().addWidget(check)
-            self.checks[channel] = check
+            if channel not in exclude:
+                if multiselect:
+                    check = QCheckBox(simres.channels[channel].name)
+                else:
+                    check = QRadioButton(simres.channels[channel].name)
+                if channel in disabled:
+                    check.setEnabled(False)
+                self.layout().addWidget(check)
+                self.checks[channel] = check
+                if default is not None:
+                    if multiselect:
+                        if channel in default:
+                            self.checks[channel].setCheckState(2)
+                    else:
+                        self.checks[channel].setChecked(channel == default)
+                self.checks[channel].toggled.connect(self.checksChanged.emit)
 
     def getSelectedChannels(self):
         selected = []

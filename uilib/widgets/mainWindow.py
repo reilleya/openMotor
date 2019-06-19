@@ -38,7 +38,7 @@ class Window(QMainWindow):
         self.app.preferencesManager.preferencesChanged.connect(self.imageExporter.setPreferences)
 
         self.app.simulationManager.newSimulationResult.connect(self.updateMotorStats)
-        self.app.simulationManager.newSimulationResult.connect(self.ui.graphWidget.showData)
+        self.app.simulationManager.newSimulationResult.connect(self.ui.resultsWidget.showData)
         self.app.simulationManager.newSimulationResult.connect(self.engExporter.acceptSimResult)
         self.app.simulationManager.newSimulationResult.connect(self.csvExporter.acceptSimResult)
         self.app.simulationManager.newSimulationResult.connect(self.imageExporter.acceptSimResult)
@@ -111,6 +111,7 @@ class Window(QMainWindow):
         self.ui.pushButtonPropEditor.pressed.connect(self.app.propellantManager.showMenu)
         self.populatePropSelector()
         self.ui.comboBoxPropellant.currentIndexChanged.connect(self.propChooserChanged)
+        self.updatePropBoxSelection()
 
     def populatePropSelector(self):
         self.ui.comboBoxPropellant.clear()
@@ -152,8 +153,8 @@ class Window(QMainWindow):
         self.checkGrainSelection()
 
     def setupGraph(self):
-        self.ui.graphWidget.resetPlot()
-        self.ui.graphWidget.setPreferences(self.app.preferencesManager.preferences)
+        self.ui.resultsWidget.resetPlot()
+        self.ui.resultsWidget.setPreferences(self.app.preferencesManager.preferences)
 
     def applyChange(self, propDict):
         ind = self.ui.tableWidgetGrainList.selectionModel().selectedRows()
@@ -336,7 +337,7 @@ class Window(QMainWindow):
 
     def resetOutput(self):
         self.setupMotorStats()
-        self.ui.graphWidget.resetPlot()
+        self.ui.resultsWidget.resetPlot()
         self.updateGrainTable()
 
     def undo(self):
