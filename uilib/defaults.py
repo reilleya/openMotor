@@ -1,4 +1,8 @@
-import motorlib
+"""Provides default properties for the UI."""
+
+from motorlib.motor import Motor
+from motorlib.grains import BatesGrain
+from motorlib.propellant import Propellant
 
 CLPROPS = {'name': 'Cherry Limeade',
            'density': 1680,
@@ -9,9 +13,10 @@ CLPROPS = {'name': 'Cherry Limeade',
            'k': 1.21
            }
 
+
 def defaultMotor():
-    defMotor = motorlib.motor()
-    grain = motorlib.batesGrain()
+    defMotor = Motor()
+    grain = BatesGrain()
     grain.setProperties({'diameter': 3.27 / 39.37,
                          'length': 5.5 / 39.37,
                          'coreDiameter': 1.25 / 39.37,
@@ -24,6 +29,7 @@ def defaultMotor():
     defMotor.propellant.setProperties(CLPROPS)
 
     return defMotor
+
 
 def defaultPreferencesDict():
     prefDict = {}
@@ -49,9 +55,9 @@ def defaultPreferencesDict():
     }
     return prefDict
 
-def defaultPropellants():
 
-    clProp = motorlib.propellant()
+def defaultPropellants():
+    clProp = Propellant()
     clProp.setProperties(CLPROPS)
 
     owProps = {'name': 'Ocean Water',
@@ -62,7 +68,7 @@ def defaultPropellants():
                'm': 23.67,
                'k': 1.25}
 
-    owProp = motorlib.propellant()
+    owProp = Propellant()
     owProp.setProperties(owProps)
 
     return [clProp, owProp]
