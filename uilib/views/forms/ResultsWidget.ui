@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>811</width>
-    <height>456</height>
+    <width>843</width>
+    <height>626</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Results</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QHBoxLayout" name="horizontalLayout_2">
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="tabPosition">
@@ -34,13 +34,13 @@
         <widget class="QGroupBox" name="groupBox">
          <property name="minimumSize">
           <size>
-           <width>150</width>
+           <width>200</width>
            <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>150</width>
+           <width>200</width>
            <height>16777215</height>
           </size>
          </property>
@@ -48,25 +48,17 @@
           <string>Setup</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QLabel" name="labelX">
-            <property name="text">
-             <string>X Axis</string>
-            </property>
-           </widget>
-          </item>
+          <property name="spacing">
+           <number>9</number>
+          </property>
           <item>
            <widget class="ChannelSelector" name="channelSelectorX" native="true"/>
           </item>
           <item>
-           <widget class="QLabel" name="labelY">
-            <property name="text">
-             <string>Y Axis</string>
-            </property>
-           </widget>
+           <widget class="ChannelSelector" name="channelSelectorY" native="true"/>
           </item>
           <item>
-           <widget class="ChannelSelector" name="channelSelectorY" native="true"/>
+           <widget class="GrainSelector" name="grainSelector" native="true"/>
           </item>
           <item>
            <spacer name="verticalSpacer">
@@ -86,9 +78,85 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabSetup">
+     <widget class="QWidget" name="tabGrains">
       <attribute name="title">
-       <string>Graph Setup</string>
+       <string>Grains</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QTableWidget" name="tableWidgetGrains">
+         <property name="rowCount">
+          <number>5</number>
+         </property>
+         <property name="columnCount">
+          <number>0</number>
+         </property>
+         <row>
+          <property name="text">
+           <string>Port</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>Mass</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>Mass Flow (Port)</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>Mass Flux (Port)</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>Web</string>
+          </property>
+         </row>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="title">
+            <string>So far</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_3">
+           <property name="title">
+            <string>GroupBox</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QSlider" name="horizontalSliderTime">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="invertedAppearance">
+          <bool>false</bool>
+         </property>
+         <property name="invertedControls">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabLength">
+      <attribute name="title">
+       <string>Length</string>
       </attribute>
      </widget>
     </widget>
@@ -106,6 +174,12 @@
    <class>ChannelSelector</class>
    <extends>QWidget</extends>
    <header location="global">uilib.widgets.channelSelector</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GrainSelector</class>
+   <extends>QWidget</extends>
+   <header location="global">uilib.widgets.grainSelector</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

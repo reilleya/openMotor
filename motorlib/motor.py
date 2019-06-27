@@ -188,6 +188,7 @@ class Motor():
         simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
         simRes.channels['massFlow'].addData([0 for grain in self.grains])
         simRes.channels['massFlux'].addData([0 for grain in self.grains])
+        simRes.channels['regression'].addData([0 for grains in self.grains])
 
         # At t = dTime, the motor has ignited
         simRes.channels['time'].addData(dTime)
@@ -197,6 +198,7 @@ class Motor():
         simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
         simRes.channels['massFlow'].addData([0 for grain in self.grains])
         simRes.channels['massFlux'].addData([0 for grain in self.grains])
+        simRes.channels['regression'].addData([0 for grains in self.grains])
 
         # Check port/throat ratio and add a warning if it is large enough
         aftPort = self.grains[-1].getPortArea(0)
@@ -227,6 +229,7 @@ class Motor():
                     # Apply the regression
                     perGrainReg[gid] += reg
                 perGrainMassFlow[gid] = massFlow
+            simRes.channels['regression'].addData(perGrainReg[:])
 
             simRes.channels['mass'].addData(perGrainMass)
             simRes.channels['massFlow'].addData(perGrainMassFlow)

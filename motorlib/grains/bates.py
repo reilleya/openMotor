@@ -59,7 +59,7 @@ class BatesGrain(PerforatedGrain):
 
         return maskedMap
 
-    def getRegressionData(self, mapDim, numContours=15):
+    def getRegressionData(self, mapDim, numContours=15, coreBlack=True):
         masked = self.getFaceImage(mapDim)
         regressionMap = None
         contours = []
@@ -70,7 +70,8 @@ class BatesGrain(PerforatedGrain):
             regressionMap = skfmm.distance(masked, dx=cellSize) * 2
             regmax = np.amax(regressionMap)
             regressionMap = regressionMap[:, :].copy()
-            regressionMap[np.where(masked == 0)] = regmax # Make the core black
+            if coreBlack:
+                regressionMap[np.where(masked == 0)] = regmax # Make the core black
 
             for dist in np.linspace(0, regmax, numContours):
                 contours.append([])

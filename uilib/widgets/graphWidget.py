@@ -22,7 +22,7 @@ class GraphWidget(FigureCanvas):
         pass
         #elf.plot.set_xlabel('Time (s)')
 
-    def showData(self, simResult, xChannel, yChannels):
+    def showData(self, simResult, xChannel, yChannels, grains):
         self.plot.clear()
 
         xAxisUnit = self.preferences.getUnit(simResult.channels[xChannel].unit)
@@ -31,19 +31,27 @@ class GraphWidget(FigureCanvas):
         for channelName in yChannels:
             channel = simResult.channels[channelName]
             yUnit = self.preferences.getUnit(channel.unit)
-            self.plot.plot(simResult.channels[xChannel].getData(xAxisUnit), channel.getData(yUnit))
+            if channel.valueType in (list, tuple) and len(grains) > 0:
+                data = []
+                for frame in channel.getData(yUnit):
+                    data.append([])
+                    for grain in grains:
+                        data[-1].append(frame[grain])
+                self.plot.plot(simResult.channels[xChannel].getData(xAxisUnit), data)
+            elif channel.valueType in (int, float):
+                self.plot.plot(simResult.channels[xChannel].getData(xAxisUnit), channel.getData(yUnit))
             if channel.valueType in (int, float):
                 if yUnit != '':
                     legend.append(channel.name + ' - ' + yUnit)
                 else:
                     legend.append(channel.name)
             elif channel.valueType in (list, tuple):
-                if yUnit != '':
-                    for i in range(len(channel.getData()[0])):
-                        legend.append(channel.name + ' - Grain ' + str(i + 1) + ' - ' + yUnit)
-                else:
-                    for i in range(len(channel.getData()[0])):
-                        legend.append(channel.name + ' - Grain ' + str(i + 1))
+                for i in range(len(channel.getData()[0])):
+                    if i in grains:
+                        if yUnit != '':
+                            legend.append(channel.name + ' - Grain ' + str(i + 1) + ' - ' + yUnit)
+                        else:
+                            legend.append(channel.name + ' - Grain ' + str(i + 1))
         self.plot.legend(legend)
         self.plot.set_xlabel(simResult.channels[xChannel].name + ' - ' + xAxisUnit)
         self.draw()

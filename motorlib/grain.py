@@ -282,7 +282,7 @@ class FmmGrain(PerforatedGrain):
         masked = np.ma.MaskedArray(self.coreMap, self.mask)
         return masked
 
-    def getRegressionData(self, mapDim, numContours=15):
+    def getRegressionData(self, mapDim, numContours=15, coreBlack=True):
         self.initGeometry(mapDim)
         self.generateCoreMap()
 
@@ -297,7 +297,8 @@ class FmmGrain(PerforatedGrain):
             regmax = np.amax(self.regressionMap)
 
             regressionMap = self.regressionMap[:, :].copy()
-            regressionMap[np.where(self.coreMap == 0)] = regmax # Make the core black
+            if coreBlack:
+                regressionMap[np.where(self.coreMap == 0)] = regmax # Make the core black
             regressionMap = np.ma.MaskedArray(regressionMap, self.mask)
 
             for dist in np.linspace(0, regmax, numContours):
