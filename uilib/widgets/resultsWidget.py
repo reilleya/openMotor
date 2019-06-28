@@ -2,10 +2,10 @@ from threading import Thread
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QHeaderView
 from PyQt5.QtCore import pyqtSignal
 
-from .grainPreviewGraph import GrainPreviewGraph
+from .grainImageWidget import GrainImageWidget
 
 from ..views.ResultsWidget_ui import Ui_ResultsWidget
 
@@ -30,8 +30,7 @@ class ResultsWidget(QWidget):
 
         self.ui.horizontalSliderTime.valueChanged.connect(self.updateGrainImages)
         self.imageReady.connect(self.displayImage)
-        self.ui.tableWidgetGrains.setColumnWidth(0, 110)
-        self.ui.tableWidgetGrains.setRowHeight(0, 110)
+        self.ui.tableWidgetGrains.setRowHeight(0, 128)
         self.grainImageWidgets = []
         self.grainImages = []
 
@@ -50,11 +49,13 @@ class ResultsWidget(QWidget):
         for _ in range(len(self.grainImageWidgets)):
             del self.grainImageWidgets[-1]
         for gid, grain in enumerate(simResult.motor.grains):
-            self.grainImageWidgets.append(GrainPreviewGraph())
-            self.grainImageWidgets[-1].setupImagePlot()
+            self.grainImageWidgets.append(GrainImageWidget())
+            #self.grainImageWidgets[-1].setupImagePlot()
             self.ui.tableWidgetGrains.setCellWidget(0, gid, self.grainImageWidgets[-1])
-            self.grainImages.append(grain.getRegressionData(100, coreBlack=False)[1])
+            self.grainImages.append(grain.getRegressionData(128, coreBlack=False)[1])
+            self.ui.tableWidgetGrains.horizontalHeader().setSectionResizeMode(gid, QHeaderView.ResizeToContents)
         self.updateGrainImages()
+        self.ui.tableWidgetGrains.setColumnWidth(0, 128)
 
     def drawGraphs(self):
         if self.simResult is not None:
