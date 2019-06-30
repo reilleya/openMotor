@@ -24,6 +24,8 @@ class NozzlePreviewWidget(QWidget):
         self.scene.addItem(self.lower)
         self.ui.tabCrossSection.setScene(self.scene)
 
+        self.ui.tabWidget.currentChanged.connect(self.rescale)
+
     def loadNozzle(self, nozzle):
         geomAlerts = nozzle.getGeometryErrors()
 
@@ -71,6 +73,8 @@ class NozzlePreviewWidget(QWidget):
 
         self.upper.setPolygon(upper)
         self.lower.setPolygon(lower)
+        self.rescale()
 
+    def rescale(self):
         self.scene.setSceneRect(self.scene.itemsBoundingRect())
         self.ui.tabCrossSection.fitInView(self.scene.sceneRect(), Qt.KeepAspectRatio)
