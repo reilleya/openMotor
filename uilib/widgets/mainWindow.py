@@ -60,10 +60,13 @@ class Window(QMainWindow):
 
     def updateWindowTitle(self, name, saved):
         unsavedStr = '*' if not saved else ''
-        if name is not None:
+        if name is not None and name != '':
             self.setWindowTitle('openMotor - ' + name + unsavedStr)
         else:
-            self.setWindowTitle('openMotor - ' + unsavedStr)
+            if saved:
+                self.setWindowTitle('openMotor')
+            else:
+                self.setWindowTitle('openMotor - ' + unsavedStr)
 
     def setupMotorStats(self):
         for label in self.motorStatLabels:
