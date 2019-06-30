@@ -50,6 +50,8 @@ class App(QApplication):
         else:
             self.window = uilib.widgets.mainWindow.Window(self)
             self.preferencesManager.publishPreferences()
+            if startupFileLoaded:
+                self.fileManager.sendTitleUpdate()
             self.window.show()
 
     def outputMessage(self, content, title='openMotor'):
