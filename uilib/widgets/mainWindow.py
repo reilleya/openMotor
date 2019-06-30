@@ -345,29 +345,34 @@ class Window(QMainWindow):
         self.updateGrainTable()
         self.checkGrainSelection()
         self.updatePropBoxSelection()
+        self.ui.motorEditor.close()
 
     def redo(self):
         self.app.fileManager.redo()
         self.updateGrainTable()
         self.checkGrainSelection()
         self.updatePropBoxSelection()
+        self.ui.motorEditor.close()
 
     def newMotor(self):
         self.app.fileManager.newFile()
         self.updatePropBoxSelection()
         self.resetOutput()
+        self.ui.motorEditor.close()
 
     def burnSimImport(self):
         self.disablePropSelector()
         if self.burnsimManager.showImportMenu():
             self.postLoadUpdate()
         self.enablePropSelector()
+        self.ui.motorEditor.close()
 
     def loadMotor(self, path=None):
         self.disablePropSelector()
         if self.app.fileManager.load(path):
             self.postLoadUpdate()
         self.enablePropSelector()
+        self.ui.motorEditor.close()
 
     # Clear out all info related to old motor/sim in the interface
     def postLoadUpdate(self):

@@ -101,6 +101,9 @@ class BurnsimManager(QObject):
                 motor.nozzle.setProperty('throat', inToM(child.attrib['ThroatDia']))
                 motor.nozzle.setProperty('exit', inToM(child.attrib['ExitDia']))
                 motor.nozzle.setProperty('efficiency', float(child.attrib['NozzleEfficiency']) / 100)
+                motor.nozzle.setProperty('divAngle', 15)
+                motor.nozzle.setProperty('convAngle', 45)
+                errors += 'Nozzle angles not specified, assumed to be 15° and 45°.\n'
             if child.tag == 'Grain':
                 if child.attrib['Type'] in SUPPORTED_GRAINS:
                     motor.grains.append(SUPPORTED_GRAINS[child.attrib['Type']]())
