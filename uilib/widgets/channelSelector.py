@@ -23,8 +23,6 @@ class ChannelSelector(QGroupBox):
                     check = QCheckBox(simres.channels[channel].name)
                 else:
                     check = QRadioButton(simres.channels[channel].name)
-                if channel in disabled:
-                    check.setEnabled(False)
                 self.layout().addWidget(check)
                 self.checks[channel] = check
                 if default is not None:
@@ -34,6 +32,8 @@ class ChannelSelector(QGroupBox):
                     else:
                         self.checks[channel].setChecked(channel == default)
                 self.checks[channel].toggled.connect(self.checksChanged.emit)
+                if channel in disabled:
+                    check.setEnabled(False)
 
     def getSelectedChannels(self):
         selected = []

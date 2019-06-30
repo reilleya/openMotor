@@ -122,7 +122,7 @@ class SimulationResult():
 
     def getInitialKN(self):
         """Returns the motor's Kn before it started firing."""
-        return self.channels['kn'].getPoint(1)
+        return self.channels['kn'].getPoint(0)
 
     def getPeakKN(self):
         """Returns the highest Kn that was observed during the motor's burn."""
@@ -136,11 +136,12 @@ class SimulationResult():
         """Returns the highest chamber pressure that was observed during the motor's burn."""
         return self.channels['pressure'].getMax()
 
-    def getImpulse(self):
-        """Returns the impulse the simulated motor produced."""
+    def getImpulse(self, stop=None):
+        """Returns the impulse the simulated motor produced. If 'stop' is set to a value other than None, only the
+        impulse to that point in the data is returned."""
         impulse = 0
         lastTime = 0
-        for time, force in zip(self.channels['time'].data, self.channels['force'].data):
+        for time, force in zip(self.channels['time'].data[:stop], self.channels['force'].data[:stop]):
             impulse += force * (time - lastTime)
             lastTime = time
         return impulse
@@ -169,9 +170,15 @@ class SimulationResult():
                 return frame.index(value)
         return None
 
-    def getISP(self):
+    def getISP(self, index=None):
         """Returns the specific impulse that the simulated motor delivered."""
-        return self.getImpulse() / (self.getPropellantMass() * 9.80665)
+        if index == None:
+            propMass = self.getPropellantMass()
+        else:
+            propMass = self.getPropellantMass() - self.getPropellantMass(index)
+        if propMass == 0:
+            return 0
+        return self.getImpulse(index) / (propMass * 9.80665)
 
     def getPortRatio(self):
         """Returns the port/throat ratio of the motor, or None if it doesn't have a port."""
@@ -184,9 +191,10 @@ class SimulationResult():
         """Returns the total length of all propellant before the simulated burn."""
         return sum([g.props['length'].getValue() for g in self.motor.grains])
 
-    def getPropellantMass(self):
-        """Returns the total mass of all propellant before the simulated burn."""
-        return sum(self.channels['mass'].getPoint(0))
+    def getPropellantMass(self, index=0):
+        """Returns the total mass of all propellant before the simulated burn. Optionally accepts a index that the mass
+        will be sampled at."""
+        return sum(self.channels['mass'].getPoint(index))
 
     def getAlertsByLevel(self, level):
         """Returns all simulation alerts of the specified level."""

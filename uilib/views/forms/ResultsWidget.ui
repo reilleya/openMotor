@@ -86,7 +86,7 @@
        <item>
         <widget class="QTableWidget" name="tableWidgetGrains">
          <property name="rowCount">
-          <number>5</number>
+          <number>4</number>
          </property>
          <property name="columnCount">
           <number>0</number>
@@ -111,11 +111,6 @@
            <string>Mass Flux (Port)</string>
           </property>
          </row>
-         <row>
-          <property name="text">
-           <string>Web</string>
-          </property>
-         </row>
         </widget>
        </item>
        <item>
@@ -126,15 +121,131 @@
          <item>
           <widget class="QGroupBox" name="groupBox_2">
            <property name="title">
-            <string>So far</string>
+            <string>Consumed</string>
            </property>
+           <layout class="QFormLayout" name="formLayout_2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelTimeProgressText">
+              <property name="text">
+               <string>Burn Time:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="labelTimeProgress">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="labelImpulseProgressText">
+              <property name="text">
+               <string>Impulse:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="labelImpulseProgress">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="labelMassProgressText">
+              <property name="text">
+               <string>Propellant Mass:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLabel" name="labelMassProgress">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="labelISPProgressText">
+              <property name="text">
+               <string>ISP:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLabel" name="labelISPProgress">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
          <item>
           <widget class="QGroupBox" name="groupBox_3">
            <property name="title">
-            <string>GroupBox</string>
+            <string>Remaining</string>
            </property>
+           <layout class="QFormLayout" name="formLayout_3">
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelTimeRemainingText">
+              <property name="text">
+               <string>Biurn Time:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="labelTimeRemaining">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="labelImpulseRemainingText">
+              <property name="text">
+               <string>Impulse:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="labelImpulseRemaining">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="labelMassRemainingText">
+              <property name="text">
+               <string>Propellant Mass:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLabel" name="labelMassRemaining">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="labelISPRemainingText">
+              <property name="text">
+               <string>ISP:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLabel" name="labelISPRemaining">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
@@ -153,11 +264,6 @@
         </widget>
        </item>
       </layout>
-     </widget>
-     <widget class="QWidget" name="tabLength">
-      <attribute name="title">
-       <string>Length</string>
-      </attribute>
      </widget>
     </widget>
    </item>

@@ -12,7 +12,7 @@ class CSVExportMenu(QDialog):
         self.preferences = None
         self.ui.buttonBox.accepted.connect(self.exportCSV)
 
-        self.ui.channelSelector.setupChecks(True, disabled=["time"])
+        self.ui.channelSelector.setupChecks(True, disabled=["time"], default=["time"])
 
     def exportCSV(self):
         exclude = self.ui.channelSelector.getUnselectedChannels()

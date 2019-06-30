@@ -80,16 +80,16 @@ class PolygonEditor(QWidget):
             while join != []:
                 join = [] # Will be populated like [ida, idb, flip] if there is work to do
                 for (chunkId, chunk), (compChunkID, compChunk) in itertools.combinations(enumerate(chunks), 2):
-                    if motorlib.dist(chunk[0], compChunk[-1]) < close:
+                    if motorlib.geometry.dist(chunk[0], compChunk[-1]) < close:
                         join = [compChunkID, chunkId, False]
                         break
-                    elif motorlib.dist(chunk[-1], compChunk[0]) < close:
+                    elif motorlib.geometry.dist(chunk[-1], compChunk[0]) < close:
                         join = [chunkId, compChunkID, False]
                         break
-                    elif motorlib.dist(chunk[-1], compChunk[-1]) < close:
+                    elif motorlib.geometry.dist(chunk[-1], compChunk[-1]) < close:
                         join = [chunkId, compChunkID, True]
                         break
-                    elif motorlib.dist(chunk[0], compChunk[0]) < close:
+                    elif motorlib.geometry.dist(chunk[0], compChunk[0]) < close:
                         join = [chunkId, compChunkID, True]
                         break
                 if join != []: # Add the second chunk on to the first and flip it if the bool is true
@@ -100,7 +100,7 @@ class PolygonEditor(QWidget):
                     del chunks[join[1]]
 
             oldLen = len(chunks)
-            chunks = list(filter(lambda chunk: motorlib.dist(chunk[0], chunk[-1]) < close, chunks))
+            chunks = list(filter(lambda chunk: motorlib.geometry.dist(chunk[0], chunk[-1]) < close, chunks))
             if len(chunks) != oldLen:
                 alerts.append('Open contours cannot be imported')
 

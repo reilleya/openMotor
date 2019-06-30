@@ -180,21 +180,11 @@ class Motor():
         # Setup initial values
         perGrainReg = [0 for grain in self.grains]
 
-        # At t=0, the motor hasn't yet ignited
+        # At t = 0, the motor has ignited
         simRes.channels['time'].addData(0)
-        simRes.channels['kn'].addData(0)
-        simRes.channels['pressure'].addData(0)
-        simRes.channels['force'].addData(0)
-        simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
-        simRes.channels['massFlow'].addData([0 for grain in self.grains])
-        simRes.channels['massFlux'].addData([0 for grain in self.grains])
-        simRes.channels['regression'].addData([0 for grains in self.grains])
-
-        # At t = dTime, the motor has ignited
-        simRes.channels['time'].addData(dTime)
         simRes.channels['kn'].addData(self.calcKN(perGrainReg, burnoutWebThres))
         simRes.channels['pressure'].addData(self.calcIdealPressure(perGrainReg, None, burnoutWebThres))
-        simRes.channels['force'].addData(self.calcForce(simRes.channels['pressure'].getLast()))
+        simRes.channels['force'].addData(0)
         simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
         simRes.channels['massFlow'].addData([0 for grain in self.grains])
         simRes.channels['massFlux'].addData([0 for grain in self.grains])
@@ -210,7 +200,7 @@ class Motor():
                 simRes.addAlert(SimAlert(SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, 'N/A'))
 
         # Perform timesteps, 0.01 converts the threshold to a %
-        while simRes.channels['force'].getLast() > burnoutThrustThres * 0.01 * simRes.channels['force'].getMax():
+        while len(simRes.channels['time'].getData()) == 1 or simRes.channels['force'].getLast() > burnoutThrustThres * 0.01 * simRes.channels['force'].getMax():
             # Calculate regression
             massFlow = 0
             perGrainMass = [0 for grain in self.grains]
