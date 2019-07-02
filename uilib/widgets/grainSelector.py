@@ -1,8 +1,6 @@
 from PyQt5.QtWidgets import QGroupBox, QCheckBox, QRadioButton, QVBoxLayout
 from PyQt5.QtCore import pyqtSignal
 
-import motorlib
-
 class GrainSelector(QGroupBox):
 
     checksChanged = pyqtSignal()
@@ -15,13 +13,13 @@ class GrainSelector(QGroupBox):
         self.setTitle("Grains")
 
     def resetChecks(self):
-        for check in range(0, len(self.checks)):
+        for _ in range(0, len(self.checks)):
             self.layout().removeWidget(self.checks[-1])
             self.checks[-1].deleteLater()
             del self.checks[-1]
 
     def setupChecks(self, simRes, multiselect):
-        for gid, grain in enumerate(simRes.motor.grains):
+        for gid, _ in enumerate(simRes.motor.grains):
             checkTitle = "Grain " + str(gid + 1)
             if multiselect:
                 check = QCheckBox(checkTitle)

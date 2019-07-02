@@ -1,9 +1,4 @@
-from threading import Thread
-
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
 from PyQt5.QtWidgets import QWidget, QHeaderView, QLabel
-from PyQt5.QtCore import pyqtSignal
 
 import motorlib
 
@@ -96,14 +91,14 @@ class ResultsWidget(QWidget):
             currentImpulse = self.simResult.getImpulse(index)
             remainingImpulse = self.simResult.getImpulse() - currentImpulse
             impUnit = self.preferences.getUnit('Ns')
-            self.ui.labelImpulseProgress.setText(motorlib.units.format(currentImpulse, 'Ns', impUnit))
-            self.ui.labelImpulseRemaining.setText(motorlib.units.format(remainingImpulse, 'Ns', impUnit))
+            self.ui.labelImpulseProgress.setText(motorlib.units.convFormat(currentImpulse, 'Ns', impUnit))
+            self.ui.labelImpulseRemaining.setText(motorlib.units.convFormat(remainingImpulse, 'Ns', impUnit))
 
             currentMass = self.simResult.getPropellantMass(index)
             remainingMass = self.simResult.getPropellantMass() - currentMass
             massUnit = self.preferences.getUnit('kg')
-            self.ui.labelMassProgress.setText(motorlib.units.format(remainingMass, 'kg', massUnit))
-            self.ui.labelMassRemaining.setText(motorlib.units.format(currentMass, 'kg', massUnit))
+            self.ui.labelMassProgress.setText(motorlib.units.convFormat(remainingMass, 'kg', massUnit))
+            self.ui.labelMassRemaining.setText(motorlib.units.convFormat(currentMass, 'kg', massUnit))
 
             currentISP = self.simResult.getISP(index)
             self.ui.labelISPProgress.setText(str(round(currentISP, 3)) + ' s')

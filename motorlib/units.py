@@ -74,7 +74,7 @@ def convertAll(quantities, originUnit, destUnit):
     convRate = getConversion(originUnit, destUnit)
     return [q * convRate for q in quantities]
 
-def format(quantity, originUnit, destUnit, places=3):
+def convFormat(quantity, originUnit, destUnit, places=3):
     """Takes in a quantity in originUnit, converts it to destUnit and outputs a rounded and formatted string that
     includes the unit appended to the end."""
     num = round(convert(quantity, originUnit, destUnit), places)

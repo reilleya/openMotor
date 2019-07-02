@@ -185,7 +185,7 @@ class PerforatedGrain(Grain):
         """Returns an image of the grain's cross section, with resolution (mapDim, mapDim)."""
 
     @abstractmethod
-    def getRegressionData(self, mapDim, numContours=15):
+    def getRegressionData(self, mapDim, numContours=15, coreBlack=True):
         """Returns a tuple that includes a grain face image as described in 'getFaceImage', a regression map
         where color maps to regression depth, a list of contours (lists of (x,y) points in image space) of
         equal regression depth, and a list of corresponding contour lengths. The contours are equally spaced

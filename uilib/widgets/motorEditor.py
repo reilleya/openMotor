@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLabel, QListWidget, QSizePolicy
+from PyQt5.QtWidgets import QLabel
 
 import motorlib.grain
 import motorlib.nozzle
@@ -24,8 +24,7 @@ class MotorEditor(CollectionEditor):
         self.nozzlePreview.hide()
         self.stats.addWidget(self.nozzlePreview)
 
-        self.nozzle = True
-        self.grainClass = None
+        self.objType = None
 
     def propertyUpdate(self):
         if issubclass(self.objType, motorlib.nozzle.Nozzle):

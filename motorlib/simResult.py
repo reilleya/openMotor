@@ -204,6 +204,14 @@ class SimulationResult():
                 out.append(alert)
         return out
 
+    def shouldContinueSim(self, thrustThres):
+        """Returns if the simulation should continue based on the thrust from the last timestep."""
+        # With only one data point, there is nothing to compare
+        if len(self.channels['time'].getData()) == 1:
+            return True
+        # Otherwise perform the comparison. 0.01 converts the threshold to a %
+        return self.channels['force'].getLast() > thrustThres * 0.01 * self.channels['force'].getMax()
+
     def getCSV(self, pref=None, exclude=[]):
         """Returns a string that contains a CSV of the simulated data. Preferences can be passed in to set units that
         the values will be converted to. All log channels are included unless their names are in the include

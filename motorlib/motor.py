@@ -1,7 +1,5 @@
 """Conains the motor class and a supporting configuration property collection."""
 
-import numpy as np
-
 from .grains import grainTypes
 from .nozzle import Nozzle
 from .propellant import Propellant
@@ -120,7 +118,7 @@ class Motor():
     def calcForce(self, chamberPres):
         """Calculates the force of the motor at a given regression depth per grain. Calculates pressure by default,
         but can also use a value passed in. This method uses a combination of the techniques described in these
-        resources to adjust the thrust coefficient: https://apps.dtic.mil/dtic/tr/fulltext/u2/a099791.pdf and 
+        resources to adjust the thrust coefficient: https://apps.dtic.mil/dtic/tr/fulltext/u2/a099791.pdf and
         http://rasaero.com/dloads/Departures%20from%20Ideal%20Performance.pdf."""
         thrustCoeffIdeal = self.calcIdealThrustCoeff(chamberPres)
         divLoss = self.nozzle.getDivergenceLosses()
@@ -138,7 +136,6 @@ class Motor():
         using the pressure to determine how the motor will regress in the given timestep at the current pressure.
         This process is repeated and regression tracked until all grains have burned out, when the results and any
         warnings are returned."""
-        ambientPressure = self.config.getProperty('ambPressure')
         burnoutWebThres = self.config.getProperty('burnoutWebThres')
         burnoutThrustThres = self.config.getProperty('burnoutThrustThres')
         dTime = self.config.getProperty('timestep')
@@ -199,8 +196,8 @@ class Motor():
                 desc = 'Initial port/throat ratio of ' + str(round(ratio, 3)) + ' was less than ' + str(minAllowed)
                 simRes.addAlert(SimAlert(SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, 'N/A'))
 
-        # Perform timesteps, 0.01 converts the threshold to a %
-        while len(simRes.channels['time'].getData()) == 1 or simRes.channels['force'].getLast() > burnoutThrustThres * 0.01 * simRes.channels['force'].getMax():
+        # Perform timesteps
+        while simRes.shouldContinueSim(burnoutThrustThres):
             # Calculate regression
             massFlow = 0
             perGrainMass = [0 for grain in self.grains]
