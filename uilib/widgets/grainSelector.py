@@ -43,3 +43,9 @@ class GrainSelector(QGroupBox):
             if not check.isChecked():
                 selected.append(checkId)
         return selected
+
+    def setChecks(self, checks):
+        for check in self.checks:
+            check.setCheckState(0)
+        for check in checks:
+            self.checks[check].setCheckState(2)

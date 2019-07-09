@@ -15,8 +15,10 @@ class ResultsWidget(QWidget):
         self.ui.setupUi(self)
         self.preferences = None
         self.simResult = None
+        self.cachedChecks = None
 
-        self.ui.channelSelectorX.setupChecks(False, default='time', exclude=['mass', 'massFlow', 'massFlux'])
+        self.ui.channelSelectorX.setupChecks(False, default='time', exclude=['kn', 'pressure', 'force', 'mass',
+            'massFlow', 'massFlux'])
         self.ui.channelSelectorX.setTitle('X Axis')
         self.ui.channelSelectorY.setupChecks(True, default=['kn', 'pressure', 'force'])
         self.ui.channelSelectorY.setTitle('Y Axis')
@@ -35,9 +37,15 @@ class ResultsWidget(QWidget):
         self.ui.widgetGraph.setPreferences(pref)
 
     def showData(self, simResult):
+        if self.simResult is not None:
+            newMotor = len(simResult.motor.grains) != len(self.simResult.motor.grains)
+        else:
+            newMotor = True
         self.simResult = simResult
         self.ui.grainSelector.resetChecks()
         self.ui.grainSelector.setupChecks(simResult, True)
+        if not newMotor and self.cachedChecks is not None:
+            self.ui.grainSelector.setChecks(self.cachedChecks)
         self.drawGraphs()
 
         self.cleanupGrainTab()
@@ -109,7 +117,7 @@ class ResultsWidget(QWidget):
                 self.ui.labelISPRemaining.setText('-')
 
     def resetPlot(self):
-        self.simResult = None
+        self.cachedChecks = self.ui.grainSelector.getSelectedGrains()
         self.ui.grainSelector.resetChecks()
         self.ui.widgetGraph.resetPlot()
         self.cleanupGrainTab()
