@@ -18,6 +18,13 @@ Welcome to openMotor's documentation!
 
    motorlib
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Developer documentation:
+
+   building
+
+
 
 Indices and tables
 ==================
