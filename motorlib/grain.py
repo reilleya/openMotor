@@ -6,6 +6,7 @@ from abc import abstractmethod
 import numpy as np
 import skfmm
 from skimage import measure
+from scipy.signal import savgol_filter
 
 from . import geometry
 from .simResult import SimAlert, SimAlertLevel, SimAlertType
@@ -203,6 +204,7 @@ class FmmGrain(PerforatedGrain):
         self.mask = None
         self.coreMap = None
         self.regressionMap = None
+        self.faceArea = None
 
     def normalize(self, value):
         """Transforms real unit quantities into self.mapX, self.mapY coordinates. For use in indexing into the
@@ -232,6 +234,8 @@ class FmmGrain(PerforatedGrain):
 
     def initGeometry(self, mapDim):
         """Set up an empty core map and reset the regression map. Takes in the dimension of both maps."""
+        if mapDim < 64:
+            raise ValueError('Map dimension must be 64 or larger to get good results')
         self.mapDim = mapDim
         self.mapX, self.mapY = np.meshgrid(np.linspace(-1, 1, self.mapDim), np.linspace(-1, 1, self.mapDim))
         self.mask = self.mapX**2 + self.mapY**2 > 1
@@ -256,7 +260,13 @@ class FmmGrain(PerforatedGrain):
         masked = np.ma.MaskedArray(self.coreMap, self.mask)
         cellSize = 1 / self.mapDim
         self.regressionMap = skfmm.distance(masked, dx=cellSize) * 2
-        self.wallWeb = self.unNormalize(np.amax(self.regressionMap))
+        maxDist = np.amax(self.regressionMap)
+        self.wallWeb = self.unNormalize(maxDist)
+        faceArea = []
+        valid = np.logical_not(self.mask)
+        for i in range(int(maxDist * self.mapDim) + 2):
+            faceArea.append(self.mapToArea(np.count_nonzero(np.logical_and(self.regressionMap > (i / self.mapDim), valid))))
+        self.faceArea = savgol_filter(faceArea, 31, 5)
 
     def getCorePerimeter(self, regDist):
         mapDist = self.normalize(regDist)
@@ -270,11 +280,10 @@ class FmmGrain(PerforatedGrain):
 
     def getFaceArea(self, regDist):
         mapDist = self.normalize(regDist)
-
-        valid = np.logical_not(self.mask)
-        faceArea = self.mapToArea(np.count_nonzero(np.logical_and(self.regressionMap > mapDist, valid)))
-
-        return faceArea
+        index = int(mapDist * self.mapDim)
+        if index >= len(self.faceArea):
+            return 0 # Past burnout
+        return self.faceArea[index]
 
     def getFaceImage(self, mapDim):
         self.initGeometry(mapDim)
