@@ -192,7 +192,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="labelTimeRemainingText">
               <property name="text">
-               <string>Biurn Time:</string>
+               <string>Burn Time:</string>
               </property>
              </widget>
             </item>
