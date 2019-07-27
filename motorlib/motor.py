@@ -126,7 +126,8 @@ class Motor():
         skinLoss = self.nozzle.getSkinLosses()
         efficiency = self.nozzle.getProperty('efficiency')
         thrustCoeffAdj = divLoss * throatLoss * efficiency * (skinLoss * thrustCoeffIdeal + (1 - skinLoss))
-        return thrustCoeffAdj * self.nozzle.getThroatArea() * chamberPres
+        thrust = thrustCoeffAdj * self.nozzle.getThroatArea() * chamberPres
+        return max(thrust, 0)
 
     def runSimulation(self, callback=None):
         """Runs a simulation of the motor and returns a simRes instance with the results. Constraints are checked,
