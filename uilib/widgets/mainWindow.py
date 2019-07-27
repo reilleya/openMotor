@@ -3,7 +3,7 @@ import sys
 from PyQt5.QtWidgets import QWidget, QMainWindow, QTableWidgetItem, QHeaderView, QMessageBox, QTableWidget
 
 import motorlib
-from uilib import engExport, csvExport, imageExport
+from uilib import csvExport, imageExport
 import uilib.widgets.aboutDialog
 import uilib.widgets.preferencesMenu
 from uilib.views.MainWindow_ui import Ui_MainWindow
@@ -28,11 +28,10 @@ class Window(QMainWindow):
                                 self.ui.labelPropellantMass, self.ui.labelPropellantLength, self.ui.labelPortThroatRatio, self.ui.labelPeakMassFlux]
 
         self.app.fileManager.fileNameChanged.connect(self.updateWindowTitle)
+        self.app.fileManager.newMotor.connect(self.resetOutput)
 
         self.app.importExportManager.motorImported.connect(self.motorImported)
 
-        self.engExporter = uilib.engExport.ENGExportMenu()
-        self.app.preferencesManager.preferencesChanged.connect(self.engExporter.setPreferences)
         self.csvExporter = uilib.csvExport.CSVExportMenu()
         self.app.preferencesManager.preferencesChanged.connect(self.csvExporter.setPreferences)
         self.imageExporter = uilib.imageExport.ImageExportMenu()
@@ -40,7 +39,6 @@ class Window(QMainWindow):
 
         self.app.simulationManager.newSimulationResult.connect(self.updateMotorStats)
         self.app.simulationManager.newSimulationResult.connect(self.ui.resultsWidget.showData)
-        self.app.simulationManager.newSimulationResult.connect(self.engExporter.acceptSimResult)
         self.app.simulationManager.newSimulationResult.connect(self.csvExporter.acceptSimResult)
         self.app.simulationManager.newSimulationResult.connect(self.imageExporter.acceptSimResult)
 
