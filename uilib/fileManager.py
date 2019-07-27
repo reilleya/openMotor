@@ -10,6 +10,7 @@ from .fileIO import saveFile, loadFile, fileTypes
 class FileManager(QObject):
 
     fileNameChanged = pyqtSignal(str, bool)
+    newMotor = pyqtSignal(object)
 
     def __init__(self, app):
         super().__init__()
@@ -39,6 +40,7 @@ class FileManager(QObject):
         self.savedVersion = 0
         self.fileName = filename
         self.sendTitleUpdate()
+        self.newMotor.emit(motor)
 
     # Asks the user for a filename if they haven't provided one. Otherwise, dump the motor to a file and show any resulting errors in a popup. Called when the menu item is triggered.
     def save(self):
@@ -91,10 +93,7 @@ class FileManager(QObject):
             self.fileHistory.append(motor.getDict())
             self.currentVersion += 1
             self.sendTitleUpdate()
-
-    # Changes the current motor without adding undo history. Should not be used after user interaction.
-    def overrideCurrentMotor(self, motor):
-        self.fileHistory[-1] = motor.getDict()
+            self.newMotor.emit(motor)
 
     # Returns true if there is history before the current motor
     def canUndo(self):
@@ -105,6 +104,7 @@ class FileManager(QObject):
         if self.canUndo():
             self.currentVersion -= 1
             self.sendTitleUpdate()
+            self.newMotor.emit(self.getCurrentMotor())
 
     # Returns true if there is history ahead of the current motor
     def canRedo(self):
@@ -115,6 +115,7 @@ class FileManager(QObject):
         if self.canRedo():
             self.currentVersion += 1
             self.sendTitleUpdate()
+            self.newMotor.emit(self.getCurrentMotor())
 
     # If there is unsaved history, ask the user if they want to save it. Returns true if it is safe to start a new motor (save, discard) or false if not (cancel)
     def unsavedCheck(self):
