@@ -506,16 +506,11 @@
       <string>Export</string>
      </property>
      <addaction name="separator"/>
-     <addaction name="actionENGFile"/>
-     <addaction name="actionImage"/>
-     <addaction name="actionCSV"/>
-     <addaction name="actionExportBurnSim"/>
     </widget>
     <widget class="QMenu" name="menuImport">
      <property name="title">
       <string>Import</string>
      </property>
-     <addaction name="actionImportBurnSim"/>
     </widget>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
@@ -593,11 +588,6 @@
     <string>Ctrl+R</string>
    </property>
   </action>
-  <action name="actionGenerateReport">
-   <property name="text">
-    <string>Generate Report</string>
-   </property>
-  </action>
   <action name="actionPreferences">
    <property name="text">
     <string>Preferences</string>
@@ -622,54 +612,9 @@
     <bool>false</bool>
    </property>
   </action>
-  <action name="actionENGFile">
-   <property name="text">
-    <string>ENG File</string>
-   </property>
-  </action>
-  <action name="actionImage">
-   <property name="text">
-    <string>Image</string>
-   </property>
-  </action>
-  <action name="actionCSV">
-   <property name="text">
-    <string>CSV</string>
-   </property>
-  </action>
-  <action name="actionSetKN">
-   <property name="text">
-    <string>Set KN</string>
-   </property>
-  </action>
-  <action name="actionExpansionRatio">
-   <property name="text">
-    <string>Expansion Ratio</string>
-   </property>
-  </action>
   <action name="actionPropellantEditor">
    <property name="text">
     <string>Propellant Editor</string>
-   </property>
-  </action>
-  <action name="actionMotorDiameter">
-   <property name="text">
-    <string>Motor Diameter</string>
-   </property>
-  </action>
-  <action name="actionInitial_KN">
-   <property name="text">
-    <string>Initial KN</string>
-   </property>
-  </action>
-  <action name="actionMax_KN">
-   <property name="text">
-    <string>Max KN</string>
-   </property>
-  </action>
-  <action name="actionExpansion_Ratio">
-   <property name="text">
-    <string>Expansion Ratio</string>
    </property>
   </action>
   <action name="actionUndo">
@@ -694,16 +639,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
-   </property>
-  </action>
-  <action name="actionExportBurnSim">
-   <property name="text">
-    <string>BurnSim File</string>
-   </property>
-  </action>
-  <action name="actionImportBurnSim">
-   <property name="text">
-    <string>BurnSim File</string>
    </property>
   </action>
  </widget>

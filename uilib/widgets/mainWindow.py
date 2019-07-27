@@ -3,7 +3,6 @@ import sys
 from PyQt5.QtWidgets import QWidget, QMainWindow, QTableWidgetItem, QHeaderView, QMessageBox, QTableWidget
 
 import motorlib
-from uilib import burnsimManager
 from uilib import engExport, csvExport, imageExport
 import uilib.widgets.aboutDialog
 import uilib.widgets.preferencesMenu
@@ -30,6 +29,8 @@ class Window(QMainWindow):
 
         self.app.fileManager.fileNameChanged.connect(self.updateWindowTitle)
 
+        self.app.importExportManager.motorImported.connect(self.motorImported)
+
         self.engExporter = uilib.engExport.ENGExportMenu()
         self.app.preferencesManager.preferencesChanged.connect(self.engExporter.setPreferences)
         self.csvExporter = uilib.csvExport.CSVExportMenu()
@@ -47,8 +48,6 @@ class Window(QMainWindow):
 
         self.app.toolManager.setupMenu(self.ui.menuTools)
         self.app.toolManager.changeApplied.connect(self.postLoadUpdate)
-
-        self.burnsimManager = uilib.burnsimManager.BurnsimManager(self.app)
 
         self.setupMotorStats()
         self.setupMotorEditor()
@@ -88,13 +87,8 @@ class Window(QMainWindow):
         self.ui.actionSave.triggered.connect(self.app.fileManager.save)
         self.ui.actionSaveAs.triggered.connect(self.app.fileManager.saveAs)
         self.ui.actionOpen.triggered.connect(lambda x: self.loadMotor(None)) # Lambda because the signal passes in an argument
-        # Import
-        self.ui.actionImportBurnSim.triggered.connect(self.burnSimImport)
-        # Export
-        self.ui.actionENGFile.triggered.connect(self.engExporter.open)
-        self.ui.actionImage.triggered.connect(self.imageExporter.open)
-        self.ui.actionCSV.triggered.connect(self.csvExporter.open)
-        self.ui.actionExportBurnSim.triggered.connect(self.burnsimManager.showExportMenu)
+
+        self.app.importExportManager.createMenus(self.ui.menuImport, self.ui.menuExport)
 
         self.ui.actionQuit.triggered.connect(self.closeEvent)
 
@@ -363,12 +357,9 @@ class Window(QMainWindow):
         self.resetOutput()
         self.ui.motorEditor.close()
 
-    def burnSimImport(self):
-        self.disablePropSelector()
-        if self.burnsimManager.showImportMenu():
-            self.postLoadUpdate()
-        self.enablePropSelector()
+    def motorImported(self):
         self.ui.motorEditor.close()
+        self.postLoadUpdate()
 
     def loadMotor(self, path=None):
         self.disablePropSelector()

@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication, QMessageBox
 
 import motorlib
 from uilib import preferencesManager, propellantManager, simulationManager, fileManager, toolManager
+from uilib import importExportManager
 import uilib.widgets.mainWindow
 
 class App(QApplication):
@@ -27,6 +28,9 @@ class App(QApplication):
 
         self.toolManager = uilib.toolManager.ToolManager(self)
         self.preferencesManager.preferencesChanged.connect(self.toolManager.setPreferences)
+
+        self.importExportManager = uilib.importExportManager.ImportExportManager(self)
+        self.preferencesManager.preferencesChanged.connect(self.importExportManager.setPreferences)
 
         if self.headless:
             if len(args) < 3:
