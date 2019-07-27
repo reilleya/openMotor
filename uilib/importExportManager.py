@@ -6,7 +6,7 @@ import motorlib
 
 from .fileIO import saveFile, loadFile, fileTypes
 from .converter import Importer, Exporter
-from .converters import BurnSimImporter
+from .converters import BurnSimImporter, EngExporter
 
 class ImportExportManager(QObject):
 
@@ -16,8 +16,14 @@ class ImportExportManager(QObject):
     def __init__(self, app):
         super().__init__()
         self.app = app
-        self.conversions = [BurnSimImporter(self)]
+        self.conversions = [BurnSimImporter(self),
+                            EngExporter(self)]
         self.preferences = None # TODO: change?
+
+        self.simRes = None
+
+    def acceptSimRes(self, simRes):
+        self.simRes = simRes
 
     def setPreferences(self, pref):
         self.preferences = pref
@@ -28,10 +34,6 @@ class ImportExportManager(QObject):
     def startFromMotor(self, motor):
         self.app.fileManager.startFromMotor(motor)
         self.motorImported.emit()
-
-    def getRequirement(self, req):
-        if req == 'motor':
-            return self.app
 
     def createMenus(self, importMenu, exportMenu):
         for conversion in self.conversions:

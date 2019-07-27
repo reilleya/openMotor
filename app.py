@@ -31,6 +31,7 @@ class App(QApplication):
 
         self.importExportManager = uilib.importExportManager.ImportExportManager(self)
         self.preferencesManager.preferencesChanged.connect(self.importExportManager.setPreferences)
+        self.simulationManager.newSimulationResult.connect(self.importExportManager.acceptSimRes)
 
         if self.headless:
             if len(args) < 3:

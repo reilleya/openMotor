@@ -25,18 +25,31 @@ class Exporter(Converter):
     def __init__(self, manager, name, description, fileTypes):
         super().__init__(manager, name, description, fileTypes)
         self.requirements = []
+        self.reqNotMet = "Requirement not met!"
 
     def showFileSelector(self):
         """Open a dialog to pick the file to save to"""
         path = QFileDialog.getSaveFileName(None, 'Export ' + self.name, '', self.getFileTypeString())[0]
         if path == '' or path is None:
             return
-        if path[-4:] != '.bsx':
-            path += '.bsx'
         return path
 
     def exec(self):
-        fileName = self.showFileSelector()
+        if self.checkRequirements():
+            config = None
+            if self.menu is not None:
+                config = self.menu.exec()
+                if config is None:
+                    return
+            path = self.showFileSelector()
+            if path is None:
+                return
+            self.doConversion(path, config)
+        else:
+            self.manager.app.outputMessage(self.reqNotMet)
+
+    def doConversion(self, path, config):
+        pass
 
     def checkRequirements(self):
         for req in self.requirements:

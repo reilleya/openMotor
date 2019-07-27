@@ -1,5 +1,4 @@
 import xml.etree.ElementTree as ET
-from PyQt5.QtWidgets import QApplication
 
 import motorlib
 
@@ -117,6 +116,6 @@ class BurnSimImporter(Importer):
                 errors += "\nFile contains test data, which is not imported."
 
         if errors != '':
-            QApplication.instance().outputMessage(errors + '\nThe rest of the motor will be imported.')
+            self.manager.app.outputMessage(errors + '\nThe rest of the motor will be imported.')
 
-        self.manager.startFromMotor(motor)        
+        self.manager.startFromMotor(motor)
