@@ -57,15 +57,20 @@ class NozzlePreviewWidget(QWidget):
             divLen = radDiff / tan(divAngle)
         else:
             divLen = 0
+            
         if convAngle != 0:
             convLen = (outerRad - throatRad) / tan(convAngle)
         else:
             convLen = 0
+            
+        nozzleBottomRad = max(exitRad*1.1, outerRad)
+            
         upperPoints = [
             [throatLen, throatRad],
             [0, throatRad],
             [-divLen, exitRad],
-            [-divLen, outerRad],
+            [-divLen, nozzleBottomRad],
+            [0, outerRad],
             [throatLen + convLen, outerRad],
         ]
         lower = QPolygonF([QPointF(p[0] * scale, p[1] * scale) for p in upperPoints])
