@@ -4,6 +4,7 @@ from PyQt5.QtCore import pyqtSignal
 class GrainSelector(QGroupBox):
 
     checksChanged = pyqtSignal()
+    doubleClicked = pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -49,3 +50,6 @@ class GrainSelector(QGroupBox):
             check.setCheckState(0)
         for check in checks:
             self.checks[check].setCheckState(2)
+            
+    def mouseDoubleClickEvent(self, event):
+        self.doubleClicked.emit()
