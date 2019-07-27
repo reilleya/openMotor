@@ -72,6 +72,9 @@ class Window(QMainWindow):
         for label in self.motorStatLabels:
             label.setText("-")
 
+    def doubleClickGrainSelector(self):
+        self.editGrain()
+
     def setupMotorEditor(self):
         self.ui.motorEditor.setPreferences(self.app.preferencesManager.preferences)
         self.ui.pushButtonEditGrain.pressed.connect(self.editGrain)
@@ -154,6 +157,8 @@ class Window(QMainWindow):
 
         self.ui.tableWidgetGrainList.itemSelectionChanged.connect(self.checkGrainSelection)
         self.checkGrainSelection()
+        
+        self.ui.tableWidgetGrainList.doubleClicked.connect(self.doubleClickGrainSelector)
 
     def setupGraph(self):
         self.ui.resultsWidget.resetPlot()
