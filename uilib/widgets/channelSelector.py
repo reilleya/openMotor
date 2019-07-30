@@ -48,3 +48,8 @@ class ChannelSelector(QGroupBox):
             if not self.checks[check].isChecked():
                 selected.append(check)
         return selected
+
+    def resetChecks(self):
+        for check in self.checks:
+            self.layout().removeWidget(self.checks[check])
+        self.checks = {}

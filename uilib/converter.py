@@ -32,6 +32,8 @@ class Exporter(Converter):
         path = QFileDialog.getSaveFileName(None, 'Export ' + self.name, '', self.getFileTypeString())[0]
         if path == '' or path is None:
             return
+        if not any([path.endswith(ext) for ext in self.fileTypes.keys()]):
+            path += list(self.fileTypes.keys())[0] # if they didn't specify a file type, just pick one
         return path
 
     def exec(self):

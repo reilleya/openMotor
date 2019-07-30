@@ -1,12 +1,9 @@
 from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QFileDialog, QAction
+from PyQt5.QtWidgets import QAction
 from PyQt5.QtCore import pyqtSignal
 
-import motorlib
-
-from .fileIO import saveFile, loadFile, fileTypes
-from .converter import Importer, Exporter
-from .converters import BurnSimImporter, BurnSimExporter, EngExporter
+from .converter import Importer
+from .converters import BurnSimImporter, BurnSimExporter, EngExporter, CsvExporter, ImageExporter
 
 class ImportExportManager(QObject):
 
@@ -17,7 +14,7 @@ class ImportExportManager(QObject):
         super().__init__()
         self.app = app
         self.conversions = [BurnSimImporter(self),
-                            BurnSimExporter(self), EngExporter(self)]
+                            BurnSimExporter(self), EngExporter(self), CsvExporter(self), ImageExporter(self)]
         self.preferences = None # TODO: change?
 
         self.simRes = None
