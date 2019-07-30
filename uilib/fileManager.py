@@ -95,6 +95,13 @@ class FileManager(QObject):
             self.sendTitleUpdate()
             self.newMotor.emit(motor)
 
+    # Updates the propellant of all motors in the history to match the current values in the manager without adding any new history
+    def updatePropellant(self):
+        for motor in self.fileHistory:
+            if motor['propellant'] is not None:
+                prop = self.app.propellantManager.getPropellantByName(motor['propellant']['name']).getProperties()
+                motor['propellant'] = prop
+
     # Returns true if there is history before the current motor
     def canUndo(self):
         return self.currentVersion > 0
