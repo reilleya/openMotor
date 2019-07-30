@@ -52,6 +52,13 @@
     </widget>
    </item>
    <item>
+    <widget class="GrainSelector" name="grainSelector">
+     <property name="title">
+      <string>Grains</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -68,6 +75,12 @@
    <class>ChannelSelector</class>
    <extends>QGroupBox</extends>
    <header location="global">uilib.widgets.channelSelector</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GrainSelector</class>
+   <extends>QGroupBox</extends>
+   <header location="global">uilib.widgets.grainSelector</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

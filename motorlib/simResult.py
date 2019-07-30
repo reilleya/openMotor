@@ -212,10 +212,10 @@ class SimulationResult():
         # Otherwise perform the comparison. 0.01 converts the threshold to a %
         return self.channels['force'].getLast() > thrustThres * 0.01 * self.channels['force'].getMax()
 
-    def getCSV(self, pref=None, exclude=[]):
+    def getCSV(self, pref=None, exclude=[], excludeGrains=[]):
         """Returns a string that contains a CSV of the simulated data. Preferences can be passed in to set units that
         the values will be converted to. All log channels are included unless their names are in the include
-        argument."""
+        argument. """
         out = ''
         outUnits = {}
         for chan in self.channels:
@@ -234,11 +234,12 @@ class SimulationResult():
                 out += ','
             elif self.channels[chan].valueType in (list, tuple):
                 for grain in range(1, len(self.channels[chan].getLast()) + 1):
-                    out += self.channels[chan].name + '('
-                    out += 'G' + str(grain)
-                    if outUnits[chan] != '':
-                        out += ';' + outUnits[chan]
-                    out += '),'
+                    if grain - 1 not in excludeGrains:
+                        out += self.channels[chan].name + '('
+                        out += 'G' + str(grain)
+                        if outUnits[chan] != '':
+                            out += ';' + outUnits[chan]
+                        out += '),'
 
         out = out[:-1] # Remove the last comma
         out += '\n'
@@ -256,9 +257,10 @@ class SimulationResult():
                         rounded = round(conv, places)
                         out += str(rounded) + ','
                     elif self.channels[chan].valueType in (list, tuple):
-                        for grainVal in self.channels[chan].getPoint(ind):
-                            conv = round(units.convert(grainVal, self.channels[chan].unit, outUnits[chan]), places)
-                            out += str(conv) + ','
+                        for gid, grainVal in enumerate(self.channels[chan].getPoint(ind)):
+                            if gid not in excludeGrains:
+                                conv = round(units.convert(grainVal, self.channels[chan].unit, outUnits[chan]), places)
+                                out += str(conv) + ','
 
             out = out[:-1] # Remove the last comma
             out += '\n'

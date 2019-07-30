@@ -22,7 +22,7 @@ class GraphWidget(FigureCanvas):
         pass
         #elf.plot.set_xlabel('Time (s)')
 
-    def showData(self, simResult, xChannel, yChannels, grains):
+    def plotData(self, simResult, xChannel, yChannels, grains):
         self.plot.clear()
 
         xAxisUnit = self.preferences.getUnit(simResult.channels[xChannel].unit)
@@ -55,12 +55,18 @@ class GraphWidget(FigureCanvas):
         self.plot.legend(legend)
         self.plot.set_xlabel(simResult.channels[xChannel].name + ' - ' + xAxisUnit)
         self.plot.set_ylim(bottom=0)
-        self.draw()
 
+    def saveImage(self, simResult, xChannel, yChannels, grains, path):
+        self.plotData(simResult, xChannel, yChannels, grains)
+        self.plot.set_title(simResult.getDesignation())
+        self.figure.savefig(path, bbox_inches="tight")
+        # Clear, but don't draw to not wipe away the graph in the UI
+        self.plot.clear()
+
+    def showData(self, simResult, xChannel, yChannels, grains):
+        self.plotData(simResult, xChannel, yChannels, grains)
+        self.draw()
 
     def resetPlot(self):
         self.plot.clear()
         self.draw()
-
-    def saveImage(self, filename):
-        self.figure.savefig(filename)

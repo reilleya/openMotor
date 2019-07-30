@@ -3,7 +3,6 @@ import sys
 from PyQt5.QtWidgets import QWidget, QMainWindow, QTableWidgetItem, QHeaderView, QMessageBox, QTableWidget
 
 import motorlib
-from uilib import csvExport, imageExport
 import uilib.widgets.aboutDialog
 import uilib.widgets.preferencesMenu
 from uilib.views.MainWindow_ui import Ui_MainWindow
@@ -32,15 +31,8 @@ class Window(QMainWindow):
 
         self.app.importExportManager.motorImported.connect(self.motorImported)
 
-        self.csvExporter = uilib.csvExport.CSVExportMenu()
-        self.app.preferencesManager.preferencesChanged.connect(self.csvExporter.setPreferences)
-        self.imageExporter = uilib.imageExport.ImageExportMenu()
-        self.app.preferencesManager.preferencesChanged.connect(self.imageExporter.setPreferences)
-
         self.app.simulationManager.newSimulationResult.connect(self.updateMotorStats)
         self.app.simulationManager.newSimulationResult.connect(self.ui.resultsWidget.showData)
-        self.app.simulationManager.newSimulationResult.connect(self.csvExporter.acceptSimResult)
-        self.app.simulationManager.newSimulationResult.connect(self.imageExporter.acceptSimResult)
 
         self.aboutDialog = uilib.widgets.aboutDialog.AboutDialog(self.appVersionStr)
 

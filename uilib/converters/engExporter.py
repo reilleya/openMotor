@@ -32,8 +32,7 @@ class EngExportMenu(QDialog):
         self.ui.motorStats.loadProperties(newSettings)
         if super().exec():
             return self.ui.motorStats.getProperties()
-        else:
-            return None
+        return None
 
 
 class EngExporter(Exporter):
