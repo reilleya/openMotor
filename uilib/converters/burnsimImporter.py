@@ -25,6 +25,28 @@ def inToM(value):
     """Converts a string containing a value in inches to a float of meters"""
     return motorlib.units.convert(float(value), 'in', 'm')
 
+def importPropellant(node):
+    propellant = motorlib.propellant.Propellant()
+    propellant.setProperty('name', node.attrib['Name'])
+    ballN = float(node.attrib['BallisticN'])
+    ballA = float(node.attrib['BallisticA']) * 1/(6895**ballN)
+    propellant.setProperty('n', ballN)
+    # Conversion only does in/s to m/s, the rest is handled above
+    ballA = motorlib.units.convert(ballA, 'in/(s*psi^n)', 'm/(s*Pa^n)')
+    propellant.setProperty('a', ballA)
+    density = motorlib.units.convert(float(node.attrib['Density']), 'lb/in^3', 'kg/m^3')
+    propellant.setProperty('density', density)
+    propellant.setProperty('k', float(node.attrib['SpecificHeatRatio']))
+    impMolarMass = node.attrib['MolarMass']
+    # If the user has entered 0, override it to match the default propellant.
+    if impMolarMass == '0':
+        propellant.setProperty('m', 23.67)
+    else:
+        propellant.setProperty('m', float(impMolarMass))
+    # Burnsim doesn't provide this property. Set it to match the default propellant.
+    propellant.setProperty('t', 3500)
+    return propellant
+
 class BurnSimImporter(Importer):
     def __init__(self, manager):
         super().__init__(manager, 'BurnSim Motor', 'Loads motor files for BurnSim 3.0', {'.bsx': 'BurnSim Files'})
@@ -36,6 +58,8 @@ class BurnSimImporter(Importer):
         root = tree.getroot()
         errors = ''
         propSet = False
+        if root.find('Grain') is None:
+            errors += "Motor contains no grains, but the propellant and nozzle can still be imported.\n"
         for child in root:
             if child.tag == 'Nozzle':
                 motor.nozzle.setProperty('throat', inToM(child.attrib['ThroatDia']))
@@ -81,27 +105,7 @@ class BurnSimImporter(Importer):
                         motor.grains[-1].setProperty('numFins', int(child.attrib['FinCount']))
 
                     if not propSet: # Use propellant numbers from the forward grain
-                        impProp = child.find('Propellant')
-                        propellant = motorlib.propellant.Propellant()
-                        propellant.setProperty('name', impProp.attrib['Name'])
-                        ballN = float(impProp.attrib['BallisticN'])
-                        ballA = float(impProp.attrib['BallisticA']) * 1/(6895**ballN)
-                        propellant.setProperty('n', ballN)
-                        # Conversion only does in/s to m/s, the rest is handled above
-                        ballA = motorlib.units.convert(ballA, 'in/(s*psi^n)', 'm/(s*Pa^n)')
-                        propellant.setProperty('a', ballA)
-                        density = motorlib.units.convert(float(impProp.attrib['Density']), 'lb/in^3', 'kg/m^3')
-                        propellant.setProperty('density', density)
-                        propellant.setProperty('k', float(impProp.attrib['SpecificHeatRatio']))
-                        impMolarMass = impProp.attrib['MolarMass']
-                        # If the user has entered 0, override it to match the default propellant.
-                        if impMolarMass == '0':
-                            propellant.setProperty('m', 23.67)
-                        else:
-                            propellant.setProperty('m', float(impMolarMass))
-                        # Burnsim doesn't provide this property. Set it to match the default propellant.
-                        propellant.setProperty('t', 3500)
-                        motor.propellant = propellant
+                        motor.propellant = importPropellant(child.find('Propellant'))
                         propSet = True
 
                 else:
@@ -114,6 +118,11 @@ class BurnSimImporter(Importer):
 
             if child.tag == 'TestData':
                 errors += "\nFile contains test data, which is not imported."
+
+            if child.tag == "Propellant":
+                if not propSet:
+                    motor.propellant = importPropellant(child)
+                    propSet = True
 
         if errors != '':
             self.manager.app.outputMessage(errors + '\nThe rest of the motor will be imported.')
