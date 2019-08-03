@@ -62,6 +62,7 @@ class PropellantMenu(QDialog):
         self.setupPropList()
         self.setupButtons()
         self.manager.savePropellants()
+        self.ui.propEditor.loadProperties(newProp)
         self.repaint() # OSX needs this
 
     def deleteProp(self):
