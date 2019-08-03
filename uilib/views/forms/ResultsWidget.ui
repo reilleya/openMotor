@@ -86,7 +86,7 @@
        <item>
         <widget class="QTableWidget" name="tableWidgetGrains">
          <property name="rowCount">
-          <number>4</number>
+          <number>5</number>
          </property>
          <property name="columnCount">
           <number>0</number>
@@ -109,6 +109,11 @@
          <row>
           <property name="text">
            <string>Mass Flux (Port)</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>Gas Volume</string>
           </property>
          </row>
         </widget>

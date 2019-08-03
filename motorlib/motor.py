@@ -185,8 +185,11 @@ class Motor():
         simRes.channels['force'].addData(0)
         simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
         simRes.channels['massFlow'].addData([0 for grain in self.grains])
+        simRes.channels['massFlowTotal'].addData(0)
         simRes.channels['massFlux'].addData([0 for grain in self.grains])
         simRes.channels['regression'].addData([0 for grains in self.grains])
+        simRes.channels['volume'].addData([grain.getGasVolume(0) for grain in self.grains])
+        simRes.channels['volumeTotal'].addData(sum(grain.getGasVolume(0) for grain in self.grains))
 
         # Check port/throat ratio and add a warning if it is large enough
         aftPort = self.grains[-1].getPortArea(0)
@@ -204,6 +207,7 @@ class Motor():
             perGrainMass = [0 for grain in self.grains]
             perGrainMassFlow = [0 for grain in self.grains]
             perGrainMassFlux = [0 for grain in self.grains]
+            perGrainVolume = [grain.getGasVolumeBurnout() for grain in self.grains]
             for gid, grain in enumerate(self.grains):
                 if grain.getWebLeft(perGrainReg[gid]) > burnoutWebThres:
                     # Calculate regression at the current pressure
@@ -216,12 +220,18 @@ class Motor():
                     massFlow += (simRes.channels['mass'].getLast()[gid] - perGrainMass[gid]) / dTime
                     # Apply the regression
                     perGrainReg[gid] += reg
+                    #Find the new volume of the grains
+                    perGrainVolume[gid] = min(grain.getGasVolume(perGrainReg[gid]), grain.getGasVolumeBurnout())
                 perGrainMassFlow[gid] = massFlow
+                
             simRes.channels['regression'].addData(perGrainReg[:])
 
             simRes.channels['mass'].addData(perGrainMass)
             simRes.channels['massFlow'].addData(perGrainMassFlow)
+            simRes.channels['massFlowTotal'].addData(sum(perGrainMassFlow))
             simRes.channels['massFlux'].addData(perGrainMassFlux)
+            simRes.channels['volume'].addData(perGrainVolume)
+            simRes.channels['volumeTotal'].addData(sum(perGrainVolume))
 
             # Calculate KN
             simRes.channels['kn'].addData(self.calcKN(perGrainReg, burnoutWebThres))

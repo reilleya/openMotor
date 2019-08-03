@@ -7,7 +7,7 @@ from .grainImageWidget import GrainImageWidget
 from ..views.ResultsWidget_ui import Ui_ResultsWidget
 
 class ResultsWidget(QWidget):
-    grainTableFields = ('mass', 'massFlow', 'massFlux')
+    grainTableFields = ('mass', 'massFlow', 'massFlux', 'volume')
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -18,7 +18,7 @@ class ResultsWidget(QWidget):
         self.cachedChecks = None
 
         self.ui.channelSelectorX.setupChecks(False, default='time', exclude=['kn', 'pressure', 'force', 'mass',
-            'massFlow', 'massFlux'])
+            'massFlow', 'massFlowTotal', 'massFlux', 'volume', 'volumeTotal'])
         self.ui.channelSelectorX.setTitle('X Axis')
         self.ui.channelSelectorY.setupChecks(True, default=['kn', 'pressure', 'force'])
         self.ui.channelSelectorY.setTitle('Y Axis')

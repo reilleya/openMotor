@@ -61,6 +61,19 @@ class Grain(PropertyCollection):
     def getPortArea(self, regDist):
         """Returns the area of the grain's port when it has regressed a distance of 'regDist'"""
 
+    def getGasVolume(self, regDist):
+        """Returns the volume of gas in the cylinder orginally ocupied by the grain at a distance of 'regDist'"""
+        uncored = geometry.circleArea(self.props['diameter'].getValue())
+        initialGrainLength = self.props['length'].getValue()
+        currentGrainLength = self.getRegressedLength(regDist)
+        return uncored*(initialGrainLength-currentGrainLength)
+
+    def getGasVolumeBurnout(self):
+        """Returns the volume in the cylinder defined by the diameter of the grain and the grain initial length"""
+        uncored = geometry.circleArea(self.props['diameter'].getValue())
+        initialGrainLength = self.props['length'].getValue()
+        return uncored*initialGrainLength
+
     def getRegressedLength(self, regDist):
         """Returns the length of the grain when it has regressed a distance of 'regDist', taking any possible
         inhibition into account."""
@@ -151,6 +164,13 @@ class PerforatedGrain(Grain):
         faceArea = self.getFaceArea(regDist)
         uncored = geometry.circleArea(self.props['diameter'].getValue())
         return uncored - faceArea
+
+    def getGasVolume(self, regDist):
+        portArea = self.getPortArea(regDist)
+        uncored = geometry.circleArea(self.props['diameter'].getValue())
+        initialGrainLength = self.props['length'].getValue()
+        currentGrainLength = self.getRegressedLength(regDist)
+        return (portArea*currentGrainLength) + (uncored*(initialGrainLength-currentGrainLength))
 
     def getMassFlux(self, massIn, dTime, regDist, dRegDist, position, density):
         diameter = self.props['diameter'].getValue()
