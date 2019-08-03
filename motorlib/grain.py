@@ -7,6 +7,7 @@ import numpy as np
 import skfmm
 from skimage import measure
 from scipy.signal import savgol_filter
+from scipy import interpolate
 
 from . import geometry
 from .simResult import SimAlert, SimAlertLevel, SimAlertType
@@ -168,12 +169,11 @@ class PerforatedGrain(Grain):
             else:
                 top = self.getFaceArea(regDist + dRegDist) * dRegDist * density
                 countedCoreLength = position - (endPos[0] + dRegDist)
-            # This block gets the mass of propellant the core burns in the step. The regression depth is multiplied
-            # by ten and the final result is divided by ten to compensate for bumpiness with low resolution maps and
-            # small regression steps.
-            core = ((self.getPortArea(regDist + (dRegDist * 10)) * countedCoreLength)
-                    - (self.getPortArea(regDist) * countedCoreLength))
-            core *= density / 10
+            # This block gets the mass of propellant the core burns in the step.
+            core = ((self.getPortArea(regDist + dRegDist) * countedCoreLength)
+                - (self.getPortArea(regDist) * countedCoreLength))
+            core *= density
+
             massFlow = massIn + ((top + core) / dTime)
             return massFlow / self.getPortArea(regDist + dRegDist)
         # A position past the grain end was specified, so the mass flow includes the input mass flow
@@ -263,10 +263,13 @@ class FmmGrain(PerforatedGrain):
         maxDist = np.amax(self.regressionMap)
         self.wallWeb = self.unNormalize(maxDist)
         faceArea = []
+        polled = []
         valid = np.logical_not(self.mask)
         for i in range(int(maxDist * self.mapDim) + 2):
+            polled.append(i / self.mapDim)
             faceArea.append(self.mapToArea(np.count_nonzero(np.logical_and(self.regressionMap > (i / self.mapDim), valid))))
         self.faceArea = savgol_filter(faceArea, 31, 5)
+        self.faceAreaFunc = interpolate.interp1d(polled, self.faceArea)
 
     def getCorePerimeter(self, regDist):
         mapDist = self.normalize(regDist)
@@ -283,7 +286,7 @@ class FmmGrain(PerforatedGrain):
         index = int(mapDist * self.mapDim)
         if index >= len(self.faceArea):
             return 0 # Past burnout
-        return self.faceArea[index]
+        return self.faceAreaFunc(mapDist)
 
     def getFaceImage(self, mapDim):
         self.initGeometry(mapDim)
