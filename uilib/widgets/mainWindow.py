@@ -165,17 +165,6 @@ class Window(QMainWindow):
     def propListChanged(self):
         self.resetOutput()
         self.disablePropSelector()
-        cm = self.app.fileManager.getCurrentMotor()
-        if cm.propellant is not None and cm.propellant.getProperty("name") not in self.app.propellantManager.getNames():
-            reply = QMessageBox.question(self, "Propellant deleted",
-                                         "The current motor's propellant has been removed from the library. Would you like to add it back?",
-                                         QMessageBox.Yes | QMessageBox.No)
-            if reply == QMessageBox.Yes:
-                self.app.propellantManager.propellants.append(cm.propellant)
-                self.app.propellantManager.savePropellants()
-            else:
-                cm.propellant = None
-                self.app.fileManager.addNewMotorHistory(cm)
         self.populatePropSelector()
         self.updatePropBoxSelection()
         self.enablePropSelector()

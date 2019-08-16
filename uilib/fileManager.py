@@ -99,8 +99,11 @@ class FileManager(QObject):
     def updatePropellant(self):
         for motor in self.fileHistory:
             if motor['propellant'] is not None:
-                prop = self.app.propellantManager.getPropellantByName(motor['propellant']['name']).getProperties()
-                motor['propellant'] = prop
+                if motor['propellant']['name'] in self.app.propellantManager.getNames():
+                    prop = self.app.propellantManager.getPropellantByName(motor['propellant']['name']).getProperties()
+                    motor['propellant'] = prop
+                else:
+                    motor['propellant'] = None
 
     # Returns true if there is history before the current motor
     def canUndo(self):

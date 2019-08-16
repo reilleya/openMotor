@@ -9,20 +9,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>500</height>
+    <width>850</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>600</width>
-    <height>500</height>
+    <width>850</width>
+    <height>600</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>600</width>
-    <height>500</height>
+    <width>16777215</width>
+    <height>16777215</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -100,7 +100,7 @@
       </widget>
      </item>
      <item>
-      <widget class="PropellantEditor" name="propEditor" native="true">
+      <widget class="CollectionEditor" name="propEditor" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -125,9 +125,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PropellantEditor</class>
+   <class>CollectionEditor</class>
    <extends>QWidget</extends>
-   <header location="global">uilib.widgets.propellantEditor</header>
+   <header location="global">uilib.widgets.collectionEditor</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -28,6 +28,8 @@ class PropellantMenu(QDialog):
         self.ui.pushButtonDelete.pressed.connect(self.deleteProp)
         self.ui.pushButtonEdit.pressed.connect(self.editProp)
 
+        self.ui.propEditor.addButtons()
+
         self.setupButtons()
 
     def show(self):
@@ -51,13 +53,7 @@ class PropellantMenu(QDialog):
                 propNumber += 1
             propName = propName + " " + str(propNumber)
         newProp = motorlib.propellant.Propellant()
-        newProp.setProperties({'name': propName,
-                               'density': 1680,
-                               'a': 3.517054143255937e-05,
-                               'n': 0.3273,
-                               't': 2800,
-                               'm': 23.67,
-                               'k': 1.21})
+        newProp.setProperty('name', propName)
         self.manager.propellants.append(newProp)
         self.setupPropList()
         self.setupButtons()

@@ -66,6 +66,29 @@ def getConfigPath(): # Returns the path that files like preferences and propella
 def passthrough(data):
     return data
 
+def tabularizePropellant(data):
+    newProp = {}
+    newProp['name'] = data['name']
+    newProp['density'] = data['density']
+    newProp['tabs'] = [{}]
+    newProp['tabs'][-1]['a'] = data['a']
+    newProp['tabs'][-1]['n'] = data['n']
+    newProp['tabs'][-1]['k'] = data['k']
+    newProp['tabs'][-1]['t'] = data['t']
+    newProp['tabs'][-1]['m'] = data['m']
+    newProp['tabs'][-1]['minPressure'] = 0
+    newProp['tabs'][-1]['maxPressure'] = 7e7
+    return newProp
+
+def migrateProp_0_3_0_to_0_4_0(data):
+    for i in range(0, len(data)):
+        data[i] = tabularizePropellant(data[i])
+    return data
+
+def migrateMotor_0_3_0_to_0_4_0(data):
+    data['propellant'] = tabularizePropellant(data[propellant])
+    return data
+
 def migratePref_0_2_0_to_0_3_0(data):
     defPref = defaultPreferencesDict()
     data['general']['maxPressure'] = defPref['general']['maxPressure']
@@ -88,7 +111,7 @@ migrations = {
     (0, 3, 0): {
         'to': (0, 4, 0),
         fileTypes.PREFERENCES: passthrough,
-        fileTypes.PROPELLANTS: passthrough,
+        fileTypes.PROPELLANTS: migrateProp_0_3_0_to_0_4_0,
         fileTypes.MOTOR: passthrough
     },
     (0, 2, 0): {

@@ -33,22 +33,26 @@ class CollectionEditor(QWidget):
 
         self.buttons = buttons
         if self.buttons:
-            self.buttons = QHBoxLayout()
-            self.layout().addLayout(self.buttons)
+            self.addButtons()
 
-            self.applyButton = QPushButton('Apply')
-            self.applyButton.pressed.connect(self.apply)
-            self.applyButton.hide()
+    def addButtons(self):
+        self.buttons = QHBoxLayout()
+        self.layout().addLayout(self.buttons)
 
-            self.cancelButton = QPushButton('Cancel')
-            self.cancelButton.pressed.connect(self.close)
-            self.cancelButton.hide()
+        self.applyButton = QPushButton('Apply')
+        self.applyButton.pressed.connect(self.apply)
+        self.applyButton.hide()
 
-            self.buttons.addWidget(self.applyButton)
-            self.buttons.addWidget(self.cancelButton)
+        self.cancelButton = QPushButton('Cancel')
+        self.cancelButton.pressed.connect(self.close)
+        self.cancelButton.hide()
+
+        self.buttons.addWidget(self.applyButton)
+        self.buttons.addWidget(self.cancelButton)
 
     def propertyUpdate(self):
         pass
+
 
     def close(self):
         self.closed.emit()

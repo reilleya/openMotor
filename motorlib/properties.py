@@ -25,6 +25,7 @@ class Property():
         """Returns a human-readable version of the property's current value, including the unit."""
         return str(self.value) + ' ' + unit
 
+
 class FloatProperty(Property):
     """A property that handles floats. It forces the value to be in a certain range."""
     def __init__(self, dispName, unit, minValue, maxValue):
@@ -39,6 +40,7 @@ class FloatProperty(Property):
 
     def dispFormat(self, unit):
         return str(round(units.convert(self.value, self.unit, unit), 6)) + ' ' + unit
+
 
 class EnumProperty(Property):
     """This property operates on strings, but only allows values from a list that is set when the property is
@@ -56,6 +58,7 @@ class EnumProperty(Property):
         if self.contains(value):
             self.value = value
 
+
 class IntProperty(Property):
     """A property with an integer as the value that is clamped to a certain range."""
     def __init__(self, dispName, unit, minValue, maxValue):
@@ -68,16 +71,36 @@ class IntProperty(Property):
         if self.min <= value <= self.max:
             super().setValue(value)
 
+
 class StringProperty(Property):
     """A property that works on the set of all strings"""
     def __init__(self, dispName):
         super().__init__(dispName, '', str)
+
 
 class PolygonProperty(Property):
     """A property that contains a list of polygons, each a list of points"""
     def __init__(self, dispName):
         super().__init__(dispName, '', list)
         self.value = []
+
+
+class TabularProperty(Property):
+    def __init__(self, dispName, collection):
+        super().__init__(dispName, '', list)
+        self.collection = collection
+        self.tabs = []
+
+    def addTab(self, tab):
+        self.tabs.append(tab)
+
+    def getValue(self):
+        return [tab.getProperties() for tab in self.tabs]
+
+    def setValue(self, value):
+        self.tabs = [self.collection(data) for data in value]
+        print(self.tabs)
+
 
 class PropertyCollection():
     """Holds a set of properties and allows batch operations on them through dictionaries"""

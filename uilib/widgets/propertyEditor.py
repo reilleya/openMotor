@@ -7,7 +7,7 @@ from PyQt5.QtCore import pyqtSignal
 import motorlib
 
 from .polygonEditor import PolygonEditor
-
+from .tabularEditor import TabularEditor
 
 class PropertyEditor(QWidget):
 
@@ -71,6 +71,15 @@ class PropertyEditor(QWidget):
             self.editor.pointsChanged.connect(self.valueChanged.emit)
             self.editor.points = self.prop.getValue()
             self.editor.preferences = self.preferences
+
+            self.layout().addWidget(self.editor)
+
+        elif isinstance(prop, motorlib.properties.TabularProperty):
+            print(prop)
+            self.editor = TabularEditor()
+
+            self.editor.setPreferences(self.preferences)
+            self.editor.addTab(prop.tabs[0])
 
             self.layout().addWidget(self.editor)
 
