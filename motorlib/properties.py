@@ -99,7 +99,6 @@ class TabularProperty(Property):
 
     def setValue(self, value):
         self.tabs = [self.collection(data) for data in value]
-        print(self.tabs)
 
 
 class PropertyCollection():

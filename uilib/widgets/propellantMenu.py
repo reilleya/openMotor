@@ -54,11 +54,14 @@ class PropellantMenu(QDialog):
             propName = propName + " " + str(propNumber)
         newProp = motorlib.propellant.Propellant()
         newProp.setProperty('name', propName)
+        newPropTab = motorlib.propellant.PropellantTab()
+        newProp.props['tabs'].addTab(newPropTab)
         self.manager.propellants.append(newProp)
         self.setupPropList()
         self.setupButtons()
         self.manager.savePropellants()
-        self.ui.propEditor.loadProperties(newProp)
+        self.ui.listWidgetPropellants.setCurrentRow(len(self.manager.propellants) - 1)
+        self.editProp()
         self.repaint() # OSX needs this
 
     def deleteProp(self):

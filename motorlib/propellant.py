@@ -3,15 +3,15 @@
 from .properties import PropertyCollection, FloatProperty, StringProperty, TabularProperty
 
 class PropellantTab(PropertyCollection):
-    def __init__(self, tabDict):
+    def __init__(self, tabDict=None):
         super().__init__()
+        self.props['minPressure'] = FloatProperty('Minimum Pressure', 'Pa', 0, 7e7)
+        self.props['maxPressure'] = FloatProperty('Maximum Pressure', 'Pa', 0, 7e7)
         self.props['a'] = FloatProperty('Burn rate Coefficient', 'm/(s*Pa^n)', 0, 2)
         self.props['n'] = FloatProperty('Burn rate Exponent', '', 0, 1)
         self.props['k'] = FloatProperty('Specific Heat Ratio', '', 1+1e-6, 10)
         self.props['t'] = FloatProperty('Combustion Temperature', 'K', 0, 10000)
         self.props['m'] = FloatProperty('Exhaust Molar Mass', 'g/mol', 1e-6, 100)
-        self.props['minPressure'] = FloatProperty('Minimum Pressure', 'Pa', 0, 7e7)
-        self.props['maxPressure'] = FloatProperty('Maximum Pressure', 'Pa', 0, 7e7)
         if tabDict is not None:
             self.setProperties(tabDict)
 
@@ -43,10 +43,28 @@ class Propellant(PropertyCollection):
 
     def getCombustionProperties(self, pressure):
          """Returns the propellant's a, n, gamma, combustion temp and molar mass for a given pressure"""
-         #if 
+         #if  
          #   tab = self.props['tabs']
 
+
          return ballA, ballN, gamma, temp, molarMass
+
+    def getErrors(self):
+        """Checks that all tabs have smaller start pressures than their end pressures, and verifies that no ranges
+        overlap."""
+        errors = []
+        for tabId, tab in enumerate(self.getProperty('tabs')):
+            if tab['maxPressure'] < tab['minPressure']:
+                errors.append('Tab #' + str(tabId + 1) + ' has reversed pressure limits.')
+            for otherTabId, otherTab in enumerate(self.getProperty('tabs')):
+                if tabId != otherTabId:
+                    if otherTab['minPressure'] < tab['maxPressure'] < otherTab['maxPressure']:
+                        err = 'Tabs #' + str(tabId + 1) + ' and #' + str(otherTabId + 1) + ' have overlapping ranges!'
+                        errors.append(err)
+        return errors
+
+    def getPressureErrors(self, pressure):
+        pass
 
     def addTab(self, tab):
         self.props['tabs'].addTab(tab)

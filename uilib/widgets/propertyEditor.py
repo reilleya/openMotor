@@ -79,7 +79,8 @@ class PropertyEditor(QWidget):
             self.editor = TabularEditor()
 
             self.editor.setPreferences(self.preferences)
-            self.editor.addTab(prop.tabs[0])
+            for tab in prop.tabs:
+                self.editor.addTab(tab)
 
             self.layout().addWidget(self.editor)
 
@@ -98,5 +99,8 @@ class PropertyEditor(QWidget):
 
         if isinstance(self.prop, motorlib.properties.PolygonProperty):
             return self.editor.points
+
+        if isinstance(self.prop, motorlib.properties.TabularProperty):
+            return self.editor.getTabs()
 
         return None
