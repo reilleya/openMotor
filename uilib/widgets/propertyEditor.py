@@ -75,12 +75,12 @@ class PropertyEditor(QWidget):
             self.layout().addWidget(self.editor)
 
         elif isinstance(prop, motorlib.properties.TabularProperty):
-            print(prop)
             self.editor = TabularEditor()
 
             self.editor.setPreferences(self.preferences)
             for tab in prop.tabs:
                 self.editor.addTab(tab)
+            self.editor.updated.connect(self.valueChanged.emit)
 
             self.layout().addWidget(self.editor)
 

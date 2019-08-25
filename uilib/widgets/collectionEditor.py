@@ -16,7 +16,6 @@ class CollectionEditor(QWidget):
 
         self.preferences = None
 
-
         self.propertyEditors = {}
         self.setLayout(QVBoxLayout())
         self.layout().setSpacing(0)
@@ -52,7 +51,6 @@ class CollectionEditor(QWidget):
 
     def propertyUpdate(self):
         pass
-
 
     def close(self):
         self.closed.emit()

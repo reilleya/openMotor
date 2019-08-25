@@ -78,15 +78,11 @@ class Motor():
         nozz = self.nozzle.getThroatArea()
         return surfArea / nozz
 
-    def calcIdealPressure(self, regDepth, kn=None, burnoutWebThres=0.00001):
+    def calcIdealPressure(self, regDepth, lastPressure, kn=None, burnoutWebThres=0.00001):
         """Returns the steady-state pressure of the motor at a given reg. Kn is calculated automatically, but it can
         optionally be passed in to save time on motors where calculating surface area is expensive."""
-        gamma = self.propellant.getProperty('k')
-        temp = self.propellant.getProperty('t')
-        molarMass = self.propellant.getProperty('m')
         density = self.propellant.getProperty('density')
-        ballA = self.propellant.getProperty('a')
-        ballN = self.propellant.getProperty('n')
+        ballA, ballN, gamma, temp, molarMass = self.propellant.getCombustionProperties(lastPressure)
         if kn is None:
             kn = self.calcKN(regDepth, burnoutWebThres)
         num = kn * density * ballA
@@ -100,7 +96,7 @@ class Motor():
         if chamberPres == 0:
             return 0
 
-        gamma = self.propellant.getProperty("k")
+        _, _, gamma, _, _ = self.propellant.getCombustionProperties(chamberPres)
         exitPres = self.nozzle.getExitPressure(gamma, chamberPres)
         ambPres = self.config.getProperty("ambPressure")
         exitArea = self.nozzle.getExitArea()
@@ -168,8 +164,6 @@ class Motor():
 
         # Pull the required numbers from the propellant
         density = self.propellant.getProperty('density')
-        ballA = self.propellant.getProperty('a')
-        ballN = self.propellant.getProperty('n')
 
         # Generate coremaps for perforated grains
         for grain in self.grains:
@@ -181,7 +175,8 @@ class Motor():
         # At t = 0, the motor has ignited
         simRes.channels['time'].addData(0)
         simRes.channels['kn'].addData(self.calcKN(perGrainReg, burnoutWebThres))
-        simRes.channels['pressure'].addData(self.calcIdealPressure(perGrainReg, None, burnoutWebThres))
+        # TODO: replace this guess for startup pressure
+        simRes.channels['pressure'].addData(self.calcIdealPressure(perGrainReg, 1e6, None, burnoutWebThres))
         simRes.channels['force'].addData(0)
         simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
         simRes.channels['massFlow'].addData([0 for grain in self.grains])
@@ -207,7 +202,7 @@ class Motor():
             for gid, grain in enumerate(self.grains):
                 if grain.getWebLeft(perGrainReg[gid]) > burnoutWebThres:
                     # Calculate regression at the current pressure
-                    reg = dTime * ballA * (simRes.channels['pressure'].getLast()**ballN)
+                    reg = dTime * self.propellant.getBurnRate(simRes.channels['pressure'].getLast())
                     # Find the mass flux through the grain based on the mass flow fed into from grains above it
                     perGrainMassFlux[gid] = grain.getPeakMassFlux(massFlow, dTime, perGrainReg[gid], reg, density)
                     # Find the mass of the grain after regression
@@ -227,7 +222,9 @@ class Motor():
             simRes.channels['kn'].addData(self.calcKN(perGrainReg, burnoutWebThres))
 
             # Calculate Pressure
-            pressure = self.calcIdealPressure(perGrainReg, simRes.channels['kn'].getLast(), burnoutWebThres)
+            lastPressure = simRes.channels['pressure'].getLast()
+            lastKn = simRes.channels['kn'].getLast()
+            pressure = self.calcIdealPressure(perGrainReg, lastPressure, lastKn, burnoutWebThres)
             simRes.channels['pressure'].addData(pressure)
 
             # Calculate force

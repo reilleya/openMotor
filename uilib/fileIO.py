@@ -86,7 +86,7 @@ def migrateProp_0_3_0_to_0_4_0(data):
     return data
 
 def migrateMotor_0_3_0_to_0_4_0(data):
-    data['propellant'] = tabularizePropellant(data[propellant])
+    data['propellant'] = tabularizePropellant(data['propellant'])
     return data
 
 def migratePref_0_2_0_to_0_3_0(data):
@@ -112,7 +112,7 @@ migrations = {
         'to': (0, 4, 0),
         fileTypes.PREFERENCES: passthrough,
         fileTypes.PROPELLANTS: migrateProp_0_3_0_to_0_4_0,
-        fileTypes.MOTOR: passthrough
+        fileTypes.MOTOR: migrateMotor_0_3_0_to_0_4_0
     },
     (0, 2, 0): {
         'to': (0, 3, 0),

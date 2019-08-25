@@ -6,7 +6,6 @@ import motorlib.propellant
 class TestMotorMethods(unittest.TestCase):
 
     def test_calcKN(self):
-
         tm = motorlib.motor.Motor()
         tc = motorlib.motor.MotorConfig()
 
@@ -28,6 +27,7 @@ class TestMotorMethods(unittest.TestCase):
 
     def test_calcPressure(self):
         tm = motorlib.motor.Motor()
+        tc = motorlib.motor.MotorConfig()
 
         bg = motorlib.grains.BatesGrain()
         bg.setProperties({'diameter':0.083058, 
@@ -37,6 +37,7 @@ class TestMotorMethods(unittest.TestCase):
                   })
 
         tm.grains.append(bg)
+        bg.simulationSetup(tc)
 
         tm.nozzle.setProperties({'throat': 0.01428})
         tm.propellant = motorlib.propellant.Propellant()
@@ -53,7 +54,7 @@ class TestMotorMethods(unittest.TestCase):
                         }
                     ]
                     })
-        self.assertAlmostEqual(tm.calcIdealPressure([0]), 4050030, 0)
+        self.assertAlmostEqual(tm.calcIdealPressure([0], 0), 4050030, 0)
 
 import motorlib.geometry
 class TestGeometryMethods(unittest.TestCase):
@@ -147,5 +148,61 @@ class TestPropellantMethods(unittest.TestCase):
                   }
         testProp = motorlib.propellant.Propellant(props)
         self.assertIn('Tabs #1 and #2 have overlapping ranges!', testProp.getErrors())
+
+    def test_get_combustion_properties_in_range(self):
+        props = {'name': 'TestProp',
+                   'density': 1650,
+                   'tabs': [
+                       {
+                           'minPressure': 0,
+                           'maxPressure': 6.895e+06,
+                           'a': 1.467e-05,
+                           'n': 0.382,
+                           't': 3500,
+                           'm': 23.67,
+                           'k': 1.25
+                       },
+                       {
+                           'minPressure': 6.895e+06,
+                           'maxPressure': 1.379e+07,
+                           'a': 1e-05,
+                           'n': 0.3,
+                           't': 3500,
+                           'm': 23.67,
+                           'k': 1.25
+                       }
+                   ]
+                  }
+        testProp = motorlib.propellant.Propellant(props)
+        self.assertEqual(testProp.getCombustionProperties(8e5), (1.467e-05, 0.382, 1.25, 3500, 23.67))
+        self.assertEqual(testProp.getCombustionProperties(8e6), (1e-05, 0.3, 1.25, 3500, 23.67))
+
+    def test_get_combustion_properties_out_of_range(self):
+        props = {'name': 'TestProp',
+                   'density': 1650,
+                   'tabs': [
+                       {
+                           'minPressure': 0,
+                           'maxPressure': 6.895e+06,
+                           'a': 1.467e-05,
+                           'n': 0.382,
+                           't': 3500,
+                           'm': 23.67,
+                           'k': 1.25
+                       },
+                       {
+                           'minPressure': 7e+06,
+                           'maxPressure': 1.379e+07,
+                           'a': 1e-05,
+                           'n': 0.3,
+                           't': 3500,
+                           'm': 23.67,
+                           'k': 1.25
+                       }
+                   ]
+                  }
+        testProp = motorlib.propellant.Propellant(props)
+        self.assertEqual(testProp.getCombustionProperties(6.9e5), (1.467e-05, 0.382, 1.25, 3500, 23.67))
+        self.assertEqual(testProp.getCombustionProperties(8e10), (1e-05, 0.3, 1.25, 3500, 23.67))
 
 unittest.main()

@@ -1,10 +1,14 @@
 from PyQt5.QtWidgets import QWidget
+from PyQt5.QtCore import pyqtSignal
 
 from motorlib.propellant import PropellantTab
 
 from ..views.TabularEditor_ui import Ui_TabularEditor
 
 class TabularEditor(QWidget):
+
+    updated =  pyqtSignal()
+
     def __init__(self):
         QWidget.__init__(self)
         self.ui = Ui_TabularEditor()
@@ -13,6 +17,7 @@ class TabularEditor(QWidget):
         self.tabs = []
 
         self.ui.pushButtonAdd.pressed.connect(self.newTab)
+        self.ui.pushButtonRemove.pressed.connect(self.removeTab)
         self.ui.pushButtonLeft.pressed.connect(lambda: self.changeIndex(-1))
         self.ui.pushButtonRight.pressed.connect(lambda: self.changeIndex(1))
 
@@ -20,12 +25,20 @@ class TabularEditor(QWidget):
         self.preferences = pref
 
     def addTab(self, propDict):
-        from .propellantEditor import PropellantEditor
-        self.tabs.append(PropellantEditor(self))
+        from .propellantTabEditor import PropellantTabEditor
+        self.tabs.append(PropellantTabEditor(self))
         self.tabs[-1].setPreferences(self.preferences)
         self.tabs[-1].loadProperties(propDict)
+        self.tabs[-1].modified.connect(self.updated.emit)
         self.ui.stackedWidget.insertWidget(len(self.tabs) - 1, self.tabs[-1])
         self.ui.stackedWidget.setCurrentIndex(len(self.tabs) - 1)
+        self.updated.emit()
+        self.updateButtons()
+
+    def removeTab(self):
+        self.ui.stackedWidget.removeWidget(self.tabs[self.ui.stackedWidget.currentIndex()])
+        del self.tabs[self.ui.stackedWidget.currentIndex()]
+        self.updated.emit()
         self.updateButtons()
 
     def getTabs(self):
@@ -41,10 +54,12 @@ class TabularEditor(QWidget):
         self.updateButtons()
 
     def newTab(self):
-        from .propellantEditor import PropellantEditor
-        self.tabs.append(PropellantEditor(self))
+        from .propellantTabEditor import PropellantTabEditor
+        self.tabs.append(PropellantTabEditor(self))
         self.tabs[-1].setPreferences(self.preferences)
         self.tabs[-1].loadProperties(PropellantTab())
+        self.tabs[-1].modified.connect(self.updated.emit)
         self.ui.stackedWidget.insertWidget(len(self.tabs) - 1, self.tabs[-1])
         self.ui.stackedWidget.setCurrentIndex(len(self.tabs) - 1)
+        self.updated.emit()
         self.updateButtons()

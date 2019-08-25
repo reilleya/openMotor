@@ -100,7 +100,7 @@
       </widget>
      </item>
      <item>
-      <widget class="CollectionEditor" name="propEditor" native="true">
+      <widget class="PropellantEditor" name="propEditor" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -125,9 +125,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CollectionEditor</class>
+   <class>PropellantEditor</class>
    <extends>QWidget</extends>
-   <header location="global">uilib.widgets.collectionEditor</header>
+   <header location="global">uilib.widgets.propellantEditor</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
