@@ -157,6 +157,9 @@ class Motor():
         if self.propellant is None:
             alert = SimAlert(SimAlertLevel.ERROR, SimAlertType.CONSTRAINT, 'Motor must have a propellant set', 'Motor')
             simRes.addAlert(alert)
+        else:
+            for alert in self.propellant.getErrors():
+                simRes.addAlert(alert)
 
         # If any errors occurred, stop simulation and return an empty sim with errors
         if len(simRes.getAlertsByLevel(SimAlertLevel.ERROR)) > 0:
@@ -250,5 +253,14 @@ class Motor():
             desc = 'Max pressure exceeded configured limit'
             alert = SimAlert(SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, 'Motor')
             simRes.addAlert(alert)
+
+        # Note that this only adds all errors found on the first datapoint where there were errors to avoid repeating
+        # errors. It should be revisited if getPressureErrors ever resturns multiple types of errors
+        for pressure in simRes.channels['pressure'].getData():
+            if pressure > 0:
+                err = self.propellant.getPressureErrors(pressure)
+                if len(err) > 0:
+                    simRes.addAlert(err[0])
+                    break
 
         return simRes

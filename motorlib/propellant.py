@@ -1,6 +1,7 @@
 """Propellant submodule that contains the propellant class."""
 
 from .properties import PropertyCollection, FloatProperty, StringProperty, TabularProperty
+from .simResult import SimAlert, SimAlertLevel, SimAlertType
 
 class PropellantTab(PropertyCollection):
     def __init__(self, tabDict=None):
@@ -58,9 +59,11 @@ class Propellant(PropertyCollection):
         return closest['a'], closest['n'], closest['k'], closest['t'], closest['m']
 
     def getMinimumValidPressure(self):
+        """Returns the lowest pressure value with associated combustion properties"""
         return min([tab['minPressure'] for tab in self.getProperty('tabs')])
 
     def getMaximumValidPressure(self):
+        """Returns the highest pressure value with associated combustion properties"""
         return max([tab['maxPressure'] for tab in self.getProperty('tabs')])
 
     def getErrors(self):
@@ -69,16 +72,26 @@ class Propellant(PropertyCollection):
         errors = []
         for tabId, tab in enumerate(self.getProperty('tabs')):
             if tab['maxPressure'] < tab['minPressure']:
-                errors.append('Tab #' + str(tabId + 1) + ' has reversed pressure limits.')
+                errText = 'Tab #' + str(tabId + 1) + ' has reversed pressure limits.'
+                errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.VALUE, errText, 'Propellant'))
             for otherTabId, otherTab in enumerate(self.getProperty('tabs')):
                 if tabId != otherTabId:
                     if otherTab['minPressure'] < tab['maxPressure'] < otherTab['maxPressure']:
-                        err = 'Tabs #' + str(tabId + 1) + ' and #' + str(otherTabId + 1) + ' have overlapping ranges!'
-                        errors.append(err)
+                        errText = 'Tabs #' + str(tabId + 1) + ' and #' + str(otherTabId + 1) + ' have overlapping ranges.'
+                        errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.VALUE, errText, 'Propellant'))
         return errors
 
     def getPressureErrors(self, pressure):
-        pass
+        """Returns if the propellant has any errors associated with the supplied pressure such as not having set
+        combustion properties"""
+        errors = []
+        for tab in self.getProperty('tabs'):
+            if tab['minPressure'] < pressure < tab['maxPressure']:
+                return errors
+        aText = "Chamber pressure deviated from propellant's entered ranges. Results may not be accurate."
+        errors.append(SimAlert(SimAlertLevel.WARNING, SimAlertType.VALUE, aText, 'Propellant'))
+        return errors
 
     def addTab(self, tab):
+        """Adds a set of combustion properties to the propellant"""
         self.props['tabs'].addTab(tab)

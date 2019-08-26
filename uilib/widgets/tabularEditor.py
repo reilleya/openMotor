@@ -36,8 +36,11 @@ class TabularEditor(QWidget):
         self.updateButtons()
 
     def removeTab(self):
-        self.ui.stackedWidget.removeWidget(self.tabs[self.ui.stackedWidget.currentIndex()])
-        del self.tabs[self.ui.stackedWidget.currentIndex()]
+        toDelete = self.ui.stackedWidget.currentIndex()
+        if toDelete != 0:
+            self.ui.stackedWidget.setCurrentIndex(toDelete - 1)
+        self.ui.stackedWidget.removeWidget(self.tabs[toDelete])
+        del self.tabs[toDelete]
         self.updated.emit()
         self.updateButtons()
 
@@ -48,6 +51,8 @@ class TabularEditor(QWidget):
         self.ui.pushButtonLeft.setEnabled(self.ui.stackedWidget.currentIndex() != 0)
         self.ui.pushButtonRight.setEnabled(self.ui.stackedWidget.currentIndex() != len(self.tabs) - 1)
         self.ui.pushButtonRemove.setEnabled(len(self.tabs) > 1)
+        label = str(self.ui.stackedWidget.currentIndex() + 1) + "/" + str(len(self.tabs))
+        self.ui.labelCurrentTab.setText(label)
 
     def changeIndex(self, rel):
         self.ui.stackedWidget.setCurrentIndex(self.ui.stackedWidget.currentIndex() + rel)

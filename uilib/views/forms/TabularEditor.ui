@@ -29,6 +29,39 @@
       <number>6</number>
      </property>
      <item>
+      <widget class="QPushButton" name="pushButtonAdd">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Add</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonRemove">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Remove</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="pushButtonLeft">
        <property name="minimumSize">
         <size>
@@ -48,16 +81,15 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonAdd">
-       <property name="text">
-        <string>Add</string>
+      <widget class="QLabel" name="labelCurrentTab">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushButtonRemove">
        <property name="text">
-        <string>Remove</string>
+        <string>1/1</string>
        </property>
       </widget>
      </item>

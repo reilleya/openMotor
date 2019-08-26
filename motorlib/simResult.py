@@ -17,6 +17,7 @@ class SimAlertType(Enum):
     """Types of sim alerts"""
     GEOMETRY = 1
     CONSTRAINT = 2
+    VALUE = 3
 
 alertLevelNames = {
     SimAlertLevel.ERROR: 'Error',
@@ -26,7 +27,8 @@ alertLevelNames = {
 
 alertTypeNames = {
     SimAlertType.GEOMETRY: 'Geometry',
-    SimAlertType.CONSTRAINT: 'Constraint'
+    SimAlertType.CONSTRAINT: 'Constraint',
+    SimAlertType.VALUE: 'Value'
 }
 
 class SimAlert():
