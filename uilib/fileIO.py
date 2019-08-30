@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QApplication
 import yaml
 import appdirs
 
-from .defaults import defaultPreferencesDict
+from .defaults import defaultPreferencesDict, defaultPropellants
 
 appVersion = (0, 4, 0)
 appVersionStr = '.'.join(map(str, appVersion))
@@ -77,12 +77,16 @@ def tabularizePropellant(data):
     newProp['tabs'][-1]['t'] = data['t']
     newProp['tabs'][-1]['m'] = data['m']
     newProp['tabs'][-1]['minPressure'] = 0
-    newProp['tabs'][-1]['maxPressure'] = 7e7
+    newProp['tabs'][-1]['maxPressure'] = 1.0342e+7
     return newProp
 
 def migrateProp_0_3_0_to_0_4_0(data):
     for i in range(0, len(data)):
         data[i] = tabularizePropellant(data[i])
+    # Add default propellants in if they don't replace existing ones
+    for propellant in defaultPropellants():
+        if propellant['name'] not in [cProp['name'] for cProp in data]:
+            data.append(propellant)
     return data
 
 def migrateMotor_0_3_0_to_0_4_0(data):

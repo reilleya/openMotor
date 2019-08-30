@@ -26,12 +26,13 @@ class PropellantManager(QObject):
                 newProp.setProperties(propDict)
                 self.propellants.append(newProp)
         except FileNotFoundError:
-            self.propellants = defaultPropellants()
+            self.propellants = [motorlib.propellant.Propellant(prop) for prop in defaultPropellants()]
             self.savePropellants()
 
     def savePropellants(self):
+        propellants = [prop.getProperties() for prop in self.propellants]
         try:
-            saveFile(getConfigPath() + 'propellants.yaml', [prop.getProperties() for prop in self.propellants], fileTypes.PROPELLANTS)
+            saveFile(getConfigPath() + 'propellants.yaml', propellants, fileTypes.PROPELLANTS)
         except:
             print('Unable to save propellants!')
 

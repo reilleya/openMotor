@@ -7,7 +7,7 @@ from ..views.TabularEditor_ui import Ui_TabularEditor
 
 class TabularEditor(QWidget):
 
-    updated =  pyqtSignal()
+    updated = pyqtSignal()
 
     def __init__(self):
         QWidget.__init__(self)

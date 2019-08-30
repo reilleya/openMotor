@@ -8,7 +8,7 @@ from .collectionEditor import CollectionEditor
 
 class PropellantTabEditor(CollectionEditor):
 
-    modified =  pyqtSignal()
+    modified = pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent, False)

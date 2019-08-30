@@ -164,7 +164,7 @@ class FileManager(QObject):
         if motor.propellant is not None:
             if motor.propellant.getProperty('name') not in self.app.propellantManager.getNames():
                 self.app.outputMessage('The propellant from the loaded motor was not in the library, so it was added as "' + motor.propellant.getProperty('name') + '"',
-                        'New propellant added')
+                                       'New propellant added')
                 self.app.propellantManager.propellants.append(motor.propellant)
                 self.app.propellantManager.savePropellants()
             else:
@@ -176,5 +176,5 @@ class FileManager(QObject):
                     self.app.propellantManager.propellants.append(motor.propellant)
                     self.app.propellantManager.savePropellants()
                     self.app.outputMessage('The propellant from the loaded motor matches an existing item in the library, but they have different properties. The propellant from the motor has been added to the library as "' + motor.propellant.getProperty('name') + '"',
-                        'New propellant added')
+                                           'New propellant added')
         return motor

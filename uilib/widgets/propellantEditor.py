@@ -1,6 +1,3 @@
-from PyQt5.QtWidgets import QLabel
-
-from motorlib.units import convert
 from motorlib.propellant import Propellant
 from .collectionEditor import CollectionEditor
 from .burnrateGraph import BurnrateGraph

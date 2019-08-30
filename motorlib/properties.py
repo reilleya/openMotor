@@ -86,12 +86,14 @@ class PolygonProperty(Property):
 
 
 class TabularProperty(Property):
+    """A property that is composed of a number of 'tabs', each of which is a property collection of its own."""
     def __init__(self, dispName, collection):
         super().__init__(dispName, '', list)
         self.collection = collection
         self.tabs = []
 
     def addTab(self, tab):
+        """Add a tab to the property's list of tabs."""
         self.tabs.append(tab)
 
     def getValue(self):

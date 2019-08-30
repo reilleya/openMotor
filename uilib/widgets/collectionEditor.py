@@ -79,7 +79,7 @@ class CollectionEditor(QWidget):
         self.propertyUpdate()
 
     def cleanup(self):
-        for prop in self.propertyEditors:
+        for _ in self.propertyEditors:
             self.form.removeRow(0) # Removes the first row, but will delete all by the end of the loop
         self.propertyEditors = {}
 

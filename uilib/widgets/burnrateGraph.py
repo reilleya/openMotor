@@ -1,4 +1,3 @@
-from itertools import cycle
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -26,6 +25,11 @@ class BurnrateGraph(FigureCanvas):
     def showGraph(self, points):
         presUnit = self.preferences.getUnit('Pa')
         rateUnit = self.preferences.getUnit('m/s')
+        # I really don't like this, but it is necessary for this graph and the c* output to coexist
+        if rateUnit == 'ft/s':
+            rateUnit = 'in/s'
+        if rateUnit == 'm/s':
+            rateUnit = 'mm/s'
 
         self.plot.plot(convertAll(points[0], 'Pa', presUnit), convertAll(points[1], 'm/s', rateUnit))
         self.plot.set_xlabel('Pressure - ' + presUnit)

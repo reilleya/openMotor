@@ -4,6 +4,7 @@ from .properties import PropertyCollection, FloatProperty, StringProperty, Tabul
 from .simResult import SimAlert, SimAlertLevel, SimAlertType
 
 class PropellantTab(PropertyCollection):
+    """Contains the combustion properties of a propellant over a specified pressure range."""
     def __init__(self, tabDict=None):
         super().__init__()
         self.props['minPressure'] = FloatProperty('Minimum Pressure', 'Pa', 0, 7e7)
@@ -77,8 +78,8 @@ class Propellant(PropertyCollection):
             for otherTabId, otherTab in enumerate(self.getProperty('tabs')):
                 if tabId != otherTabId:
                     if otherTab['minPressure'] < tab['maxPressure'] < otherTab['maxPressure']:
-                        errText = 'Tabs #' + str(tabId + 1) + ' and #' + str(otherTabId + 1) + ' have overlapping ranges.'
-                        errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.VALUE, errText, 'Propellant'))
+                        err = 'Tabs #' + str(tabId + 1) + ' and #' + str(otherTabId + 1) + ' have overlapping ranges.'
+                        errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.VALUE, err, 'Propellant'))
         return errors
 
     def getPressureErrors(self, pressure):
