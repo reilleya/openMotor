@@ -120,7 +120,7 @@ class TestPropellantMethods(unittest.TestCase):
                    ]
                   }
         testProp = motorlib.propellant.Propellant(props)
-        self.assertIn('Tab #1 has reversed pressure limits.', testProp.getErrors())
+        self.assertIn('Tab #1 has reversed pressure limits.', [err.description for err in testProp.getErrors()])
 
     def test_overlapping_pressure_ranges(self):
         props = {'name': 'TestProp',
@@ -147,7 +147,7 @@ class TestPropellantMethods(unittest.TestCase):
                    ]
                   }
         testProp = motorlib.propellant.Propellant(props)
-        self.assertIn('Tabs #1 and #2 have overlapping ranges!', testProp.getErrors())
+        self.assertIn('Tabs #1 and #2 have overlapping ranges.', [err.description for err in testProp.getErrors()])
 
     def test_get_combustion_properties_in_range(self):
         props = {'name': 'TestProp',

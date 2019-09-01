@@ -80,6 +80,10 @@ def tabularizePropellant(data):
     newProp['tabs'][-1]['maxPressure'] = 1.0342e+7
     return newProp
 
+def migratePref_0_3_0_to_0_4_0(data):
+    data['general']['igniterPressure'] = defaultPreferencesDict()['general']['igniterPressure']
+    return data
+
 def migrateProp_0_3_0_to_0_4_0(data):
     for i in range(0, len(data)):
         data[i] = tabularizePropellant(data[i])
@@ -91,6 +95,7 @@ def migrateProp_0_3_0_to_0_4_0(data):
 
 def migrateMotor_0_3_0_to_0_4_0(data):
     data['propellant'] = tabularizePropellant(data['propellant'])
+    data['config']['igniterPressure'] = defaultPreferencesDict()['general']['igniterPressure']
     return data
 
 def migratePref_0_2_0_to_0_3_0(data):
@@ -114,7 +119,7 @@ def migrateMotor_0_2_0_to_0_3_0(data):
 migrations = {
     (0, 3, 0): {
         'to': (0, 4, 0),
-        fileTypes.PREFERENCES: passthrough,
+        fileTypes.PREFERENCES: migratePref_0_3_0_to_0_4_0,
         fileTypes.PROPELLANTS: migrateProp_0_3_0_to_0_4_0,
         fileTypes.MOTOR: migrateMotor_0_3_0_to_0_4_0
     },
