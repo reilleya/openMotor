@@ -1,0 +1,9 @@
+motor: data/real/p9100/flight.ric
+name: Hermes II Flight Motor
+data:
+  real:
+    curves: data/real/p9100/72.csv
+    stats:
+      isp: 226
+      burnTime: 8.141
+      propMass: 33.34

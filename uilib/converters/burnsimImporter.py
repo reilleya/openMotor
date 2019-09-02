@@ -27,24 +27,28 @@ def inToM(value):
 
 def importPropellant(node):
     propellant = motorlib.propellant.Propellant()
+    propTab = motorlib.propellant.PropellantTab()
     propellant.setProperty('name', node.attrib['Name'])
     ballN = float(node.attrib['BallisticN'])
     ballA = float(node.attrib['BallisticA']) * 1/(6895**ballN)
-    propellant.setProperty('n', ballN)
+    propTab.setProperty('n', ballN)
     # Conversion only does in/s to m/s, the rest is handled above
     ballA = motorlib.units.convert(ballA, 'in/(s*psi^n)', 'm/(s*Pa^n)')
-    propellant.setProperty('a', ballA)
+    propTab.setProperty('a', ballA)
     density = motorlib.units.convert(float(node.attrib['Density']), 'lb/in^3', 'kg/m^3')
     propellant.setProperty('density', density)
-    propellant.setProperty('k', float(node.attrib['SpecificHeatRatio']))
+    propTab.setProperty('k', float(node.attrib['SpecificHeatRatio']))
     impMolarMass = node.attrib['MolarMass']
     # If the user has entered 0, override it to match the default propellant.
     if impMolarMass == '0':
-        propellant.setProperty('m', 23.67)
+        propTab.setProperty('m', 23.67)
     else:
-        propellant.setProperty('m', float(impMolarMass))
+        propTab.setProperty('m', float(impMolarMass))
     # Burnsim doesn't provide this property. Set it to match the default propellant.
-    propellant.setProperty('t', 3500)
+    propTab.setProperty('t', 3500)
+    propTab.setProperty('minPressure', 0)
+    propTab.setProperty('maxPressure', 6.895e+06)
+    propellant.setProperty('tabs', [propTab.getProperties()])
     return propellant
 
 class BurnSimImporter(Importer):

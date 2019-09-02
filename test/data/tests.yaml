@@ -1,0 +1,10 @@
+real: [
+  data/real/p9100/test.yaml,
+  data/real/o3100/test.yaml,
+  data/real/o3800/test.yaml,
+  data/real/n2950/test.yaml
+]
+
+burnsim: [
+
+]

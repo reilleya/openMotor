@@ -1,0 +1,25 @@
+data:
+  config: {ambPressure: 101356.50000000001, burnoutThrustThres: 0.1, burnoutWebThres: 0.00025400050800101603,
+    igniterPressure: 0.0, mapDim: 750, maxMassFlux: 1406.4697609001405, maxPressure: 6895000.000000001,
+    minPortThroat: 2.0, timestep: 0.05}
+  grains:
+  - properties: {coreDiameter: 0.044450088900177806, diameter: 0.1301752603505207,
+      inhibitedEnds: Neither, length: 0.7620015240030481}
+    type: BATES
+  - properties: {coreDiameter: 0.05080010160020321, diameter: 0.1301752603505207,
+      inhibitedEnds: Neither, length: 0.7048514097028195}
+    type: BATES
+  - properties: {coreDiameter: 0.05080010160020321, diameter: 0.1301752603505207,
+      finLength: 0.019050038100076203, finWidth: 0.009525019050038101, inhibitedEnds: Neither,
+      length: 0.30480060960121924, numFins: 8}
+    type: Finocyl
+  nozzle: {convAngle: 65.0, divAngle: 15.0, efficiency: 0.9, exit: 0.12065024130048262,
+    throat: 0.045669291338582683, throatLength: 0.008636017272034545}
+  propellant:
+    density: 1680.0037644662068
+    name: MIT - Cherry Limeade
+    tabs:
+    - {a: 3.517054143255937e-05, k: 1.21, m: 23.67, maxPressure: 6895000.000000001,
+      minPressure: 0.0, n: 0.3273, t: 3500.0}
+type: !!python/object/apply:uilib.fileIO.fileTypes [3]
+version: !!python/tuple [0, 4, 0]

@@ -98,17 +98,18 @@ class BurnSimExporter(Exporter):
 
                 outProp = ET.SubElement(outGrain, 'Propellant')
                 outProp.attrib['Name'] = motor.propellant.getProperty('name')
-                ballA = motor.propellant.getProperty('a')
-                ballN = motor.propellant.getProperty('n')
+                # Have to pick a single pressure for output
+                exportPressure = 5.17e6
+                ballA, ballN, gamma, _, m = motor.propellant.getCombustionProperties(exportPressure)
                 ballA = motorlib.units.convert(ballA * (6895**ballN), 'm/(s*Pa^n)', 'in/(s*psi^n)')
                 outProp.attrib['BallisticA'] = str(ballA)
                 outProp.attrib['BallisticN'] = str(ballN)
                 density = str(motorlib.units.convert(motor.propellant.getProperty('density'), 'kg/m^3', 'lb/in^3'))
                 outProp.attrib['Density'] = density
-                outProp.attrib['SpecificHeatRatio'] = str(motor.propellant.getProperty('k'))
-                outProp.attrib['MolarMass'] = str(motor.propellant.getProperty('m'))
+                outProp.attrib['SpecificHeatRatio'] = str(gamma)
+                outProp.attrib['MolarMass'] = str(m)
                 outProp.attrib['CombustionTemp'] = '0' # Unclear if this is used anyway
-                ispStar = motor.propellant.getCStar() / 9.80665
+                ispStar = motor.propellant.getCStar(exportPressure) / 9.80665
                 outProp.attrib['ISPStar'] = str(ispStar)
                 # Add empty notes section
                 ET.SubElement(outProp, 'Notes')

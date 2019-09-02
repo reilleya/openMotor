@@ -1,0 +1,9 @@
+motor: data/regression/simple/motor.ric
+name: Simple Motor - 0.4.0
+data:
+  regression:
+    curves: data/regression/simple/data.csv
+    stats:
+      isp: 224
+      burnTime: 3.75
+      propMass: 5.865

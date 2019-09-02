@@ -1,0 +1,9 @@
+motor: data/real/o3100/motor.ric
+name: 4 Grain 152 Test 1
+data:
+  real:
+    curves: data/real/o3100/223.csv
+    stats:
+      isp: 206
+      burnTime: 9.8
+      propMass: 15.51

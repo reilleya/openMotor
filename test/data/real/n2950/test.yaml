@@ -1,0 +1,9 @@
+motor: data/real/n2950/motor.ric
+name: 4 Grain 98 Finocyl
+data:
+  real:
+    curves: data/real/n2950/223.csv
+    stats:
+      isp: 224
+      burnTime: 3.75
+      propMass: 5.865

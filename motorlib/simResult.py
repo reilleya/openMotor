@@ -175,7 +175,7 @@ class SimulationResult():
 
     def getISP(self, index=None):
         """Returns the specific impulse that the simulated motor delivered."""
-        if index == None:
+        if index is None:
             propMass = self.getPropellantMass()
         else:
             propMass = self.getPropellantMass() - self.getPropellantMass(index)
