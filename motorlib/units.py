@@ -3,6 +3,7 @@ functions for performing conversion."""
 
 unitLabels = {
     'm': 'Length',
+    'm^3': 'Volume',
     'm/s': 'Velocity',
     'N': 'Force',
     'Ns': 'Impulse',
@@ -19,6 +20,8 @@ unitTable = [
     ('m', 'mm', 1000),
     ('m', 'in', 39.37),
     ('m', 'ft', 3.28),
+    
+    ('m^3','in^3', 61023.7)
 
     ('m/s', 'ft/s', 3.28),
 
