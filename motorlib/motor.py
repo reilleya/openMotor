@@ -185,11 +185,10 @@ class Motor():
         simRes.channels['force'].addData(0)
         simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
         simRes.channels['massFlow'].addData([0 for grain in self.grains])
-        simRes.channels['massFlowTotal'].addData(0)
         simRes.channels['massFlux'].addData([0 for grain in self.grains])
         simRes.channels['regression'].addData([0 for grains in self.grains])
-        simRes.channels['volume'].addData([grain.getGasVolume(0) for grain in self.grains])
-        simRes.channels['volumeTotal'].addData(sum(grain.getGasVolume(0) for grain in self.grains))
+        simRes.channels['gasVolume'].addData([grain.getGasVolume(0) for grain in self.grains])
+        simRes.channels['gasVolumeTotal'].addData(sum(grain.getGasVolume(0) for grain in self.grains))
 
         # Check port/throat ratio and add a warning if it is large enough
         aftPort = self.grains[-1].getPortArea(0)
@@ -228,10 +227,9 @@ class Motor():
 
             simRes.channels['mass'].addData(perGrainMass)
             simRes.channels['massFlow'].addData(perGrainMassFlow)
-            simRes.channels['massFlowTotal'].addData(sum(perGrainMassFlow))
             simRes.channels['massFlux'].addData(perGrainMassFlux)
-            simRes.channels['volume'].addData(perGrainVolume)
-            simRes.channels['volumeTotal'].addData(sum(perGrainVolume))
+            simRes.channels['gasVolume'].addData(perGrainVolume)
+            simRes.channels['gasVolumeTotal'].addData(sum(perGrainVolume))
 
             # Calculate KN
             simRes.channels['kn'].addData(self.calcKN(perGrainReg, burnoutWebThres))

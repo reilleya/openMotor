@@ -107,11 +107,10 @@ class SimulationResult():
             'force': LogChannel('Thrust', float, 'N'),
             'mass': LogChannel('Propellant Mass', tuple, 'kg'),
             'massFlow': LogChannel('Mass Flow', tuple, 'kg/s'),
-            'massFlowTotal': LogChannel('Total Mass Flow', float, 'kg/s'),
             'massFlux': LogChannel('Mass Flux', tuple, 'kg/(m^2*s)'),
             'regression': LogChannel('Regression Depth', tuple, 'm'),
-            'volume': LogChannel('Grain Volume', tuple, 'm^3'),
-            'volumeTotal': LogChannel('Total Volume', float, 'm^3')
+            'gasVolume': LogChannel('Grain Gas Volume', tuple, 'm^3'),
+            'gasVolumeTotal': LogChannel('Total Gas Volume', float, 'm^3')
         }
 
     def addAlert(self, alert):

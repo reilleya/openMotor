@@ -66,13 +66,13 @@ class Grain(PropertyCollection):
         uncored = geometry.circleArea(self.props['diameter'].getValue())
         initialGrainLength = self.props['length'].getValue()
         currentGrainLength = self.getRegressedLength(regDist)
-        return uncored*(initialGrainLength-currentGrainLength)
+        return uncored*(initialGrainLength - currentGrainLength)
 
     def getGasVolumeBurnout(self):
         """Returns the volume in the cylinder defined by the diameter of the grain and the grain initial length"""
         uncored = geometry.circleArea(self.props['diameter'].getValue())
         initialGrainLength = self.props['length'].getValue()
-        return uncored*initialGrainLength
+        return uncored * initialGrainLength
 
     def getRegressedLength(self, regDist):
         """Returns the length of the grain when it has regressed a distance of 'regDist', taking any possible
