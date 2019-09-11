@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QApplication
 import yaml
 import appdirs
 
-from .defaults import defaultPreferencesDict
+from .defaults import defaultPreferencesDict, defaultPropellants
 
 appVersion = (0, 4, 0)
 appVersionStr = '.'.join(map(str, appVersion))
@@ -66,6 +66,38 @@ def getConfigPath(): # Returns the path that files like preferences and propella
 def passthrough(data):
     return data
 
+def tabularizePropellant(data):
+    newProp = {}
+    newProp['name'] = data['name']
+    newProp['density'] = data['density']
+    newProp['tabs'] = [{}]
+    newProp['tabs'][-1]['a'] = data['a']
+    newProp['tabs'][-1]['n'] = data['n']
+    newProp['tabs'][-1]['k'] = data['k']
+    newProp['tabs'][-1]['t'] = data['t']
+    newProp['tabs'][-1]['m'] = data['m']
+    newProp['tabs'][-1]['minPressure'] = 0
+    newProp['tabs'][-1]['maxPressure'] = 1.0342e+7
+    return newProp
+
+def migratePref_0_3_0_to_0_4_0(data):
+    data['general']['igniterPressure'] = defaultPreferencesDict()['general']['igniterPressure']
+    return data
+
+def migrateProp_0_3_0_to_0_4_0(data):
+    for i in range(0, len(data)):
+        data[i] = tabularizePropellant(data[i])
+    # Add default propellants in if they don't replace existing ones
+    for propellant in defaultPropellants():
+        if propellant['name'] not in [cProp['name'] for cProp in data]:
+            data.append(propellant)
+    return data
+
+def migrateMotor_0_3_0_to_0_4_0(data):
+    data['propellant'] = tabularizePropellant(data['propellant'])
+    data['config']['igniterPressure'] = defaultPreferencesDict()['general']['igniterPressure']
+    return data
+
 def migratePref_0_2_0_to_0_3_0(data):
     defPref = defaultPreferencesDict()
     data['general']['maxPressure'] = defPref['general']['maxPressure']
@@ -87,9 +119,9 @@ def migrateMotor_0_2_0_to_0_3_0(data):
 migrations = {
     (0, 3, 0): {
         'to': (0, 4, 0),
-        fileTypes.PREFERENCES: passthrough,
-        fileTypes.PROPELLANTS: passthrough,
-        fileTypes.MOTOR: passthrough
+        fileTypes.PREFERENCES: migratePref_0_3_0_to_0_4_0,
+        fileTypes.PROPELLANTS: migrateProp_0_3_0_to_0_4_0,
+        fileTypes.MOTOR: migrateMotor_0_3_0_to_0_4_0
     },
     (0, 2, 0): {
         'to': (0, 3, 0),

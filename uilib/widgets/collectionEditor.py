@@ -16,7 +16,6 @@ class CollectionEditor(QWidget):
 
         self.preferences = None
 
-
         self.propertyEditors = {}
         self.setLayout(QVBoxLayout())
         self.layout().setSpacing(0)
@@ -33,19 +32,22 @@ class CollectionEditor(QWidget):
 
         self.buttons = buttons
         if self.buttons:
-            self.buttons = QHBoxLayout()
-            self.layout().addLayout(self.buttons)
+            self.addButtons()
 
-            self.applyButton = QPushButton('Apply')
-            self.applyButton.pressed.connect(self.apply)
-            self.applyButton.hide()
+    def addButtons(self):
+        self.buttons = QHBoxLayout()
+        self.layout().addLayout(self.buttons)
 
-            self.cancelButton = QPushButton('Cancel')
-            self.cancelButton.pressed.connect(self.close)
-            self.cancelButton.hide()
+        self.applyButton = QPushButton('Apply')
+        self.applyButton.pressed.connect(self.apply)
+        self.applyButton.hide()
 
-            self.buttons.addWidget(self.applyButton)
-            self.buttons.addWidget(self.cancelButton)
+        self.cancelButton = QPushButton('Cancel')
+        self.cancelButton.pressed.connect(self.close)
+        self.cancelButton.hide()
+
+        self.buttons.addWidget(self.applyButton)
+        self.buttons.addWidget(self.cancelButton)
 
     def propertyUpdate(self):
         pass
@@ -77,7 +79,7 @@ class CollectionEditor(QWidget):
         self.propertyUpdate()
 
     def cleanup(self):
-        for prop in self.propertyEditors:
+        for _ in self.propertyEditors:
             self.form.removeRow(0) # Removes the first row, but will delete all by the end of the loop
         self.propertyEditors = {}
 

@@ -3,7 +3,6 @@ from itertools import cycle
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-
 class GrainPreviewGraph(FigureCanvas):
     def __init__(self):
         super(GrainPreviewGraph, self).__init__(Figure())

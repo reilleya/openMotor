@@ -17,6 +17,7 @@ class SimAlertType(Enum):
     """Types of sim alerts"""
     GEOMETRY = 1
     CONSTRAINT = 2
+    VALUE = 3
 
 alertLevelNames = {
     SimAlertLevel.ERROR: 'Error',
@@ -26,7 +27,8 @@ alertLevelNames = {
 
 alertTypeNames = {
     SimAlertType.GEOMETRY: 'Geometry',
-    SimAlertType.CONSTRAINT: 'Constraint'
+    SimAlertType.CONSTRAINT: 'Constraint',
+    SimAlertType.VALUE: 'Value'
 }
 
 class SimAlert():
@@ -111,6 +113,7 @@ class SimulationResult():
             'regression': LogChannel('Regression Depth', tuple, 'm'),
             'gasVolume': LogChannel('Grain Gas Volume', tuple, 'm^3'),
             'gasVolumeTotal': LogChannel('Total Gas Volume', float, 'm^3')
+            'web': LogChannel('Web', tuple, 'm')
         }
 
     def addAlert(self, alert):

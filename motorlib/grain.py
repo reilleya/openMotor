@@ -304,7 +304,7 @@ class FmmGrain(PerforatedGrain):
     def getFaceArea(self, regDist):
         mapDist = self.normalize(regDist)
         index = int(mapDist * self.mapDim)
-        if index >= len(self.faceArea):
+        if index >= len(self.faceArea) - 1:
             return 0 # Past burnout
         return self.faceAreaFunc(mapDist)
 

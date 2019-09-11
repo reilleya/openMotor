@@ -7,7 +7,9 @@ from .grainImageWidget import GrainImageWidget
 from ..views.ResultsWidget_ui import Ui_ResultsWidget
 
 class ResultsWidget(QWidget):
-    grainTableFields = ('mass', 'massFlow', 'massFlux', 'gasVolume')
+    # These channels are extracted from the simResult amd put into the grain table in this order that should match
+    # the labels in the .ui file
+    grainTableFields = ('mass', 'massFlow', 'massFlux', 'web', 'gasVolume')
 
     def __init__(self, parent):
         super().__init__(parent)
