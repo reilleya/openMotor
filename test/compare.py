@@ -81,14 +81,21 @@ def runTests(path):
                 compareAlerts(simRes, version['alerts'])
     print('-' * 50)
 
-warnings.filterwarnings('ignore') # Todo: get rid of this
+warnings.filterwarnings('ignore') # Todo: get rid of this. It hides numpy warnings to make output easier to read.
 os.system('color')
+filterCategory = None
 if len(sys.argv) > 1:
-    runTests(sys.argv[1])
-else:
-    with open('data/tests.yaml', 'r') as readLocation:
-        fileData = yaml.load(readLocation)
-        for category in fileData.keys():
+    if sys.argv[-1][-5:] == '.yaml' or sys.argv[-1][-4:] == '.yml':
+        runTests(sys.argv[1])
+        sys.exit()
+    else:
+        filterCategory = sys.argv[1]
+        print("Filtering to category '" + filterCategory + "'")
+print('-' * 50)
+with open('data/tests.yaml', 'r') as readLocation:
+    fileData = yaml.load(readLocation)
+    for category in fileData.keys():
+        if filterCategory is None or category == filterCategory:
             print("Running tests from category '" + category + "'")
             for test in fileData[category]:
                 runTests(test)

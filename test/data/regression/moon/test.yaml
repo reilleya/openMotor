@@ -1,0 +1,10 @@
+motor: data/regression/moon/motor.ric
+name: Moonburner
+data:
+  regression:
+    - version: 0.4.0
+      stats:
+        isp: 213.417
+        burnTime: 8.43
+        propMass: 2.6077
+      alerts: []

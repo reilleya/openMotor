@@ -1,0 +1,18 @@
+data:
+  config: {ambPressure: 101324.99674500001, burnoutThrustThres: 0.1, burnoutWebThres: 0.00025400050800101603,
+    igniterPressure: 1034250.0000000001, mapDim: 750, maxMassFlux: 1406.4697609001405,
+    maxPressure: 10342500.000000002, minPortThroat: 2.0, timestep: 0.03}
+  grains:
+  - properties: {coreDiameter: 0.020320040640081284, coreOffset: 0.01778003556007112,
+      diameter: 0.06477012954025908, inhibitedEnds: Neither, length: 0.5334010668021336}
+    type: Moon Burner
+  nozzle: {convAngle: 65.0, divAngle: 15.0, efficiency: 0.9, exit: 0.038100076200152405,
+    throat: 0.013335026670053342, throatLength: 0.0038100076200152403}
+  propellant:
+    density: 1650.0
+    name: MIT - Ocean Water
+    tabs:
+    - {a: 1.467e-05, k: 1.25, m: 23.67, maxPressure: 6895000.0, minPressure: 0.0,
+      n: 0.382, t: 3500.0}
+type: !!python/object/apply:uilib.fileIO.fileTypes [3]
+version: !!python/tuple [0, 4, 0]

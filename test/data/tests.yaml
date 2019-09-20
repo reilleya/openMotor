@@ -6,5 +6,6 @@ real: [
 ]
 
 regression: [
-  data/regression/simple/test.yaml
+  data/regression/simple/test.yaml,
+  data/regression/moon/test.yaml
 ]
