@@ -7,3 +7,13 @@ data:
       isp: 224
       burnTime: 3.75
       propMass: 5.865
+  regression:
+    - version: 0.4.0
+      stats:
+        isp: 206.512
+        burnTime: 3.81
+        propMass: 5.585
+      alerts: [
+                'Initial port/throat ratio of 1.713 was less than 2.0',
+                'Peak mass flux exceeded configured limit'
+              ]

@@ -17,6 +17,15 @@ class colors:
 def color(string, name):
     return str(name) + string + str(colors.ENDC)
 
+def formatPercent(percent):
+    if percent < 1 / 100:
+        c = colors.OK
+    elif percent < 5 / 100:
+        c = colors.WARNING
+    else:
+        c = colors.FAIL
+    return color(str(round(percent * 100, 3)) + '%', c)
+
 def runSim(path):
     print('Loading motor from ' + path)
     res = loadFile(path, fileTypes.MOTOR)
@@ -29,33 +38,48 @@ def runSim(path):
 
 def compareStat(title, a, b):
     error = abs(a - b) / b
-    if error < 1 / 100:
-        c = colors.OK
-    elif error < 5 / 100:
-        c = colors.WARNING
-    else:
-        c = colors.FAIL
-    dispError = color(str(round(error * 100, 3))+'%', c)
-    print('\t' + title + ': ' + str(round(a, 3)) + ' vs ' + str(round(b, 3)) + ' (' + dispError + ')')
+    dispError = formatPercent(error)
+    print('\t\t' + title + ': ' + str(round(a, 3)) + ' vs ' + str(round(b, 3)) + ' (' + dispError + ')')
     return error
 
 def compareStats(simRes, stats):
-    print('Comparing basic stats:')
+    print('\tBasic stats:')
     btError = compareStat('Burn Time', simRes.getBurnTime(), stats['burnTime'])
     ispError = compareStat('ISP', simRes.getISP(), stats['isp'])
     propmassError = compareStat('Propellant Mass', simRes.getPropellantMass(), stats['propMass'])
+    score = 1 - ((1 - btError) * (1 - ispError) * (1 - propmassError))
+    dispScore = formatPercent(score)
+    print('\tOverall error: ' + dispScore)
+    return score
 
+def compareAlerts(simRes, pastAlerts):
+    allMatched = True
+    for alert in simRes.alerts:
+        if alert.description not in pastAlerts:
+            print('\tSimulation produced unexpected alert: ' + color(alert.description, colors.WARNING))
+            allMatched = False
+    for alert in pastAlerts:
+        if alert not in [a.description for a in simRes.alerts]:
+            print('\tSimulation was missing expected alert: ' + color(alert, colors.WARNING))
+
+    if allMatched:
+        print('\tSimulation alerts matched.')
 
 def runTests(path):
-    print('-'*50)
+    print('-' * 50)
     with open(path, 'r') as readLocation:
         fileData = yaml.load(readLocation)
         print("Running tests for '" + fileData['name'] + "'")
         simRes = runSim(fileData['motor'])
-        if fileData['data']['real']:
-            print('Comparing to real data...')
+        if 'real' in fileData['data'].keys():
+            print('Compared to real data:')
             compareStats(simRes, fileData['data']['real']['stats'])
-    print('-'*50)
+        if 'regression' in fileData['data'].keys():
+            for version in fileData['data']['regression']:
+                print('Compared to results from ' + str(version['version']) + ':')
+                compareStats(simRes, version['stats'])
+                compareAlerts(simRes, version['alerts'])
+    print('-' * 50)
 
 warnings.filterwarnings('ignore') # Todo: get rid of this
 os.system('color')

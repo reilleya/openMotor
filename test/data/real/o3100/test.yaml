@@ -7,3 +7,10 @@ data:
       isp: 206
       burnTime: 9.8
       propMass: 15.51
+  regression:
+    - version: 0.4.0
+      stats:
+        isp: 205.149
+        burnTime: 9.66
+        propMass: 15.545
+      alerts: ['Initial port/throat ratio of 1.607 was less than 2.0']

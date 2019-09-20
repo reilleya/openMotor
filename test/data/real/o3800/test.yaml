@@ -7,3 +7,10 @@ data:
       isp: 209
       burnTime: 7.25
       propMass: 15.51
+  regression:
+    - version: 0.4.0
+      stats:
+        isp: 218.392
+        burnTime: 7.89
+        propMass: 15.545
+      alerts: []
