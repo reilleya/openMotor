@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QHeaderView, QLabel
 
 import motorlib
+from motorlib.simResult import singleValueChannels, multiValueChannels
 
 from .grainImageWidget import GrainImageWidget
 
@@ -24,7 +25,7 @@ class ResultsWidget(QWidget):
         self.ui.channelSelectorX.setTitle('X Axis')
         self.ui.channelSelectorY.setupChecks(True, default=['kn', 'pressure', 'force'])
         self.ui.channelSelectorY.setTitle('Y Axis')
-        self.ui.channelSelectorX.checksChanged.connect(self.drawGraphs)
+        self.ui.channelSelectorX.checksChanged.connect(self.xSelectionChanged)
         self.ui.channelSelectorY.checksChanged.connect(self.drawGraphs)
         self.ui.grainSelector.checksChanged.connect(self.drawGraphs)
 
@@ -67,6 +68,14 @@ class ResultsWidget(QWidget):
                 self.grainLabels[gid][field] = QLabel(field)
                 self.ui.tableWidgetGrains.setCellWidget(1 + fid, gid, self.grainLabels[gid][field])
         self.updateGrainTab()
+
+    def xSelectionChanged(self):
+        if self.ui.channelSelectorX.getSelectedChannels()[0] in multiValueChannels:
+            self.ui.channelSelectorY.unselect(singleValueChannels)
+            self.ui.channelSelectorY.toggleEnabled(singleValueChannels, False)
+        else:
+            self.ui.channelSelectorY.toggleEnabled(singleValueChannels, True)
+        self.drawGraphs()
 
     def drawGraphs(self):
         if self.simResult is not None:

@@ -53,3 +53,11 @@ class ChannelSelector(QGroupBox):
         for check in self.checks:
             self.layout().removeWidget(self.checks[check])
         self.checks = {}
+
+    def unselect(self, channels):
+        for channel in channels:
+            self.checks[channel].setCheckState(0)
+
+    def toggleEnabled(self, channels, enabled):
+        for channel in channels:
+            self.checks[channel].setEnabled(enabled)

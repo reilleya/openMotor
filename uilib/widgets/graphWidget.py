@@ -1,12 +1,20 @@
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+def selectGrains(data, grains):
+    # Returns the data corresponding to specific grains from data structured like [[G1, G2], [G1, G2], [G1, G2]...]
+    out = []
+    for frame in data:
+        out.append([])
+        for grain in grains:
+            out[-1].append(frame[grain])
+    return out
+
 class GraphWidget(FigureCanvas):
     def __init__(self, parent):
         super(GraphWidget, self).__init__(Figure())
         self.setParent(None)
         self.setupPlot()
-        self.setLabels()
         self.preferences = None
 
     def setPreferences(self, pref):
@@ -18,28 +26,29 @@ class GraphWidget(FigureCanvas):
         self.plot = self.figure.add_subplot(111)
         self.figure.tight_layout()
 
-    def setLabels(self):
-        pass
-        #elf.plot.set_xlabel('Time (s)')
-
     def plotData(self, simResult, xChannel, yChannels, grains):
         self.plot.clear()
 
         xAxisUnit = self.preferences.getUnit(simResult.channels[xChannel].unit)
 
         legend = []
+
+        if simResult.channels[xChannel].valueType in (list, tuple):
+            if len(grains) > 0:
+                xData = selectGrains(simResult.channels[xChannel].getData(xAxisUnit), grains)
+            else:
+                return
+        else:
+            xData = simResult.channels[xChannel].getData(xAxisUnit)
+
         for channelName in yChannels:
             channel = simResult.channels[channelName]
             yUnit = self.preferences.getUnit(channel.unit)
             if channel.valueType in (list, tuple) and len(grains) > 0:
-                data = []
-                for frame in channel.getData(yUnit):
-                    data.append([])
-                    for grain in grains:
-                        data[-1].append(frame[grain])
-                self.plot.plot(simResult.channels[xChannel].getData(xAxisUnit), data)
+                yData = selectGrains(channel.getData(yUnit), grains)
+                self.plot.plot(xData, yData)
             elif channel.valueType in (int, float):
-                self.plot.plot(simResult.channels[xChannel].getData(xAxisUnit), channel.getData(yUnit))
+                self.plot.plot(xData, channel.getData(yUnit))
             if channel.valueType in (int, float):
                 if yUnit != '':
                     legend.append(channel.name + ' - ' + yUnit)

@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QDialog
 
+from motorlib.simResult import singleValueChannels, multiValueChannels
 from ..converter import Exporter
 
 from ..views.ImageExporter_ui import Ui_ImageExporter
@@ -12,8 +13,11 @@ class ImageExportMenu(QDialog):
         self.converter = converter
 
     def exec(self):
+        self.ui.independent.resetChecks()
         self.ui.independent.setupChecks(False, exclude=['kn', 'pressure', 'force', 'mass',
             'massFlow', 'massFlux'])
+        self.ui.independent.checksChanged.connect(self.validateChecks)
+        self.ui.dependent.resetChecks()
         self.ui.dependent.setupChecks(True)
         self.ui.grainSelector.resetChecks()
         self.ui.grainSelector.setupChecks(self.converter.manager.simRes, True)
@@ -23,6 +27,13 @@ class ImageExportMenu(QDialog):
             grains = self.ui.grainSelector.getSelectedGrains()
             return [xChannel, yChannels, grains]
         return None
+
+    def validateChecks(self):
+        if self.ui.independent.getSelectedChannels()[0] in multiValueChannels:
+            self.ui.dependent.unselect(singleValueChannels)
+            self.ui.dependent.toggleEnabled(singleValueChannels, False)
+        else:
+            self.ui.dependent.toggleEnabled(singleValueChannels, True)
 
 
 class ImageExporter(Exporter):

@@ -91,6 +91,8 @@ class LogChannel():
             return max([max(l) for l in self.data])
         return max(self.data)
 
+singleValueChannels = ['time', 'kn', 'pressure', 'force']
+multiValueChannels = ['mass', 'massFlow', 'massFlux', 'regression', 'web']
 
 class SimulationResult():
     """A SimulationResult instance contains all results from a single simulation. It has a number of LogChannels, each
