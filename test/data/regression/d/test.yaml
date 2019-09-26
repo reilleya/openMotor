@@ -1,0 +1,11 @@
+motor: data/regression/d/motor.ric
+name: D Grain with top face inhibited
+data:
+  regression:
+    - version: 0.4.0
+      stats:
+        averageThrust: 1135
+        isp: 219.392
+        burnTime: 13.56
+        propMass: 7.1695
+      alerts: []

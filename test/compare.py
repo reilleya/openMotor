@@ -7,6 +7,8 @@ import warnings
 import motorlib.motor
 from uilib.fileIO import loadFile, fileTypes
 
+separator = '-' * 65
+
 class colors:
     OK = '\033[92m'
     WARNING = '\033[93m'
@@ -44,6 +46,7 @@ def compareStat(title, a, b):
 
 def compareStats(simRes, stats):
     print('\tBasic stats:')
+    thrustError = compareStat('Average Thrust', simRes.getAverageForce(), stats['averageThrust'])
     btError = compareStat('Burn Time', simRes.getBurnTime(), stats['burnTime'])
     ispError = compareStat('ISP', simRes.getISP(), stats['isp'])
     propmassError = compareStat('Propellant Mass', simRes.getPropellantMass(), stats['propMass'])
@@ -66,7 +69,7 @@ def compareAlerts(simRes, pastAlerts):
         print('\tSimulation alerts matched.')
 
 def runTests(path):
-    print('-' * 50)
+    print(separator)
     with open(path, 'r') as readLocation:
         fileData = yaml.load(readLocation)
         print("Running tests for '" + fileData['name'] + "'")
@@ -79,7 +82,7 @@ def runTests(path):
                 print('Compared to results from ' + str(version['version']) + ':')
                 compareStats(simRes, version['stats'])
                 compareAlerts(simRes, version['alerts'])
-    print('-' * 50)
+    print(separator)
 
 warnings.filterwarnings('ignore') # Todo: get rid of this. It hides numpy warnings to make output easier to read.
 os.system('color')
@@ -91,7 +94,7 @@ if len(sys.argv) > 1:
     else:
         filterCategory = sys.argv[1]
         print("Filtering to category '" + filterCategory + "'")
-print('-' * 50)
+print(separator)
 with open('data/tests.yaml', 'r') as readLocation:
     fileData = yaml.load(readLocation)
     for category in fileData.keys():

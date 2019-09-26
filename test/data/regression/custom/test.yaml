@@ -1,0 +1,11 @@
+motor: data/regression/custom/motor.ric
+name: Custom Grain (Bumps)
+data:
+  regression:
+    - version: 0.4.0
+      stats:
+        averageThrust: 642.7
+        isp: 226.36
+        burnTime: 3.48
+        propMass: 1.0165
+      alerts: []

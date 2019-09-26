@@ -4,12 +4,14 @@ data:
   real:
     curves: data/real/o3800/223.csv
     stats:
+      averageThrust: 3800
       isp: 209
       burnTime: 7.25
       propMass: 15.51
   regression:
     - version: 0.4.0
       stats:
+        averageThrust: 4203
         isp: 218.392
         burnTime: 7.89
         propMass: 15.545

@@ -4,6 +4,7 @@ data:
   regression:
     - version: 0.4.0
       stats:
+        averageThrust: 645
         isp: 213.417
         burnTime: 8.43
         propMass: 2.6077

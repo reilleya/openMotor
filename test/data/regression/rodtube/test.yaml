@@ -1,0 +1,11 @@
+motor: data/regression/rodtube/motor.ric
+name: Rod and Tube
+data:
+  regression:
+    - version: 0.4.0
+      stats:
+        averageThrust: 12346
+        isp: 236.732
+        burnTime: 6.39
+        propMass: 34.1487
+      alerts: []

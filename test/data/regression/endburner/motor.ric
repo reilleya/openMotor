@@ -1,0 +1,17 @@
+data:
+  config: {ambPressure: 101324.99674500001, burnoutThrustThres: 0.1, burnoutWebThres: 0.00025400050800101603,
+    igniterPressure: 1034250.0000000001, mapDim: 750, maxMassFlux: 1406.4697609001405,
+    maxPressure: 10342500.000000002, minPortThroat: 2.0, timestep: 0.03}
+  grains:
+  - properties: {diameter: 0.06350012700025401, length: 0.15240030480060962}
+    type: End Burner
+  nozzle: {convAngle: 65.0, divAngle: 15.0, efficiency: 0.9, exit: 0.01778003556007112,
+    throat: 0.006350012700025401, throatLength: 0.0012700025400050803}
+  propellant:
+    density: 1641.4179858444998
+    name: RCS - Warp 9
+    tabs:
+    - {a: 0.0002472181550396159, k: 1.229, m: 23.669, maxPressure: 10342500.000000002,
+      minPressure: 0.0, n: 0.287, t: 2780.0}
+type: !!python/object/apply:uilib.fileIO.fileTypes [3]
+version: !!python/tuple [0, 4, 0]

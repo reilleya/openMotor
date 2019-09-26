@@ -1,0 +1,11 @@
+motor: data/regression/x/motor.ric
+name: X Core
+data:
+  regression:
+    - version: 0.4.0
+      stats:
+        averageThrust: 2990
+        isp: 223.582
+        burnTime: 6.54
+        propMass: 8.963
+      alerts: []

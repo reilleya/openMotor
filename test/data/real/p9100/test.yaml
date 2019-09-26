@@ -4,12 +4,14 @@ data:
   real:
     curves: data/real/p9100/72.csv
     stats:
+      averageThrust: 9100
       isp: 226
       burnTime: 8.141
       propMass: 33.34
   regression:
     - version: 0.4.0
       stats:
+        averageThrust: 8841
         isp: 226.512
         burnTime: 8.35
         propMass: 33.435

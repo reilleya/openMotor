@@ -1,0 +1,11 @@
+motor: data/regression/endburner/motor.ric
+name: Endburner
+data:
+  regression:
+    - version: 0.4.0
+      stats:
+        averageThrust: 217
+        isp: 205.149
+        burnTime: 7.29
+        propMass: 0.7925
+      alerts: []

@@ -1,0 +1,19 @@
+data:
+  config: {ambPressure: 101324.99674500001, burnoutThrustThres: 0.1, burnoutWebThres: 0.00025400050800101603,
+    igniterPressure: 1034250.0000000001, mapDim: 750, maxMassFlux: 1406.4697609001405,
+    maxPressure: 10342500.000000002, minPortThroat: 2.0, timestep: 0.03}
+  grains:
+  - properties: {coreDiameter: 0.022225044450088903, diameter: 0.08305816611633224,
+      finLength: 0.012700025400050802, finWidth: 0.004762509525019051, inhibitedEnds: Both,
+      length: 0.45720091440182886, numFins: 6}
+    type: Finocyl
+  nozzle: {convAngle: 65.0, divAngle: 15.0, efficiency: 0.9, exit: 0.05397510795021591,
+    throat: 0.020320040640081284, throatLength: 0.005080010160020321}
+  propellant:
+    density: 1650.0
+    name: MIT - Ocean Water
+    tabs:
+    - {a: 1.467e-05, k: 1.25, m: 23.67, maxPressure: 6895000.0, minPressure: 0.0,
+      n: 0.382, t: 3500.0}
+type: !!python/object/apply:uilib.fileIO.fileTypes [3]
+version: !!python/tuple [0, 4, 0]

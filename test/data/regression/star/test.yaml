@@ -1,0 +1,11 @@
+motor: data/regression/star/motor.ric
+name: Star Core
+data:
+  regression:
+    - version: 0.4.0
+      stats:
+        averageThrust: 445
+        isp: 217.038
+        burnTime: 2.43
+        propMass: 0.5153
+      alerts: []

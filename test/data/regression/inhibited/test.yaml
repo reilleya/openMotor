@@ -1,0 +1,11 @@
+motor: data/regression/inhibited/motor.ric
+name: Inhibited Finocyl
+data:
+  regression:
+    - version: 0.4.0
+      stats:
+        averageThrust: 1792
+        isp: 216.977
+        burnTime: 4.14
+        propMass: 3.513
+      alerts: []

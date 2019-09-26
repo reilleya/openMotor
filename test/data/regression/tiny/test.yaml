@@ -1,0 +1,11 @@
+motor: data/regression/tiny/motor.ric
+name: Tiny
+data:
+  regression:
+    - version: 0.4.0
+      stats:
+        averageThrust: 45.567
+        isp: 201.563
+        burnTime: 1.5
+        propMass: 0.035
+      alerts: []
