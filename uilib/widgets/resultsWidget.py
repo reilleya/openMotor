@@ -21,7 +21,7 @@ class ResultsWidget(QWidget):
         self.cachedChecks = None
 
         self.ui.channelSelectorX.setupChecks(False, default='time', exclude=['kn', 'pressure', 'force', 'mass',
-            'massFlow', 'massFlux'])
+            'massFlow', 'massFlux', 'exitPressure'])
         self.ui.channelSelectorX.setTitle('X Axis')
         self.ui.channelSelectorY.setupChecks(True, default=['kn', 'pressure', 'force'])
         self.ui.channelSelectorY.setTitle('Y Axis')

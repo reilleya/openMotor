@@ -91,14 +91,15 @@ class Motor():
         denom = ((gamma / ((8314 / molarMass) * temp)) * ((2 / (gamma + 1)) ** ((gamma + 1) / (gamma - 1)))) ** 0.5
         return (num / denom) ** exponent
 
-    def calcIdealThrustCoeff(self, chamberPres):
+    def calcIdealThrustCoeff(self, chamberPres, exitPres=None):
         """Calculates C_f, the ideal thrust coefficient for the motor's nozzle and propellant, and the given chamber
-        pressure."""
+        pressure. If nozzle exit presure isn't provided, it will be calculated."""
         if chamberPres == 0:
             return 0
 
         _, _, gamma, _, _ = self.propellant.getCombustionProperties(chamberPres)
-        exitPres = self.nozzle.getExitPressure(gamma, chamberPres)
+        if exitPres is None:
+            exitPres = self.nozzle.getExitPressure(gamma, chamberPres)
         ambPres = self.config.getProperty("ambPressure")
         exitArea = self.nozzle.getExitArea()
         throatArea = self.nozzle.getThroatArea()
@@ -112,11 +113,11 @@ class Motor():
 
         return momentumThrust + pressureThrust
 
-    def calcForce(self, chamberPres):
-        """Calculates the force of the motor at a given regression depth per grain. Calculates pressure by default,
-        but can also use a value passed in. This method uses a combination of the techniques described in these
-        resources to adjust the thrust coefficient: https://apps.dtic.mil/dtic/tr/fulltext/u2/a099791.pdf and
-        http://rasaero.com/dloads/Departures%20from%20Ideal%20Performance.pdf."""
+    def calcForce(self, chamberPres, exitPres=None):
+        """Calculates the force of the motor at a given regression depth per grain. Calculates exit pressure by 
+        default, but can also use a value passed in. This method uses a combination of the techniques described
+        in these resources to adjust the thrust coefficient: https://apps.dtic.mil/dtic/tr/fulltext/u2/a099791.pdf
+        and http://rasaero.com/dloads/Departures%20from%20Ideal%20Performance.pdf."""
         thrustCoeffIdeal = self.calcIdealThrustCoeff(chamberPres)
         divLoss = self.nozzle.getDivergenceLosses()
         throatLoss = self.nozzle.getThroatLosses()
@@ -187,6 +188,7 @@ class Motor():
         simRes.channels['massFlux'].addData([0 for grain in self.grains])
         simRes.channels['regression'].addData([0 for grains in self.grains])
         simRes.channels['web'].addData([grain.getWebLeft(0) for grain in self.grains])
+        simRes.channels['exitPressure'].addData(0)
 
         # Check port/throat ratio and add a warning if it is large enough
         aftPort = self.grains[-1].getPortArea(0)
@@ -235,8 +237,13 @@ class Motor():
             pressure = self.calcIdealPressure(perGrainReg, lastPressure, lastKn, burnoutWebThres)
             simRes.channels['pressure'].addData(pressure)
 
+            # Calculate Exit Pressure
+            _, _, gamma, _, _ = self.propellant.getCombustionProperties(pressure)
+            exitPressure = self.nozzle.getExitPressure(gamma, pressure)
+            simRes.channels['exitPressure'].addData(exitPressure)
+
             # Calculate force
-            force = self.calcForce(simRes.channels['pressure'].getLast())
+            force = self.calcForce(simRes.channels['pressure'].getLast(), exitPressure)
             simRes.channels['force'].addData(force)
 
             simRes.channels['time'].addData(simRes.channels['time'].getLast() + dTime)
