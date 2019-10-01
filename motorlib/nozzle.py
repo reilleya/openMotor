@@ -22,6 +22,8 @@ class Nozzle(PropertyCollection):
         self.props['divAngle'] = FloatProperty('Divergence Half Angle', 'deg', 0, 90)
         self.props['convAngle'] = FloatProperty('Convergence Half Angle', 'deg', 0, 90)
         self.props['throatLength'] = FloatProperty('Throat Length', 'm', 0, 0.5)
+        self.props['slagCoeff'] = FloatProperty('Slag Buildup Coefficient', '(m*Pa)/s', 0, 1e6)
+        self.props['erosionCoeff'] = FloatProperty('Throat Erosion Coefficient', 'm/(s*Pa)', 0, 1e6)
 
     def getDetailsString(self, preferences):
         """Returns a human-readable string containing some details about the nozzle."""
@@ -32,9 +34,10 @@ class Nozzle(PropertyCollection):
         """Returns the nozzle's expansion ratio."""
         return (self.props['exit'].getValue() / self.props['throat'].getValue()) ** 2
 
-    def getThroatArea(self):
-        """Returns the area of the nozzle's throat."""
-        return geometry.circleArea(self.props['throat'].getValue())
+    def getThroatArea(self, dThroat=0):
+        """Returns the area of the nozzle's throat. The optional parameter is added on to the nozzle throat diameter
+        allow erosion or slag buildup during a burn."""
+        return geometry.circleArea(self.props['throat'].getValue() + dThroat)
 
     def getExitArea(self):
         """Return the area of the nozzle's exit."""

@@ -1,5 +1,4 @@
 """Conains the motor class and a supporting configuration property collection."""
-
 from .grains import grainTypes
 from .nozzle import Nozzle
 from .propellant import Propellant
@@ -69,29 +68,29 @@ class Motor():
             self.grains[-1].setProperties(entry['properties'])
         self.config.setProperties(dictionary['config'])
 
-    def calcKN(self, regDepth, burnoutThres=0.00001):
+    def calcKN(self, regDepth, dThroat):
         """Returns the motor's Kn when it has each grain has regressed by its value in regDepth, which should be a list
-        with the same number of elements as there are grains in the motor. The optional burnoutThres argument sets the
-        minimum web that a grain must have to still be burning."""
+        with the same number of elements as there are grains in the motor."""
+        burnoutThres = self.config.getProperty('burnoutWebThres')
         gWithReg = zip(self.grains, regDepth)
         perGrain = [gr.getSurfaceAreaAtRegression(reg) * int(gr.isWebLeft(reg, burnoutThres)) for gr, reg in gWithReg]
         surfArea = sum(perGrain)
-        nozz = self.nozzle.getThroatArea()
+        nozz = self.nozzle.getThroatArea(dThroat)
         return surfArea / nozz
 
-    def calcIdealPressure(self, regDepth, lastPressure, kn=None, burnoutWebThres=0.00001):
+    def calcIdealPressure(self, regDepth, dThroat, lastPressure, kn=None):
         """Returns the steady-state pressure of the motor at a given reg. Kn is calculated automatically, but it can
         optionally be passed in to save time on motors where calculating surface area is expensive."""
         density = self.propellant.getProperty('density')
         ballA, ballN, gamma, temp, molarMass = self.propellant.getCombustionProperties(lastPressure)
         if kn is None:
-            kn = self.calcKN(regDepth, burnoutWebThres)
+            kn = self.calcKN(regDepth, dThroat)
         num = kn * density * ballA
         exponent = 1/(1 - ballN)
         denom = ((gamma / ((8314 / molarMass) * temp)) * ((2 / (gamma + 1)) ** ((gamma + 1) / (gamma - 1)))) ** 0.5
         return (num / denom) ** exponent
 
-    def calcIdealThrustCoeff(self, chamberPres, exitPres=None):
+    def calcIdealThrustCoeff(self, chamberPres, dThroat, exitPres=None):
         """Calculates C_f, the ideal thrust coefficient for the motor's nozzle and propellant, and the given chamber
         pressure. If nozzle exit presure isn't provided, it will be calculated."""
         if chamberPres == 0:
@@ -102,7 +101,7 @@ class Motor():
             exitPres = self.nozzle.getExitPressure(gamma, chamberPres)
         ambPres = self.config.getProperty("ambPressure")
         exitArea = self.nozzle.getExitArea()
-        throatArea = self.nozzle.getThroatArea()
+        throatArea = self.nozzle.getThroatArea(dThroat)
 
         term1 = (2 * (gamma**2)) / (gamma - 1)
         term2 = (2 / (gamma + 1))**((gamma + 1) / (gamma - 1))
@@ -113,18 +112,18 @@ class Motor():
 
         return momentumThrust + pressureThrust
 
-    def calcForce(self, chamberPres, exitPres=None):
-        """Calculates the force of the motor at a given regression depth per grain. Calculates exit pressure by 
+    def calcForce(self, chamberPres, dThroat, exitPres=None):
+        """Calculates the force of the motor at a given regression depth per grain. Calculates exit pressure by
         default, but can also use a value passed in. This method uses a combination of the techniques described
         in these resources to adjust the thrust coefficient: https://apps.dtic.mil/dtic/tr/fulltext/u2/a099791.pdf
         and http://rasaero.com/dloads/Departures%20from%20Ideal%20Performance.pdf."""
-        thrustCoeffIdeal = self.calcIdealThrustCoeff(chamberPres)
+        thrustCoeffIdeal = self.calcIdealThrustCoeff(chamberPres, dThroat, exitPres)
         divLoss = self.nozzle.getDivergenceLosses()
         throatLoss = self.nozzle.getThroatLosses()
         skinLoss = self.nozzle.getSkinLosses()
         efficiency = self.nozzle.getProperty('efficiency')
         thrustCoeffAdj = divLoss * throatLoss * efficiency * (skinLoss * thrustCoeffIdeal + (1 - skinLoss))
-        thrust = thrustCoeffAdj * self.nozzle.getThroatArea() * chamberPres
+        thrust = thrustCoeffAdj * self.nozzle.getThroatArea(dThroat) * chamberPres
         return max(thrust, 0)
 
     def runSimulation(self, callback=None):
@@ -179,9 +178,9 @@ class Motor():
 
         # At t = 0, the motor has ignited
         simRes.channels['time'].addData(0)
-        simRes.channels['kn'].addData(self.calcKN(perGrainReg, burnoutWebThres))
+        simRes.channels['kn'].addData(self.calcKN(perGrainReg, 0))
         igniterPres = self.config.getProperty('igniterPressure')
-        simRes.channels['pressure'].addData(self.calcIdealPressure(perGrainReg, igniterPres, None, burnoutWebThres))
+        simRes.channels['pressure'].addData(self.calcIdealPressure(perGrainReg, 0, igniterPres, None))
         simRes.channels['force'].addData(0)
         simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
         simRes.channels['massFlow'].addData([0 for grain in self.grains])
@@ -189,6 +188,7 @@ class Motor():
         simRes.channels['regression'].addData([0 for grains in self.grains])
         simRes.channels['web'].addData([grain.getWebLeft(0) for grain in self.grains])
         simRes.channels['exitPressure'].addData(0)
+        simRes.channels['dThroat'].addData(0)
 
         # Check port/throat ratio and add a warning if it is large enough
         aftPort = self.grains[-1].getPortArea(0)
@@ -229,12 +229,13 @@ class Motor():
             simRes.channels['massFlux'].addData(perGrainMassFlux)
 
             # Calculate KN
-            simRes.channels['kn'].addData(self.calcKN(perGrainReg, burnoutWebThres))
+            dThroat = simRes.channels['dThroat'].getLast()
+            simRes.channels['kn'].addData(self.calcKN(perGrainReg, dThroat))
 
             # Calculate Pressure
             lastPressure = simRes.channels['pressure'].getLast()
             lastKn = simRes.channels['kn'].getLast()
-            pressure = self.calcIdealPressure(perGrainReg, lastPressure, lastKn, burnoutWebThres)
+            pressure = self.calcIdealPressure(perGrainReg, dThroat, lastPressure, lastKn)
             simRes.channels['pressure'].addData(pressure)
 
             # Calculate Exit Pressure
@@ -243,10 +244,19 @@ class Motor():
             simRes.channels['exitPressure'].addData(exitPressure)
 
             # Calculate force
-            force = self.calcForce(simRes.channels['pressure'].getLast(), exitPressure)
+            force = self.calcForce(simRes.channels['pressure'].getLast(), dThroat, exitPressure)
             simRes.channels['force'].addData(force)
 
             simRes.channels['time'].addData(simRes.channels['time'].getLast() + dTime)
+
+            # Calculate any slag deposition or erosion of the throat
+            if pressure == 0:
+                slagRate = 0
+            else:
+                slagRate = (1 / pressure) * self.nozzle.getProperty('slagCoeff')
+            erosionRate = pressure * self.nozzle.getProperty('erosionCoeff')
+            change = dTime * ((-2 * slagRate) + (2 * erosionRate))
+            simRes.channels['dThroat'].addData(dThroat + change)
 
             if callback is not None:
                 # Uses the grain with the largest percentage of its web left

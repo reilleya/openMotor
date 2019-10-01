@@ -20,8 +20,8 @@ class ResultsWidget(QWidget):
         self.simResult = None
         self.cachedChecks = None
 
-        self.ui.channelSelectorX.setupChecks(False, default='time', exclude=['kn', 'pressure', 'force', 'mass',
-            'massFlow', 'massFlux', 'exitPressure'])
+        excludes = ['kn', 'pressure', 'force', 'mass', 'massFlow', 'massFlux', 'exitPressure', 'dThroat']
+        self.ui.channelSelectorX.setupChecks(False, default='time', exclude=excludes)
         self.ui.channelSelectorX.setTitle('X Axis')
         self.ui.channelSelectorY.setupChecks(True, default=['kn', 'pressure', 'force'])
         self.ui.channelSelectorY.setTitle('Y Axis')
@@ -99,8 +99,8 @@ class ResultsWidget(QWidget):
                 for field in self.grainTableFields:
                     fromUnit = self.simResult.channels[field].unit
                     toUnit = self.preferences.getUnit(fromUnit)
-                    value = motorlib.units.convert(self.simResult.channels[field].getPoint(index)[gid], fromUnit, toUnit)
-                    self.grainLabels[gid][field].setText(str(round(value, 3)) + ' ' + toUnit)
+                    val = motorlib.units.convert(self.simResult.channels[field].getPoint(index)[gid], fromUnit, toUnit)
+                    self.grainLabels[gid][field].setText(str(round(val, 3)) + ' ' + toUnit)
 
             currentTime = self.simResult.channels['time'].getPoint(index)
             remainingTime = self.simResult.channels['time'].getLast() - currentTime

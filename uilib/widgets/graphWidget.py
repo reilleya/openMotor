@@ -63,7 +63,6 @@ class GraphWidget(FigureCanvas):
                             legend.append(channel.name + ' - Grain ' + str(i + 1))
         self.plot.legend(legend)
         self.plot.set_xlabel(simResult.channels[xChannel].name + ' - ' + xAxisUnit)
-        self.plot.set_ylim(bottom=0)
 
     def saveImage(self, simResult, xChannel, yChannels, grains, path):
         self.plotData(simResult, xChannel, yChannels, grains)

@@ -15,7 +15,7 @@ class ImageExportMenu(QDialog):
     def exec(self):
         self.ui.independent.resetChecks()
         self.ui.independent.setupChecks(False, exclude=['kn', 'pressure', 'force', 'mass',
-            'massFlow', 'massFlux', 'exitPressure'])
+                                                        'massFlow', 'massFlux', 'exitPressure', 'dThroat'])
         self.ui.independent.checksChanged.connect(self.validateChecks)
         self.ui.dependent.resetChecks()
         self.ui.dependent.setupChecks(True)
@@ -39,7 +39,7 @@ class ImageExportMenu(QDialog):
 class ImageExporter(Exporter):
     def __init__(self, manager):
         super().__init__(manager, 'Image File',
-            'Exports the results of a simulation in a graph.', {'.png': 'Portable network graphic'})
+                         'Exports the results of a simulation in a graph.', {'.png': 'Portable network graphic'})
         self.menu = ImageExportMenu(self)
         self.reqNotMet = "Must have run a simulation to export a .PNG file."
 

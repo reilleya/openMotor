@@ -21,6 +21,8 @@ def defaultPreferencesDict():
         'kg/m^3': 'lb/in^3',
         'kg/s': 'lb/s',
         'kg/(m^2*s)': 'lb/(in^2*s)',
+        '(m*Pa)/s': '(in*psi)/s',
+        'm/(s*Pa)': 'thou/(s*psi)',
         'm/(s*Pa^n)': 'in/(s*psi^n)'
     }
     return prefDict

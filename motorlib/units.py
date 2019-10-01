@@ -1,6 +1,7 @@
 """This module contains tables of units and their long form names, their conversion rates with other units, and
 functions for performing conversion."""
 
+# The keys in this dictionary specify the units that all calculations are done in internally
 unitLabels = {
     'm': 'Length',
     'm/s': 'Velocity',
@@ -11,7 +12,9 @@ unitLabels = {
     'kg/m^3': 'Density',
     'kg/s': 'Mass Flow',
     'kg/(m^2*s)': 'Mass Flux',
-    'm/(s*Pa^n)': 'Burn Rate Coefficient'
+    'm/(s*Pa^n)': 'Burn Rate Coefficient',
+    '(m*Pa)/s': 'Nozzle Slag Coefficient',
+    'm/(s*Pa)': 'Nozzle Erosion Coefficient'
 }
 
 unitTable = [
@@ -43,6 +46,12 @@ unitTable = [
     ('kg/s', 'g/s', 1000),
 
     ('kg/(m^2*s)', 'lb/(in^2*s)', 0.001422),
+
+    ('(m*Pa)/s', '(m*MPa)/s', 1000000),
+    ('(m*Pa)/s', '(in*psi)/s', 0.00571014715),
+
+    ('m/(s*Pa)', 'm/(s*MPa)', 1/1000000),
+    ('m/(s*Pa)', 'thou/(s*psi)', 271447138),
 
     ('m/(s*Pa^n)', 'in/(s*psi^n)', 39.37) # Ratio converts m/s to in/s. The pressure conversion must be done separately
 ]

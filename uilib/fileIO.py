@@ -82,6 +82,8 @@ def tabularizePropellant(data):
 
 def migratePref_0_3_0_to_0_4_0(data):
     data['general']['igniterPressure'] = defaultPreferencesDict()['general']['igniterPressure']
+    data['units']['(m*Pa)/s'] = '(in*psi)/s'
+    data['units']['m/(s*Pa)'] = 'thou/(s*psi)'
     return data
 
 def migrateProp_0_3_0_to_0_4_0(data):

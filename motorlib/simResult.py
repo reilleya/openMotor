@@ -91,7 +91,7 @@ class LogChannel():
             return max([max(l) for l in self.data])
         return max(self.data)
 
-singleValueChannels = ['time', 'kn', 'pressure', 'force', 'exitPressure']
+singleValueChannels = ['time', 'kn', 'pressure', 'force', 'exitPressure', 'dThroat']
 multiValueChannels = ['mass', 'massFlow', 'massFlux', 'regression', 'web']
 
 class SimulationResult():
@@ -114,7 +114,8 @@ class SimulationResult():
             'massFlux': LogChannel('Mass Flux', tuple, 'kg/(m^2*s)'),
             'regression': LogChannel('Regression Depth', tuple, 'm'),
             'web': LogChannel('Web', tuple, 'm'),
-            'exitPressure': LogChannel('Nozzle Exit Pressure', float, 'Pa')
+            'exitPressure': LogChannel('Nozzle Exit Pressure', float, 'Pa'),
+            'dThroat': LogChannel('Change in Throat Diameter', float, 'm')
         }
 
     def addAlert(self, alert):
