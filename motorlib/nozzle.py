@@ -52,10 +52,10 @@ class Nozzle(PropertyCollection):
         divAngleRad = math.radians(self.props["divAngle"].getValue())
         return (1 + math.cos(divAngleRad)) / 2
 
-    def getThroatLosses(self):
+    def getThroatLosses(self, dThroat=0):
         """Returns the losses caused by the throat aspect ratio as described in this document:
         http://rasaero.com/dloads/Departures%20from%20Ideal%20Performance.pdf"""
-        throatAspect = self.props['throatLength'].getValue() / self.props['throat'].getValue()
+        throatAspect = self.props['throatLength'].getValue() / (self.props['throat'].getValue() + dThroat)
         if throatAspect > 0.45:
             return 0.95
         return 0.99 - (0.0333 * throatAspect)

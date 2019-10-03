@@ -1,0 +1,11 @@
+motor: data/regression/nozzleErosion/motor.ric
+name: Nozzle Erosion
+data:
+  regression:
+    - version: 0.4.0
+      stats:
+        averageThrust: 2132
+        isp: 229.409
+        burnTime: 5.13
+        propMass: 4.8929
+      alerts: ['Initial port/throat ratio of 1.978 was less than 2.0']

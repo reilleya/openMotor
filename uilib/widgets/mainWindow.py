@@ -126,7 +126,6 @@ class Window(QMainWindow):
 
     def setupGrainTable(self):
         self.ui.tableWidgetGrainList.clearContents()
-        self.ui.tableWidgetGrainList.setEditTriggers(QTableWidget.NoEditTriggers)
 
         header = self.ui.tableWidgetGrainList.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)

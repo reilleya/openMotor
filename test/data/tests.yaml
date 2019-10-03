@@ -17,5 +17,7 @@ regression: [
   data/regression/x/test.yaml,
   data/regression/rodtube/test.yaml,
   data/regression/custom/test.yaml,
-  data/regression/star/test.yaml
+  data/regression/star/test.yaml,
+  data/regression/nozzleErosion/test.yaml,
+  data/regression/nozzleSlag/test.yaml
 ]

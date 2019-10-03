@@ -1,0 +1,11 @@
+motor: data/regression/nozzleSlag/motor.ric
+name: Nozzle Slagging
+data:
+  regression:
+    - version: 0.4.0
+      stats:
+        averageThrust: 309
+        isp: 210.987
+        burnTime: 3.57
+        propMass: 0.5393
+      alerts: ["Chamber pressure deviated from propellant's entered ranges. Results may not be accurate."]

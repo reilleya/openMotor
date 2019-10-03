@@ -119,7 +119,7 @@ class Motor():
         and http://rasaero.com/dloads/Departures%20from%20Ideal%20Performance.pdf."""
         thrustCoeffIdeal = self.calcIdealThrustCoeff(chamberPres, dThroat, exitPres)
         divLoss = self.nozzle.getDivergenceLosses()
-        throatLoss = self.nozzle.getThroatLosses()
+        throatLoss = self.nozzle.getThroatLosses(dThroat)
         skinLoss = self.nozzle.getSkinLosses()
         efficiency = self.nozzle.getProperty('efficiency')
         thrustCoeffAdj = divLoss * throatLoss * efficiency * (skinLoss * thrustCoeffIdeal + (1 - skinLoss))
