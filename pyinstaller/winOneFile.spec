@@ -3,8 +3,8 @@
 block_cipher = None
 
 
-a = Analysis(['main.py'],
-             pathex=['/Users/andrew/openMotor'],
+a = Analysis(['../main.py'],
+             pathex=['../'],
              binaries=[],
              datas=[],
              hiddenimports=['pywt._extensions._cwt'],
@@ -29,8 +29,5 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
-          console=False )
-app = BUNDLE(exe,
-             name='openMotor.app',
-             icon='resources/oMIconCycles.icns',
-             bundle_identifier=None)
+          console=False,
+          icon='../resources/oMIconCycles.ico' )

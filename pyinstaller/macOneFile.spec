@@ -3,10 +3,10 @@
 block_cipher = None
 
 
-a = Analysis(['main.py'],
-             pathex=['D:\\Programming Projects\\openMotor'],
+a = Analysis(['../main.py'],
+             pathex=['../'],
              binaries=[],
-             datas=[('resources', 'resources')],
+             datas=[],
              hiddenimports=['pywt._extensions._cwt'],
              hookspath=[],
              runtime_hooks=[],
@@ -19,19 +19,18 @@ pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
+          a.binaries,
+          a.zipfiles,
+          a.datas,
           [],
-          exclude_binaries=True,
           name='openMotor',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          console=False,
-          icon='resources/oMIconCycles.ico')
-coll = COLLECT(exe,
-               a.binaries,
-               a.zipfiles,
-               a.datas,
-               strip=False,
-               upx=True,
-               name='openMotor')
+          runtime_tmpdir=None,
+          console=False )
+app = BUNDLE(exe,
+             name='openMotor.app',
+             icon='../resources/oMIconCycles.icns',
+             bundle_identifier=None)
