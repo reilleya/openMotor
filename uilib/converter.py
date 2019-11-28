@@ -22,14 +22,20 @@ class Converter(QObject):
 
 
 class Exporter(Converter):
-    def __init__(self, manager, name, description, fileTypes):
+    def __init__(self, manager, name, description, fileTypes, confirmOverwrite=True):
         super().__init__(manager, name, description, fileTypes)
         self.requirements = []
         self.reqNotMet = "Requirement not met!"
+        self.confirmOverwrite = confirmOverwrite
 
     def showFileSelector(self):
         """Open a dialog to pick the file to save to"""
-        path = QFileDialog.getSaveFileName(None, 'Export ' + self.name, '', self.getFileTypeString())[0]
+        title = 'Export ' + self.name
+        types = self.getFileTypeString()
+        if not self.confirmOverwrite:
+            path = QFileDialog.getSaveFileName(None, title, '', types, options=QFileDialog.DontConfirmOverwrite)[0]
+        else:
+            path = QFileDialog.getSaveFileName(None, title, '', types)[0]
         if path == '' or path is None:
             return
         if not any([path.endswith(ext) for ext in self.fileTypes.keys()]):

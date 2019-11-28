@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox
 
-from motorlib.properties import PropertyCollection, FloatProperty, StringProperty
+from motorlib.properties import PropertyCollection, FloatProperty, StringProperty, EnumProperty
 import motorlib
 from ..converter import Exporter
 
@@ -15,6 +15,7 @@ class EngSettings(PropertyCollection):
         self.props['hardwareMass'] = FloatProperty('Hardware Mass', 'kg', 0, 1000)
         self.props['designation'] = StringProperty('Motor Designation')
         self.props['manufacturer'] = StringProperty('Motor Manufacturer')
+        self.props['append'] = EnumProperty('Existing File', ['Append', 'Overwrite'])
 
 
 class EngExportMenu(QDialog):
@@ -38,12 +39,13 @@ class EngExportMenu(QDialog):
 class EngExporter(Exporter):
     def __init__(self, manager):
         super().__init__(manager, 'ENG File',
-            'Exports the results of a simulation in the RASP ENG format', {'.eng': 'RASP Files'})
+            'Exports the results of a simulation in the RASP ENG format', {'.eng': 'RASP Files'}, False)
         self.menu = EngExportMenu(self)
         self.reqNotMet = "Must have run a simulation to export a .ENG file."
 
     def doConversion(self, path, config):
-        with open(path, 'w') as outFile:
+        mode = 'a' if config['append'] == 'Append' else 'w'
+        with open(path, mode) as outFile:
             propMass = self.manager.simRes.getPropellantMass()
             contents = ' '.join([config['designation'],
                                  str(round(config['diameter'] * 1000, 6)),
@@ -56,12 +58,16 @@ class EngExporter(Exporter):
 
             timeData = self.manager.simRes.channels['time'].getData()
             forceData = self.manager.simRes.channels['force'].getData()
+            # Add on a 0-thrust datapoint right after the burn to satisfy RAS Aero
+            if forceData[-1] != 0:
+                timeData.append(self.manager.simRes.getBurnTime() + 0.01)
+                forceData.append(0)
             for time, force in zip(timeData, forceData):
                 if time == 0: # Increase the first point so it isn't 0 thrust
                     force += 0.01
                 contents += str(round(time, 4)) + ' ' + str(round(force, 4)) + '\n'
 
-            contents += ';'
+            contents += ';\n;\n'
 
             outFile.write(contents)
 
