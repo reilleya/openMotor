@@ -95,7 +95,7 @@ class Grain(PropertyCollection):
     def getFreeVolume(self, regDist):
         """Returns the amount of empty (non-propellant) volume in bounding cylinder of the grain for a given regression
         depth."""
-        return self.getGrainBoundingVolume() - self.getVolumeAtRegression(regDist)
+        return float(self.getGrainBoundingVolume() - self.getVolumeAtRegression(regDist))
 
 
 class PerforatedGrain(Grain):

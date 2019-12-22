@@ -24,7 +24,8 @@ class Window(QMainWindow):
 
         self.motorStatLabels = [self.ui.labelMotorDesignation, self.ui.labelImpulse, self.ui.labelDeliveredISP, self.ui.labelBurnTime,
                                 self.ui.labelAveragePressure, self.ui.labelPeakPressure, self.ui.labelInitialKN, self.ui.labelPeakKN,
-                                self.ui.labelPropellantMass, self.ui.labelPropellantLength, self.ui.labelPortThroatRatio, self.ui.labelPeakMassFlux]
+                                self.ui.labelPropellantMass, self.ui.labelPropellantLength, self.ui.labelPortThroatRatio, self.ui.labelPeakMassFlux,
+                                self.ui.labelVolumeLoading]
 
         self.app.fileManager.fileNameChanged.connect(self.updateWindowTitle)
         self.app.fileManager.newMotor.connect(self.resetOutput)
@@ -293,6 +294,7 @@ class Window(QMainWindow):
         self.ui.labelImpulse.setText(self.formatMotorStat(simResult.getImpulse(), 'Ns'))
         self.ui.labelDeliveredISP.setText(self.formatMotorStat(simResult.getISP(), 's'))
         self.ui.labelBurnTime.setText(self.formatMotorStat(simResult.getBurnTime(), 's'))
+        self.ui.labelVolumeLoading.setText(str(round(simResult.getVolumeLoading(), 2)) + ' %')
 
         self.ui.labelAveragePressure.setText(self.formatMotorStat(simResult.getAveragePressure(), 'Pa'))
         self.ui.labelPeakPressure.setText(self.formatMotorStat(simResult.getMaxPressure(), 'Pa'))

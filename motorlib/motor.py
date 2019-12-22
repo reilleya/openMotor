@@ -126,6 +126,14 @@ class Motor():
         thrust = thrustCoeffAdj * self.nozzle.getThroatArea(dThroat) * chamberPres
         return max(thrust, 0)
 
+    def calcFreeVolume(self, regDepth):
+        """Calculates the volume inside of the motor not occupied by proppellant for a set of regression depths."""
+        return sum([grain.getFreeVolume(reg) for grain, reg in zip(self.grains, regDepth)])
+
+    def calcTotalVolume(self):
+        """Calculates the bounding-cylinder volume of the combustion chamber."""
+        return sum([grain.getGrainBoundingVolume() for grain in self.grains])
+
     def runSimulation(self, callback=None):
         """Runs a simulation of the motor and returns a simRes instance with the results. Constraints are checked,
         including the number of grains, if the motor has a propellant set, and if the grains have geometry errors. If
@@ -169,6 +177,9 @@ class Motor():
         # Pull the required numbers from the propellant
         density = self.propellant.getProperty('density')
 
+        # Precalculate these are they don't change
+        motorVolume = self.calcTotalVolume()
+
         # Generate coremaps for perforated grains
         for grain in self.grains:
             grain.simulationSetup(self.config)
@@ -183,6 +194,7 @@ class Motor():
         simRes.channels['pressure'].addData(self.calcIdealPressure(perGrainReg, 0, igniterPres, None))
         simRes.channels['force'].addData(0)
         simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
+        simRes.channels['volumeLoading'].addData(100 * (1 - (self.calcFreeVolume(perGrainReg) / motorVolume)))
         simRes.channels['massFlow'].addData([0 for grain in self.grains])
         simRes.channels['massFlux'].addData([0 for grain in self.grains])
         simRes.channels['regression'].addData([0 for grains in self.grains])
@@ -224,6 +236,7 @@ class Motor():
             simRes.channels['regression'].addData(perGrainReg[:])
             simRes.channels['web'].addData(perGrainWeb)
 
+            simRes.channels['volumeLoading'].addData(100 * (1 - (self.calcFreeVolume(perGrainReg) / motorVolume)))
             simRes.channels['mass'].addData(perGrainMass)
             simRes.channels['massFlow'].addData(perGrainMassFlow)
             simRes.channels['massFlux'].addData(perGrainMassFlux)

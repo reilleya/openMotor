@@ -110,6 +110,7 @@ class SimulationResult():
             'pressure': LogChannel('Chamber Pressure', float, 'Pa'),
             'force': LogChannel('Thrust', float, 'N'),
             'mass': LogChannel('Propellant Mass', tuple, 'kg'),
+            'volumeLoading': LogChannel('Volume Loading', float, '%'),
             'massFlow': LogChannel('Mass Flow', tuple, 'kg/s'),
             'massFlux': LogChannel('Mass Flux', tuple, 'kg/(m^2*s)'),
             'regression': LogChannel('Regression Depth', tuple, 'm'),
@@ -202,6 +203,11 @@ class SimulationResult():
         """Returns the total mass of all propellant before the simulated burn. Optionally accepts a index that the mass
         will be sampled at."""
         return sum(self.channels['mass'].getPoint(index))
+
+    def getVolumeLoading(self, index=0):
+        """Returns the percentage of the motor's volume occupied by propellant. Optionally accepts a index that the
+        value will be sampled at."""
+        return self.channels['volumeLoading'].getPoint(index)
 
     def getAlertsByLevel(self, level):
         """Returns all simulation alerts of the specified level."""
