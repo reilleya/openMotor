@@ -88,6 +88,15 @@ class Grain(PropertyCollection):
             errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Length must not be 0'))
         return errors
 
+    def getGrainBoundingVolume(self):
+        """Returns the volume of the bounding cylinder around the grain"""
+        return geometry.cylinderVolume(self.props['diameter'].getValue(), self.props['length'].getValue())
+
+    def getFreeVolume(self, regDist):
+        """Returns the amount of empty (non-propellant) volume in bounding cylinder of the grain for a given regression
+        depth."""
+        return self.getGrainBoundingVolume() - self.getVolumeAtRegression(regDist)
+
 
 class PerforatedGrain(Grain):
     """A grain with a hole of some shape through the center. Adds abstract methods related to the core to the

@@ -8,7 +8,7 @@ import appdirs
 
 from .defaults import defaultPreferencesDict, defaultPropellants
 
-appVersion = (0, 4, 0)
+appVersion = (0, 5, 0)
 appVersionStr = '.'.join(map(str, appVersion))
 
 class fileTypes(Enum):
@@ -119,6 +119,12 @@ def migrateMotor_0_2_0_to_0_3_0(data):
     return data
 
 migrations = {
+    (0, 4, 0): {
+        'to': (0, 5, 0),
+        fileTypes.PREFERENCES: passthrough,
+        fileTypes.PROPELLANTS: passthrough,
+        fileTypes.MOTOR: passthrough,
+    },
     (0, 3, 0): {
         'to': (0, 4, 0),
         fileTypes.PREFERENCES: migratePref_0_3_0_to_0_4_0,

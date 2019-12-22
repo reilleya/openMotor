@@ -23,7 +23,7 @@ class ResultsWidget(QWidget):
         excludes = ['kn', 'pressure', 'force', 'mass', 'massFlow', 'massFlux', 'exitPressure', 'dThroat']
         self.ui.channelSelectorX.setupChecks(False, default='time', exclude=excludes)
         self.ui.channelSelectorX.setTitle('X Axis')
-        self.ui.channelSelectorY.setupChecks(True, default=['kn', 'pressure', 'force'])
+        self.ui.channelSelectorY.setupChecks(True, default=['kn', 'pressure', 'force'], exclude=['time'])
         self.ui.channelSelectorY.setTitle('Y Axis')
         self.ui.channelSelectorX.checksChanged.connect(self.xSelectionChanged)
         self.ui.channelSelectorY.checksChanged.connect(self.drawGraphs)

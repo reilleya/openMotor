@@ -4,6 +4,7 @@ functions for performing conversion."""
 # The keys in this dictionary specify the units that all calculations are done in internally
 unitLabels = {
     'm': 'Length',
+    'm^3': 'Volume',
     'm/s': 'Velocity',
     'N': 'Force',
     'Ns': 'Impulse',
@@ -22,6 +23,11 @@ unitTable = [
     ('m', 'mm', 1000),
     ('m', 'in', 39.37),
     ('m', 'ft', 3.28),
+
+    ('m^3', 'cm^3', 100**3),
+    ('m^3', 'mm^3', 1000**3),
+    ('m^3', 'in^3', 39.37**3),
+    ('m^3', 'ft^3', 3.28**3),
 
     ('m/s', 'cm/s', 100),
     ('m/s', 'mm/s', 1000),
