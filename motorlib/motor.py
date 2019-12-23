@@ -68,13 +68,16 @@ class Motor():
             self.grains[-1].setProperties(entry['properties'])
         self.config.setProperties(dictionary['config'])
 
-    def calcKN(self, regDepth, dThroat):
-        """Returns the motor's Kn when it has each grain has regressed by its value in regDepth, which should be a list
-        with the same number of elements as there are grains in the motor."""
+    def calcBurningArea(self, regDepth):
         burnoutThres = self.config.getProperty('burnoutWebThres')
         gWithReg = zip(self.grains, regDepth)
         perGrain = [gr.getSurfaceAreaAtRegression(reg) * int(gr.isWebLeft(reg, burnoutThres)) for gr, reg in gWithReg]
-        surfArea = sum(perGrain)
+        return sum(perGrain)
+
+    def calcKN(self, regDepth, dThroat):
+        """Returns the motor's Kn when it has each grain has regressed by its value in regDepth, which should be a list
+        with the same number of elements as there are grains in the motor."""
+        surfArea = self.calcBurningArea(regDepth)
         nozz = self.nozzle.getThroatArea(dThroat)
         return surfArea / nozz
 
@@ -89,6 +92,16 @@ class Motor():
         exponent = 1/(1 - ballN)
         denom = ((gamma / ((8314 / molarMass) * temp)) * ((2 / (gamma + 1)) ** ((gamma + 1) / (gamma - 1)))) ** 0.5
         return (num / denom) ** exponent
+
+    def calcPressureRate(self, regDepth, dThroat, lastPressure):
+        ballA, ballN, gamma, temp, molarMass = self.propellant.getCombustionProperties(lastPressure)
+        r_g = 8314 / molarMass
+        coeff  = r_g * temp / self.calcFreeVolume(regDepth)
+        propDensity = self.propellant.getProperty('density')
+        gasDensity = (lastPressure * molarMass) / (8314 * temp)
+        inp = self.propellant.getBurnRate(lastPressure) * self.calcBurningArea(regDepth) * (propDensity - gasDensity)
+        out = (lastPressure * self.nozzle.getThroatArea(dThroat)) / self.propellant.getCStar(lastPressure)
+        return coeff * (inp - out)
 
     def calcIdealThrustCoeff(self, chamberPres, dThroat, exitPres=None):
         """Calculates C_f, the ideal thrust coefficient for the motor's nozzle and propellant, and the given chamber
@@ -248,7 +261,10 @@ class Motor():
             # Calculate Pressure
             lastPressure = simRes.channels['pressure'].getLast()
             lastKn = simRes.channels['kn'].getLast()
-            pressure = self.calcIdealPressure(perGrainReg, dThroat, lastPressure, lastKn)
+            #pressure = self.calcIdealPressure(perGrainReg, dThroat, lastPressure, lastKn)
+            pRate = self.calcPressureRate(perGrainReg, dThroat, lastPressure)
+            #print(pRate * dTime / 6895)
+            pressure = lastPressure + (pRate * dTime)
             simRes.channels['pressure'].addData(pressure)
 
             # Calculate Exit Pressure
