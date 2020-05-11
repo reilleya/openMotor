@@ -34,7 +34,7 @@ def saveFile(path, data, dataType):
 
 def loadFile(path, dataType):
     with open(path, 'r') as readLocation:
-        fileData = yaml.load(readLocation)
+        fileData = yaml.load(readLocation, Loader=yaml.Loader)
 
         if 'data' not in fileData or 'type' not in fileData or 'version' not in fileData:
             raise ValueError('File did not contain the required fields. It may be corrupted or from an old version.')
