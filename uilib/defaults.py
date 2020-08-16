@@ -10,7 +10,7 @@ def defaultPreferencesDict():
         'burnoutThrustThres': 0.1,
         'timestep': 0.03,
         'ambPressure': 101325,
-        'igniterPressure': 150 * 6895,
+        'igniterPressure': 150 * 6895, # Deprecated, but needed for migration
         'mapDim': 750
     }
     prefDict['units'] = {
