@@ -6,6 +6,7 @@ from . import geometry
 from .simResult import SimulationResult, SimAlert, SimAlertLevel, SimAlertType
 from .grains import EndBurningGrain
 from .properties import PropertyCollection, FloatProperty, IntProperty
+from .constants import gasConstant
 
 class MotorConfig(PropertyCollection):
     """Contains the settings required for simulation, including environmental conditions and details about
@@ -88,7 +89,7 @@ class Motor():
             ballA, ballN, gamma, temp, molarMass = tab['a'], tab['n'], tab['k'], tab['t'], tab['m']
             num = kn * density * ballA
             exponent = 1 / (1 - ballN)
-            denom = ((gamma / ((8314.462618 / molarMass) * temp)) * ((2 / (gamma + 1)) ** ((gamma + 1) / (gamma - 1)))) ** 0.5
+            denom = ((gamma / ((gasConstant / molarMass) * temp)) * ((2 / (gamma + 1)) ** ((gamma + 1) / (gamma - 1)))) ** 0.5
             tabPressure = (num / denom) ** exponent
             # If the pressure that a burnrate produces falls into its range, we know it is the proper burnrate
             # We have to slightly widen the range allowed for each burnrate to allow for floating point error

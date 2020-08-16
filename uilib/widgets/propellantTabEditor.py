@@ -3,6 +3,7 @@ from PyQt5.QtCore import pyqtSignal
 
 from motorlib.units import convert
 from motorlib.propellant import PropellantTab
+from motorlib.constants import gasConstant
 
 from .collectionEditor import CollectionEditor
 
@@ -21,9 +22,8 @@ class PropellantTabEditor(CollectionEditor):
         k = self.propertyEditors['k'].getValue()
         t = self.propertyEditors['t'].getValue()
         m = self.propertyEditors['m'].getValue()
-        r = 8314
-        num = (k * r/m * t)**0.5
-        denom = k * ((2/(k+1))**((k+1)/(k-1)))**0.5
+        num = (k * gasConstant / m * t) ** 0.5
+        denom = k * ((2 / (k + 1)) ** ((k + 1) / (k - 1))) ** 0.5
         charVel = num / denom
 
         if self.preferences is not None:
@@ -44,7 +44,7 @@ class PropellantTabEditor(CollectionEditor):
         res = super().getProperties()
         coeffUnit = self.propertyEditors['a'].dispUnit
         if coeffUnit == 'in/(s*psi^n)':
-            res['a'] *= 1/(6895**res['n'])
+            res['a'] *= 1 / (6895 ** res['n'])
         return res
 
     def loadProperties(self, obj): # Override for ballistic coefficient units
@@ -52,7 +52,7 @@ class PropellantTabEditor(CollectionEditor):
         # Convert the ballistic coefficient based on the exponent
         ballisticCoeffUnit = self.preferences.getUnit('m/(s*Pa^n)')
         if ballisticCoeffUnit == 'in/(s*psi^n)':
-            props['a'] /= 1/(6895**props['n'])
+            props['a'] /= 1 / (6895 ** props['n'])
         # Create a new propellant instance using the new A
         newPropTab = PropellantTab()
         newPropTab.setProperties(props)

@@ -2,6 +2,7 @@
 
 from .properties import PropertyCollection, FloatProperty, StringProperty, TabularProperty
 from .simResult import SimAlert, SimAlertLevel, SimAlertType
+from .constants import gasConstant
 
 class PropellantTab(PropertyCollection):
     """Contains the combustion properties of a propellant over a specified pressure range."""
@@ -31,8 +32,7 @@ class Propellant(PropertyCollection):
     def getCStar(self, pressure):
         """Returns the propellant's characteristic velocity."""
         _, _, gamma, temp, molarMass = self.getCombustionProperties(pressure)
-        gasConst = 8314
-        num = (gamma * gasConst / molarMass * temp)**0.5
+        num = (gamma * gasConstant / molarMass * temp)**0.5
         denom = gamma * ((2 / (gamma + 1))**((gamma + 1) / (gamma - 1)))**0.5
         return num / denom
 
