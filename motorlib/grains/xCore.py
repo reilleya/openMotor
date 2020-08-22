@@ -21,12 +21,10 @@ class XCore(FmmGrain):
         self.coreMap[np.logical_and(np.abs(self.mapY) < slotWidth/2, np.abs(self.mapX) < slotLength)] = 0
         self.coreMap[np.logical_and(np.abs(self.mapX) < slotWidth/2, np.abs(self.mapY) < slotLength)] = 0
 
-    def getDetailsString(self, preferences):
-        lengthUnit = preferences.units.getProperty('m')
-        out = 'Length: ' + self.props['length'].dispFormat(lengthUnit)
-        out += ', Slots: ' + self.props['slotWidth'].dispFormat(lengthUnit)
-        out += ' by ' + self.props['slotLength'].dispFormat(lengthUnit)
-        return out
+    def getDetailsString(self, lengthUnit='m'):
+        return 'Length: {}, Slots: {} by {}'.format(self.props['length'].dispFormat(lengthUnit),
+                                                    self.props['slotWidth'].dispFormat(lengthUnit),
+                                                    self.props['slotLength'].dispFormat(lengthUnit))
 
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()

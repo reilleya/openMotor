@@ -28,11 +28,9 @@ class BatesGrain(PerforatedGrain):
         inner = geometry.circleArea(self.props['coreDiameter'].getValue() + (2 * regDist))
         return outer - inner
 
-    def getDetailsString(self, preferences):
-        lengthUnit = preferences.units.getProperty('m')
-        out = 'Length: ' + self.props['length'].dispFormat(lengthUnit)
-        out += ', Core: ' + self.props['coreDiameter'].dispFormat(lengthUnit)
-        return out
+    def getDetailsString(self, lengthUnit='m'):
+        return 'Length: {}, Core: {}'.format(self.props['length'].dispFormat(lengthUnit),
+                                             self.props['coreDiameter'].dispFormat(lengthUnit))
 
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()

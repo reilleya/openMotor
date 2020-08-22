@@ -25,10 +25,9 @@ class Nozzle(PropertyCollection):
         self.props['slagCoeff'] = FloatProperty('Slag Buildup Coefficient', '(m*Pa)/s', 0, 1e6)
         self.props['erosionCoeff'] = FloatProperty('Throat Erosion Coefficient', 'm/(s*Pa)', 0, 1e6)
 
-    def getDetailsString(self, preferences):
+    def getDetailsString(self, lengthUnit='m'):
         """Returns a human-readable string containing some details about the nozzle."""
-        lengthUnit = preferences.units.getProperty('m')
-        return 'Throat: ' + self.props['throat'].dispFormat(lengthUnit)
+        return 'Throat: {}'.format(self.props['throat'].dispFormat(lengthUnit))
 
     def calcExpansion(self):
         """Returns the nozzle's expansion ratio."""

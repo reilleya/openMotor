@@ -180,12 +180,13 @@ class Window(QMainWindow):
     def updateGrainTable(self):
         cm = self.app.fileManager.getCurrentMotor()
         self.ui.tableWidgetGrainList.setRowCount(len(cm.grains) + 2)
+        lengthUnit = self.app.preferencesManager.preferences.units.getProperty('m')
         for gid, grain in enumerate(cm.grains):
             self.ui.tableWidgetGrainList.setItem(gid, 0, QTableWidgetItem(grain.geomName))
-            self.ui.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString(self.app.preferencesManager.preferences)))
+            self.ui.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString(lengthUnit)))
 
         self.ui.tableWidgetGrainList.setItem(len(cm.grains), 0, QTableWidgetItem('Nozzle'))
-        self.ui.tableWidgetGrainList.setItem(len(cm.grains), 1, QTableWidgetItem(cm.nozzle.getDetailsString(self.app.preferencesManager.preferences)))
+        self.ui.tableWidgetGrainList.setItem(len(cm.grains), 1, QTableWidgetItem(cm.nozzle.getDetailsString(lengthUnit)))
 
         self.ui.tableWidgetGrainList.setItem(len(cm.grains) + 1, 0, QTableWidgetItem('Config'))
         self.ui.tableWidgetGrainList.setItem(len(cm.grains) + 1, 1, QTableWidgetItem('-'))

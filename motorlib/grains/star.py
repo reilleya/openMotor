@@ -31,11 +31,9 @@ class StarGrain(FmmGrain):
             near = comp1*self.mapX - comp0*self.mapY > -0.025
             self.coreMap[np.logical_and(vect, near)] = 0
 
-    def getDetailsString(self, preferences):
-        lengthUnit = preferences.units.getProperty('m')
-        out = 'Length: ' + self.props['length'].dispFormat(lengthUnit)
-        out += ', Points: ' + str(self.props['numPoints'].getValue())
-        return out
+    def getDetailsString(self, lengthUnit='m'):
+        return 'Length: {}, Points: {}'.format(self.props['length'].dispFormat(lengthUnit),
+                                               self.props['numPoints'].getValue())
 
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()

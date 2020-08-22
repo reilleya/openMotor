@@ -67,10 +67,9 @@ class Grain(PropertyCollection):
         endPos = self.getEndPositions(regDist)
         return endPos[1] - endPos[0]
 
-    def getDetailsString(self, preferences):
-        """Returns a short string describing the grain, formatted using the units of the preferences object that
-        was passed in."""
-        return 'Length: ' + self.props['length'].dispFormat(preferences.units.getProperty('m'))
+    def getDetailsString(self, lengthUnit='m'):
+        """Returns a short string describing the grain, formatted using the units that is passed in"""
+        return 'Length: {}'.format(self.props['length'].dispFormat(lengthUnit))
 
     @abstractmethod
     def simulationSetup(self, config):

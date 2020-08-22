@@ -19,11 +19,9 @@ class DGrain(FmmGrain):
 
         self.coreMap[self.mapX > slotOffset] = 0
 
-    def getDetailsString(self, preferences):
-        lengthUnit = preferences.units.getProperty('m')
-        out = 'Length: ' + self.props['length'].dispFormat(lengthUnit)
-        out += ', Slot offset: ' + self.props['slotOffset'].dispFormat(lengthUnit)
-        return out
+    def getDetailsString(self, lengthUnit='m'):
+        return 'Length: {}, Slot offset: {}'.format(self.props['length'].dispFormat(lengthUnit),
+                                                    self.props['slotOffset'].dispFormat(lengthUnit))
 
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()

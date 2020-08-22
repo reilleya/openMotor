@@ -49,12 +49,10 @@ class RodTubeGrain(PerforatedGrain):
             rodArea = 0
         return tubeArea + rodArea
 
-    def getDetailsString(self, preferences):
-        lengthUnit = preferences.units.getProperty('m')
-        out = 'Length: ' + self.props['length'].dispFormat(lengthUnit)
-        out += ', Core: ' + self.props['coreDiameter'].dispFormat(lengthUnit)
-        out += ', Rod: ' + self.props['rodDiameter'].dispFormat(lengthUnit)
-        return out
+    def getDetailsString(self, lengthUnit='m'):
+        return 'Length: {}, Core: {}, Rod: {}'.format(self.props['length'].dispFormat(lengthUnit),
+                                                      self.props['coreDiameter'].dispFormat(lengthUnit),
+                                                      self.props['rodDiameter'].dispFormat(lengthUnit))
 
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()

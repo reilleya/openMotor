@@ -19,11 +19,9 @@ class MoonBurner(FmmGrain):
         # Open up core
         self.coreMap[(self.mapX - coreOffset)**2 + self.mapY**2 < coreRadius**2] = 0
 
-    def getDetailsString(self, preferences):
-        lengthUnit = preferences.units.getProperty('m')
-        out = 'Length: ' + self.props['length'].dispFormat(lengthUnit)
-        out += ', Core: ' + self.props['coreDiameter'].dispFormat(lengthUnit)
-        return out
+    def getDetailsString(self, lengthUnit='m'):
+        return 'Length: {}, Core: {}'.format(self.props['length'].dispFormat(lengthUnit),
+                                             self.props['coreDiameter'].dispFormat(lengthUnit))
 
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()

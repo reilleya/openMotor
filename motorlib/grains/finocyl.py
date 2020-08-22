@@ -42,12 +42,10 @@ class Finocyl(FmmGrain):
             # Open up the fin
             self.coreMap[np.logical_and(vect, ends)] = 0
 
-    def getDetailsString(self, preferences):
-        lengthUnit = preferences.units.getProperty('m')
-        out = 'Length: ' + self.props['length'].dispFormat(lengthUnit)
-        out += ', Core: ' + self.props['coreDiameter'].dispFormat(lengthUnit)
-        out += ', Fins: ' + str(self.props['numFins'].getValue())
-        return out
+    def getDetailsString(self, lengthUnit='m'):
+        return 'Length: {}, Core: {}, Fins: {}'.format(self.props['length'].dispFormat(lengthUnit),
+                                                       self.props['coreDiameter'].dispFormat(lengthUnit),
+                                                       self.props['numFins'].getValue())
 
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()
