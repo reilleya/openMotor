@@ -66,6 +66,28 @@ def getConfigPath(): # Returns the path that files like preferences and propella
 def passthrough(data):
     return data
 
+# 0.4.0 to 0.5.0
+
+def migrateProp_0_4_0_to_0_5_0(data):
+    for propellant in data:
+        if propellant['name'] == 'MIT - Cherry Limeade':
+            propellant['density'] = 1670
+            propellant['tabs'][0]['t'] = 2800
+        elif propellant['name'] == 'MIT - Ocean Water':
+            propellant['density'] = 1650
+            propellant['tabs'][0]['t'] = 2600
+    return data
+
+def migratePref_0_4_0_to_0_5_0(data):
+    del data['general']['igniterPressure']
+    return data
+
+def migrateMotor_0_4_0_to_0_5_0(data):
+    del data['config']['igniterPressure']
+    return data
+
+# 0.3.0 to 0.4.0
+
 def tabularizePropellant(data):
     newProp = {}
     newProp['name'] = data['name']
@@ -79,14 +101,6 @@ def tabularizePropellant(data):
     newProp['tabs'][-1]['minPressure'] = 0
     newProp['tabs'][-1]['maxPressure'] = 1.0342e+7
     return newProp
-
-def migratePref_0_4_0_to_0_5_0(data):
-    del data['general']['igniterPressure']
-    return data
-
-def migrateMotor_0_4_0_to_0_5_0(data):
-    del data['config']['igniterPressure']
-    return data
 
 def migratePref_0_3_0_to_0_4_0(data):
     data['general']['igniterPressure'] = defaultPreferencesDict()['general']['igniterPressure']
@@ -107,6 +121,8 @@ def migrateMotor_0_3_0_to_0_4_0(data):
     data['propellant'] = tabularizePropellant(data['propellant'])
     data['config']['igniterPressure'] = defaultPreferencesDict()['general']['igniterPressure']
     return data
+
+# 0.2.0 to 0.3.0
 
 def migratePref_0_2_0_to_0_3_0(data):
     defPref = defaultPreferencesDict()
@@ -130,7 +146,7 @@ migrations = {
     (0, 4, 0): {
         'to': (0, 5, 0),
         fileTypes.PREFERENCES: migratePref_0_4_0_to_0_5_0,
-        fileTypes.PROPELLANTS: passthrough,
+        fileTypes.PROPELLANTS: migrateProp_0_4_0_to_0_5_0,
         fileTypes.MOTOR: migrateMotor_0_4_0_to_0_5_0,
     },
     (0, 3, 0): {

@@ -30,14 +30,14 @@ def defaultPreferencesDict():
 def defaultPropellants():
     clProps = {
                 'name': 'MIT - Cherry Limeade',
-                'density': 1680,
+                'density': 1670,
                 'tabs': [
                     {
                         'minPressure': 0,
                         'maxPressure': 6.895e+06,
                         'a': 3.517054143255937e-05,
                         'n': 0.3273,
-                        't': 3500,
+                        't': 2800,
                         'm': 23.67,
                         'k': 1.21
                     }
@@ -52,7 +52,7 @@ def defaultPropellants():
                         'maxPressure': 6.895e+06,
                         'a': 1.467e-05,
                         'n': 0.382,
-                        't': 3500,
+                        't': 2600,
                         'm': 23.67,
                         'k': 1.25
                     }
