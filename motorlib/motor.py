@@ -7,6 +7,8 @@ from .simResult import SimulationResult, SimAlert, SimAlertLevel, SimAlertType
 from .grains import EndBurningGrain
 from .properties import PropertyCollection, FloatProperty, IntProperty
 
+from .integrator import Integrator
+
 class MotorConfig(PropertyCollection):
     """Contains the settings required for simulation, including environmental conditions and details about
     how to run the simulation."""
@@ -224,6 +226,8 @@ class Motor():
                 desc = 'Initial port/throat ratio of ' + str(round(ratio, 3)) + ' was less than ' + str(minAllowed)
                 simRes.addAlert(SimAlert(SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, 'N/A'))
 
+        inte = Integrator(dTime)
+
         # Perform timesteps
         while simRes.shouldContinueSim(burnoutThrustThres):
             # Calculate regression
@@ -262,8 +266,10 @@ class Motor():
             lastPressure = simRes.channels['pressure'].getLast()
             lastKn = simRes.channels['kn'].getLast()
             #pressure = self.calcIdealPressure(perGrainReg, dThroat, lastPressure, lastKn)
+            func = self.getPressureRateFunc(perGrainReg, dThroat)
+
             pRate = self.calcPressureRate(perGrainReg, dThroat, lastPressure)
-            #print(pRate * dTime / 6895)
+            print(pRate * dTime / 6895)
             pressure = lastPressure + (pRate * dTime)
             simRes.channels['pressure'].addData(pressure)
 
@@ -276,7 +282,8 @@ class Motor():
             force = self.calcForce(simRes.channels['pressure'].getLast(), dThroat, exitPressure)
             simRes.channels['force'].addData(force)
 
-            simRes.channels['time'].addData(simRes.channels['time'].getLast() + dTime)
+            dTIme = inte.time - simRes.channels['time'].getLast()
+            simRes.channels['time'].addData(inte.time)
 
             # Calculate any slag deposition or erosion of the throat
             if pressure == 0:
