@@ -17,12 +17,13 @@ class RodTubeGrain(PerforatedGrain):
         super().__init__()
         self.props['coreDiameter'] = FloatProperty('Core Diameter', 'm', 0, 1)
         self.props['rodDiameter'] = FloatProperty('Rod Diameter', 'm', 0, 1)
+        self.props['supportDiameter'] = FloatProperty('Support Diameter', 'm', 0, 1)
         self.tubeWeb = None
         self.rodWeb = None
 
     def simulationSetup(self, config):
         self.tubeWeb = (self.props['diameter'].getValue() - self.props['coreDiameter'].getValue()) / 2
-        self.rodWeb = self.props['rodDiameter'].getValue() / 2
+        self.rodWeb = (self.props['rodDiameter'].getValue() - self.props['supportDiameter'].getValue()) / 2
         self.wallWeb = max(self.tubeWeb, self.rodWeb)
 
     def getCorePerimeter(self, regDist):
@@ -44,7 +45,9 @@ class RodTubeGrain(PerforatedGrain):
         else:
             tubeArea = 0
         if regDist < self.rodWeb:
-            rodArea = geometry.circleArea(self.props['rodDiameter'].getValue() - (2 * regDist))
+            outer = geometry.circleArea(self.props['rodDiameter'].getValue() - (2 * regDist))
+            inner = geometry.circleArea(self.props['supportDiameter'].getValue())
+            rodArea = outer - inner
         else:
             rodArea = 0
         return tubeArea + rodArea
@@ -69,17 +72,19 @@ class RodTubeGrain(PerforatedGrain):
     # These two functions have a lot of code reuse, but it is worth it because making this an fmmGrain would make it
     # signficantly way slower
     def getFaceImage(self, mapDim):
-        mapX, mapY = np.meshgrid(np.linspace(-1, 1, mapDim), np.linspace(-1, 1, mapDim))
-        mask = mapX**2 + mapY**2 > 1
-        coreMap = np.ones_like(mapX)
-
         # Normalize core and rod diameters
         coreRadius = (self.props['coreDiameter'].getValue() / (0.5 * self.props['diameter'].getValue())) / 2
         rodRadius = (self.props['rodDiameter'].getValue() / (0.5 * self.props['diameter'].getValue())) / 2
+        supportRadius = (self.props['supportDiameter'].getValue() / (0.5 * self.props['diameter'].getValue())) / 2
+
+        mapX, mapY = np.meshgrid(np.linspace(-1, 1, mapDim), np.linspace(-1, 1, mapDim))
+        mask = np.logical_or(mapX**2 + mapY**2 > 1, mapX**2 + mapY**2 < supportRadius ** 2)
+        coreMap = np.ones_like(mapX)
 
         # Open up core
-        coreMap[mapX**2 + mapY**2 < coreRadius**2] = 0
-        coreMap[mapX**2 + mapY**2 < rodRadius**2] = 1
+        coreMap[mapX ** 2 + mapY ** 2 < coreRadius ** 2] = 0
+        coreMap[mapX ** 2 + mapY ** 2 < rodRadius ** 2] = 1
+        coreMap[mapX ** 2 + mapY ** 2 < supportRadius ** 2] = 0
 
         maskedMap = np.ma.MaskedArray(coreMap, mask)
 
