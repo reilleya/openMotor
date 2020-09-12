@@ -1,6 +1,7 @@
 import sys
 
 from PyQt5.QtWidgets import QWidget, QMainWindow, QTableWidgetItem, QHeaderView, QMessageBox, QTableWidget
+from PyQt5.QtGui import QIcon
 
 import motorlib
 import uilib.widgets.aboutDialog
@@ -14,6 +15,8 @@ class Window(QMainWindow):
         self.ui.setupUi(self)
 
         self.app = app
+
+        self.setWindowIcon(QIcon('resources/oMIconCyclesSmall.png'))
 
         self.appVersion = uilib.fileIO.appVersion
         self.appVersionStr = uilib.fileIO.appVersionStr
