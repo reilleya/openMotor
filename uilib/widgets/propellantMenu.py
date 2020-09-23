@@ -28,6 +28,8 @@ class PropellantMenu(QDialog):
         self.ui.pushButtonDelete.pressed.connect(self.deleteProp)
         self.ui.pushButtonEdit.pressed.connect(self.editProp)
 
+        self.ui.listWidgetPropellants.doubleClicked.connect(self.editProp)
+
         self.ui.propEditor.addButtons()
 
         self.setupButtons()
