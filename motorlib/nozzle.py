@@ -65,6 +65,41 @@ class Nozzle(PropertyCollection):
         a way to measure this themselves."""
         return 0.99
 
+    def getIdealThrustCoeff(self, chamberPres, ambPres, gamma, dThroat, exitPres=None):
+        """Calculates C_f, the ideal thrust coefficient for the nozzle, given the propellant's specific heat ratio, the
+        ambient and chamber pressures. If nozzle exit presure isn't provided, it will be calculated. dThroat is the 
+        change in throat diameter due to erosion or slag accumulation."""
+        if chamberPres == 0:
+            return 0
+
+        if exitPres is None:
+            exitPres = self.getExitPressure(gamma, chamberPres)
+        exitArea = self.getExitArea()
+        throatArea = self.getThroatArea(dThroat)
+
+        term1 = (2 * (gamma ** 2)) / (gamma - 1)
+        term2 = (2 / (gamma + 1)) ** ((gamma + 1) / (gamma - 1))
+        term3 = 1 - ((exitPres / chamberPres) ** ((gamma - 1) / gamma))
+
+        momentumThrust = (term1 * term2 * term3) ** 0.5
+        pressureThrust = ((exitPres - ambPres) * exitArea) / (throatArea * chamberPres)
+
+        return momentumThrust + pressureThrust
+
+    def getAdjustedThrustCoeff(self, chamberPres, ambPres, gamma, dThroat, exitPres=None):
+        """Calculates adjusted thrust coefficient for the nozzle, given the propellant's specific heat ratio, the
+        ambient and chamber pressures. If nozzle exit presure isn't provided, it will be calculated. dThroat is the 
+        change in throat diameter due to erosion or slag accumulation. This method uses a combination of the techniques
+        described in these resources to adjust the thrust coefficient:
+        https://apps.dtic.mil/dtic/tr/fulltext/u2/a099791.pdf
+        http://rasaero.com/dloads/Departures%20from%20Ideal%20Performance.pdf"""
+        thrustCoeffIdeal = self.getIdealThrustCoeff(chamberPres, ambPres, gamma, dThroat, exitPres)
+        divLoss = self.getDivergenceLosses()
+        throatLoss = self.getThroatLosses(dThroat)
+        skinLoss = self.getSkinLosses()
+        efficiency = self.getProperty('efficiency')
+        return divLoss * throatLoss * efficiency * (skinLoss * thrustCoeffIdeal + (1 - skinLoss))
+
     def getGeometryErrors(self):
         """Returns a list containing any errors with the nozzle's properties."""
         errors = []

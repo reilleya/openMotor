@@ -25,10 +25,10 @@ class Window(QMainWindow):
 
         self.app.propellantManager.updated.connect(self.propListChanged)
 
-        self.motorStatLabels = [self.ui.labelMotorDesignation, self.ui.labelImpulse, self.ui.labelDeliveredISP, self.ui.labelBurnTime,
-                                self.ui.labelAveragePressure, self.ui.labelPeakPressure, self.ui.labelInitialKN, self.ui.labelPeakKN,
-                                self.ui.labelPropellantMass, self.ui.labelPropellantLength, self.ui.labelPortThroatRatio, self.ui.labelPeakMassFlux,
-                                self.ui.labelVolumeLoading]
+        self.motorStatLabels = [self.ui.labelMotorDesignation, self.ui.labelImpulse, self.ui.labelDeliveredISP, self.ui.labelBurnTime,  self.ui.labelVolumeLoading,
+                                self.ui.labelAveragePressure, self.ui.labelPeakPressure, self.ui.labelInitialKN, self.ui.labelPeakKN, self.ui.labelIdealThrustCoefficient,
+                                self.ui.labelPropellantMass, self.ui.labelPropellantLength, self.ui.labelPortThroatRatio, self.ui.labelPeakMassFlux, self.ui.labelDeliveredThrustCoefficient
+                               ]
 
         self.app.fileManager.fileNameChanged.connect(self.updateWindowTitle)
         self.app.fileManager.newMotor.connect(self.resetOutput)
@@ -304,6 +304,7 @@ class Window(QMainWindow):
         self.ui.labelPeakPressure.setText(self.formatMotorStat(simResult.getMaxPressure(), 'Pa'))
         self.ui.labelInitialKN.setText(self.formatMotorStat(simResult.getInitialKN(), ''))
         self.ui.labelPeakKN.setText(self.formatMotorStat(simResult.getPeakKN(), ''))
+        self.ui.labelIdealThrustCoefficient.setText(self.formatMotorStat(simResult.getIdealThrustCoefficient(), ''))
 
         self.ui.labelPropellantMass.setText(self.formatMotorStat(simResult.getPropellantMass(), 'kg'))
         self.ui.labelPropellantLength.setText(self.formatMotorStat(simResult.getPropellantLength(), 'm'))
@@ -315,6 +316,7 @@ class Window(QMainWindow):
         else:
             self.ui.labelPortThroatRatio.setText('-')
             self.ui.labelPeakMassFlux.setText('-')
+        self.ui.labelDeliveredThrustCoefficient.setText(self.formatMotorStat(simResult.getAdjustedThrustCoefficient(), ''))
 
     def runSimulation(self):
         self.resetOutput()

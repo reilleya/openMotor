@@ -209,6 +209,22 @@ class SimulationResult():
         value will be sampled at."""
         return self.channels['volumeLoading'].getPoint(index)
 
+    def getIdealThrustCoefficient(self):
+        """Returns the motor's thrust coefficient for the average pressure during the burn and no throat diameter
+        changes or performance losses."""
+        chamberPres = self.getAveragePressure()
+        _, _, gamma, _, _ = self.motor.propellant.getCombustionProperties(chamberPres)
+        ambPressure = self.motor.config.getProperty('ambPressure')
+        return self.motor.nozzle.getIdealThrustCoeff(chamberPres, ambPressure, gamma, 0)
+
+    def getAdjustedThrustCoefficient(self):
+        """Returns the motor's thrust coefficient for the average pressure during the burn and no throat diameter
+        changes, but including performance losses."""
+        chamberPres = self.getAveragePressure()
+        _, _, gamma, _, _ = self.motor.propellant.getCombustionProperties(chamberPres)
+        ambPressure = self.motor.config.getProperty('ambPressure')
+        return self.motor.nozzle.getAdjustedThrustCoeff(chamberPres, ambPressure, gamma, 0)
+
     def getAlertsByLevel(self, level):
         """Returns all simulation alerts of the specified level."""
         out = []

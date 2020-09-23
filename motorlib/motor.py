@@ -102,40 +102,13 @@ class Motor():
             if adjMin < tabPressure < adjMax:
                 return tabPressure
 
-    def calcIdealThrustCoeff(self, chamberPres, dThroat, exitPres=None):
-        """Calculates C_f, the ideal thrust coefficient for the motor's nozzle and propellant, and the given chamber
-        pressure. If nozzle exit presure isn't provided, it will be calculated."""
-        if chamberPres == 0:
-            return 0
-
-        _, _, gamma, _, _ = self.propellant.getCombustionProperties(chamberPres)
-        if exitPres is None:
-            exitPres = self.nozzle.getExitPressure(gamma, chamberPres)
-        ambPres = self.config.getProperty("ambPressure")
-        exitArea = self.nozzle.getExitArea()
-        throatArea = self.nozzle.getThroatArea(dThroat)
-
-        term1 = (2 * (gamma**2)) / (gamma - 1)
-        term2 = (2 / (gamma + 1))**((gamma + 1) / (gamma - 1))
-        term3 = 1 - ((exitPres / chamberPres) ** ((gamma - 1) / gamma))
-
-        momentumThrust = (term1 * term2 * term3) ** 0.5
-        pressureThrust = ((exitPres - ambPres) * exitArea) / (throatArea * chamberPres)
-
-        return momentumThrust + pressureThrust
-
     def calcForce(self, chamberPres, dThroat, exitPres=None):
         """Calculates the force of the motor at a given regression depth per grain. Calculates exit pressure by
-        default, but can also use a value passed in. This method uses a combination of the techniques described
-        in these resources to adjust the thrust coefficient: https://apps.dtic.mil/dtic/tr/fulltext/u2/a099791.pdf
-        and http://rasaero.com/dloads/Departures%20from%20Ideal%20Performance.pdf."""
-        thrustCoeffIdeal = self.calcIdealThrustCoeff(chamberPres, dThroat, exitPres)
-        divLoss = self.nozzle.getDivergenceLosses()
-        throatLoss = self.nozzle.getThroatLosses(dThroat)
-        skinLoss = self.nozzle.getSkinLosses()
-        efficiency = self.nozzle.getProperty('efficiency')
-        thrustCoeffAdj = divLoss * throatLoss * efficiency * (skinLoss * thrustCoeffIdeal + (1 - skinLoss))
-        thrust = thrustCoeffAdj * self.nozzle.getThroatArea(dThroat) * chamberPres
+        default, but can also use a value passed in."""
+        _, _, gamma, _, _ = self.propellant.getCombustionProperties(chamberPres)
+        ambPressure = self.config.getProperty('ambPressure')
+        thrustCoeff = self.nozzle.getAdjustedThrustCoeff(chamberPres, ambPressure, gamma, dThroat, exitPres)
+        thrust = thrustCoeff * self.nozzle.getThroatArea(dThroat) * chamberPres
         return max(thrust, 0)
 
     def calcFreeVolume(self, regDepth):

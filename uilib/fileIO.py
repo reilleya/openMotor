@@ -83,7 +83,8 @@ def migratePref_0_4_0_to_0_5_0(data):
     return data
 
 def migrateMotor_0_4_0_to_0_5_0(data):
-    del data['config']['igniterPressure']
+    if data['config']['igniterPressure']:
+        del data['config']['igniterPressure']
     return data
 
 # 0.3.0 to 0.4.0
