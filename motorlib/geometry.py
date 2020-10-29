@@ -13,7 +13,7 @@ def circlePerimeter(dia):
 
 def circleDiameterFromArea(area):
     """Returns the diameter of a circle with area 'area'"""
-    return 2*((area / math.pi) ** 0.5)
+    return 2 * ((area / math.pi) ** 0.5)
 
 def tubeArea(dia, height):
     """Returns the surface area of a tube (cylinder without endcaps) with diameter 'dia' and height 'height'"""

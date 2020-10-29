@@ -20,9 +20,9 @@ class TestMotorMethods(unittest.TestCase):
         bg.simulationSetup(tc)
         tm.nozzle.setProperties({'throat': 0.01428})
 
-        self.assertAlmostEqual(tm.calcKN([0]), 180, 0)
-        self.assertAlmostEqual(tm.calcKN([0.0025]), 183, 0)
-        self.assertAlmostEqual(tm.calcKN([0.005]), 185, 0)
+        self.assertAlmostEqual(tm.calcKN([0], 0), 180, 0)
+        self.assertAlmostEqual(tm.calcKN([0.0025], 0), 183, 0)
+        self.assertAlmostEqual(tm.calcKN([0.005], 0), 185, 0)
 
 
     def test_calcPressure(self):
@@ -54,12 +54,18 @@ class TestMotorMethods(unittest.TestCase):
                         }
                     ]
                     })
-        self.assertAlmostEqual(tm.calcIdealPressure([0], 0), 4050030, 0)
+        self.assertAlmostEqual(tm.calcIdealPressure([0], 0), 4050196, 0)
 
 import motorlib.geometry
 class TestGeometryMethods(unittest.TestCase):
-    def test_circle(self):
+    def test_circleArea(self):
         self.assertAlmostEqual(motorlib.geometry.circleArea(0.5), 0.19634954)
+
+    def test_circlePerimeter(self):
+        self.assertAlmostEqual(motorlib.geometry.circlePerimeter(0.5), 1.57079633)
+
+    def test_circleDiameterFromArea(self):
+        self.assertAlmostEqual(motorlib.geometry.circleDiameterFromArea(0.19634954), 0.5)
 
     def test_tubeArea(self):
         self.assertAlmostEqual(motorlib.geometry.tubeArea(0.5, 2), 3.14159265)
@@ -70,10 +76,44 @@ class TestGeometryMethods(unittest.TestCase):
     def test_cylinderVolume(self):
         self.assertAlmostEqual(motorlib.geometry.cylinderVolume(0.5, 2), 0.39269908)
 
+    def test_dist(self):
+        self.assertEqual(motorlib.geometry.dist((5, 5), (5, 5)), 0)
+        self.assertEqual(motorlib.geometry.dist((5, 5), (6, 5)), 1)
+        self.assertEqual(motorlib.geometry.dist((5, 5), (5, 6)), 1)
+        self.assertEqual(motorlib.geometry.dist((0, 0), (-1, -1)), 2 ** 0.5)
+
 import motorlib.nozzle
 class TestNozzleMethods(unittest.TestCase):
-    def test_expansionRatio(self):
+    def test_expansionRatioFromPressureRatio(self):
         self.assertAlmostEqual(motorlib.nozzle.eRatioFromPRatio(1.15, 0.0156), 0.10650602)
+
+    def test_expansionRatio(self):
+        nozzle = motorlib.nozzle.Nozzle()
+        nozzle.setProperties({
+            'throat': 0.1,
+            'exit': 0.2,
+        })
+        self.assertAlmostEqual(nozzle.calcExpansion(), 4.0)
+        nozzle.setProperties({
+            'throat': 0.1,
+            'exit': 0.3,
+        })
+        self.assertAlmostEqual(nozzle.calcExpansion(), 9.0)
+
+    def test_getExitPressure(self):
+        nozzle = motorlib.nozzle.Nozzle()
+        nozzle.setProperties({
+            'throat': 0.1,
+            'exit': 0.2,
+        })
+        self.assertAlmostEqual(nozzle.getExitPressure(1.25, 5e6), 197579.76030584713)
+        nozzle.setProperties({
+            'throat': 0.1,
+            'exit': 0.3,
+        })
+        self.assertAlmostEqual(nozzle.getExitPressure(1.25, 5e6), 63174.14300487552)
+        self.assertAlmostEqual(nozzle.getExitPressure(1.2, 5e6), 72087.22454540983)
+        self.assertAlmostEqual(nozzle.getExitPressure(1.2, 6e6), 86504.66945449157)
 
 import motorlib.propellant
 class TestPropellantMethods(unittest.TestCase):
