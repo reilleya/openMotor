@@ -8,7 +8,7 @@ class NeutralBatesTool(Tool):
         props = {'length': motorlib.properties.FloatProperty('Propellant length', 'm', 0, 10),
                  'diameter': motorlib.properties.FloatProperty('Propellant diameter', 'm', 0, 1),
                  'grainSpace': motorlib.properties.FloatProperty('Grain spacer length', 'm', 0, 1),
-                 'Kn': motorlib.properties.FloatProperty('Initial Kn', '', 0, 1000)}
+                 'Kn': motorlib.properties.FloatProperty('Initial Kn', '', 1, 1000)}
 
         super().__init__(manager,
                          'Neutral BATES Geometry',
@@ -35,7 +35,9 @@ class NeutralBatesTool(Tool):
         newMotor.nozzle.props['throat'].setValue(motorlib.geometry.circleDiameterFromArea(throatArea))
         # Close enough to optimal for 14.7 PSI, should eventually optimize this
         newMotor.nozzle.props['exit'].setValue(motorlib.geometry.circleDiameterFromArea(throatArea * 7))
-        newMotor.nozzle.props['efficiency'].setValue(0.85)
+        newMotor.nozzle.props['divAngle'].setValue(15)
+        newMotor.nozzle.props['convAngle'].setValue(65)
+        newMotor.nozzle.props['efficiency'].setValue(0.92)
 
         newMotor.config.setProperties(self.preferences.getDict()['general'])
 
