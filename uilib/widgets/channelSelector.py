@@ -9,7 +9,6 @@ class ChannelSelector(QGroupBox):
 
     def __init__(self, parent):
         super().__init__(parent)
-
         self.checks = {}
         # Populate list of checks to toggle channels
         self.setLayout(QVBoxLayout())
@@ -56,8 +55,10 @@ class ChannelSelector(QGroupBox):
 
     def unselect(self, channels):
         for channel in channels:
-            self.checks[channel].setCheckState(0)
+            if channel in self.checks.keys():
+                self.checks[channel].setCheckState(0)
 
     def toggleEnabled(self, channels, enabled):
         for channel in channels:
-            self.checks[channel].setEnabled(enabled)
+            if channel in self.checks.keys():
+                self.checks[channel].setEnabled(enabled)

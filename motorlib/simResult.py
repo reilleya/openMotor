@@ -91,7 +91,7 @@ class LogChannel():
             return max([max(l) for l in self.data])
         return max(self.data)
 
-singleValueChannels = ['time', 'kn', 'pressure', 'force', 'exitPressure', 'dThroat']
+singleValueChannels = ['time', 'kn', 'pressure', 'force', 'volumeLoading', 'exitPressure', 'dThroat']
 multiValueChannels = ['mass', 'massFlow', 'massFlux', 'regression', 'web']
 
 class SimulationResult():
