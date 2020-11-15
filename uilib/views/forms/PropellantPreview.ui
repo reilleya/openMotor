@@ -31,7 +31,13 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>300</height>
+       <height>220</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>220</height>
       </size>
      </property>
      <property name="tabPosition">
@@ -47,6 +53,12 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>220</height>
+       </size>
+      </property>
       <attribute name="title">
        <string>Alerts</string>
       </attribute>
@@ -57,6 +69,12 @@
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>220</height>
+       </size>
       </property>
       <attribute name="title">
        <string>Burn Rate</string>

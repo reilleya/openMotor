@@ -35,5 +35,5 @@ class BurnrateGraph(FigureCanvas):
         self.plot.set_xlabel('Pressure - ' + presUnit)
         self.plot.set_ylabel('Burn Rate - ' + rateUnit)
         self.plot.grid(True)
-        self.figure.subplots_adjust(top=0.95, bottom=0.15)
+        self.figure.subplots_adjust(top=0.95, bottom=0.25)
         self.draw()
