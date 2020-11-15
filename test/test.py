@@ -20,9 +20,9 @@ class TestMotorMethods(unittest.TestCase):
         bg.simulationSetup(tc)
         tm.nozzle.setProperties({'throat': 0.01428})
 
-        self.assertAlmostEqual(tm.calcKN([0]), 180, 0)
-        self.assertAlmostEqual(tm.calcKN([0.0025]), 183, 0)
-        self.assertAlmostEqual(tm.calcKN([0.005]), 185, 0)
+        self.assertAlmostEqual(tm.calcKN([0], 0), 180, 0)
+        self.assertAlmostEqual(tm.calcKN([0.0025], 0), 183, 0)
+        self.assertAlmostEqual(tm.calcKN([0.005], 0), 185, 0)
 
 
     def test_calcPressure(self):
@@ -54,7 +54,7 @@ class TestMotorMethods(unittest.TestCase):
                         }
                     ]
                     })
-        self.assertAlmostEqual(tm.calcIdealPressure([0], 0), 4050030, 0)
+        self.assertAlmostEqual(tm.calcIdealPressure([0], 0, 0), 4050030, 0)
 
 import motorlib.geometry
 class TestGeometryMethods(unittest.TestCase):
