@@ -165,6 +165,10 @@ class SimulationResult():
             return 'N/A'
         return chr(int(math.log(imp/1.25, 2)) + 65) + str(int(self.getAverageForce()))
 
+    def getFullDesignation(self):
+        """Returns the full motor designation, which also includes the total impulse prepended on"""
+        return '{:.0f}{}'.format(self.getImpulse(), self.getDesignation())
+
     def getPeakMassFlux(self):
         """Returns the maximum mass flux observed at any grain end."""
         return self.channels['massFlux'].getMax()

@@ -66,7 +66,7 @@ class GraphWidget(FigureCanvas):
 
     def saveImage(self, simResult, xChannel, yChannels, grains, path):
         self.plotData(simResult, xChannel, yChannels, grains)
-        self.plot.set_title(simResult.getDesignation())
+        self.plot.set_title(simResult.getFullDesignation())
         self.figure.savefig(path, bbox_inches="tight")
         # Clear, but don't draw to not wipe away the graph in the UI
         self.plot.clear()
