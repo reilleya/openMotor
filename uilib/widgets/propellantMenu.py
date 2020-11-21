@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QMessageBox, QApplication
 from PyQt5.QtCore import pyqtSignal
+from ..helpers import FLAGS_NO_ICON
 
 import motorlib.propellant
 
@@ -18,6 +19,8 @@ class PropellantMenu(QDialog):
 
         self.manager = manager
 
+        self.setWindowIcon(QApplication.instance().icon)
+
         self.setupPropList()
         self.ui.listWidgetPropellants.currentItemChanged.connect(self.propSelected)
 
@@ -33,6 +36,8 @@ class PropellantMenu(QDialog):
         self.ui.propEditor.addButtons()
 
         self.setupButtons()
+
+        self.editingPropellant = False
 
     def show(self):
         self.setupButtons()
@@ -77,6 +82,7 @@ class PropellantMenu(QDialog):
         prop = self.manager.propellants[self.ui.listWidgetPropellants.currentRow()]
         self.ui.propEditor.loadProperties(prop)
         self.toggleButtons(True)
+        self.editingPropellant = True
 
     def propEdited(self, propDict):
         propNames = self.manager.getNames()
@@ -84,6 +90,7 @@ class PropellantMenu(QDialog):
             if propNames.index(propDict['name']) != self.ui.listWidgetPropellants.currentRow():
                 print("Can't duplicate a prop name!")
                 return
+
         self.manager.propellants[self.ui.listWidgetPropellants.currentRow()].setProperties(propDict)
         self.setupPropList()
         self.manager.savePropellants()
@@ -94,6 +101,7 @@ class PropellantMenu(QDialog):
         self.ui.pushButtonDelete.setEnabled(True)
 
     def editorClosed(self):
+        self.editingPropellant = False
         self.toggleButtons(False)
 
     def toggleButtons(self, editing):
@@ -101,11 +109,32 @@ class PropellantMenu(QDialog):
         self.ui.pushButtonNewPropellant.setEnabled(not editing)
         self.ui.pushButtonEdit.setEnabled(not editing)
         self.ui.pushButtonDelete.setEnabled(not editing)
-        self.ui.buttonBox.setEnabled(not editing)
         self.repaint() # OSX needs this
 
-    def close(self):
-        super().close()
+    def closeEvent(self, event=None):
+        if not self.unsavedCheck():
+            if event is not None:
+                if not isinstance(event, bool):
+                    event.ignore()
+            return
         self.toggleButtons(False)
         self.ui.propEditor.cleanup()
         self.closed.emit()
+
+    def unsavedCheck(self):
+        if not self.editingPropellant:
+            return True
+
+        msg = QMessageBox()
+        msg.setWindowFlags(FLAGS_NO_ICON);
+        msg.setText("Close without saving current propellant?")
+        msg.setWindowTitle("Close without saving?")
+        msg.setStandardButtons(QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+
+        res = msg.exec_()
+        if res == QMessageBox.Save:
+            self.propEdited(self.ui.propEditor.getProperties())
+            return True
+        if res == QMessageBox.Discard:
+            return True
+        return False

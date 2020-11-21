@@ -37,7 +37,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Add</string>
+        <string>Add Pressure Range</string>
        </property>
       </widget>
      </item>
@@ -50,7 +50,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Remove</string>
+        <string>Remove Pressure Range</string>
        </property>
       </widget>
      </item>

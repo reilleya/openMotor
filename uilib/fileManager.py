@@ -5,7 +5,7 @@ from PyQt5.QtCore import pyqtSignal
 import motorlib
 
 from .fileIO import saveFile, loadFile, fileTypes
-
+from .helpers import FLAGS_NO_ICON
 
 class FileManager(QObject):
 
@@ -132,6 +132,7 @@ class FileManager(QObject):
         if self.savedVersion != self.currentVersion:
             msg = QMessageBox()
 
+            msg.setWindowFlags(FLAGS_NO_ICON)
             msg.setText("The current file has unsaved changes. Close without saving?")
             msg.setWindowTitle("Close without saving?")
             msg.setStandardButtons(QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)

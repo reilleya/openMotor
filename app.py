@@ -1,6 +1,7 @@
 import sys
 
 from PyQt5.QtWidgets import QApplication, QMessageBox
+from PyQt5.QtGui import QIcon
 
 import motorlib
 from uilib import preferencesManager, propellantManager, simulationManager, fileManager, toolManager
@@ -10,6 +11,8 @@ import uilib.widgets.mainWindow
 class App(QApplication):
     def __init__(self, args):
         super().__init__(args)
+
+        self.icon = QIcon('resources/oMIconCyclesSmall.png')
 
         self.headless = '-h' in args
 
