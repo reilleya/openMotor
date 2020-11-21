@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QApplication
 import yaml
 import appdirs
 
-from .defaults import defaultPreferencesDict, defaultPropellants
+from .defaults import DEFAULT_PREFERENCES, DEFAULT_PROPELLANTS, KNSU_PROPS
 
 appVersion = (0, 5, 0)
 appVersionStr = '.'.join(map(str, appVersion))
@@ -76,6 +76,8 @@ def migrateProp_0_4_0_to_0_5_0(data):
         elif propellant['name'] == 'MIT - Ocean Water':
             propellant['density'] = 1650
             propellant['tabs'][0]['t'] = 2600
+    if not 'Nakka - KNSU' in [cProp['name'] for cProp in data]:
+        data.append(KNSU_PROPS)
     return data
 
 def migratePref_0_4_0_to_0_5_0(data):
@@ -104,7 +106,7 @@ def tabularizePropellant(data):
     return newProp
 
 def migratePref_0_3_0_to_0_4_0(data):
-    data['general']['igniterPressure'] = defaultPreferencesDict()['general']['igniterPressure']
+    data['general']['igniterPressure'] = DEFAULT_PREFERENCES['general']['igniterPressure']
     data['units']['(m*Pa)/s'] = '(in*psi)/s'
     data['units']['m/(s*Pa)'] = 'thou/(s*psi)'
     return data
@@ -113,20 +115,20 @@ def migrateProp_0_3_0_to_0_4_0(data):
     for i in range(0, len(data)):
         data[i] = tabularizePropellant(data[i])
     # Add default propellants in if they don't replace existing ones
-    for propellant in defaultPropellants():
+    for propellant in DEFAULT_PROPELLANTS:
         if propellant['name'] not in [cProp['name'] for cProp in data]:
             data.append(propellant)
     return data
 
 def migrateMotor_0_3_0_to_0_4_0(data):
     data['propellant'] = tabularizePropellant(data['propellant'])
-    data['config']['igniterPressure'] = defaultPreferencesDict()['general']['igniterPressure']
+    data['config']['igniterPressure'] = DEFAULT_PREFERENCES['general']['igniterPressure']
     return data
 
 # 0.2.0 to 0.3.0
 
 def migratePref_0_2_0_to_0_3_0(data):
-    defPref = defaultPreferencesDict()
+    defPref = DEFAULT_PREFERENCES
     data['general']['maxPressure'] = defPref['general']['maxPressure']
     data['general']['maxMassFlux'] = defPref['general']['maxMassFlux']
     data['general']['minPortThroat'] = defPref['general']['minPortThroat']
@@ -136,7 +138,7 @@ def migrateMotor_0_2_0_to_0_3_0(data):
     if QApplication.instance().preferencesManager:
         config = QApplication.instance().preferencesManager.preferences.getDict()['general']
     else:
-        config = defaultPreferencesDict()['general']
+        config = DEFAULT_PREFERENCES['general']
     data['config'] = config
     data['nozzle']['divAngle'] = 15
     data['nozzle']['convAngle'] = 55

@@ -5,7 +5,7 @@ from motorlib.units import unitLabels, getAllConversions
 from motorlib.motor import MotorConfig
 
 from .fileIO import loadFile, saveFile, getConfigPath, fileTypes
-from .defaults import defaultPreferencesDict
+from .defaults import DEFAULT_PREFERENCES
 from .widgets import preferencesMenu
 
 class Preferences():
@@ -40,7 +40,7 @@ class PreferencesManager(QObject):
 
     def __init__(self, makeMenu=True):
         super().__init__()
-        self.preferences = Preferences(defaultPreferencesDict())
+        self.preferences = Preferences(DEFAULT_PREFERENCES)
         if makeMenu:
             self.menu = preferencesMenu.PreferencesMenu()
             self.menu.preferencesApplied.connect(self.newPreferences)

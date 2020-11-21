@@ -2,7 +2,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 
 import motorlib
 
-from .defaults import defaultPropellants
+from .defaults import DEFAULT_PROPELLANTS
 from .fileIO import loadFile, saveFile, fileTypes, getConfigPath
 from .widgets.propellantMenu import PropellantMenu
 
@@ -26,7 +26,7 @@ class PropellantManager(QObject):
                 newProp.setProperties(propDict)
                 self.propellants.append(newProp)
         except FileNotFoundError:
-            self.propellants = [motorlib.propellant.Propellant(prop) for prop in defaultPropellants()]
+            self.propellants = [motorlib.propellant.Propellant(prop) for prop in DEFAULT_PROPELLANTS]
             self.savePropellants()
 
     def savePropellants(self):
