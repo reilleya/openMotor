@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QHeaderView, QLabel
+import numpy as np
 
 import motorlib
 from motorlib.simResult import singleValueChannels, multiValueChannels
@@ -90,8 +91,10 @@ class ResultsWidget(QWidget):
             for gid, grain in enumerate(self.simResult.motor.grains):
                 if self.grainImages[gid] is not None:
                     regDist = self.simResult.channels['regression'].getPoint(index)[gid]
+                    webRemaining = self.simResult.channels['web'].getPoint(index)[gid]
+                    hasWebLeft = webRemaining > self.simResult.motor.config.getProperty('burnoutWebThres')
                     mapDist = regDist / (0.5 * grain.props['diameter'].getValue())
-                    image = self.grainImages[gid] > mapDist
+                    image = np.logical_and(self.grainImages[gid] > mapDist, hasWebLeft)
                     self.grainImageWidgets[gid].showImage(image)
                 else:
                     self.grainImageWidgets[gid].setText('-')

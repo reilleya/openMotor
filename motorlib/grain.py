@@ -135,8 +135,9 @@ class PerforatedGrain(Grain):
 
     def getWebLeft(self, regDist):
         wallLeft = self.wallWeb - regDist
+        if self.props['inhibitedEnds'].getValue() == 'Both':
+            return wallLeft
         lengthLeft = self.getRegressedLength(regDist)
-
         return min(lengthLeft, wallLeft)
 
     def getSurfaceAreaAtRegression(self, regDist):
