@@ -82,6 +82,7 @@ def migrateProp_0_4_0_to_0_5_0(data):
 
 def migratePref_0_4_0_to_0_5_0(data):
     del data['general']['igniterPressure']
+    data['general']['burnoutWebThres'] = DEFAULT_PREFERENCES['general']['burnoutWebThres']
     return data
 
 def migrateMotor_0_4_0_to_0_5_0(data):
