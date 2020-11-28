@@ -1,8 +1,8 @@
 # include .ui forms
-recursive-include uilib/views/forms *
+recursive-include openMotor/uilib/views/forms *
 
 # include resource files
-recursive-include resources *
+recursive-include openMotor/resources *
 
 # include pyuic config
 include pyuic.json

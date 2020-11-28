@@ -1,8 +1,8 @@
 {
     "files": [
         [
-            "uilib/views/forms/*.ui",
-            "uilib/views"
+            "openMotor/uilib/views/forms/*.ui",
+            "openMotor/uilib/views"
         ]
     ],
     "pyrcc": "pyrcc5",

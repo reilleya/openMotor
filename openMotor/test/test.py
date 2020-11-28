@@ -1,8 +1,9 @@
 import unittest
 
-import motorlib.motor
-import motorlib.grains
-import motorlib.propellant
+from ..motorlib import motor
+from ..motorlib import grains
+from ..motorlib import propellant
+
 class TestMotorMethods(unittest.TestCase):
 
     def test_calcKN(self):
@@ -26,10 +27,10 @@ class TestMotorMethods(unittest.TestCase):
 
 
     def test_calcPressure(self):
-        tm = motorlib.motor.Motor()
-        tc = motorlib.motor.MotorConfig()
+        tm = motor.Motor()
+        tc = motor.MotorConfig()
 
-        bg = motorlib.grains.BatesGrain()
+        bg = grains.BatesGrain()
         bg.setProperties({'diameter':0.083058, 
                   'length':0.1397, 
                   'coreDiameter':0.05, 

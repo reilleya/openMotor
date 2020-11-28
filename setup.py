@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from uilib.fileIO import appVersionStr
+from openMotor.uilib.fileIO import appVersionStr
 
 try:
     from pyqt_distutils.build_ui import build_ui
@@ -17,5 +17,10 @@ setup(
     url='https://github.com/reilleya/openMotor',
     description='An open-source internal ballistics simulator for rocket motor experimenters',
     long_description=open('README.md').read(),
-    cmdclass=cmdclass
+    cmdclass=cmdclass,
+    entry_points={
+        'gui_scripts': [
+            'openmotor=openmotor.main:main',
+        ],
+    },
 )
