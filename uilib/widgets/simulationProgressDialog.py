@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.QtCore import pyqtSignal
 
 from ..views.SimulatingDialog_ui import Ui_SimProgressDialog
@@ -12,6 +12,8 @@ class SimulationProgressDialog(QDialog):
         QDialog.__init__(self)
         self.ui = Ui_SimProgressDialog()
         self.ui.setupUi(self)
+
+        self.setWindowIcon(QApplication.instance().icon)
 
         self.ui.buttonBox.rejected.connect(self.closeEvent)
 

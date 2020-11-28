@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.QtCore import pyqtSignal
 
 from ..views.Preferences_ui import Ui_PreferencesDialog
@@ -13,6 +13,8 @@ class PreferencesMenu(QDialog):
 
         self.ui = Ui_PreferencesDialog()
         self.ui.setupUi(self)
+
+        self.setWindowIcon(QApplication.instance().icon)
 
         self.ui.buttonBox.accepted.connect(self.apply)
         self.ui.buttonBox.rejected.connect(self.cancel)
