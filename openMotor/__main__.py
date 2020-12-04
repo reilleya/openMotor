@@ -1,5 +1,5 @@
 import sys
-from .app import App
+from openMotor.app import App
 from PyQt5.QtCore import Qt
 
 def main():

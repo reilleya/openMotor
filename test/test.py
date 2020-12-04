@@ -1,16 +1,16 @@
 import unittest
 
-from ..motorlib import motor
-from ..motorlib import grains
-from ..motorlib import propellant
+from openMotor.motorlib.motor import Motor, MotorConfig
+from openMotor.motorlib.grains import BatesGrain
+from openMotor.motorlib.propellant import Propellant
 
 class TestMotorMethods(unittest.TestCase):
 
     def test_calcKN(self):
-        tm = motorlib.motor.Motor()
-        tc = motorlib.motor.MotorConfig()
+        tm = Motor()
+        tc = MotorConfig()
 
-        bg = motorlib.grains.BatesGrain()
+        bg = BatesGrain()
         bg.setProperties({'diameter':0.083058, 
                   'length':0.1397, 
                   'coreDiameter':0.05, 
@@ -27,10 +27,10 @@ class TestMotorMethods(unittest.TestCase):
 
 
     def test_calcPressure(self):
-        tm = motor.Motor()
-        tc = motor.MotorConfig()
+        tm = Motor()
+        tc = MotorConfig()
 
-        bg = grains.BatesGrain()
+        bg = BatesGrain()
         bg.setProperties({'diameter':0.083058, 
                   'length':0.1397, 
                   'coreDiameter':0.05, 
@@ -41,7 +41,7 @@ class TestMotorMethods(unittest.TestCase):
         bg.simulationSetup(tc)
 
         tm.nozzle.setProperties({'throat': 0.01428})
-        tm.propellant = motorlib.propellant.Propellant()
+        tm.propellant = Propellant()
         tm.propellant.setProperties({
                     'name': 'KNSU',
                     'density': 1890, 
@@ -57,39 +57,39 @@ class TestMotorMethods(unittest.TestCase):
                     })
         self.assertAlmostEqual(tm.calcIdealPressure([0], 0), 4050196, 0)
 
-import motorlib.geometry
+from openMotor.motorlib import geometry
 class TestGeometryMethods(unittest.TestCase):
     def test_circleArea(self):
-        self.assertAlmostEqual(motorlib.geometry.circleArea(0.5), 0.19634954)
+        self.assertAlmostEqual(geometry.circleArea(0.5), 0.19634954)
 
     def test_circlePerimeter(self):
-        self.assertAlmostEqual(motorlib.geometry.circlePerimeter(0.5), 1.57079633)
+        self.assertAlmostEqual(geometry.circlePerimeter(0.5), 1.57079633)
 
     def test_circleDiameterFromArea(self):
-        self.assertAlmostEqual(motorlib.geometry.circleDiameterFromArea(0.19634954), 0.5)
+        self.assertAlmostEqual(geometry.circleDiameterFromArea(0.19634954), 0.5)
 
     def test_tubeArea(self):
-        self.assertAlmostEqual(motorlib.geometry.tubeArea(0.5, 2), 3.14159265)
+        self.assertAlmostEqual(geometry.tubeArea(0.5, 2), 3.14159265)
 
     def test_cylinderArea(self):
-        self.assertAlmostEqual(motorlib.geometry.cylinderArea(0.5, 2), 3.53429174)
+        self.assertAlmostEqual(geometry.cylinderArea(0.5, 2), 3.53429174)
 
     def test_cylinderVolume(self):
-        self.assertAlmostEqual(motorlib.geometry.cylinderVolume(0.5, 2), 0.39269908)
+        self.assertAlmostEqual(geometry.cylinderVolume(0.5, 2), 0.39269908)
 
     def test_dist(self):
-        self.assertEqual(motorlib.geometry.dist((5, 5), (5, 5)), 0)
-        self.assertEqual(motorlib.geometry.dist((5, 5), (6, 5)), 1)
-        self.assertEqual(motorlib.geometry.dist((5, 5), (5, 6)), 1)
-        self.assertEqual(motorlib.geometry.dist((0, 0), (-1, -1)), 2 ** 0.5)
+        self.assertEqual(geometry.dist((5, 5), (5, 5)), 0)
+        self.assertEqual(geometry.dist((5, 5), (6, 5)), 1)
+        self.assertEqual(geometry.dist((5, 5), (5, 6)), 1)
+        self.assertEqual(geometry.dist((0, 0), (-1, -1)), 2 ** 0.5)
 
-import motorlib.nozzle
+from openMotor.motorlib.nozzle import Nozzle, eRatioFromPRatio
 class TestNozzleMethods(unittest.TestCase):
     def test_expansionRatioFromPressureRatio(self):
-        self.assertAlmostEqual(motorlib.nozzle.eRatioFromPRatio(1.15, 0.0156), 0.10650602)
+        self.assertAlmostEqual(eRatioFromPRatio(1.15, 0.0156), 0.10650602)
 
     def test_expansionRatio(self):
-        nozzle = motorlib.nozzle.Nozzle()
+        nozzle = Nozzle()
         nozzle.setProperties({
             'throat': 0.1,
             'exit': 0.2,
@@ -102,7 +102,7 @@ class TestNozzleMethods(unittest.TestCase):
         self.assertAlmostEqual(nozzle.calcExpansion(), 9.0)
 
     def test_getExitPressure(self):
-        nozzle = motorlib.nozzle.Nozzle()
+        nozzle = Nozzle()
         nozzle.setProperties({
             'throat': 0.1,
             'exit': 0.2,
@@ -116,7 +116,7 @@ class TestNozzleMethods(unittest.TestCase):
         self.assertAlmostEqual(nozzle.getExitPressure(1.2, 5e6), 72087.22454540983)
         self.assertAlmostEqual(nozzle.getExitPressure(1.2, 6e6), 86504.66945449157)
 
-import motorlib.propellant
+from openMotor.motorlib.propellant import Propellant
 class TestPropellantMethods(unittest.TestCase):
     def test_proper_propellant_ranges(self):
         props = {'name': 'TestProp',
@@ -133,7 +133,7 @@ class TestPropellantMethods(unittest.TestCase):
                        }
                    ]
                   }
-        testProp = motorlib.propellant.Propellant(props)
+        testProp = Propellant(props)
         self.assertEqual(len(testProp.getErrors()), 0)
 
     def test_backwards_pressure_ranges(self):
@@ -160,7 +160,7 @@ class TestPropellantMethods(unittest.TestCase):
                        }
                    ]
                   }
-        testProp = motorlib.propellant.Propellant(props)
+        testProp = Propellant(props)
         self.assertIn('Tab #1 has reversed pressure limits.', [err.description for err in testProp.getErrors()])
 
     def test_overlapping_pressure_ranges(self):
@@ -187,7 +187,7 @@ class TestPropellantMethods(unittest.TestCase):
                        }
                    ]
                   }
-        testProp = motorlib.propellant.Propellant(props)
+        testProp = Propellant(props)
         self.assertIn('Tabs #1 and #2 have overlapping ranges.', [err.description for err in testProp.getErrors()])
 
     def test_get_combustion_properties_in_range(self):
@@ -214,7 +214,7 @@ class TestPropellantMethods(unittest.TestCase):
                        }
                    ]
                   }
-        testProp = motorlib.propellant.Propellant(props)
+        testProp = Propellant(props)
         self.assertEqual(testProp.getCombustionProperties(8e5), (1.467e-05, 0.382, 1.25, 3500, 23.67))
         self.assertEqual(testProp.getCombustionProperties(8e6), (1e-05, 0.3, 1.25, 3500, 23.67))
 
@@ -242,7 +242,7 @@ class TestPropellantMethods(unittest.TestCase):
                        }
                    ]
                   }
-        testProp = motorlib.propellant.Propellant(props)
+        testProp = Propellant(props)
         self.assertEqual(testProp.getCombustionProperties(6.9e5), (1.467e-05, 0.382, 1.25, 3500, 23.67))
         self.assertEqual(testProp.getCombustionProperties(8e10), (1e-05, 0.3, 1.25, 3500, 23.67))
 
