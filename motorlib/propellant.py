@@ -10,10 +10,10 @@ class PropellantTab(PropertyCollection):
         super().__init__()
         self.props['minPressure'] = FloatProperty('Minimum Pressure', 'Pa', 0, 7e7)
         self.props['maxPressure'] = FloatProperty('Maximum Pressure', 'Pa', 0, 7e7)
-        self.props['a'] = FloatProperty('Burn rate Coefficient', 'm/(s*Pa^n)', 0, 2)
-        self.props['n'] = FloatProperty('Burn rate Exponent', '', -1, 1)
+        self.props['a'] = FloatProperty('Burn rate Coefficient', 'm/(s*Pa^n)', 1E-8, 2)
+        self.props['n'] = FloatProperty('Burn rate Exponent', '', -0.99, 0.99)
         self.props['k'] = FloatProperty('Specific Heat Ratio', '', 1+1e-6, 10)
-        self.props['t'] = FloatProperty('Combustion Temperature', 'K', 0, 10000)
+        self.props['t'] = FloatProperty('Combustion Temperature', 'K', 1, 10000)
         self.props['m'] = FloatProperty('Exhaust Molar Mass', 'g/mol', 1e-6, 100)
         if tabDict is not None:
             self.setProperties(tabDict)
@@ -24,7 +24,7 @@ class Propellant(PropertyCollection):
     def __init__(self, propDict=None):
         super().__init__()
         self.props['name'] = StringProperty('Name')
-        self.props['density'] = FloatProperty('Density', 'kg/m^3', 0, 10000)
+        self.props['density'] = FloatProperty('Density', 'kg/m^3', 1, 10000)
         self.props['tabs'] = TabularProperty('Properties', PropellantTab)
         if propDict is not None:
             self.setProperties(propDict)
