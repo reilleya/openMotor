@@ -10,8 +10,6 @@ from .. import geometry
 from ..simResult import SimAlert, SimAlertLevel, SimAlertType
 from ..properties import FloatProperty, EnumProperty
 
-# Have a function that does all of the annoying collision checks and returns the length and major/minor diameters
-
 class ConicalGrain(Grain):
     """A conical grain is similar to a BATES grain except it has different core diameters at each end."""
     geomName = "Conical"
@@ -26,26 +24,34 @@ class ConicalGrain(Grain):
         aftDiam = self.props['aftCoreDiameter'].getValue()
         forwardDiam = self.props['forwardCoreDiameter'].getValue()
         length = self.props['length'].getValue()
+
         angle = atan((aftDiam - forwardDiam) / (2 * length))
-        print(angle * 180 / 3.14159)
         regAftDiam = aftDiam + (regDist * 2 * cos(angle))
         regForwardDiam = forwardDiam + (regDist * 2 * cos(angle))
-        #print('Reg: {}'.format(regDist))
-        #print('Aft: {}'.format(regAftDiam))
-        #print('For: {}'.format(regForwardDiam))
-        #print('Dia: {}'.format(grainDiam))
+
+        exposedFaces = 0
+        inhibitedEnds = self.props['inhibitedEnds'].getValue()
+        if inhibitedEnds == 'Neither':
+            exposedFaces = 2
+        elif inhibitedEnds in ['Top', 'Bottom']:
+            exposedFaces = 1
+
         if regAftDiam >= grainDiam:
             #print('Case 1')
             majorDiameter = grainDiam
             minorDiameter = regForwardDiam
             effectiveReg = (regAftDiam - grainDiam) / 2
-            length = length - (effectiveReg / sin(angle))
+            length -= (effectiveReg / sin(angle))
+            #length -= (grainDiam - aftDiam / 2) * exposedFaces
+            #if self.props['inhibitedEnds'].getValue() in ['Neither', 'Bottom']:
+            #    length -= regDist
         else:
             #print('Case 2')
             majorDiameter = regAftDiam
             minorDiameter = regForwardDiam
+            length -= exposedFaces * regDist
+
         # For now we can assume the faces are inhibited
-        print()
         return majorDiameter, minorDiameter, length
 
     def getSurfaceAreaAtRegression(self, regDist):
@@ -55,6 +61,12 @@ class ConicalGrain(Grain):
         minorRadius = minorDiameter / 2
         # TODO: Move to a geometry function and test it
         surf = 3.1415926 * (majorRadius + minorRadius) * ((majorRadius - minorRadius) ** 2 + length ** 2) ** 0.5
+
+        fullFaceArea = geometry.circleArea(self.props['diameter'].getValue())
+        if self.props['inhibitedEnds'].getValue() in ['Neither', 'Bottom']:
+            surf += fullFaceArea - geometry.circleArea(minorDiameter)
+        if self.props['inhibitedEnds'].getValue() in ['Neither', 'Top']:
+            surf += fullFaceArea - geometry.circleArea(majorDiameter)
         #surf += 2 * geometry.circleArea(self.props['diameter'].getValue())
         #surf -= geometry.circleArea(majorDiameter) + geometry.circleArea(minorDiameter)
         #print('Surface: {}'.format(surf))
