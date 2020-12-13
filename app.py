@@ -7,6 +7,7 @@ import motorlib
 from uilib import preferencesManager, propellantManager, simulationManager, fileManager, toolManager
 from uilib import importExportManager
 import uilib.widgets.mainWindow
+from uilib.logger import logger
 
 class App(QApplication):
     def __init__(self, args):
@@ -58,16 +59,19 @@ class App(QApplication):
             sys.exit(0)
 
         else:
+            logger.log('Opening window')
             self.window = uilib.widgets.mainWindow.Window(self)
             self.preferencesManager.publishPreferences()
             if startupFileLoaded:
                 self.fileManager.sendTitleUpdate()
             self.window.show()
+            logger.log('Window opened')
 
     def outputMessage(self, content, title='openMotor'):
         if self.headless:
             print(content)
         else:
+            logger.log(content)
             msg = QMessageBox()
             msg.setText(content)
             msg.setWindowTitle(title)
@@ -77,6 +81,8 @@ class App(QApplication):
         if self.headless:
             print(text + " " + str(exception))
         else:
+            logger.error(text)
+            logger.error(exception)
             msg = QMessageBox()
             msg.setText(text)
             msg.setInformativeText(str(exception))

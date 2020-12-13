@@ -7,6 +7,7 @@ from motorlib.motor import MotorConfig
 from .fileIO import loadFile, saveFile, getConfigPath, fileTypes
 from .defaults import DEFAULT_PREFERENCES
 from .widgets import preferencesMenu
+from .logger import logger
 
 class Preferences():
     def __init__(self, propDict=None):
@@ -47,6 +48,7 @@ class PreferencesManager(QObject):
         self.loadPreferences()
 
     def newPreferences(self, prefDict):
+        logger.log('Updating preferences')
         self.preferences.applyDict(prefDict)
         self.savePreferences()
         self.publishPreferences()
@@ -57,16 +59,18 @@ class PreferencesManager(QObject):
             self.preferences.applyDict(prefDict)
             self.publishPreferences()
         except FileNotFoundError:
-            print('Unable to load preferences, creating new file')
+            logger.warn('Unable to load preferences, creating new file')
             self.savePreferences()
 
     def savePreferences(self):
         try:
+            logger.log('Saving preferences to "{}"'.format(getConfigPath() + 'preferences.yaml'))
             saveFile(getConfigPath() + 'preferences.yaml', self.preferences.getDict(), fileTypes.PREFERENCES)
         except:
-            print('Unable to save preferences')
+            logger.warn('Unable to save preferences')
 
     def showMenu(self):
+        logger.log('Showing preferences menu')
         self.menu.load(self.preferences)
         self.menu.show()
 

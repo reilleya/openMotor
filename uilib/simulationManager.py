@@ -5,6 +5,7 @@ from PyQt5.QtCore import pyqtSignal
 
 from .widgets.simulationAlertsDialog import SimulationAlertsDialog
 from .widgets.simulationProgressDialog import SimulationProgressDialog
+from .logger import logger
 
 class SimulationManager(QObject):
 
@@ -34,6 +35,7 @@ class SimulationManager(QObject):
         self.preferences = preferences
 
     def runSimulation(self, motor, show=True): # Show sets if the results will be reported on newSimulationResult and shown in UI
+        logger.log('Running simulation')
         self.motor = motor
         self.threadStopped = False
         self.progDialog.show()
@@ -44,6 +46,7 @@ class SimulationManager(QObject):
         simRes = self.motor.runSimulation(self.updateProgressBar)
         self.simulationDone.emit(simRes)
         if simRes.success and show:
+            logger.log('Simulation succeeded')
             self.newSimulationResult.emit(simRes)
 
     def updateProgressBar(self, prog):
@@ -51,5 +54,6 @@ class SimulationManager(QObject):
         return self.threadStopped
 
     def cancelSim(self):
+        logger.log('Canceling simulation')
         self.threadStopped = True
         self.simCanceled.emit()

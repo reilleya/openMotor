@@ -5,6 +5,7 @@ from PyQt5.QtCore import pyqtSignal
 from .tools import ChangeDiameterTool, InitialKNTool, MaxKNTool
 from .tools import ExpansionTool
 from .tools import NeutralBatesTool
+from .logger import logger
 
 class ToolManager(QObject):
 
@@ -52,6 +53,7 @@ class ToolManager(QObject):
     def updateMotor(self, motor):
         self.fileManager.addNewMotorHistory(motor)
         self.changeApplied.emit()
+        logger.info('Tool applied change to motor')
 
     def requestSimulation(self):
         motor = self.fileManager.getCurrentMotor()

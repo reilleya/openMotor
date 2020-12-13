@@ -25,7 +25,7 @@ class ImportExportManager(QObject):
 
     def acceptNewMotor(self, motor):
         self.motor = motor
-        self.simRes = None # Invalid old simRes because it doesn't apply to the new motor
+        self.simRes = None # Invalidate old simRes because it doesn't apply to the new motor
 
     def setPreferences(self, pref):
         self.preferences = pref

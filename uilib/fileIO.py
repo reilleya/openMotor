@@ -7,6 +7,7 @@ import yaml
 import appdirs
 
 from .defaults import DEFAULT_PREFERENCES, DEFAULT_PROPELLANTS, KNSU_PROPS
+from .logger import logger
 
 appVersion = (0, 5, 0)
 appVersionStr = '.'.join(map(str, appVersion))
@@ -174,10 +175,10 @@ migrations = {
 }
 
 def doMigration(fileData):
-    print('Doing a migration of a ' + str(fileData["type"]) + ' from ' + str(fileData["version"]))
+    logger.log('Doing a migration of a {} from {}'.format(fileData["type"], fileData["version"]))
     while fileData["version"] != appVersion:
         migration = migrations[fileData["version"]]
-        print("\tUpgrading " + str(fileData["version"]) + " to " + str(migration["to"]))
+        logger.log('\tUpgrading {} to {}'.format(fileData["version"], migration["to"]))
         fileData["data"] = migration[fileData["type"]](fileData["data"])
         fileData["version"] = migration["to"]
     return fileData

@@ -5,7 +5,7 @@ from ..helpers import FLAGS_NO_ICON
 import motorlib.propellant
 
 from ..views.PropMenu_ui import Ui_PropellantDialog
-
+from ..logger import logger
 
 class PropellantMenu(QDialog):
 
@@ -85,11 +85,12 @@ class PropellantMenu(QDialog):
         self.editingPropellant = True
 
     def propEdited(self, propDict):
+        # If the name they choose matches an existing propellant, don't apply that change
         propNames = self.manager.getNames()
         if propDict['name'] in propNames:
             if propNames.index(propDict['name']) != self.ui.listWidgetPropellants.currentRow():
-                print("Can't duplicate a prop name!")
-                return
+                logger.warn("Can't duplicate a propellant name!")
+                del propDict['name']
 
         self.manager.propellants[self.ui.listWidgetPropellants.currentRow()].setProperties(propDict)
         self.setupPropList()
