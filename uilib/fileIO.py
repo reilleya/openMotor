@@ -54,14 +54,14 @@ def loadFile(path, dataType):
         # Otherwise it is from a past version and will be migrated
         return doMigration(fileData)['data']
 
-def getConfigPath(): # Returns the path that files like preferences and propellant library should be in
-    if platform.system() == 'Darwin': # On OSX, the configuration files should live in the library
-        path = appdirs.user_data_dir('openMotor', 'openMotor')
-        if not os.path.isdir(path): # Create directory if it doesn't exist
-            os.mkdir(path)
-        return path + '/'
-    # On other platforms they can live in this directory
-    return ''
+ # Returns the path that files like preferences and propellant library should be in. Previously, all platforms except
+ # Mac OS put these files alongside the executable, but the v0.5.0 added an installer for windows so it makes more
+ # sense to use the user's data directory now.
+def getConfigPath():
+    path = appdirs.user_data_dir('openMotor', 'openMotor')
+    if not os.path.isdir(path): # Create directory if it doesn't exist
+        os.mkdir(path)
+    return path + '/'
 
 def passthrough(data):
     return data
