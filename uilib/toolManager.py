@@ -53,8 +53,9 @@ class ToolManager(QObject):
     def updateMotor(self, motor):
         self.fileManager.addNewMotorHistory(motor)
         self.changeApplied.emit()
-        logger.info('Tool applied change to motor')
+        logger.log('Tool applied change to motor')
 
     def requestSimulation(self):
+        logger.log('Tool requested simulation')
         motor = self.fileManager.getCurrentMotor()
         self.simulationManager.runSimulation(motor, False)

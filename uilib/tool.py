@@ -4,7 +4,7 @@ from PyQt5.QtGui import QIcon
 import motorlib
 
 from .widgets.collectionEditor import CollectionEditor
-
+from .logger import logger
 
 class Tool(QDialog):
     def __init__(self, manager, name, description, propDict, needsSimulation):
@@ -18,7 +18,7 @@ class Tool(QDialog):
         self.propCollection.props = propDict
 
         self.motor = None
-        self.inp = None
+        self.changeApplied = None
 
         self.setWindowTitle(self.name)
         self.setWindowIcon(QIcon('resources/oMIconCycles.png'))
@@ -38,27 +38,32 @@ class Tool(QDialog):
         self.editor.setPreferences(pref)
 
     def show(self):
+        logger.log('Showing "{}" tool'.format(self.name))
         self.editor.loadProperties(self.propCollection)
         super().show()
 
-    def applyPressed(self, inp):
-        if self.needsSimulation:
-            self.inp = inp
-            self.motor = self.manager.getMotor()
-            self.manager.requestSimulation()
-        else:
-            self.applyChanges(inp, self.manager.getMotor(), None)
+    def applyPressed(self, change):
+        logger.log('Applying "{}" from "{}" tool'.format(change, self.name))
+        if not self.needsSimulation:
+            self.applyChanges(change, self.manager.getMotor(), None)
+            return
+
+        self.changeApplied = change
+        self.motor = self.manager.getMotor()
+        self.manager.requestSimulation()
 
     def simDone(self, sim):
-        if self.inp is not None: # If inp is set, this is the tool waiting for a simulation result
-            if sim.success:
-                self.applyChanges(self.inp, self.motor, sim)
-            self.inp = None
-            self.motor = None
-
-    def simCanceled(self):
-        self.inp = None
+        if self.changeApplied is None:
+            return
+        # If changeApplied is set, this is the tool waiting for a simulation result
+        if sim.success:
+            self.applyChanges(self.changeApplied, self.motor, sim)
+        self.changeApplied = None
         self.motor = None
 
-    def applyChanges(self, inp, motor, simulation):
+    def simCanceled(self):
+        self.changeApplied = None
+        self.motor = None
+
+    def applyChanges(self, change, motor, simulation):
         pass
