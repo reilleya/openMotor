@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QApplication
 
 from ..converter import Exporter
 
@@ -9,6 +9,9 @@ class CsvExportMenu(QDialog):
         QDialog.__init__(self)
         self.ui = Ui_CSVExporter()
         self.ui.setupUi(self)
+
+        self.setWindowIcon(QApplication.instance().icon)
+
         self.converter = converter
 
     def exec(self):

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QApplication
 
 from motorlib.simResult import singleValueChannels, multiValueChannels
 from ..converter import Exporter
@@ -10,6 +10,9 @@ class ImageExportMenu(QDialog):
         QDialog.__init__(self)
         self.ui = Ui_ImageExporter()
         self.ui.setupUi(self)
+
+        self.setWindowIcon(QApplication.instance().icon)
+
         self.converter = converter
 
     def exec(self):

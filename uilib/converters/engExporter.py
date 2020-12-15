@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox
+from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox, QApplication
 
 from motorlib.properties import PropertyCollection, FloatProperty, StringProperty, EnumProperty
 import motorlib
@@ -23,6 +23,9 @@ class EngExportMenu(QDialog):
         QDialog.__init__(self)
         self.ui = Ui_EngExporterDialog()
         self.ui.setupUi(self)
+
+        self.setWindowIcon(QApplication.instance().icon)
+
         self.exporter = exporter
 
     def exec(self):

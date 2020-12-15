@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QApplication
 from PyQt5.QtGui import QIcon
 
 import motorlib
@@ -21,7 +21,7 @@ class Tool(QDialog):
         self.changeApplied = None
 
         self.setWindowTitle(self.name)
-        self.setWindowIcon(QIcon('resources/oMIconCycles.png'))
+        self.setWindowIcon(QApplication.instance().icon)
         self.setLayout(QVBoxLayout())
 
         self.descLabel = QLabel(self.description)
