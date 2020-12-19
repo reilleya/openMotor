@@ -70,7 +70,7 @@ class CollectionEditor(QWidget):
         for prop in obj.props:
             self.propertyEditors[prop] = PropertyEditor(self, obj.props[prop], self.preferences)
             self.propertyEditors[prop].valueChanged.connect(self.propertyUpdate)
-            label = QLabel(obj.props[prop].dispName + ':')
+            label = QLabel('{}:'.format(obj.props[prop].dispName))
             label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.form.addRow(label, self.propertyEditors[prop])
         if self.buttons:
@@ -86,7 +86,6 @@ class CollectionEditor(QWidget):
         if self.buttons:
             self.applyButton.hide()
             self.cancelButton.hide()
-        self.repaint()
 
     def getProperties(self):
         res = {}

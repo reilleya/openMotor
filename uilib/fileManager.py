@@ -162,10 +162,7 @@ class FileManager(QObject):
             self.save()
             return True
 
-        if res == QMessageBox.Discard:
-            return True
-
-        return False
+        return res == QMessageBox.Discard
 
     # Outputs the filename component of the title
     def sendTitleUpdate(self):

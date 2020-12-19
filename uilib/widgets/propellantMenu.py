@@ -46,7 +46,6 @@ class PropellantMenu(QDialog):
     def setupButtons(self):
         self.ui.pushButtonEdit.setEnabled(False)
         self.ui.pushButtonDelete.setEnabled(False)
-        self.repaint() # OSX needs this
 
     def setupPropList(self):
         self.ui.listWidgetPropellants.clear()
@@ -69,14 +68,12 @@ class PropellantMenu(QDialog):
         self.manager.savePropellants()
         self.ui.listWidgetPropellants.setCurrentRow(len(self.manager.propellants) - 1)
         self.editProp()
-        self.repaint() # OSX needs this
 
     def deleteProp(self):
         del self.manager.propellants[self.ui.listWidgetPropellants.currentRow()]
         self.manager.savePropellants()
         self.setupPropList()
         self.setupButtons()
-        self.repaint() # OSX needs this
 
     def editProp(self):
         prop = self.manager.propellants[self.ui.listWidgetPropellants.currentRow()]
@@ -95,7 +92,6 @@ class PropellantMenu(QDialog):
         self.manager.propellants[self.ui.listWidgetPropellants.currentRow()].setProperties(propDict)
         self.setupPropList()
         self.manager.savePropellants()
-        self.repaint() # OSX needs this
 
     def propSelected(self):
         self.ui.pushButtonEdit.setEnabled(True)
@@ -110,7 +106,6 @@ class PropellantMenu(QDialog):
         self.ui.pushButtonNewPropellant.setEnabled(not editing)
         self.ui.pushButtonEdit.setEnabled(not editing)
         self.ui.pushButtonDelete.setEnabled(not editing)
-        self.repaint() # OSX needs this
 
     def closeEvent(self, event=None):
         if not self.unsavedCheck():
@@ -136,6 +131,4 @@ class PropellantMenu(QDialog):
         if res == QMessageBox.Save:
             self.propEdited(self.ui.propEditor.getProperties())
             return True
-        if res == QMessageBox.Discard:
-            return True
-        return False
+        return res == QMessageBox.Discard

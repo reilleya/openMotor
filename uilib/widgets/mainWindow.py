@@ -51,14 +51,12 @@ class Window(QMainWindow):
         self.setupGraph()
 
     def updateWindowTitle(self, name, saved):
+        if not name and saved:
+            self.setWindowTitle('openMotor')
+            return
         unsavedStr = '*' if not saved else ''
-        if name is not None and name != '':
-            self.setWindowTitle('openMotor - ' + name + unsavedStr)
-        else:
-            if saved:
-                self.setWindowTitle('openMotor')
-            else:
-                self.setWindowTitle('openMotor - ' + unsavedStr)
+        displayName = name if name is not None else ''
+        self.setWindowTitle('openMotor - {}{}'.format(displayName, unsavedStr))
 
     def setupMotorStats(self):
         for label in self.motorStatLabels:
@@ -71,7 +69,8 @@ class Window(QMainWindow):
         self.ui.motorEditor.setPreferences(self.app.preferencesManager.preferences)
         self.ui.pushButtonEditGrain.pressed.connect(self.editGrain)
         self.ui.motorEditor.changeApplied.connect(self.applyChange)
-        self.ui.motorEditor.closed.connect(self.checkGrainSelection) # Enables only buttons for actions possible given the selected grain
+        # Enables only buttons for actions possible given the selected grain
+        self.ui.motorEditor.closed.connect(self.checkGrainSelection)
 
     def setupGrainAddition(self):
         self.ui.comboBoxGrainGeometry.addItems(motorlib.grains.grainTypes.keys())
@@ -82,7 +81,8 @@ class Window(QMainWindow):
         self.ui.actionNew.triggered.connect(self.newMotor)
         self.ui.actionSave.triggered.connect(self.app.fileManager.save)
         self.ui.actionSaveAs.triggered.connect(self.app.fileManager.saveAs)
-        self.ui.actionOpen.triggered.connect(lambda x: self.loadMotor(None)) # Lambda because the signal passes in an argument
+        # Lambda because the signal passes in an argument
+        self.ui.actionOpen.triggered.connect(lambda x: self.loadMotor(None))
 
         self.app.importExportManager.createMenus(self.ui.menuImport, self.ui.menuExport)
 
@@ -193,8 +193,6 @@ class Window(QMainWindow):
         self.ui.tableWidgetGrainList.setItem(len(cm.grains) + 1, 0, QTableWidgetItem('Config'))
         self.ui.tableWidgetGrainList.setItem(len(cm.grains) + 1, 1, QTableWidgetItem('-'))
 
-        self.repaint() # OSX needs this
-
     def toggleGrainEditButtons(self, state, grainTable=True):
         if grainTable:
             self.ui.tableWidgetGrainList.setEnabled(state)
@@ -227,7 +225,6 @@ class Window(QMainWindow):
                 self.ui.pushButtonCopyGrain.setEnabled(False)
         else:
             self.toggleGrainEditButtons(False, False)
-        self.repaint() # OSX needs this
 
     def moveGrain(self, offset):
         cm = self.app.fileManager.getCurrentMotor()
@@ -290,7 +287,7 @@ class Window(QMainWindow):
 
     def formatMotorStat(self, quantity, inUnit):
         convUnit = self.app.preferencesManager.preferences.getUnit(inUnit)
-        return str(round(motorlib.units.convert(quantity, inUnit, convUnit), 3)) + ' ' + convUnit
+        return '{:.2f} {}'.format(motorlib.units.convert(quantity, inUnit, convUnit), convUnit)
 
     def updateMotorStats(self, simResult):
         self.ui.labelMotorDesignation.setText(simResult.getDesignation())
@@ -308,9 +305,12 @@ class Window(QMainWindow):
         self.ui.labelPropellantMass.setText(self.formatMotorStat(simResult.getPropellantMass(), 'kg'))
         self.ui.labelPropellantLength.setText(self.formatMotorStat(simResult.getPropellantLength(), 'm'))
 
+        # These only make sense for grains with cores, so blank them out for endburners
         if simResult.getPortRatio() is not None:
             self.ui.labelPortThroatRatio.setText(self.formatMotorStat(simResult.getPortRatio(), ''))
-            self.ui.labelPeakMassFlux.setText(self.formatMotorStat(simResult.getPeakMassFlux(), 'kg/(m^2*s)') + ' (G: ' + str(simResult.getPeakMassFluxLocation() + 1) + ')')
+            peakMassFluxQuantity = self.formatMotorStat(simResult.getPeakMassFlux(), 'kg/(m^2*s)')
+            peakMassFluxGrain = simResult.getPeakMassFluxLocation() + 1
+            self.ui.labelPeakMassFlux.setText('{} (G: {})'.format(peakMassFluxQuantity, peakMassFluxGrain))
 
         else:
             self.ui.labelPortThroatRatio.setText('-')
@@ -369,10 +369,10 @@ class Window(QMainWindow):
     def closeEvent(self, event=None):
         if self.app.fileManager.unsavedCheck():
             sys.exit()
-        else:
-            if event is not None:
-                if not isinstance(event, bool):
-                    event.ignore()
+            return
+        if event is None or isinstance(event, bool):
+            return
+        event.ignore()
 
     def applyPreferences(self, prefDict):
         self.updateGrainTable()

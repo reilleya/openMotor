@@ -79,11 +79,12 @@ class ResultsWidget(QWidget):
         self.drawGraphs()
 
     def drawGraphs(self):
-        if self.simResult is not None:
-            xCheck = self.ui.channelSelectorX.getSelectedChannels()[0]
-            yChecks = self.ui.channelSelectorY.getSelectedChannels()
-            grains = self.ui.grainSelector.getSelectedGrains()
-            self.ui.widgetGraph.showData(self.simResult, xCheck, yChecks, grains)
+        if self.simResult is None:
+            return
+        xCheck = self.ui.channelSelectorX.getSelectedChannels()[0]
+        yChecks = self.ui.channelSelectorY.getSelectedChannels()
+        grains = self.ui.grainSelector.getSelectedGrains()
+        self.ui.widgetGraph.showData(self.simResult, xCheck, yChecks, grains)
 
     def updateGrainTab(self):
         if self.simResult is not None:
