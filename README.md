@@ -26,7 +26,7 @@ The calculations involved were sourced from Rocket Propulsion Elements by George
 
 Download
 -------
-The easiest way to use openMotor is to navigate to the 'releases' tab above and download latest version for your system. From there, just unzip the file and run it. 
+The easiest way to use openMotor is under the 'releases' sidebar click 'latest' and download the version for your system. From there, just unzip the file and run it. 
 
 Building from Source
 --------------------
