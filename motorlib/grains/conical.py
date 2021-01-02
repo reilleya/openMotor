@@ -19,15 +19,35 @@ class ConicalGrain(Grain):
         self.props['forwardCoreDiameter'] = FloatProperty('Forward Core Diameter', 'm', 0, 1)
         self.props['inhibitedEnds'] = EnumProperty('Inhibited ends', ['Neither', 'Top', 'Bottom', 'Both'])
 
-    def getFrustrumInfo(self, regDist):
-        grainDiam = self.props['diameter'].getValue()
-        aftDiam = self.props['aftCoreDiameter'].getValue()
-        forwardDiam = self.props['forwardCoreDiameter'].getValue()
-        length = self.props['length'].getValue()
+    def isCoreInverted(self):
+        """A simple helper that returns 'true' if the core's foward diameter is larger than its aft diameter"""
+        return self.props['forwardCoreDiameter'].getValue() > self.props['aftCoreDiameter'].getValue()
 
-        angle = atan((aftDiam - forwardDiam) / (2 * length))
-        regAftDiam = aftDiam + (regDist * 2 * cos(angle))
-        regForwardDiam = forwardDiam + (regDist * 2 * cos(angle))
+    def getFrustrumInfo(self, regDist):
+        """Returns the dimensions of the grain's core at a given regression depth. The core is always a frustrum and is
+        returned as the aft diameter, forward diameter, and """
+
+        grainDiameter = self.props['diameter'].getValue()
+        aftDiameter = self.props['aftCoreDiameter'].getValue()
+        forwardDiameter = self.props['forwardCoreDiameter'].getValue()
+        grainLength = self.props['length'].getValue()
+
+        # These calculations are easiest if we work in terms of the core's "large end" and "small end"
+        if self.isCoreInverted():
+            coreMajorDiameter = forwardDiameter
+            coreMinorDiameter = aftDiameter
+        else:
+            coreMajorDiameter = aftDiameter
+            coreMinorDiameter = forwardDiameter
+
+        # Calculate the half angle of the core. This is done with without accounting for regression because it doesn't
+        # change with regression
+        angle = atan((coreMajorDiameter - coreMinorDiameter) / (2 * grainLength))
+
+        # Expand both core diameters by the radial component of the core's regression vector. This is allowed to expand
+        # beyond the casting tube as that condition is checked in a later step
+        regCoreMajorDiameter = coreMajorDiameter + (regDist * 2 * cos(angle))
+        regCoreMinorDiameter = coreMinorDiameter + (regDist * 2 * cos(angle))
 
         exposedFaces = 0
         inhibitedEnds = self.props['inhibitedEnds'].getValue()
@@ -36,48 +56,52 @@ class ConicalGrain(Grain):
         elif inhibitedEnds in ['Top', 'Bottom']:
             exposedFaces = 1
 
-        if regAftDiam >= grainDiam:
-            #print('Case 1')
-            majorDiameter = grainDiam
-            minorDiameter = regForwardDiam
-            effectiveReg = (regAftDiam - grainDiam) / 2
-            length -= (effectiveReg / sin(angle))
-            #length -= (grainDiam - aftDiam / 2) * exposedFaces
+        # This is case where the larger core diameter has grown beyond the casting tube diameter. Once this happens,
+        # the diameter of the large end of the core is clamped at the grain diameter and the length is changed to keep
+        # the angle constant, which accounts for the regression of the grain at the major end.
+        if regCoreMajorDiameter >= grainDiameter:
+            majorFrustrumDiameter = grainDiameter
+            minorFrustrumDiameter = regCoreMinorDiameter
+            # How far past the grain diameter the major end has grown
+            effectiveReg = (regCoreMajorDiameter - grainDiameter) / 2
+            # Reduce the length of the frustrum by the axial component of the regression vector
+            grainLength -= (effectiveReg / sin(angle))
+
+            # HMM:
+            #length -= (grainDiameter - aftDiameter / 2) * exposedFaces
             #if self.props['inhibitedEnds'].getValue() in ['Neither', 'Bottom']:
             #    length -= regDist
+
+        # If the large end of the core hasn't reached the casting tube, we know that the small end hasn't either. In
+        # this case we just return the 
         else:
-            #print('Case 2')
-            majorDiameter = regAftDiam
-            minorDiameter = regForwardDiam
-            length -= exposedFaces * regDist
+            majorFrustrumDiameter = regCoreMajorDiameter
+            minorFrustrumDiameter = regCoreMinorDiameter
+            grainLength -= exposedFaces * regDist
 
         # For now we can assume the faces are inhibited
-        return majorDiameter, minorDiameter, length
+            
+        if self.isCoreInverted():
+            return minorFrustrumDiameter, majorFrustrumDiameter, grainLength
+        return majorFrustrumDiameter, minorFrustrumDiameter, grainLength
 
     def getSurfaceAreaAtRegression(self, regDist):
         """Returns the surface area of the grain after it has regressed a linear distance of 'regDist'"""
-        majorDiameter, minorDiameter, length = self.getFrustrumInfo(regDist)
-        majorRadius = majorDiameter / 2
-        minorRadius = minorDiameter / 2
-        # TODO: Move to a geometry function and test it
-        surf = 3.1415926 * (majorRadius + minorRadius) * ((majorRadius - minorRadius) ** 2 + length ** 2) ** 0.5
+        aftDiameter, forwardDiameter, length = self.getFrustrumInfo(regDist)
+        surfaceArea = geometry.frustrumLateralSurfaceArea(aftDiameter, forwardDiameter, length)
 
         fullFaceArea = geometry.circleArea(self.props['diameter'].getValue())
         if self.props['inhibitedEnds'].getValue() in ['Neither', 'Bottom']:
-            surf += fullFaceArea - geometry.circleArea(minorDiameter)
+            surfaceArea += fullFaceArea - geometry.circleArea(minorDiameter)
         if self.props['inhibitedEnds'].getValue() in ['Neither', 'Top']:
-            surf += fullFaceArea - geometry.circleArea(majorDiameter)
-        #surf += 2 * geometry.circleArea(self.props['diameter'].getValue())
-        #surf -= geometry.circleArea(majorDiameter) + geometry.circleArea(minorDiameter)
-        #print('Surface: {}'.format(surf))
-        return surf
+            surfaceArea += fullFaceArea - geometry.circleArea(majorDiameter)
+
+        return surfaceArea
 
     def getVolumeAtRegression(self, regDist):
         """Returns the volume of propellant in the grain after it has regressed a linear distance 'regDist'"""
-        majorDiameter, minorDiameter, length = self.getFrustrumInfo(regDist)
-        majorRadius = majorDiameter / 2
-        minorRadius = minorDiameter / 2
-        frustrumVolume = 3.1415926 * (length / 3) * (majorRadius ** 2 + minorRadius * minorRadius + minorRadius ** 2)
+        aftDiameter, forwardDiameter, length = self.getFrustrumInfo(regDist)
+        frustrumVolume = geometry.frustrumVolume(aftDiameter, forwardDiameter, length)
         outerVolume = geometry.cylinderVolume(self.props['diameter'].getValue(), length)
         return outerVolume - frustrumVolume
 
@@ -114,13 +138,7 @@ class ConicalGrain(Grain):
         return None
 
     def getGeometryErrors(self):
-        """Returns a list of simAlerts that detail any issues with the geometry of the grain. Errors should be
-        used for any condition that prevents simulation of the grain, while warnings can be used to notify the
-        user of possible non-fatal mistakes in their entered numbers. Subclasses should still call the superclass
-        method, as it performs checks that still apply to its subclasses."""
-        errors = []
-        if self.props['diameter'].getValue() == 0:
-            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Diameter must not be 0'))
-        if self.props['length'].getValue() == 0:
-            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Length must not be 0'))
+        errors = super().getGeometryErrors()
+        if self.props['aftCoreDiameter'].getValue() == self.props['forwardCoreDiameter'].getValue():
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Core diameters cannot be the same, use a BATES for this case.')) 
         return errors

@@ -27,6 +27,16 @@ def cylinderVolume(dia, height):
     """Returns the volume of a cylinder with diameter 'dia' and height 'height'"""
     return height * circleArea(dia)
 
+def frustrumLateralSurfaceArea(diameterA, diameterB, length):
+    radiusA = diameterA / 2
+    radiusB = diameterB / 2
+    return math.pi * (radiusA + radiusB) * (abs(radiusA - radiusB) ** 2 + length ** 2) ** 0.5
+
+def frustrumVolume(diameterA, diameterB, length):
+    radiusA = diameterA / 2
+    radiusB = diameterB / 2
+    return math.pi * (length / 3) * (radiusA ** 2 + radiusA * radiusB + radiusB ** 2)
+
 def length(contour, mapSize, tolerance=3):
     """Returns the total length of all segments in a contour that aren't within 'tolerance' of the edge of a
     circle with diameter 'mapSize'"""
