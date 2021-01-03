@@ -108,13 +108,13 @@ class PerforatedGrain(Grain):
 
     def getEndPositions(self, regDist):
         if self.props['inhibitedEnds'].getValue() == 'Neither': # Neither
-            return [regDist, self.props['length'].getValue() - regDist]
+            return (regDist, self.props['length'].getValue() - regDist)
         if self.props['inhibitedEnds'].getValue() == 'Top': # Top
-            return [0, self.props['length'].getValue() - regDist]
+            return (0, self.props['length'].getValue() - regDist)
         if self.props['inhibitedEnds'].getValue() == 'Bottom': # Bottom
-            return [regDist, self.props['length'].getValue()]
+            return (regDist, self.props['length'].getValue())
         if self.props['inhibitedEnds'].getValue() == 'Both':
-            return [0, self.props['length'].getValue()]
+            return (0, self.props['length'].getValue())
         # The enum should prevent this from even being raised, but to cover the case where it somehow gets set wrong
         raise ValueError('Invalid number of faces inhibited')
 

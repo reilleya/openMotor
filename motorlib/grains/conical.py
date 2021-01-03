@@ -26,7 +26,6 @@ class ConicalGrain(Grain):
     def getFrustrumInfo(self, regDist):
         """Returns the dimensions of the grain's core at a given regression depth. The core is always a frustrum and is
         returned as the aft diameter, forward diameter, and """
-
         grainDiameter = self.props['diameter'].getValue()
         aftDiameter = self.props['aftCoreDiameter'].getValue()
         forwardDiameter = self.props['forwardCoreDiameter'].getValue()
@@ -34,11 +33,9 @@ class ConicalGrain(Grain):
 
         # These calculations are easiest if we work in terms of the core's "large end" and "small end"
         if self.isCoreInverted():
-            coreMajorDiameter = forwardDiameter
-            coreMinorDiameter = aftDiameter
+            coreMajorDiameter, coreMinorDiameter = forwardDiameter, aftDiameter
         else:
-            coreMajorDiameter = aftDiameter
-            coreMinorDiameter = forwardDiameter
+            coreMajorDiameter, coreMinorDiameter = aftDiameter, forwardDiameter
 
         # Calculate the half angle of the core. This is done with without accounting for regression because it doesn't
         # change with regression
@@ -67,19 +64,12 @@ class ConicalGrain(Grain):
             # Reduce the length of the frustrum by the axial component of the regression vector
             grainLength -= (effectiveReg / sin(angle))
 
-            # HMM:
-            #length -= (grainDiameter - aftDiameter / 2) * exposedFaces
-            #if self.props['inhibitedEnds'].getValue() in ['Neither', 'Bottom']:
-            #    length -= regDist
-
         # If the large end of the core hasn't reached the casting tube, we know that the small end hasn't either. In
-        # this case we just return the 
+        # this case we just return the current core diameters, and a length calculated from the inhibitor configuration
         else:
             majorFrustrumDiameter = regCoreMajorDiameter
             minorFrustrumDiameter = regCoreMinorDiameter
             grainLength -= exposedFaces * regDist
-
-        # For now we can assume the faces are inhibited
             
         if self.isCoreInverted():
             return minorFrustrumDiameter, majorFrustrumDiameter, grainLength
@@ -92,9 +82,9 @@ class ConicalGrain(Grain):
 
         fullFaceArea = geometry.circleArea(self.props['diameter'].getValue())
         if self.props['inhibitedEnds'].getValue() in ['Neither', 'Bottom']:
-            surfaceArea += fullFaceArea - geometry.circleArea(minorDiameter)
+            surfaceArea += fullFaceArea - geometry.circleArea(forwardDiameter)
         if self.props['inhibitedEnds'].getValue() in ['Neither', 'Top']:
-            surfaceArea += fullFaceArea - geometry.circleArea(majorDiameter)
+            surfaceArea += fullFaceArea - geometry.circleArea(aftDiameter)
 
         return surfaceArea
 
@@ -122,12 +112,35 @@ class ConicalGrain(Grain):
         return 0
 
     def getEndPositions(self, regDist):
-        """Returns the positions of the grain ends relative to the original (unburned) grain top"""
-        return 0
+        """Returns the positions of the grain ends relative to the original (unburned) grain top. Returns a tuple like
+        (forward, aft)"""
+        originalLength = self.props['length'].getValue()
+        aftCoreDiameter, forwardCoreDiameter, currentLength = self.getFrustrumInfo(regDist)
+        inhibitedEnds = self.props['inhibitedEnds'].getValue()
+
+        if self.isCoreInverted():
+            if inhibitedEnds == 'Bottom' or inhibitedEnds == 'Both':
+                # Because all of the change in length is due to the forward end moving, the forward end's position is
+                # just the amount the the grain has regressed by, The aft end stays where it started
+                return (originalLength - currentLength, originalLength)
+
+            # Neither or Top. In this case, the forward end moving accounts for almost all of the change in total grain
+            # length, except for the aft face having moved up by `regDist`, so that quantity is subtracted from the
+            # total change in grain length to get the forward end position
+            return (originalLength - currentLength - regDist, originalLength - regDist)
+
+        if inhibitedEnds == 'Top' or inhibitedEnds == 'Both':
+            # All of the change in grain length is due to the aft face moving, so the forward face stays at 0 and the
+            # aft face is at the regressed grain length
+            return (0, currentLength)
+
+        # Neither or Bottom
+        return (regDist, regDist + currentLength)
 
     def getPortArea(self, regDist):
         """Returns the area of the grain's port when it has regressed a distance of 'regDist'"""
-        return 0
+        aftCoreDiameter, _, _ = self.getFrustrumInfo(regDist)
+        return geometry.circleArea(aftCoreDiameter)
 
     def getDetailsString(self, lengthUnit='m'):
         """Returns a short string describing the grain, formatted using the units that is passed in"""
