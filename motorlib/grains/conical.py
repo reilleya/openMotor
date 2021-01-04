@@ -31,6 +31,13 @@ class ConicalGrain(Grain):
         forwardDiameter = self.props['forwardCoreDiameter'].getValue()
         grainLength = self.props['length'].getValue()
 
+        exposedFaces = 0
+        inhibitedEnds = self.props['inhibitedEnds'].getValue()
+        if inhibitedEnds == 'Neither':
+            exposedFaces = 2
+        elif inhibitedEnds in ['Top', 'Bottom']:
+            exposedFaces = 1
+
         # These calculations are easiest if we work in terms of the core's "large end" and "small end"
         if self.isCoreInverted():
             coreMajorDiameter, coreMinorDiameter = forwardDiameter, aftDiameter
@@ -46,13 +53,6 @@ class ConicalGrain(Grain):
         regCoreMajorDiameter = coreMajorDiameter + (regDist * 2 * cos(angle))
         regCoreMinorDiameter = coreMinorDiameter + (regDist * 2 * cos(angle))
 
-        exposedFaces = 0
-        inhibitedEnds = self.props['inhibitedEnds'].getValue()
-        if inhibitedEnds == 'Neither':
-            exposedFaces = 2
-        elif inhibitedEnds in ['Top', 'Bottom']:
-            exposedFaces = 1
-
         # This is case where the larger core diameter has grown beyond the casting tube diameter. Once this happens,
         # the diameter of the large end of the core is clamped at the grain diameter and the length is changed to keep
         # the angle constant, which accounts for the regression of the grain at the major end.
@@ -63,6 +63,10 @@ class ConicalGrain(Grain):
             effectiveReg = (regCoreMajorDiameter - grainDiameter) / 2
             # Reduce the length of the frustrum by the axial component of the regression vector
             grainLength -= (effectiveReg / sin(angle))
+            # Account for the change in length due to face regression before the major end hit the casting tube
+            grainLength -= exposedFaces * (grainDiameter - coreMajorDiameter) / 2
+            # Don't double count face regression
+            grainLength += exposedFaces * effectiveReg
 
         # If the large end of the core hasn't reached the casting tube, we know that the small end hasn't either. In
         # this case we just return the current core diameters, and a length calculated from the inhibitor configuration
