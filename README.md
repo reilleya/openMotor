@@ -4,7 +4,7 @@ openMotor
 
 Overview
 --------
-openMotor is an open-source internal ballistics simulator for rocket motor experimenters. The software estimates a rocket motor's chamber pressure and thrust based on propellant properties, grain geometry, and nozzle specifications. It uses the Fast Marching Method to determine how a propellant grain regresses, which allows the use of arbitrary core geometries. 
+openMotor is an open-source internal ballistics simulator for rocket motor experimenters. The software estimates a rocket motor's chamber pressure and thrust based on propellant properties, grain geometry, and nozzle specifications. It uses the Fast Marching Method to determine how a propellant grain regresses, which allows the use of arbitrary core geometries.
 
 Current Features:
 * Metric and imperial units
@@ -17,16 +17,17 @@ Current Features:
 * A UI that supports saving and loading designs along with undo and redo
 
 Planned Features:
-* Erosivity simulation
+* Erosive burning simulation
 * Detailed output of every calculated parameter at any time and position along the motor
+* Tapered-core grains
 
-The calculations involved were sourced from Rocket Propulsion Elements by George Sutton and from Richard Nakka's website (https://www.nakka-rocketry.net/rtheory.html).
+The calculations involved were sourced from Rocket Propulsion Elements by George Sutton and from [Richard Nakka's website](https://www.nakka-rocketry.net/rtheory.html).
 
 ![Screenshot](http://reilley.net/openMotor/screenshot.png)
 
 Download
 -------
-The easiest way to use openMotor is under the 'releases' sidebar click 'latest' and download the version for your system. From there, just unzip the file and run it. 
+The easiest way to use openMotor is to navigate to the 'releases' sidebar, click 'latest', and download the version for your system. From there, just unzip the file and run it. Alternatively, you can run it from source code to get the latest features. 
 
 Building from Source
 --------------------
@@ -60,10 +61,15 @@ Note that if you make changes to the UI using the `.ui` forms, you must re-build
 Once everything is set up, you can start openMotor by running: `python main.py`
 ###### Note: On some systems, Python 2 and 3 are installed simultaneously, so you may have to specify which version to run when creating the venv. After the venv has been activated, the programs `python` and `pip` are aliased to the python runtime specific for your venv, so use those (instead of `pip3` and `python3`, on e.g. Debian Linux)
 
+Data Files
+-----------
+openMotor uses [YAML](https://en.wikipedia.org/wiki/YAML) for data storage. Motor files have the extension `.ric` to differentiate them, but internally they are YAML and can be edited in a text editor if desired. The recommended MIME type for these files is `application/vnd.openmotor+yaml`.
+
+The remaining user information, like propellant data and preferences, is stored in plain YAML files in `<AppData>\Local\openMotor` on Windows, `/Users/<username>/Library/Application Support/openMotor` on Mac OS, and `/home/<username>/.local/share/openMotor` on Linux.
 
 License
 -------
-openMotor is released under the GNU GPL v3 license. The source code is distributed so you can build cool stuff with it, and so you don't have to trust the calculations are being done correctly and can check for yourself if you doubt the results.
+openMotor is released under the GNU GPL v3 license. The source code is distributed so you can build cool stuff with it, and so you don't have to trust the calculations are being done correctly. Check for yourself (and file an issue ticket!) if you doubt the results.
 
 Contributing
 ------------
