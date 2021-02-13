@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QApplication
 from PyQt5.QtCore import pyqtSignal
 
 class Converter(QObject):
@@ -52,7 +52,10 @@ class Exporter(Converter):
             path = self.showFileSelector()
             if path is None:
                 return
-            self.doConversion(path, config)
+            try:
+                self.doConversion(path, config)
+            except Exception as error:
+                QApplication.instance().outputException(error, "Export to '{}' failed:".format(path))
         else:
             self.manager.app.outputMessage(self.reqNotMet)
 
@@ -81,5 +84,9 @@ class Importer(Converter):
 
     def exec(self):
         path = self.showFileSelector()
-        if path is not None:
+        if path is None:
+            return
+        try:
             self.doConversion(path)
+        except Exception as error:
+            QApplication.instance().outputException(error, "Import of '{}' failed:".format(path))

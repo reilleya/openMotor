@@ -73,6 +73,7 @@ class App(QApplication):
         else:
             logger.log(content)
             msg = QMessageBox()
+            msg.setWindowIcon(self.icon)
             msg.setText(content)
             msg.setWindowTitle(title)
             msg.exec_()
@@ -84,6 +85,7 @@ class App(QApplication):
             logger.error(text)
             logger.error(exception)
             msg = QMessageBox()
+            msg.setWindowIcon(self.icon)
             msg.setText(text)
             msg.setInformativeText(str(exception))
             msg.setWindowTitle(title)
