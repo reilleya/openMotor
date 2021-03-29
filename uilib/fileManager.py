@@ -124,7 +124,7 @@ class FileManager(QObject):
             logger.log('Nothing to undo')
             return
 
-        logger.log('Apply unfo')
+        logger.log('Applying undo')
         self.currentVersion -= 1
         self.sendTitleUpdate()
         self.newMotor.emit(self.getCurrentMotor())
@@ -139,7 +139,7 @@ class FileManager(QObject):
             logger.log('Nothing to redo')
             return
 
-        logger.log('Apply redo')
+        logger.log('Applying redo')
         self.currentVersion += 1
         self.sendTitleUpdate()
         self.newMotor.emit(self.getCurrentMotor())

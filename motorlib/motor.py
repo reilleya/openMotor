@@ -92,15 +92,20 @@ class Motor():
             denom = ((gamma / ((gasConstant / molarMass) * temp)) * ((2 / (gamma + 1)) ** ((gamma + 1) / (gamma - 1)))) ** 0.5
             tabPressure = (num / denom) ** exponent
             # If the pressure that a burnrate produces falls into its range, we know it is the proper burnrate
-            # We have to slightly widen the range allowed for each burnrate to allow for floating point error
-            adjMax = 1.001 * tab['maxPressure']
-            adjMin = 0.999 * tab['minPressure']
-            if tab['minPressure'] == self.propellant.getMinimumValidPressure() and tabPressure < adjMax:
+            # Due to floating point error, we sometimes get a situation in which no burnrate produces the proper pressure
+            # For this scenario, we go by whichever produces the least error
+            minTabPressure = tab['minPressure']
+            maxTabPressure = tab['maxPressure']
+            if minTabPressure == self.propellant.getMinimumValidPressure() and tabPressure < maxTabPressure:
                 return tabPressure
-            if tab['maxPressure'] == self.propellant.getMaximumValidPressure() and adjMin < tabPressure:
+            if maxTabPressure == self.propellant.getMaximumValidPressure() and minTabPressure < tabPressure:
                 return tabPressure
-            if adjMin < tabPressure < adjMax:
+            if minTabPressure < tabPressure < maxTabPressure:
                 return tabPressure
+            tabPressures.append([min(abs(minTabPressure - tabPressure), abs(tabPressure - maxTabPressure)), tabPressure])
+
+        tabPressures.sort(key=lambda x: x[0]) # Sort by the pressure error
+        return tabPressures[0][1] # Return the pressure
 
     def calcForce(self, chamberPres, dThroat, exitPres=None):
         """Calculates the force of the motor at a given regression depth per grain. Calculates exit pressure by
