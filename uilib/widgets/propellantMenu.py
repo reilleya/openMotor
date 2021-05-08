@@ -136,4 +136,5 @@ class PropellantMenu(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete or event.key() == QtCore.Qt.Key_Backspace:
-            self.deleteProp()
+            if len(self.ui.listWidgetPropellants.selectedItems()) != 0:
+                self.deleteProp()
