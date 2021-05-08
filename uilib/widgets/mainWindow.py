@@ -1,6 +1,7 @@
 import sys
 
 from PyQt5.QtWidgets import QWidget, QMainWindow, QTableWidgetItem, QHeaderView, QTableWidget
+from PyQt5 import QtCore
 
 import motorlib
 import uilib.widgets.aboutDialog
@@ -378,3 +379,6 @@ class Window(QMainWindow):
         self.updateGrainTable()
         self.setupMotorStats()
         self.setupGraph()
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Delete or event.key() == QtCore.Qt.Key_Backspace:
+            self.deleteGrain()
