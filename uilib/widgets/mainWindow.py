@@ -379,6 +379,7 @@ class Window(QMainWindow):
         self.updateGrainTable()
         self.setupMotorStats()
         self.setupGraph()
+
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete or event.key() == QtCore.Qt.Key_Backspace:
             self.deleteGrain()
