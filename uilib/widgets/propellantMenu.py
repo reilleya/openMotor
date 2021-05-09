@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDialog, QMessageBox, QApplication
 from PyQt5.QtCore import pyqtSignal
 from ..helpers import FLAGS_NO_ICON
-from PyQt5 import QtCore
+from PyQt5.QtCore import Qt
 
 import motorlib.propellant
 
@@ -135,6 +135,6 @@ class PropellantMenu(QDialog):
         return res == QMessageBox.Discard
 
     def keyPressEvent(self, event):
-        if event.key() == QtCore.Qt.Key_Delete or event.key() == QtCore.Qt.Key_Backspace:
+        if event.key() == Qt.Key_Delete or event.key() == Qt.Key_Backspace:
             if len(self.ui.listWidgetPropellants.selectedItems()) != 0:
                 self.deleteProp()
