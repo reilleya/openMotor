@@ -103,15 +103,15 @@ class PerforatedGrain(Grain):
     geomName = 'perfGrain'
     def __init__(self):
         super().__init__()
-        self.props['inhibitedEnds'] = EnumProperty('Inhibited ends', ['Neither', 'Top', 'Bottom', 'Both'])
+        self.props['inhibitedEnds'] = EnumProperty('Inhibited ends', ['Neither', 'Forward', 'Aft', 'Both'])
         self.wallWeb = 0 # Max distance from the core to the wall
 
     def getEndPositions(self, regDist):
         if self.props['inhibitedEnds'].getValue() == 'Neither': # Neither
             return [regDist, self.props['length'].getValue() - regDist]
-        if self.props['inhibitedEnds'].getValue() == 'Top': # Top
+        if self.props['inhibitedEnds'].getValue() == 'Forward': # Top
             return [0, self.props['length'].getValue() - regDist]
-        if self.props['inhibitedEnds'].getValue() == 'Bottom': # Bottom
+        if self.props['inhibitedEnds'].getValue() == 'Aft': # Bottom
             return [regDist, self.props['length'].getValue()]
         if self.props['inhibitedEnds'].getValue() == 'Both':
             return [0, self.props['length'].getValue()]
@@ -145,7 +145,7 @@ class PerforatedGrain(Grain):
         coreArea = self.getCoreSurfaceArea(regDist)
 
         exposedFaces = 2
-        if self.props['inhibitedEnds'].getValue() == 'Top' or self.props['inhibitedEnds'].getValue() == 'Bottom':
+        if self.props['inhibitedEnds'].getValue() == 'Forward' or self.props['inhibitedEnds'].getValue() == 'Aft':
             exposedFaces = 1
         if self.props['inhibitedEnds'].getValue() == 'Both':
             exposedFaces = 0
@@ -172,7 +172,7 @@ class PerforatedGrain(Grain):
         # If a position in the grain is queried, the mass flow is the input mass, from the top face,
         # and from the tube up to the point. The diameter is the core.
         if position <= endPos[1]:
-            if self.props['inhibitedEnds'].getValue() == 'Top': # Top inhibited
+            if self.props['inhibitedEnds'].getValue() == 'Forward': # Top inhibited
                 top = 0
                 countedCoreLength = position
             else:
