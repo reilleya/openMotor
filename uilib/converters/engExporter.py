@@ -70,7 +70,7 @@ class EngExporter(Exporter):
                     force += 0.01
                 contents += str(round(time, 4)) + ' ' + str(round(force, 4)) + '\n'
 
-            contents += ';\n;\n'
+            contents += ';\n'
 
             outFile.write(contents)
 
