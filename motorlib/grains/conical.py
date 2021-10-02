@@ -15,9 +15,9 @@ class ConicalGrain(Grain):
     geomName = "Conical"
     def __init__(self):
         super().__init__()
-        self.props['aftCoreDiameter'] = FloatProperty('Aft Core Diameter', 'm', 0, 1)
         self.props['forwardCoreDiameter'] = FloatProperty('Forward Core Diameter', 'm', 0, 1)
-        self.props['inhibitedEnds'] = EnumProperty('Inhibited ends', ['Neither', 'Top', 'Bottom', 'Both'])
+        self.props['aftCoreDiameter'] = FloatProperty('Aft Core Diameter', 'm', 0, 1)
+        self.props['inhibitedEnds'] = EnumProperty('Inhibited ends', ['Both'])
 
     def isCoreInverted(self):
         """A simple helper that returns 'true' if the core's foward diameter is larger than its aft diameter"""
@@ -25,7 +25,7 @@ class ConicalGrain(Grain):
 
     def getFrustrumInfo(self, regDist):
         """Returns the dimensions of the grain's core at a given regression depth. The core is always a frustrum and is
-        returned as the aft diameter, forward diameter, and """
+        returned as the aft diameter, forward diameter, and length"""
         grainDiameter = self.props['diameter'].getValue()
         aftDiameter = self.props['aftCoreDiameter'].getValue()
         forwardDiameter = self.props['forwardCoreDiameter'].getValue()
@@ -77,6 +77,7 @@ class ConicalGrain(Grain):
             
         if self.isCoreInverted():
             return minorFrustrumDiameter, majorFrustrumDiameter, grainLength
+
         return majorFrustrumDiameter, minorFrustrumDiameter, grainLength
 
     def getSurfaceAreaAtRegression(self, regDist):
@@ -97,23 +98,56 @@ class ConicalGrain(Grain):
         aftDiameter, forwardDiameter, length = self.getFrustrumInfo(regDist)
         frustrumVolume = geometry.frustrumVolume(aftDiameter, forwardDiameter, length)
         outerVolume = geometry.cylinderVolume(self.props['diameter'].getValue(), length)
+
         return outerVolume - frustrumVolume
 
     def getWebLeft(self, regDist):
         """Returns the shortest distance the grain has to regress to burn out"""
-        majorDiameter, minorDiameter, length = self.getFrustrumInfo(regDist)
-        return (self.props['diameter'].getValue() - minorDiameter) / 2
+        aftDiameter, forwardDiameter, length = self.getFrustrumInfo(regDist)
+
+        return (self.props['diameter'].getValue() - min(aftDiameter, forwardDiameter)) / 2
+
+    def getMassFlow(self, massIn, dTime, regDist, dRegDist, position, density):
+        """Returns the mass flow at a point along the grain. Takes in the mass flow into the grain, a timestep, the
+        distance the grain has regressed so far, the additional distance it will regress during the timestep, a
+        position along the grain measured from the head end, and the density of the propellant."""
+
+        # For now these grains are only allowed with inhibited faces, so we can ignore a lot of messy logic
+        unsteppedFrustrum = self.getFrustrumInfo(regDist)
+        steppedFrustrum = self.getFrustrumInfo(regDist + dRegDist)
+
+        unsteppedFrustrum = (unsteppedFrustrum[1], unsteppedFrustrum[0], unsteppedFrustrum[2])
+        steppedFrustrum = (steppedFrustrum[1], steppedFrustrum[0], steppedFrustrum[2])
+
+         # Note that this assumes the forward end of the grain is still at postition 0 - inhibited
+        unsteppedPartialFrustrum, _ = geometry.splitFrustrum(*unsteppedFrustrum, position)
+        steppedPartialFrustrum, _ = geometry.splitFrustrum(*steppedFrustrum, position)
+
+        unsteppedVolume = geometry.frustrumVolume(*unsteppedPartialFrustrum)
+        steppedVolume = geometry.frustrumVolume(*steppedPartialFrustrum)
+
+        massFlow = (steppedVolume - unsteppedVolume) * density / dTime
+        massFlow += massIn
+
+        return massFlow, steppedPartialFrustrum[1]
 
     def getMassFlux(self, massIn, dTime, regDist, dRegDist, position, density):
         """Returns the mass flux at a point along the grain. Takes in the mass flow into the grain, a timestep, the
         distance the grain has regressed so far, the additional distance it will regress during the timestep, a
         position along the grain measured from the head end, and the density of the propellant."""
-        return 0
+
+        massFlow, portDiameter = self.getMassFlow(massIn, dTime, regDist, dRegDist, position, density)
+
+        return massFlow / geometry.circleArea(portDiameter) # Index 1 is port diameter OR IS IT
 
     def getPeakMassFlux(self, massIn, dTime, regDist, dRegDist, density):
         """Uses the grain's mass flux method to return the max. Need to define this here because I'm not sure what
         it will look like"""
-        return 0
+
+        forwardMassFlux = self.getMassFlux(massIn, dTime, regDist, dRegDist, self.getEndPositions(regDist)[0], density)
+        aftMassFlux = self.getMassFlux(massIn, dTime, regDist, dRegDist, self.getEndPositions(regDist)[1], density)
+
+        return max(forwardMassFlux, aftMassFlux)
 
     def getEndPositions(self, regDist):
         """Returns the positions of the grain ends relative to the original (unburned) grain top. Returns a tuple like
@@ -144,6 +178,7 @@ class ConicalGrain(Grain):
     def getPortArea(self, regDist):
         """Returns the area of the grain's port when it has regressed a distance of 'regDist'"""
         aftCoreDiameter, _, _ = self.getFrustrumInfo(regDist)
+
         return geometry.circleArea(aftCoreDiameter)
 
     def getDetailsString(self, lengthUnit='m'):
@@ -157,5 +192,9 @@ class ConicalGrain(Grain):
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()
         if self.props['aftCoreDiameter'].getValue() == self.props['forwardCoreDiameter'].getValue():
-            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Core diameters cannot be the same, use a BATES for this case.')) 
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Core diameters cannot be the same, use a BATES for this case.'))
+        if self.props['aftCoreDiameter'].getValue() > self.props['diameter'].getValue():
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Aft core diameter cannot be larger than grain diameter.'))
+        if self.props['forwardCoreDiameter'].getValue() > self.props['diameter'].getValue():
+            errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.GEOMETRY, 'Forward core diameter cannot be larger than grain diameter.'))
         return errors

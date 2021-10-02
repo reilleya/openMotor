@@ -172,7 +172,7 @@ class PerforatedGrain(Grain):
         # If a position in the grain is queried, the mass flow is the input mass, from the top face,
         # and from the tube up to the point. The diameter is the core.
         if position <= endPos[1]:
-            if self.props['inhibitedEnds'].getValue() == 'Top': # Top inhibited
+            if self.props['inhibitedEnds'].getValue() in ('Top', 'Both'):
                 top = 0
                 countedCoreLength = position
             else:
