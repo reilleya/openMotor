@@ -23,8 +23,8 @@ class ConicalGrain(Grain):
         """A simple helper that returns 'true' if the core's foward diameter is larger than its aft diameter"""
         return self.props['forwardCoreDiameter'].getValue() > self.props['aftCoreDiameter'].getValue()
 
-    def getFrustrumInfo(self, regDist):
-        """Returns the dimensions of the grain's core at a given regression depth. The core is always a frustrum and is
+    def getFrustumInfo(self, regDist):
+        """Returns the dimensions of the grain's core at a given regression depth. The core is always a frustum and is
         returned as the aft diameter, forward diameter, and length"""
         grainDiameter = self.props['diameter'].getValue()
         aftDiameter = self.props['aftCoreDiameter'].getValue()
@@ -57,11 +57,11 @@ class ConicalGrain(Grain):
         # the diameter of the large end of the core is clamped at the grain diameter and the length is changed to keep
         # the angle constant, which accounts for the regression of the grain at the major end.
         if regCoreMajorDiameter >= grainDiameter:
-            majorFrustrumDiameter = grainDiameter
-            minorFrustrumDiameter = regCoreMinorDiameter
+            majorFrustumDiameter = grainDiameter
+            minorFrustumDiameter = regCoreMinorDiameter
             # How far past the grain diameter the major end has grown
             effectiveReg = (regCoreMajorDiameter - grainDiameter) / 2
-            # Reduce the length of the frustrum by the axial component of the regression vector
+            # Reduce the length of the frustum by the axial component of the regression vector
             grainLength -= (effectiveReg / sin(angle))
             # Account for the change in length due to face regression before the major end hit the casting tube
             grainLength -= exposedFaces * (grainDiameter - coreMajorDiameter) / 2
@@ -71,19 +71,19 @@ class ConicalGrain(Grain):
         # If the large end of the core hasn't reached the casting tube, we know that the small end hasn't either. In
         # this case we just return the current core diameters, and a length calculated from the inhibitor configuration
         else:
-            majorFrustrumDiameter = regCoreMajorDiameter
-            minorFrustrumDiameter = regCoreMinorDiameter
+            majorFrustumDiameter = regCoreMajorDiameter
+            minorFrustumDiameter = regCoreMinorDiameter
             grainLength -= exposedFaces * regDist
             
         if self.isCoreInverted():
-            return minorFrustrumDiameter, majorFrustrumDiameter, grainLength
+            return minorFrustumDiameter, majorFrustumDiameter, grainLength
 
-        return majorFrustrumDiameter, minorFrustrumDiameter, grainLength
+        return majorFrustumDiameter, minorFrustumDiameter, grainLength
 
     def getSurfaceAreaAtRegression(self, regDist):
         """Returns the surface area of the grain after it has regressed a linear distance of 'regDist'"""
-        aftDiameter, forwardDiameter, length = self.getFrustrumInfo(regDist)
-        surfaceArea = geometry.frustrumLateralSurfaceArea(aftDiameter, forwardDiameter, length)
+        aftDiameter, forwardDiameter, length = self.getFrustumInfo(regDist)
+        surfaceArea = geometry.frustumLateralSurfaceArea(aftDiameter, forwardDiameter, length)
 
         fullFaceArea = geometry.circleArea(self.props['diameter'].getValue())
         if self.props['inhibitedEnds'].getValue() in ['Neither', 'Bottom']:
@@ -95,15 +95,15 @@ class ConicalGrain(Grain):
 
     def getVolumeAtRegression(self, regDist):
         """Returns the volume of propellant in the grain after it has regressed a linear distance 'regDist'"""
-        aftDiameter, forwardDiameter, length = self.getFrustrumInfo(regDist)
-        frustrumVolume = geometry.frustrumVolume(aftDiameter, forwardDiameter, length)
+        aftDiameter, forwardDiameter, length = self.getFrustumInfo(regDist)
+        frustumVolume = geometry.frustumVolume(aftDiameter, forwardDiameter, length)
         outerVolume = geometry.cylinderVolume(self.props['diameter'].getValue(), length)
 
-        return outerVolume - frustrumVolume
+        return outerVolume - frustumVolume
 
     def getWebLeft(self, regDist):
         """Returns the shortest distance the grain has to regress to burn out"""
-        aftDiameter, forwardDiameter, length = self.getFrustrumInfo(regDist)
+        aftDiameter, forwardDiameter, length = self.getFrustumInfo(regDist)
 
         return (self.props['diameter'].getValue() - min(aftDiameter, forwardDiameter)) / 2
 
@@ -113,23 +113,25 @@ class ConicalGrain(Grain):
         position along the grain measured from the head end, and the density of the propellant."""
 
         # For now these grains are only allowed with inhibited faces, so we can ignore a lot of messy logic
-        unsteppedFrustrum = self.getFrustrumInfo(regDist)
-        steppedFrustrum = self.getFrustrumInfo(regDist + dRegDist)
+        unsteppedFrustum = self.getFrustumInfo(regDist)
+        steppedFrustum = self.getFrustumInfo(regDist + dRegDist)
 
-        unsteppedFrustrum = (unsteppedFrustrum[1], unsteppedFrustrum[0], unsteppedFrustrum[2])
-        steppedFrustrum = (steppedFrustrum[1], steppedFrustrum[0], steppedFrustrum[2])
+        """These have to be reordered, because getFrustumInfo returns (aft, forward, length), but splitFrustum wants
+        the position from the forward face"""
+        unsteppedFrustum = (unsteppedFrustum[1], unsteppedFrustum[0], unsteppedFrustum[2])
+        steppedFrustum = (steppedFrustum[1], steppedFrustum[0], steppedFrustum[2])
 
          # Note that this assumes the forward end of the grain is still at postition 0 - inhibited
-        unsteppedPartialFrustrum, _ = geometry.splitFrustrum(*unsteppedFrustrum, position)
-        steppedPartialFrustrum, _ = geometry.splitFrustrum(*steppedFrustrum, position)
+        unsteppedPartialFrustum, _ = geometry.splitFrustum(*unsteppedFrustum, position)
+        steppedPartialFrustum, _ = geometry.splitFrustum(*steppedFrustum, position)
 
-        unsteppedVolume = geometry.frustrumVolume(*unsteppedPartialFrustrum)
-        steppedVolume = geometry.frustrumVolume(*steppedPartialFrustrum)
+        unsteppedVolume = geometry.frustumVolume(*unsteppedPartialFrustum)
+        steppedVolume = geometry.frustumVolume(*steppedPartialFrustum)
 
         massFlow = (steppedVolume - unsteppedVolume) * density / dTime
         massFlow += massIn
 
-        return massFlow, steppedPartialFrustrum[1]
+        return massFlow, steppedPartialFrustum[1]
 
     def getMassFlux(self, massIn, dTime, regDist, dRegDist, position, density):
         """Returns the mass flux at a point along the grain. Takes in the mass flow into the grain, a timestep, the
@@ -153,7 +155,7 @@ class ConicalGrain(Grain):
         """Returns the positions of the grain ends relative to the original (unburned) grain top. Returns a tuple like
         (forward, aft)"""
         originalLength = self.props['length'].getValue()
-        aftCoreDiameter, forwardCoreDiameter, currentLength = self.getFrustrumInfo(regDist)
+        aftCoreDiameter, forwardCoreDiameter, currentLength = self.getFrustumInfo(regDist)
         inhibitedEnds = self.props['inhibitedEnds'].getValue()
 
         if self.isCoreInverted():
@@ -177,7 +179,7 @@ class ConicalGrain(Grain):
 
     def getPortArea(self, regDist):
         """Returns the area of the grain's port when it has regressed a distance of 'regDist'"""
-        aftCoreDiameter, _, _ = self.getFrustrumInfo(regDist)
+        aftCoreDiameter, _, _ = self.getFrustumInfo(regDist)
 
         return geometry.circleArea(aftCoreDiameter)
 
