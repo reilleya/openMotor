@@ -28,4 +28,4 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Run unit tests
       run: |
-        PYTHONPATH=. python test/test.py
+        PYTHONPATH=. python test/unit.py
