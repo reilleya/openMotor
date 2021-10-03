@@ -71,15 +71,15 @@ class Propellant(PropertyCollection):
         errors = []
         for tabId, tab in enumerate(self.getProperty('tabs')):
             if tab['maxPressure'] == tab['minPressure']:
-                errText = 'Tab #' + str(tabId + 1) + ' has the same minimum and maximum pressures.'
+                errText = 'Tab #{} has the same minimum and maximum pressures.'.format(tabId + 1)
                 errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.VALUE, errText, 'Propellant'))
             if tab['maxPressure'] < tab['minPressure']:
-                errText = 'Tab #' + str(tabId + 1) + ' has reversed pressure limits.'
+                errText = 'Tab #{} has reversed pressure limits.'.format(tabId + 1)
                 errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.VALUE, errText, 'Propellant'))
             for otherTabId, otherTab in enumerate(self.getProperty('tabs')):
                 if tabId != otherTabId:
                     if otherTab['minPressure'] < tab['maxPressure'] < otherTab['maxPressure']:
-                        err = 'Tabs #' + str(tabId + 1) + ' and #' + str(otherTabId + 1) + ' have overlapping ranges.'
+                        err = 'Tabs #{} and #{} have overlapping ranges.'.format(tabId + 1, otherTabId + 1)
                         errors.append(SimAlert(SimAlertLevel.ERROR, SimAlertType.VALUE, err, 'Propellant'))
         return errors
 

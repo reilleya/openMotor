@@ -31,9 +31,9 @@ class PropellantTabEditor(CollectionEditor):
         else:
             dispUnit = 'm/s'
 
-        cStarText = str(int(convert(charVel, 'm/s', dispUnit))) + ' ' + dispUnit
+        cStarText = '{} {}'.format(int(convert(charVel, 'm/s', dispUnit)), dispUnit)
 
-        self.labelCStar.setText('Characteristic Velocity: ' + cStarText)
+        self.labelCStar.setText('Characteristic Velocity: {}'.format(cStarText))
         self.modified.emit()
 
     def cleanup(self):

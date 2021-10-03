@@ -104,12 +104,12 @@ class ResultsWidget(QWidget):
                     fromUnit = self.simResult.channels[field].unit
                     toUnit = self.preferences.getUnit(fromUnit)
                     val = motorlib.units.convert(self.simResult.channels[field].getPoint(index)[gid], fromUnit, toUnit)
-                    self.grainLabels[gid][field].setText(str(round(val, 3)) + ' ' + toUnit)
+                    self.grainLabels[gid][field].setText('{:.3f} {}'.format(val, toUnit))
 
             currentTime = self.simResult.channels['time'].getPoint(index)
             remainingTime = self.simResult.channels['time'].getLast() - currentTime
-            self.ui.labelTimeProgress.setText(str(round(currentTime, 3)) + ' s')
-            self.ui.labelTimeRemaining.setText(str(round(remainingTime, 3)) + ' s')
+            self.ui.labelTimeProgress.setText('{:.3f} s'.format(currentTime))
+            self.ui.labelTimeRemaining.setText('{:.3f} s'.format(remainingTime))
 
             currentImpulse = self.simResult.getImpulse(index)
             remainingImpulse = self.simResult.getImpulse() - currentImpulse
@@ -124,10 +124,10 @@ class ResultsWidget(QWidget):
             self.ui.labelMassRemaining.setText(motorlib.units.convFormat(currentMass, 'kg', massUnit))
 
             currentISP = self.simResult.getISP(index)
-            self.ui.labelISPProgress.setText(str(round(currentISP, 3)) + ' s')
+            self.ui.labelISPProgress.setText('{:.3f} s'.format(currentISP))
             if currentMass != 0:
                 remainingISP = remainingImpulse / (currentMass * 9.80665)
-                self.ui.labelISPRemaining.setText(str(round(remainingISP, 3)) + ' s')
+                self.ui.labelISPRemaining.setText('{:.3f} s'.format(remainingISP))
             else:
                 self.ui.labelISPRemaining.setText('-')
 

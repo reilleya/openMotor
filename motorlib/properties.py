@@ -23,7 +23,7 @@ class Property():
 
     def dispFormat(self, unit):
         """Returns a human-readable version of the property's current value, including the unit."""
-        return str(self.value) + ' ' + unit
+        return '{} {}'.format(self.value, unit)
 
 
 class FloatProperty(Property):
@@ -39,7 +39,7 @@ class FloatProperty(Property):
             super().setValue(value)
 
     def dispFormat(self, unit):
-        return str(round(units.convert(self.value, self.unit, unit), 6)) + ' ' + unit
+        return '{:.6g} {}'.format(units.convert(self.value, self.unit, unit), unit)
 
 
 class EnumProperty(Property):

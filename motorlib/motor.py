@@ -145,9 +145,9 @@ class Motor():
         for gid, grain in enumerate(self.grains):
             if isinstance(grain, EndBurningGrain) and gid != 0: # Endburners have to be at the foward end
                 aText = 'End burning grains must be the forward-most grain in the motor'
-                simRes.addAlert(SimAlert(SimAlertLevel.ERROR, SimAlertType.CONSTRAINT, aText, 'Grain ' + str(gid + 1)))
+                simRes.addAlert(SimAlert(SimAlertLevel.ERROR, SimAlertType.CONSTRAINT, aText, 'Grain {}'.format(gid + 1)))
             for alert in grain.getGeometryErrors():
-                alert.location = 'Grain ' + str(gid + 1)
+                alert.location = 'Grain {}'.format(gid + 1)
                 simRes.addAlert(alert)
         for alert in self.nozzle.getGeometryErrors():
             simRes.addAlert(alert)
@@ -197,8 +197,8 @@ class Motor():
             minAllowed = self.config.getProperty('minPortThroat')
             ratio = aftPort / geometry.circleArea(self.nozzle.props['throat'].getValue())
             if ratio < minAllowed:
-                desc = 'Initial port/throat ratio of ' + str(round(ratio, 3)) + ' was less than ' + str(minAllowed)
-                simRes.addAlert(SimAlert(SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, 'N/A'))
+                description = 'Initial port/throat ratio of {:.3f} was less than {:.3f}'.format(ratio, minAllowed)
+                simRes.addAlert(SimAlert(SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, description, 'N/A'))
 
         # Perform timesteps
         while simRes.shouldContinueSim(burnoutThrustThres):

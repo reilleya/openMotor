@@ -27,7 +27,7 @@ class PropertyEditor(QWidget):
         if isinstance(prop, motorlib.properties.FloatProperty):
             self.editor = QDoubleSpinBox()
 
-            self.editor.setSuffix(' ' + self.dispUnit)
+            self.editor.setSuffix(' {}'.format(self.dispUnit))
 
             convMin = motorlib.units.convert(self.prop.min, self.prop.unit, self.dispUnit)
             convMax = motorlib.units.convert(self.prop.max, self.prop.unit, self.dispUnit)

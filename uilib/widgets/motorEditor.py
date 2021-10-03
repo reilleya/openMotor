@@ -33,7 +33,7 @@ class MotorEditor(CollectionEditor):
             if throatDia == 0:
                 self.expRatioLabel.setText('Expansion ratio: -')
             else:
-                self.expRatioLabel.setText('Expansion ratio: ' + str(round((exitDia / throatDia) ** 2, 3)))
+                self.expRatioLabel.setText('Expansion ratio: {:.3f}'.format((exitDia / throatDia) ** 2))
             nozzle = self.objType()
             nozzle.setProperties(self.getProperties())
             self.nozzlePreview.loadNozzle(nozzle)

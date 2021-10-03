@@ -62,7 +62,7 @@ def getConfigPath():
     path = appdirs.user_data_dir('openMotor', 'openMotor')
     if not os.path.isdir(path): # Create directory if it doesn't exist
         os.mkdir(path)
-    return path + '/'
+    return '{}/'.format(path)
 
 def passthrough(data):
     return data

@@ -51,18 +51,18 @@ class GraphWidget(FigureCanvas):
                 self.plot.plot(xData, channel.getData(yUnit))
             if channel.valueType in (int, float):
                 if yUnit != '':
-                    legend.append(channel.name + ' - ' + yUnit)
+                    legend.append('{} - {}'.format(channel.name, yUnit))
                 else:
                     legend.append(channel.name)
             elif channel.valueType in (list, tuple):
                 for i in range(len(channel.getData()[0])):
                     if i in grains:
                         if yUnit != '':
-                            legend.append(channel.name + ' - Grain ' + str(i + 1) + ' - ' + yUnit)
+                            legend.append('{} - Grain {} - {}'.format(channel.name, i + 1, yUnit))
                         else:
-                            legend.append(channel.name + ' - Grain ' + str(i + 1))
+                            legend.append('{} - Grain {}'.format(channel.name, i + 1))
         self.plot.legend(legend)
-        self.plot.set_xlabel(simResult.channels[xChannel].name + ' - ' + xAxisUnit)
+        self.plot.set_xlabel('{} - {}'.format(simResult.channels[xChannel].name, xAxisUnit))
         self.plot.grid(True)
 
     def saveImage(self, simResult, xChannel, yChannels, grains, path):

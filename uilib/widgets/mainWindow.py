@@ -295,7 +295,7 @@ class Window(QMainWindow):
         self.ui.labelImpulse.setText(self.formatMotorStat(simResult.getImpulse(), 'Ns'))
         self.ui.labelDeliveredISP.setText(self.formatMotorStat(simResult.getISP(), 's'))
         self.ui.labelBurnTime.setText(self.formatMotorStat(simResult.getBurnTime(), 's'))
-        self.ui.labelVolumeLoading.setText(str(round(simResult.getVolumeLoading(), 2)) + ' %')
+        self.ui.labelVolumeLoading.setText('{:.2f}%'.format(simResult.getVolumeLoading()))
 
         self.ui.labelAveragePressure.setText(self.formatMotorStat(simResult.getAveragePressure(), 'Pa'))
         self.ui.labelPeakPressure.setText(self.formatMotorStat(simResult.getMaxPressure(), 'Pa'))

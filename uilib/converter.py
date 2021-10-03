@@ -30,7 +30,7 @@ class Exporter(Converter):
 
     def showFileSelector(self):
         """Open a dialog to pick the file to save to"""
-        title = 'Export ' + self.name
+        title = 'Export {}'.format(self.name)
         types = self.getFileTypeString()
         if not self.confirmOverwrite:
             path = QFileDialog.getSaveFileName(None, title, '', types, options=QFileDialog.DontConfirmOverwrite)[0]
@@ -74,7 +74,7 @@ class Importer(Converter):
     def showFileSelector(self):
         """Open a dialog to pick the file to load"""
         if self.manager.unsavedCheck():
-            path = QFileDialog.getOpenFileName(None, 'Import ' + self.name, '', self.getFileTypeString())[0]
+            path = QFileDialog.getOpenFileName(None, 'Import {}'.format(self.name), '', self.getFileTypeString())[0]
             if path != '':
                 return path
         return None

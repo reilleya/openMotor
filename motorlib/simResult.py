@@ -263,15 +263,15 @@ class SimulationResult():
             if self.channels[chan].valueType in (float, int):
                 out += self.channels[chan].name
                 if outUnits[chan] != '':
-                    out += '(' + outUnits[chan] + ')'
+                    out += '({})'.format(outUnits[chan])
                 out += ','
             elif self.channels[chan].valueType in (list, tuple):
                 for grain in range(1, len(self.channels[chan].getLast()) + 1):
                     if grain - 1 not in excludeGrains:
                         out += self.channels[chan].name + '('
-                        out += 'G' + str(grain)
+                        out += 'G{}'.format(grain)
                         if outUnits[chan] != '':
-                            out += ';' + outUnits[chan]
+                            out += ';{}'.format(outUnits[chan])
                         out += '),'
 
         out = out[:-1] # Remove the last comma

@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication, QMessageBox
 from PyQt5.QtGui import QIcon
 
 import motorlib
+from motorlib import simResult
 from uilib import preferencesManager, propellantManager, simulationManager, fileManager, toolManager
 from uilib import importExportManager
 import uilib.widgets.mainWindow
@@ -47,15 +48,18 @@ class App(QApplication):
                 sys.exit(1)
             else:
                 motor = self.fileManager.getCurrentMotor()
-                simres = motor.runSimulation()
-                for alert in simres.alerts:
-                    print(motorlib.alertLevelNames[alert.level] + '(' + motorlib.alertTypeNames[alert.type] + ', ' + alert.location + '): ' + alert.description)
+                simulationResult = motor.runSimulation()
+                for alert in simulationResult.alerts:
+                    print('{} ({}, {}): {}'.format(motorlib.simResult.alertLevelNames[alert.level],
+                        motorlib.simResult.alertTypeNames[alert.type],
+                        alert.location,
+                        alert.description))
                 print()
                 if '-o' in args:
                     with open(args[args.index('-o') + 1], 'w') as outputFile:
-                        outputFile.write(simres.getCSV(self.preferencesManager.preferences))
+                        outputFile.write(simulationResult.getCSV(self.preferencesManager.preferences))
                 else:
-                    print(simres.getCSV(self.preferencesManager.preferences))
+                    print(simulationResult.getCSV(self.preferencesManager.preferences))
             sys.exit(0)
 
         else:

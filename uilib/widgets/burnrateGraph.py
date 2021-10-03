@@ -32,8 +32,8 @@ class BurnrateGraph(FigureCanvas):
             rateUnit = 'mm/s'
 
         self.plot.plot(convertAll(points[0], 'Pa', presUnit), convertAll(points[1], 'm/s', rateUnit))
-        self.plot.set_xlabel('Pressure - ' + presUnit)
-        self.plot.set_ylabel('Burn Rate - ' + rateUnit)
+        self.plot.set_xlabel('Pressure - {}'.format(presUnit))
+        self.plot.set_ylabel('Burn Rate - {}'.format(rateUnit))
         self.plot.grid(True)
         self.figure.subplots_adjust(top=0.95, bottom=0.25)
         self.draw()

@@ -95,5 +95,5 @@ def convertAll(quantities, originUnit, destUnit):
 def convFormat(quantity, originUnit, destUnit, places=3):
     """Takes in a quantity in originUnit, converts it to destUnit and outputs a rounded and formatted string that
     includes the unit appended to the end."""
-    num = round(convert(quantity, originUnit, destUnit), places)
-    return str(num) + ' ' + destUnit
+    rounded = round(convert(quantity, originUnit, destUnit), places)
+    return '{} {}'.format(rounded, destUnit)
