@@ -1,7 +1,10 @@
 # -*- mode: python -*-
 
-block_cipher = None
+# Run with `pyinstaller --windowed --onefile`
 
+from uilib.fileIO import appVersionStr
+
+block_cipher = None
 
 a = Analysis(['../main.py'],
              pathex=['../'],
@@ -33,4 +36,8 @@ exe = EXE(pyz,
 app = BUNDLE(exe,
              name='openMotor.app',
              icon='../resources/oMIconCycles.icns',
+             version=appVersionStr,
+             info_plist={
+              'NSHighResolutionCapable': True,
+             },
              bundle_identifier=None)
