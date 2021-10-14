@@ -15,7 +15,7 @@ class InitialKNTool(Tool):
     def applyChanges(self, inp, motor, simulation):
         for grain in motor.grains:
             grain.simulationSetup(self.preferences)
-        surfArea = motor.calcKN([0 for grain in motor.grains]) * motorlib.geometry.circleArea(motor.nozzle.props['throat'].getValue())
+        surfArea = motor.calcBurningSurfaceArea([0 for grain in motor.grains])
         throatArea = surfArea / inp['Kn']
         motor.nozzle.props['throat'].setValue(motorlib.geometry.circleDiameterFromArea(throatArea))
         self.manager.updateMotor(motor)
