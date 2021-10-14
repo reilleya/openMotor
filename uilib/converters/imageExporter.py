@@ -18,7 +18,8 @@ class ImageExportMenu(QDialog):
     def exec(self):
         self.ui.independent.resetChecks()
         self.ui.independent.setupChecks(False, exclude=['kn', 'pressure', 'force', 'mass',
-                                                        'massFlow', 'massFlux', 'exitPressure', 'dThroat'])
+                                                        'massFlow', 'massFlux', 'exitPressure', 'dThroat'],
+                                        default='time')
         self.ui.independent.checksChanged.connect(self.validateChecks)
         self.ui.dependent.resetChecks()
         self.ui.dependent.setupChecks(True)
