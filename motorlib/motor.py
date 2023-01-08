@@ -17,12 +17,15 @@ class MotorConfig(PropertyCollection):
         self.props['maxPressure'] = FloatProperty('Maximum Allowed Pressure', 'Pa', 0, 7e7)
         self.props['maxMassFlux'] = FloatProperty('Maximum Allowed Mass Flux', 'kg/(m^2*s)', 0, 1e4)
         self.props['minPortThroat'] = FloatProperty('Minimum Allowed Port/Throat Ratio', '', 1, 4)
+        self.props['flowSeparationWarnPercent'] = FloatProperty('Flow Separation Warning Threshold', '', 0.00, 1)
         # Simulation
         self.props['burnoutWebThres'] = FloatProperty('Web Burnout Threshold', 'm', 2.54e-5, 3.175e-3)
         self.props['burnoutThrustThres'] = FloatProperty('Thrust Burnout Threshold', '%', 0.01, 10)
         self.props['timestep'] = FloatProperty('Simulation Timestep', 's', 0.0001, 0.1)
         self.props['ambPressure'] = FloatProperty('Ambient Pressure', 'Pa', 0.0001, 102000)
         self.props['mapDim'] = IntProperty('Grain Map Dimension', '', 250, 2000)
+        self.props['sepPressureRatio'] = FloatProperty('Separation Pressure Ratio', '', 0.001, 1)
+
 
 
 class Motor():
@@ -278,6 +281,11 @@ class Motor():
         if simRes.getMaxPressure() > self.config.getProperty('maxPressure'):
             desc = 'Max pressure exceeded configured limit'
             alert = SimAlert(SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, 'Motor')
+            simRes.addAlert(alert)
+
+        if (simRes.getPercentBelowThreshold('exitPressure', self.config.getProperty('ambPressure') * self.config.getProperty('sepPressureRatio')) > self.config.getProperty('flowSeparationWarnPercent')):
+            desc = 'Low exit pressure, nozzle flow may separate'
+            alert = SimAlert(SimAlertLevel.WARNING, SimAlertType.VALUE, desc, 'Nozzle')
             simRes.addAlert(alert)
 
         # Note that this only adds all errors found on the first datapoint where there were errors to avoid repeating

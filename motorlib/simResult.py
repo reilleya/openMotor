@@ -90,6 +90,13 @@ class LogChannel():
         if self.valueType in (list, tuple):
             return max([max(l) for l in self.data])
         return max(self.data)
+        
+    def getMin(self):
+        """Returns the minimum value of all datapoints. For list datatypes, this operation finds the smallest single
+        value in any list."""
+        if self.valueType in (list, tuple):
+            return min([min(l) for l in self.data])
+        return min(self.data)
 
 singleValueChannels = ['time', 'kn', 'pressure', 'force', 'volumeLoading', 'exitPressure', 'dThroat']
 multiValueChannels = ['mass', 'massFlow', 'massFlux', 'regression', 'web']
@@ -143,6 +150,20 @@ class SimulationResult():
     def getMaxPressure(self):
         """Returns the highest chamber pressure that was observed during the motor's burn."""
         return self.channels['pressure'].getMax()
+        
+    def getMinExitPressure(self):
+        """Returns the lowest exit pressure that was observed during the motor's burn, ignoring startup and shutdown transients"""
+        exit_pressures = self.channels['exitPressure'].getData()
+        return min(exit_pressures)
+        
+    def getPercentBelowThreshold(self, channel, threshold):
+        """Returns the total number of seconds spent below a given threshold value"""
+        count = 0
+        data = self.channels[channel].getData()
+        for point in data:
+            if point < threshold:
+                count += 1
+        return count/len(data)
 
     def getImpulse(self, stop=None):
         """Returns the impulse the simulated motor produced. If 'stop' is set to a value other than None, only the
