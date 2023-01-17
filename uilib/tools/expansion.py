@@ -14,7 +14,7 @@ class ExpansionTool(Tool):
 
     def applyChanges(self, inp, motor, simulation):
         _, _, k, _, _ = motor.propellant.getCombustionProperties(simulation.getAveragePressure())
-        pRatio = self.preferences.general.props['ambPressure'].getValue() / simulation.getAveragePressure()
+        pRatio = motor.config.props['ambPressure'].getValue() / simulation.getAveragePressure()
 
         aRatio = ((k + 1) / 2) ** (1 / (k - 1)) * pRatio ** (1 / k) * (((k + 1) / (k - 1)) * (1 - (pRatio ** ((k - 1) / k)))) ** 0.5
 
