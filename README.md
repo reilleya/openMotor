@@ -30,7 +30,7 @@ The easiest way to use openMotor is to navigate to the 'releases' sidebar, click
 
 Building from Source
 --------------------
-The program is currently being developed using python 3.8. The dependencies are outlined in `requirements.txt`, the main ones include `PyQt5`, `matplot`, `numpy`, `scipy`, `scikit-fmm`, and `scikit-image`. Because the PyQt5 bindings are used for the GUI, Qt5 must also be installed.
+The program is currently being developed using python 3.10. The dependencies are outlined in `requirements.txt`, the main ones include `PyQt5`, `matplot`, `numpy`, `scipy`, `scikit-fmm`, and `scikit-image`. Because the PyQt5 bindings are used for the GUI, Qt5 must also be installed.
 
 The easiest way to build/run from source code is to clone the repository and install the required dependencies into a virtual enviornment:
 ```
