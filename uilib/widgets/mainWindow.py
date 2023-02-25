@@ -86,6 +86,8 @@ class Window(QMainWindow):
         self.ui.actionOpen.triggered.connect(lambda x: self.loadMotor(None))
 
         self.app.importExportManager.createMenus(self.ui.menuImport, self.ui.menuExport)
+        self.app.fileManager.createRecentlyOpenedMenu(self.ui.menuOpen_Recent)
+        self.ui.menuOpen_Recent.aboutToShow.connect(self.app.fileManager.updateRecentlyOpenedMenu)
 
         self.ui.actionQuit.triggered.connect(self.closeEvent)
 
