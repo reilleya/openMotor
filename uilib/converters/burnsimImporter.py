@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 
 import motorlib
+from numpy import pi, cos
 
 from ..converter import Importer
 
@@ -9,6 +10,7 @@ SUPPORTED_GRAINS = {
     '1': motorlib.grains.BatesGrain,
     '2': motorlib.grains.DGrain,
     '3': motorlib.grains.MoonBurner,
+    '4': motorlib.grains.StarGrain,
     '5': motorlib.grains.CGrain,
     '6': motorlib.grains.XCore,
     '7': motorlib.grains.Finocyl
@@ -16,7 +18,6 @@ SUPPORTED_GRAINS = {
 
 # BS type -> label for grains we know about but can't import
 UNSUPPORTED_GRAINS = {
-    '4': 'Star',
     '8': 'Tablet',
     '9': 'Pie Segment'
 }
@@ -93,6 +94,16 @@ class BurnSimImporter(Importer):
 
                     elif grainType == '3': # Moonburner specific properties
                         motor.grains[-1].setProperty('coreOffset', inToM(child.attrib['CoreOffset']))
+                        
+                    elif grainType == '4': #Star Grain:
+                        numPoints = int(child.attrib['Points'])
+                        minorRadius = float(child.attrib['MinorWidth'])/2
+                        majorRadius = float(child.attrib['MajorWidth'])/2
+                        base_length = minorRadius * (2-(2*cos((2*pi)/numPoints)))**.5
+                        point_height = majorRadius - (minorRadius*cos(pi/numPoints))
+                        motor.grains[-1].setProperty('numPoints', numPoints)
+                        motor.grains[-1].setProperty('pointLength', inToM(point_height))
+                        motor.grains[-1].setProperty('pointWidth', inToM(base_length))
 
                     elif grainType == '5': # C grain specific properties
                         motor.grains[-1].setProperty('slotWidth', inToM(child.attrib['SlotWidth']))
