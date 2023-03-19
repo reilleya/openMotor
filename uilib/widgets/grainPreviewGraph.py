@@ -38,7 +38,7 @@ class GrainPreviewGraph(FigureCanvas):
             self.image = None
         if self.numContours > 0:
             for _ in range(0, self.numContours):
-                self.plot.lines.pop(0)
+                self.plot.lines[0].remove()
             self.numContours = 0
         self.draw()
 

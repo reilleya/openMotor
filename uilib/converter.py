@@ -1,6 +1,6 @@
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QFileDialog, QApplication
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtCore import QObject
+from PyQt6.QtWidgets import QFileDialog, QApplication
+from PyQt6.QtCore import pyqtSignal
 
 class Converter(QObject):
     def __init__(self, manager, name, description, fileTypes):

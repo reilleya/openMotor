@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QTableWidgetItem, QHeaderView, QApplication
+from PyQt6.QtWidgets import QDialog, QTableWidgetItem, QHeaderView, QApplication
 
 from motorlib.simResult import alertLevelNames, alertTypeNames
 
@@ -13,10 +13,10 @@ class SimulationAlertsDialog(QDialog):
         self.setWindowIcon(QApplication.instance().icon)
 
         header = self.ui.tableWidgetAlerts.horizontalHeader()
-        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(3, QHeaderView.Stretch)
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
 
         self.hide()
 

@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal
 
 from motorlib.properties import PropertyCollection, FloatProperty, IntProperty, EnumProperty
 from motorlib.units import unitLabels, getAllConversions

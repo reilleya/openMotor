@@ -1,8 +1,8 @@
 import math
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit
-from PyQt5.QtWidgets import QDoubleSpinBox, QSpinBox, QComboBox
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLineEdit
+from PyQt6.QtWidgets import QDoubleSpinBox, QSpinBox, QComboBox
+from PyQt6.QtCore import pyqtSignal
 
 import motorlib
 

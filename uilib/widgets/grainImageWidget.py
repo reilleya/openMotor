@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt6.QtWidgets import QLabel
+from PyQt6.QtGui import QPixmap, QImage
 import numpy as np
 
 class GrainImageWidget(QLabel):
@@ -8,6 +8,6 @@ class GrainImageWidget(QLabel):
         image = np.logical_not(image.filled())
         image = image.astype(np.uint8) * 255
         height, width = image.shape
-        qImg = QImage(image.data, width, height, QImage.Format_Grayscale8)
+        qImg = QImage(image.data, width, height, QImage.Format.Format_Grayscale8)
         pixmap = QPixmap(qImg)
         self.setPixmap(pixmap)

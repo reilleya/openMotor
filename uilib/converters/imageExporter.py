@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QApplication
+from PyQt6.QtWidgets import QDialog, QApplication
 
 from motorlib.simResult import singleValueChannels, multiValueChannels
 from ..converter import Exporter

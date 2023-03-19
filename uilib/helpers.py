@@ -1,3 +1,3 @@
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 
-FLAGS_NO_ICON = Qt.Dialog | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowCloseButtonHint
+FLAGS_NO_ICON = Qt.WindowType.Dialog | Qt.WindowType.CustomizeWindowHint | Qt.WindowType.WindowTitleHint | Qt.WindowType.WindowCloseButtonHint
