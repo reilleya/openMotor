@@ -1,6 +1,5 @@
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QAction
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtGui import QAction
 
 from .tools import ChangeDiameterTool, InitialKNTool, MaxKNTool
 from .tools import ExpansionTool

@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import QWidget, QFormLayout, QVBoxLayout, QHBoxLayout
-from PyQt5.QtWidgets import QLabel, QPushButton
-from PyQt5.QtWidgets import QSpacerItem, QSizePolicy
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QWidget, QFormLayout, QVBoxLayout, QHBoxLayout
+from PyQt6.QtWidgets import QLabel, QPushButton
+from PyQt6.QtWidgets import QSpacerItem, QSizePolicy
+from PyQt6.QtCore import pyqtSignal
 
 from .propertyEditor import PropertyEditor
 
@@ -27,7 +27,7 @@ class CollectionEditor(QWidget):
         self.layout().addLayout(self.stats)
 
 
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.layout().addItem(self.verticalSpacer)
 
         self.buttons = buttons
@@ -71,7 +71,7 @@ class CollectionEditor(QWidget):
             self.propertyEditors[prop] = PropertyEditor(self, obj.props[prop], self.preferences)
             self.propertyEditors[prop].valueChanged.connect(self.propertyUpdate)
             label = QLabel('{}:'.format(obj.props[prop].dispName))
-            label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+            label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
             self.form.addRow(label, self.propertyEditors[prop])
         if self.buttons:
             self.applyButton.show()

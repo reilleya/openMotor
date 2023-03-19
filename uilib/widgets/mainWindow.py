@@ -1,7 +1,7 @@
 import sys
 
-from PyQt5.QtWidgets import QWidget, QMainWindow, QTableWidgetItem, QHeaderView, QTableWidget
-from PyQt5.QtCore import Qt
+from PyQt6.QtWidgets import QWidget, QMainWindow, QTableWidgetItem, QHeaderView, QTableWidget
+from PyQt6.QtCore import Qt
 
 import motorlib
 import uilib.widgets.aboutDialog
@@ -132,8 +132,8 @@ class Window(QMainWindow):
         self.ui.tableWidgetGrainList.clearContents()
 
         header = self.ui.tableWidgetGrainList.horizontalHeader()
-        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(1, QHeaderView.Stretch)
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
 
         self.updateGrainTable()
 
@@ -381,6 +381,6 @@ class Window(QMainWindow):
         self.setupGraph()
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Delete or event.key() == Qt.Key_Backspace:
+        if event.key() == Qt.Key.Key_Delete or event.key() == Qt.Key.Key_Backspace:
             if len(self.ui.tableWidgetGrainList.selectedItems()) != 0:
                 self.deleteGrain()

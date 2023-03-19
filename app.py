@@ -1,7 +1,7 @@
 import sys
 
-from PyQt5.QtWidgets import QApplication, QMessageBox
-from PyQt5.QtGui import QIcon
+from PyQt6.QtWidgets import QApplication, QMessageBox
+from PyQt6.QtGui import QIcon
 
 import motorlib
 from motorlib import simResult
@@ -80,7 +80,7 @@ class App(QApplication):
             msg.setWindowIcon(self.icon)
             msg.setText(content)
             msg.setWindowTitle(title)
-            msg.exec_()
+            msg.exec()
 
     def outputException(self, exception, text, title='openMotor - Error'):
         if self.headless:
@@ -93,4 +93,4 @@ class App(QApplication):
             msg.setText(text)
             msg.setInformativeText(str(exception))
             msg.setWindowTitle(title)
-            msg.exec_()
+            msg.exec()

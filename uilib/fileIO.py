@@ -2,7 +2,7 @@ from enum import Enum
 import os
 import platform
 
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication
 import yaml
 import appdirs
 
