@@ -9,7 +9,7 @@ import appdirs
 from .defaults import DEFAULT_PREFERENCES, DEFAULT_PROPELLANTS, KNSU_PROPS
 from .logger import logger
 
-appVersion = (0, 5, 0)
+appVersion = (0, 6, 0)
 appVersionStr = '.'.join(map(str, appVersion))
 
 class fileTypes(Enum):
@@ -65,6 +65,13 @@ def getConfigPath():
     return '{}/'.format(path)
 
 def passthrough(data):
+    return data
+    
+    
+#0.5.0 to 0.6.0
+def migrateMotor_0_5_0_to_0_6_0(data):
+    data['config']['sepPressureRatio'] = DEFAULT_PREFERENCES['general']['sepPressureRatio']
+    data['config']['flowSeparationWarnPercent'] = DEFAULT_PREFERENCES['general']['flowSeparationWarnPercent']
     return data
 
 # 0.4.0 to 0.5.0
@@ -148,6 +155,12 @@ def migrateMotor_0_2_0_to_0_3_0(data):
     return data
 
 migrations = {
+    (0, 5, 0): {
+        'to': (0, 6, 0),
+        fileTypes.PREFERENCES: passthrough,
+        fileTypes.PROPELLANTS: passthrough,
+        fileTypes.MOTOR: migrateMotor_0_5_0_to_0_6_0
+    },
     (0, 4, 0): {
         'to': (0, 5, 0),
         fileTypes.PREFERENCES: migratePref_0_4_0_to_0_5_0,
