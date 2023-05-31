@@ -1,10 +1,11 @@
 from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QFileDialog, QMessageBox, QAction
 from PyQt5.QtCore import pyqtSignal
 
 import motorlib
 
-from .fileIO import saveFile, loadFile, fileTypes
+from .recentFile import RecentFile
+from .fileIO import saveFile, loadFile, fileTypes, getConfigPath
 from .helpers import FLAGS_NO_ICON
 from .logger import logger
 
@@ -24,6 +25,10 @@ class FileManager(QObject):
         self.fileName = None
 
         self.newFile()
+        
+        self.recentlyOpenedFiles = []
+        self.recentFiles = getConfigPath() + 'recentfiles.txt'
+        
 
     # Check if current motor is unsaved and start over from default motor. Called when the menu item is triggered.
     def newFile(self):
@@ -80,6 +85,7 @@ class FileManager(QObject):
                         motor = motorlib.motor.Motor()
                         motor.applyDict(res)
                         self.startFromMotor(motor, path)
+                        self.addRecentFile(path)
                         return True
                 except Exception as exc:
                     self.app.outputException(exc, "An error occurred while loading the file: ")
@@ -210,3 +216,46 @@ class FileManager(QObject):
                                'New propellant added')
 
         return motor
+        
+        
+    def createRecentlyOpenedMenu(self, recentlyOpenedMenu):
+        self.recentlyOpenedMenu = recentlyOpenedMenu
+        self.updateRecentlyOpenedMenu()
+        
+        
+    def updateRecentlyOpenedMenu(self):
+        self.recentlyOpenedMenu.clear()
+        self.recentlyOpenedFiles = []
+        
+        with open(self.recentFiles, "r+") as recentFilesList:
+            lines = recentFilesList.readlines()
+            for line in lines:
+                recentFile = RecentFile(line[:-1], self)
+                self.recentlyOpenedFiles.append(recentFile)
+    
+        if len(self.recentlyOpenedFiles) == 0:
+            noFilesAction = QAction("No Recent Files", self.recentlyOpenedMenu)
+            self.recentlyOpenedMenu.addAction(noFilesAction)
+        else:
+            for recentFile in self.recentlyOpenedFiles:
+                action = QAction(recentFile.name, self.recentlyOpenedMenu)
+                action.setStatusTip(recentFile.filepath)
+                action.triggered.connect(recentFile.open)
+                self.recentlyOpenedMenu.addAction(action)
+                
+    def addRecentFile(self, filepath):
+        recentFilepaths = []
+        too_long = False
+        for recentFile in self.recentlyOpenedFiles:
+                recentFilepaths.append(recentFile.filepath)
+                
+        if len(recentFilepaths) > 5:
+            recentFilepaths = recentFilepaths[1:]
+                
+        if filepath in recentFilepaths:
+            recentFilepaths.remove(filepath)
+
+        recentFilepaths.append(filepath)
+        with open(self.recentFiles, "w") as recentFilesList:
+            for i in recentFilepaths:
+                recentFilesList.write(i+"\n")
