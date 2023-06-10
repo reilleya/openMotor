@@ -1,6 +1,7 @@
 """D Grain submodule"""
 from ..enums.simAlertLevel import SimAlertLevel
 from ..enums.simAlertType import SimAlertType
+from ..enums.units.LengthUnit import LengthUnit
 from ..grain import FmmGrain
 from ..properties import FloatProperty
 from ..simResult import SimAlert
@@ -11,7 +12,7 @@ class DGrain(FmmGrain):
     geomName = 'D Grain'
     def __init__(self):
         super().__init__()
-        self.props['slotOffset'] = FloatProperty('Slot offset', 'm', -1, 1)
+        self.props['slotOffset'] = FloatProperty('Slot offset', LengthUnit.METER, -1, 1)
 
         self.props['slotOffset'].setValue(0)
 
@@ -20,7 +21,7 @@ class DGrain(FmmGrain):
 
         self.coreMap[self.mapX > slotOffset] = 0
 
-    def getDetailsString(self, lengthUnit='m'):
+    def getDetailsString(self, lengthUnit=LengthUnit.METER):
         return 'Length: {}, Slot offset: {}'.format(self.props['length'].dispFormat(lengthUnit),
                                                     self.props['slotOffset'].dispFormat(lengthUnit))
 

@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import QDialog, QApplication
 
 from motorlib.enums.singleValueChannels import SingleValueChannels
+from motorlib.enums.units.LengthUnit import LengthUnit
+from motorlib.enums.units.MassUnit import MassUnit
 from motorlib.properties import PropertyCollection, FloatProperty, StringProperty, EnumProperty
 from ..converter import Exporter
 
@@ -9,9 +11,9 @@ from ..views.EngExporter_ui import Ui_EngExporterDialog
 class EngSettings(PropertyCollection):
     def __init__(self):
         super().__init__()
-        self.props['diameter'] = FloatProperty('Motor Diameter', 'm', 0, 1)
-        self.props['length'] = FloatProperty('Motor Length', 'm', 0, 4)
-        self.props['hardwareMass'] = FloatProperty('Hardware Mass', 'kg', 0, 1000)
+        self.props['diameter'] = FloatProperty('Motor Diameter', LengthUnit.METER, 0, 1)
+        self.props['length'] = FloatProperty('Motor Length', LengthUnit.METER, 0, 4)
+        self.props['hardwareMass'] = FloatProperty('Hardware Mass', MassUnit.KILOGRAM, 0, 1000)
         self.props['designation'] = StringProperty('Motor Designation')
         self.props['manufacturer'] = StringProperty('Motor Manufacturer')
         self.props['append'] = EnumProperty('Existing File', ['Append', 'Overwrite'])

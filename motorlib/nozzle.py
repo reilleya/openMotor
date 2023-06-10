@@ -5,6 +5,9 @@ from scipy.optimize import fsolve
 
 from .enums.simAlertLevel import SimAlertLevel
 from .enums.simAlertType import SimAlertType
+from .enums.units.LengthUnit import LengthUnit
+from .enums.units.NozzleErosionCoefficientUnit import NozzleErosionCoefficientUnit
+from .enums.units.NozzleSlagCoefficientUnit import NozzleSlagCoefficientUnit
 from .properties import FloatProperty, PropertyCollection
 from . import geometry
 from .simResult import SimAlert
@@ -18,16 +21,16 @@ class Nozzle(PropertyCollection):
     """An object that contains the details about a motor's nozzle."""
     def __init__(self):
         super().__init__()
-        self.props['throat'] = FloatProperty('Throat Diameter', 'm', 0, 0.5)
-        self.props['exit'] = FloatProperty('Exit Diameter', 'm', 0, 1)
+        self.props['throat'] = FloatProperty('Throat Diameter', LengthUnit.METER, 0, 0.5)
+        self.props['exit'] = FloatProperty('Exit Diameter', LengthUnit.METER, 0, 1)
         self.props['efficiency'] = FloatProperty('Efficiency', '', 0, 2)
         self.props['divAngle'] = FloatProperty('Divergence Half Angle', 'deg', 0, 90)
         self.props['convAngle'] = FloatProperty('Convergence Half Angle', 'deg', 0, 90)
-        self.props['throatLength'] = FloatProperty('Throat Length', 'm', 0, 0.5)
-        self.props['slagCoeff'] = FloatProperty('Slag Buildup Coefficient', '(m*Pa)/s', 0, 1e6)
-        self.props['erosionCoeff'] = FloatProperty('Throat Erosion Coefficient', 'm/(s*Pa)', 0, 1e6)
+        self.props['throatLength'] = FloatProperty('Throat Length', LengthUnit.METER, 0, 0.5)
+        self.props['slagCoeff'] = FloatProperty('Slag Buildup Coefficient', NozzleSlagCoefficientUnit.METER_PASCAL_PER_SECOND, 0, 1e6)
+        self.props['erosionCoeff'] = FloatProperty('Throat Erosion Coefficient', NozzleErosionCoefficientUnit.METER_PER_SECOND_PASCAL, 0, 1e6)
 
-    def getDetailsString(self, lengthUnit='m'):
+    def getDetailsString(self, lengthUnit=LengthUnit.METER):
         """Returns a human-readable string containing some details about the nozzle."""
         return 'Throat: {}'.format(self.props['throat'].dispFormat(lengthUnit))
 

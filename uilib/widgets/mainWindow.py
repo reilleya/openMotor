@@ -1,12 +1,18 @@
 import sys
 
-from PyQt5.QtWidgets import QWidget, QMainWindow, QTableWidgetItem, QHeaderView, QTableWidget
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QHeaderView
 
 import motorlib
 import uilib.widgets.aboutDialog
 import uilib.widgets.preferencesMenu
+from motorlib.enums.units.ImpulseUnit import ImpulseUnit
+from motorlib.enums.units.LengthUnit import LengthUnit
+from motorlib.enums.units.MassFluxUnit import MassFluxUnit
+from motorlib.enums.units.MassUnit import MassUnit
+from motorlib.enums.units.PressureUnit import PressureUnit
 from uilib.views.MainWindow_ui import Ui_MainWindow
+
 
 class Window(QMainWindow):
     def __init__(self, app):
@@ -25,10 +31,14 @@ class Window(QMainWindow):
 
         self.app.propellantManager.updated.connect(self.propListChanged)
 
-        self.motorStatLabels = [self.ui.labelMotorDesignation, self.ui.labelImpulse, self.ui.labelDeliveredISP, self.ui.labelBurnTime,  self.ui.labelVolumeLoading,
-                                self.ui.labelAveragePressure, self.ui.labelPeakPressure, self.ui.labelInitialKN, self.ui.labelPeakKN, self.ui.labelIdealThrustCoefficient,
-                                self.ui.labelPropellantMass, self.ui.labelPropellantLength, self.ui.labelPortThroatRatio, self.ui.labelPeakMassFlux, self.ui.labelDeliveredThrustCoefficient
-                               ]
+        self.motorStatLabels = [self.ui.labelMotorDesignation, self.ui.labelImpulse, self.ui.labelDeliveredISP,
+                                self.ui.labelBurnTime, self.ui.labelVolumeLoading,
+                                self.ui.labelAveragePressure, self.ui.labelPeakPressure, self.ui.labelInitialKN,
+                                self.ui.labelPeakKN, self.ui.labelIdealThrustCoefficient,
+                                self.ui.labelPropellantMass, self.ui.labelPropellantLength,
+                                self.ui.labelPortThroatRatio, self.ui.labelPeakMassFlux,
+                                self.ui.labelDeliveredThrustCoefficient
+                                ]
 
         self.app.fileManager.fileNameChanged.connect(self.updateWindowTitle)
         self.app.fileManager.newMotor.connect(self.resetOutput)
@@ -144,7 +154,7 @@ class Window(QMainWindow):
 
         self.ui.tableWidgetGrainList.itemSelectionChanged.connect(self.checkGrainSelection)
         self.checkGrainSelection()
-        
+
         self.ui.tableWidgetGrainList.doubleClicked.connect(self.doubleClickGrainSelector)
 
     def setupGraph(self):
@@ -189,7 +199,8 @@ class Window(QMainWindow):
             self.ui.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString(lengthUnit)))
 
         self.ui.tableWidgetGrainList.setItem(len(cm.grains), 0, QTableWidgetItem('Nozzle'))
-        self.ui.tableWidgetGrainList.setItem(len(cm.grains), 1, QTableWidgetItem(cm.nozzle.getDetailsString(lengthUnit)))
+        self.ui.tableWidgetGrainList.setItem(len(cm.grains), 1,
+                                             QTableWidgetItem(cm.nozzle.getDetailsString(lengthUnit)))
 
         self.ui.tableWidgetGrainList.setItem(len(cm.grains) + 1, 0, QTableWidgetItem('Config'))
         self.ui.tableWidgetGrainList.setItem(len(cm.grains) + 1, 1, QTableWidgetItem('-'))
@@ -215,11 +226,11 @@ class Window(QMainWindow):
         if len(ind) > 0:
             gid = ind[0].row()
             self.toggleGrainButtons(True)
-            if gid == 0: # Top grain selected
+            if gid == 0:  # Top grain selected
                 self.ui.pushButtonMoveGrainUp.setEnabled(False)
-            if gid == len(cm.grains) - 1: # Bottom grain selected
+            if gid == len(cm.grains) - 1:  # Bottom grain selected
                 self.ui.pushButtonMoveGrainDown.setEnabled(False)
-            if gid >= len(cm.grains): # Nozzle or config selected
+            if gid >= len(cm.grains):  # Nozzle or config selected
                 self.ui.pushButtonMoveGrainUp.setEnabled(False)
                 self.ui.pushButtonMoveGrainDown.setEnabled(False)
                 self.ui.pushButtonDeleteGrain.setEnabled(False)
@@ -292,31 +303,33 @@ class Window(QMainWindow):
 
     def updateMotorStats(self, simResult):
         self.ui.labelMotorDesignation.setText(simResult.getDesignation())
-        self.ui.labelImpulse.setText(self.formatMotorStat(simResult.getImpulse(), 'Ns'))
+        self.ui.labelImpulse.setText(self.formatMotorStat(simResult.getImpulse(), ImpulseUnit.NEWTON_SECOND))
         self.ui.labelDeliveredISP.setText(self.formatMotorStat(simResult.getISP(), 's'))
         self.ui.labelBurnTime.setText(self.formatMotorStat(simResult.getBurnTime(), 's'))
         self.ui.labelVolumeLoading.setText('{:.2f}%'.format(simResult.getVolumeLoading()))
 
-        self.ui.labelAveragePressure.setText(self.formatMotorStat(simResult.getAveragePressure(), 'Pa'))
-        self.ui.labelPeakPressure.setText(self.formatMotorStat(simResult.getMaxPressure(), 'Pa'))
+        self.ui.labelAveragePressure.setText(self.formatMotorStat(simResult.getAveragePressure(), PressureUnit.PASCAL))
+        self.ui.labelPeakPressure.setText(self.formatMotorStat(simResult.getMaxPressure(), PressureUnit.PASCAL))
         self.ui.labelInitialKN.setText(self.formatMotorStat(simResult.getInitialKN(), ''))
         self.ui.labelPeakKN.setText(self.formatMotorStat(simResult.getPeakKN(), ''))
         self.ui.labelIdealThrustCoefficient.setText(self.formatMotorStat(simResult.getIdealThrustCoefficient(), ''))
 
-        self.ui.labelPropellantMass.setText(self.formatMotorStat(simResult.getPropellantMass(), 'kg'))
-        self.ui.labelPropellantLength.setText(self.formatMotorStat(simResult.getPropellantLength(), 'm'))
+        self.ui.labelPropellantMass.setText(self.formatMotorStat(simResult.getPropellantMass(), MassUnit.KILOGRAM))
+        self.ui.labelPropellantLength.setText(self.formatMotorStat(simResult.getPropellantLength(), LengthUnit.METER))
 
         # These only make sense for grains with cores, so blank them out for endburners
         if simResult.getPortRatio() is not None:
             self.ui.labelPortThroatRatio.setText(self.formatMotorStat(simResult.getPortRatio(), ''))
-            peakMassFluxQuantity = self.formatMotorStat(simResult.getPeakMassFlux(), 'kg/(m^2*s)')
+            peakMassFluxQuantity = self.formatMotorStat(simResult.getPeakMassFlux(),
+                                                        MassFluxUnit.KILOGRAM_PER_SQUARE_METER_PER_SECOND)
             peakMassFluxGrain = simResult.getPeakMassFluxLocation() + 1
             self.ui.labelPeakMassFlux.setText('{} (G: {})'.format(peakMassFluxQuantity, peakMassFluxGrain))
 
         else:
             self.ui.labelPortThroatRatio.setText('-')
             self.ui.labelPeakMassFlux.setText('-')
-        self.ui.labelDeliveredThrustCoefficient.setText(self.formatMotorStat(simResult.getAdjustedThrustCoefficient(), ''))
+        self.ui.labelDeliveredThrustCoefficient.setText(
+            self.formatMotorStat(simResult.getAdjustedThrustCoefficient(), ''))
 
     def runSimulation(self):
         self.resetOutput()
@@ -361,7 +374,7 @@ class Window(QMainWindow):
 
     # Clear out all info related to old motor/sim in the interface
     def postLoadUpdate(self):
-        self.disablePropSelector() # It is enabled again at the end of updatePropBoxSelection
+        self.disablePropSelector()  # It is enabled again at the end of updatePropBoxSelection
         self.resetOutput()
         self.updateGrainTable()
         self.populatePropSelector()

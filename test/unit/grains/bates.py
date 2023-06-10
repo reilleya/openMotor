@@ -2,6 +2,7 @@ import unittest
 import motorlib.grains
 from motorlib.enums.simAlertLevel import SimAlertLevel
 from motorlib.enums.simAlertType import SimAlertType
+from motorlib.enums.units.LengthUnit import LengthUnit
 
 
 class BatesGrainMethods(unittest.TestCase):
@@ -14,7 +15,7 @@ class BatesGrainMethods(unittest.TestCase):
             'coreDiameter': 0.02
         })
         self.assertEqual(grain.getDetailsString(), 'Length: 0.1 m, Core: 0.02 m')
-        self.assertEqual(grain.getDetailsString('cm'), 'Length: 10 cm, Core: 2 cm')
+        self.assertEqual(grain.getDetailsString(LengthUnit.CENTIMETER), 'Length: 10 cm, Core: 2 cm')
 
     def test_getGeometryErrors(self):
         grain = motorlib.grains.BatesGrain()

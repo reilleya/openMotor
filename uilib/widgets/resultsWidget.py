@@ -4,6 +4,8 @@ import numpy as np
 import motorlib
 from motorlib.enums.multiValueChannels import MultiValueChannels
 from motorlib.enums.singleValueChannels import SingleValueChannels
+from motorlib.enums.units.ImpulseUnit import ImpulseUnit
+from motorlib.enums.units.MassUnit import MassUnit
 
 from .grainImageWidget import GrainImageWidget
 
@@ -129,15 +131,15 @@ class ResultsWidget(QWidget):
 
             currentImpulse = self.simResult.getImpulse(index)
             remainingImpulse = self.simResult.getImpulse() - currentImpulse
-            impUnit = self.preferences.getUnit('Ns')
-            self.ui.labelImpulseProgress.setText(motorlib.units.convFormat(currentImpulse, 'Ns', impUnit))
-            self.ui.labelImpulseRemaining.setText(motorlib.units.convFormat(remainingImpulse, 'Ns', impUnit))
+            impUnit = self.preferences.getUnit(ImpulseUnit.NEWTON_SECOND)
+            self.ui.labelImpulseProgress.setText(motorlib.units.convFormat(currentImpulse, ImpulseUnit.NEWTON_SECOND, impUnit))
+            self.ui.labelImpulseRemaining.setText(motorlib.units.convFormat(remainingImpulse, ImpulseUnit.NEWTON_SECOND, impUnit))
 
             currentMass = self.simResult.getPropellantMass(index)
             remainingMass = self.simResult.getPropellantMass() - currentMass
-            massUnit = self.preferences.getUnit('kg')
-            self.ui.labelMassProgress.setText(motorlib.units.convFormat(remainingMass, 'kg', massUnit))
-            self.ui.labelMassRemaining.setText(motorlib.units.convFormat(currentMass, 'kg', massUnit))
+            massUnit = self.preferences.getUnit(MassUnit.KILOGRAM)
+            self.ui.labelMassProgress.setText(motorlib.units.convFormat(remainingMass, MassUnit.KILOGRAM, massUnit))
+            self.ui.labelMassRemaining.setText(motorlib.units.convFormat(currentMass, MassUnit.KILOGRAM, massUnit))
 
             currentISP = self.simResult.getISP(index)
             self.ui.labelISPProgress.setText('{:.3f} s'.format(currentISP))

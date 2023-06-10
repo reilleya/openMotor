@@ -6,6 +6,7 @@ from skimage import measure
 
 from ..enums.simAlertLevel import SimAlertLevel
 from ..enums.simAlertType import SimAlertType
+from ..enums.units.LengthUnit import LengthUnit
 from ..grain import PerforatedGrain
 from .. import geometry
 from ..simResult import SimAlert
@@ -17,9 +18,9 @@ class RodTubeGrain(PerforatedGrain):
     geomName = "Rod and Tube"
     def __init__(self):
         super().__init__()
-        self.props['coreDiameter'] = FloatProperty('Core Diameter', 'm', 0, 1)
-        self.props['rodDiameter'] = FloatProperty('Rod Diameter', 'm', 0, 1)
-        self.props['supportDiameter'] = FloatProperty('Support Diameter', 'm', 0, 1)
+        self.props['coreDiameter'] = FloatProperty('Core Diameter', LengthUnit.METER, 0, 1)
+        self.props['rodDiameter'] = FloatProperty('Rod Diameter', LengthUnit.METER, 0, 1)
+        self.props['supportDiameter'] = FloatProperty('Support Diameter', LengthUnit.METER, 0, 1)
         self.tubeWeb = None
         self.rodWeb = None
 
@@ -54,7 +55,7 @@ class RodTubeGrain(PerforatedGrain):
             rodArea = 0
         return tubeArea + rodArea
 
-    def getDetailsString(self, lengthUnit='m'):
+    def getDetailsString(self, lengthUnit=LengthUnit.METER):
         return 'Length: {}, Core: {}, Rod: {}'.format(self.props['length'].dispFormat(lengthUnit),
                                                       self.props['coreDiameter'].dispFormat(lengthUnit),
                                                       self.props['rodDiameter'].dispFormat(lengthUnit))

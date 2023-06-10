@@ -1,4 +1,15 @@
 """Provides default properties for the UI."""
+from motorlib.enums.units.BurnRateCoefficientUnit import BurnRateCoefficientUnit
+from motorlib.enums.units.DensityUnit import DensityUnit
+from motorlib.enums.units.LengthUnit import LengthUnit
+from motorlib.enums.units.MassFlowUnit import MassFlowUnit
+from motorlib.enums.units.MassFluxUnit import MassFluxUnit
+from motorlib.enums.units.MassUnit import MassUnit
+from motorlib.enums.units.NozzleErosionCoefficientUnit import NozzleErosionCoefficientUnit
+from motorlib.enums.units.NozzleSlagCoefficientUnit import NozzleSlagCoefficientUnit
+from motorlib.enums.units.PressureUnit import PressureUnit
+from motorlib.enums.units.VelocityUnit import VelocityUnit
+from motorlib.enums.units.VolumeUnit import VolumeUnit
 
 DEFAULT_PREFERENCES = {
     'general': {
@@ -15,17 +26,17 @@ DEFAULT_PREFERENCES = {
         'flowSeparationWarnPercent': 0.05
     },
     'units': {
-        'm': 'in',
-        'm^3': 'in^3',
-        'm/s': 'ft/s',
-        'Pa': 'psi',
-        'kg': 'lb',
-        'kg/m^3': 'lb/in^3',
-        'kg/s': 'lb/s',
-        'kg/(m^2*s)': 'lb/(in^2*s)',
-        '(m*Pa)/s': '(in*psi)/s',
-        'm/(s*Pa)': 'thou/(s*psi)',
-        'm/(s*Pa^n)': 'in/(s*psi^n)'
+        LengthUnit.METER: LengthUnit.INCH,
+        VolumeUnit.CUBIC_METER: VolumeUnit.CUBIC_INCH,
+        VelocityUnit.METER_PER_SECOND: VelocityUnit.FOOT_PER_SECOND,
+        PressureUnit.PASCAL: PressureUnit.POUND_PER_SQUARE_INCH,
+        MassUnit.KILOGRAM: MassUnit.POUND,
+        DensityUnit.KILOGRAM_PER_CUBIC_METER: DensityUnit.POUND_PER_CUBIC_INCH,
+        MassFlowUnit.KILOGRAM_PER_SECOND:MassFlowUnit.POUND_PER_SECOND,
+        MassFluxUnit.KILOGRAM_PER_SQUARE_METER_PER_SECOND: MassFluxUnit.POUND_PER_SQUARE_INCH_PER_SECOND,
+        NozzleSlagCoefficientUnit.METER_PASCAL_PER_SECOND: NozzleSlagCoefficientUnit.INCH_POUND_PER_SQUARE_INCH_PER_SECOND,
+        NozzleErosionCoefficientUnit.METER_PER_SECOND_PASCAL: NozzleErosionCoefficientUnit.THOUSANDTH_INCH_PER_SECOND_POUND_PER_SQUARE_INCH,
+        BurnRateCoefficientUnit.METER_PER_SECOND_PASCAL_TO_THE_POWER_OF_N: BurnRateCoefficientUnit.INCH_PER_SECOND_POUND_PER_SQUARE_INCH_TO_THE_POWER_OF_N
     }
 }
 

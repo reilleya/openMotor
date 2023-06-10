@@ -1,5 +1,8 @@
 import xml.etree.ElementTree as ET
 
+from motorlib.enums.units.BurnRateCoefficientUnit import BurnRateCoefficientUnit
+from motorlib.enums.units.DensityUnit import DensityUnit
+from motorlib.enums.units.LengthUnit import LengthUnit
 from motorlib.properties import PropertyCollection, FloatProperty, StringProperty
 import motorlib
 from ..converter import Exporter
@@ -28,15 +31,16 @@ EXPORT_TYPES = {
     motorlib.grains.Finocyl: '7'
 }
 
+
 def mToIn(value):
     """Converts a float containing meters to a string of inches"""
-    return str(motorlib.units.convert(value, 'm', 'in'))
+    return str(motorlib.units.convert(value, LengthUnit.METER, LengthUnit.INCH))
 
 
 class BurnSimExporter(Exporter):
     def __init__(self, manager):
         super().__init__(manager, 'BurnSim File',
-            'Exports the current motor for use in BurnSim 3.0', {'.bsx': 'BurnSim Files'})
+                         'Exports the current motor for use in BurnSim 3.0', {'.bsx': 'BurnSim Files'})
         self.reqNotMet = "Current motor must have a propellant set to export as a BurnSim file."
 
     def doConversion(self, path, config):
@@ -101,14 +105,18 @@ class BurnSimExporter(Exporter):
                 # Have to pick a single pressure for output
                 exportPressure = 5.17e6
                 ballA, ballN, gamma, _, m = motor.propellant.getCombustionProperties(exportPressure)
-                ballA = motorlib.units.convert(ballA * (6895**ballN), 'm/(s*Pa^n)', 'in/(s*psi^n)')
+                ballA = motorlib.units.convert(ballA * (6895 ** ballN),
+
+                                               BurnRateCoefficientUnit.INCH_PER_SECOND_POUND_PER_SQUARE_INCH_TO_THE_POWER_OF_N)
                 outProp.attrib['BallisticA'] = str(ballA)
                 outProp.attrib['BallisticN'] = str(ballN)
-                density = str(motorlib.units.convert(motor.propellant.getProperty('density'), 'kg/m^3', 'lb/in^3'))
+                density = str(motorlib.units.convert(motor.propellant.getProperty('density'),
+                                                     DensityUnit.KILOGRAM_PER_CUBIC_METER,
+                                                     DensityUnit.POUND_PER_CUBIC_INCH))
                 outProp.attrib['Density'] = density
                 outProp.attrib['SpecificHeatRatio'] = str(gamma)
                 outProp.attrib['MolarMass'] = str(m)
-                outProp.attrib['CombustionTemp'] = '0' # Unclear if this is used anyway
+                outProp.attrib['CombustionTemp'] = '0'  # Unclear if this is used anyway
                 ispStar = motor.propellant.getCStar(exportPressure) / 9.80665
                 outProp.attrib['ISPStar'] = str(ispStar)
                 # Add empty notes section

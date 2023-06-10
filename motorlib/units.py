@@ -1,66 +1,85 @@
 """This module contains tables of units and their long form names, their conversion rates with other units, and
 functions for performing conversion."""
+from motorlib.enums.units.BurnRateCoefficientUnit import BurnRateCoefficientUnit
+from motorlib.enums.units.DensityUnit import DensityUnit
+from motorlib.enums.units.ForceUnit import ForceUnit
+from motorlib.enums.units.ImpulseUnit import ImpulseUnit
+from motorlib.enums.units.LengthUnit import LengthUnit
+from motorlib.enums.units.MassFlowUnit import MassFlowUnit
+from motorlib.enums.units.MassFluxUnit import MassFluxUnit
+from motorlib.enums.units.MassUnit import MassUnit
+from motorlib.enums.units.NozzleErosionCoefficientUnit import NozzleErosionCoefficientUnit
+from motorlib.enums.units.NozzleSlagCoefficientUnit import NozzleSlagCoefficientUnit
+from motorlib.enums.units.PressureUnit import PressureUnit
+from motorlib.enums.units.VelocityUnit import VelocityUnit
+from motorlib.enums.units.VolumeUnit import VolumeUnit
 
 # The keys in this dictionary specify the units that all calculations are done in internally
 unitLabels = {
-    'm': 'Length',
-    'm^3': 'Volume',
-    'm/s': 'Velocity',
-    'N': 'Force',
-    'Ns': 'Impulse',
-    'Pa': 'Pressure',
-    'kg': 'Mass',
-    'kg/m^3': 'Density',
-    'kg/s': 'Mass Flow',
-    'kg/(m^2*s)': 'Mass Flux',
-    'm/(s*Pa^n)': 'Burn Rate Coefficient',
-    '(m*Pa)/s': 'Nozzle Slag Coefficient',
-    'm/(s*Pa)': 'Nozzle Erosion Coefficient'
+    LengthUnit.METER: 'Length',
+    VolumeUnit.CUBIC_METER: 'Volume',
+    VelocityUnit.METER_PER_SECOND: 'Velocity',
+    ForceUnit.NEWTON: 'Force',
+    ImpulseUnit.NEWTON_SECOND: 'Impulse',
+    PressureUnit.PASCAL: 'Pressure',
+    MassUnit.KILOGRAM: 'Mass',
+    DensityUnit.KILOGRAM_PER_CUBIC_METER: 'Density',
+    MassFlowUnit.KILOGRAM_PER_SECOND: 'Mass Flow',
+    MassFluxUnit.KILOGRAM_PER_SQUARE_METER_PER_SECOND: 'Mass Flux',
+    BurnRateCoefficientUnit.METER_PER_SECOND_PASCAL_TO_THE_POWER_OF_N: 'Burn Rate Coefficient',
+    NozzleSlagCoefficientUnit.METER_PASCAL_PER_SECOND: 'Nozzle Slag Coefficient',
+    NozzleErosionCoefficientUnit.METER_PER_SECOND_PASCAL: 'Nozzle Erosion Coefficient'
 }
 
 unitTable = [
-    ('m', 'cm', 100),
-    ('m', 'mm', 1000),
-    ('m', 'in', 39.37),
-    ('m', 'ft', 3.28),
+    (LengthUnit.METER, LengthUnit.CENTIMETER, 100),
+    (LengthUnit.METER, LengthUnit.METER, 1000),
+    (LengthUnit.METER, LengthUnit.INCH, 39.37),
+    (LengthUnit.METER, LengthUnit.FOOT, 3.28),
 
-    ('m^3', 'cm^3', 100**3),
-    ('m^3', 'mm^3', 1000**3),
-    ('m^3', 'in^3', 39.37**3),
-    ('m^3', 'ft^3', 3.28**3),
+    (VolumeUnit.CUBIC_METER, VolumeUnit.CUBIC_CENTIMETER, 100 ** 3),
+    (VolumeUnit.CUBIC_METER, VolumeUnit.CUBIC_MILLIMETER, 1000 ** 3),
+    (VolumeUnit.CUBIC_METER, VolumeUnit.CUBIC_INCH, 39.37 ** 3),
+    (VolumeUnit.CUBIC_METER, VolumeUnit.CUBIC_FOOT, 3.28 ** 3),
 
-    ('m/s', 'cm/s', 100),
-    ('m/s', 'mm/s', 1000),
-    ('m/s', 'ft/s', 3.28),
-    ('m/s', 'in/s', 39.37),
+    (VelocityUnit.METER_PER_SECOND, VelocityUnit.CENTIMETER_PER_SECOND, 100),
+    (VelocityUnit.METER_PER_SECOND, VelocityUnit.MILLIMETER_PER_SECOND, 1000),
+    (VelocityUnit.METER_PER_SECOND, VelocityUnit.FOOT_PER_SECOND, 3.28),
+    (VelocityUnit.METER_PER_SECOND, VelocityUnit.INCH_PER_SECOND, 39.37),
 
-    ('N', 'lbf', 0.2248),
+    (ForceUnit.NEWTON, ForceUnit.POUND_FORCE, 0.2248),
 
-    ('Ns', 'lbfs', 0.2248),
+    (ImpulseUnit.NEWTON_SECOND, ImpulseUnit.POUND_FORCE_SECOND, 0.2248),
 
-    ('Pa', 'MPa', 1/1000000),
-    ('Pa', 'psi', 1/6895),
+    (PressureUnit.PASCAL, PressureUnit.MEGAPASCAL, 1 / 1000000),
+    (PressureUnit.PASCAL, PressureUnit.POUND_PER_SQUARE_INCH, 1 / 6895),
 
-    ('kg', 'g', 1000),
-    ('kg', 'lb', 2.205),
-    ('kg', 'oz', 2.205 * 16),
+    (MassUnit.KILOGRAM, MassUnit.GRAM, 1000),
+    (MassUnit.KILOGRAM, MassUnit.POUND, 2.205),
+    (MassUnit.KILOGRAM, MassUnit.OUNCE, 2.205 * 16),
 
-    ('kg/m^3', 'lb/in^3', 3.61273e-5),
-    ('kg/m^3', 'g/cm^3', 0.001),
+    (DensityUnit.KILOGRAM_PER_CUBIC_METER, DensityUnit.POUND_PER_CUBIC_INCH, 3.61273e-5),
+    (DensityUnit.KILOGRAM_PER_CUBIC_METER, DensityUnit.GRAM_PER_CUBIC_CENTIMETER, 0.001),
 
-    ('kg/s', 'lb/s', 2.205),
-    ('kg/s', 'g/s', 1000),
+    (MassFlowUnit.KILOGRAM_PER_SECOND, MassFlowUnit.POUND_PER_SECOND, 2.205),
+    (MassFlowUnit.KILOGRAM_PER_SECOND, MassFlowUnit.GRAM_PER_SECOND, 1000),
 
-    ('kg/(m^2*s)', 'lb/(in^2*s)', 0.001422),
+    (MassFluxUnit.KILOGRAM_PER_SQUARE_METER_PER_SECOND, MassFluxUnit.POUND_PER_SQUARE_INCH_PER_SECOND, 0.001422),
 
-    ('(m*Pa)/s', '(m*MPa)/s', 1000000),
-    ('(m*Pa)/s', '(in*psi)/s', 0.00571014715),
+    (NozzleSlagCoefficientUnit.METER_PASCAL_PER_SECOND, NozzleSlagCoefficientUnit.METER_MEGAPASCAL_PER_SECOND, 1000000),
+    (NozzleSlagCoefficientUnit.METER_PASCAL_PER_SECOND, NozzleSlagCoefficientUnit.INCH_POUND_PER_SQUARE_INCH_PER_SECOND,
+     0.00571014715),
 
-    ('m/(s*Pa)', 'm/(s*MPa)', 1/1000000),
-    ('m/(s*Pa)', 'thou/(s*psi)', 271447138),
+    (NozzleErosionCoefficientUnit.METER_PER_SECOND_PASCAL, NozzleErosionCoefficientUnit.METER_PER_SECOND_MEGAPASCAL,
+     1 / 1000000),
+    (NozzleErosionCoefficientUnit.METER_PER_SECOND_PASCAL,
+     NozzleErosionCoefficientUnit.THOUSANDTH_INCH_PER_SECOND_POUND_PER_SQUARE_INCH, 271447138),
 
-    ('m/(s*Pa^n)', 'in/(s*psi^n)', 39.37) # Ratio converts m/s to in/s. The pressure conversion must be done separately
+    (BurnRateCoefficientUnit.METER_PER_SECOND_PASCAL_TO_THE_POWER_OF_N,
+     BurnRateCoefficientUnit.INCH_PER_SECOND_POUND_PER_SQUARE_INCH_TO_THE_POWER_OF_N, 39.37)
+    # Ratio converts m/s to in/s. The pressure conversion must be done separately
 ]
+
 
 def getAllConversions(unit):
     """Returns a list of all units that the passed unit can be converted to."""
@@ -72,6 +91,7 @@ def getAllConversions(unit):
             allConversions.append(conversion[0])
     return allConversions
 
+
 def getConversion(originUnit, destUnit):
     """Returns the ratio to convert between the two units. If the conversion does not exist, an exception is raised."""
     if originUnit == destUnit:
@@ -80,17 +100,20 @@ def getConversion(originUnit, destUnit):
         if conversion[0] == originUnit and conversion[1] == destUnit:
             return conversion[2]
         if conversion[1] == originUnit and conversion[0] == destUnit:
-            return 1/conversion[2]
+            return 1 / conversion[2]
     raise KeyError("Cannot find conversion from <" + originUnit + "> to <" + destUnit + ">")
+
 
 def convert(quantity, originUnit, destUnit):
     """Returns the value of 'quantity' when it is converted from 'originUnit' to 'destUnit'."""
     return quantity * getConversion(originUnit, destUnit)
 
+
 def convertAll(quantities, originUnit, destUnit):
     """Converts a list of values from 'originUnit' to 'destUnit'."""
     convRate = getConversion(originUnit, destUnit)
     return [q * convRate for q in quantities]
+
 
 def convFormat(quantity, originUnit, destUnit, places=3):
     """Takes in a quantity in originUnit, converts it to destUnit and outputs a rounded and formatted string that

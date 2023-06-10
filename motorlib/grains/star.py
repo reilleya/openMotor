@@ -4,6 +4,7 @@ import numpy as np
 
 from ..enums.simAlertLevel import SimAlertLevel
 from ..enums.simAlertType import SimAlertType
+from ..enums.units.LengthUnit import LengthUnit
 from ..grain import FmmGrain
 from ..properties import IntProperty, FloatProperty
 from ..simResult import SimAlert
@@ -14,8 +15,8 @@ class StarGrain(FmmGrain):
     def __init__(self):
         super().__init__()
         self.props['numPoints'] = IntProperty('Number of points', '', 0, 64)
-        self.props['pointLength'] = FloatProperty('Point length', 'm', 0, 1)
-        self.props['pointWidth'] = FloatProperty('Point base width', 'm', 0, 1)
+        self.props['pointLength'] = FloatProperty('Point length', LengthUnit.METER, 0, 1)
+        self.props['pointWidth'] = FloatProperty('Point base width', LengthUnit.METER, 0, 1)
 
     def generateCoreMap(self):
         numPoints = self.props['numPoints'].getValue()
@@ -33,7 +34,7 @@ class StarGrain(FmmGrain):
             near = comp1*self.mapX - comp0*self.mapY > -0.025
             self.coreMap[np.logical_and(vect, near)] = 0
 
-    def getDetailsString(self, lengthUnit='m'):
+    def getDetailsString(self, lengthUnit=LengthUnit.METER):
         return 'Length: {}, Points: {}'.format(self.props['length'].dispFormat(lengthUnit),
                                                self.props['numPoints'].getValue())
 

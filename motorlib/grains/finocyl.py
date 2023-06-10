@@ -4,6 +4,7 @@ import numpy as np
 
 from ..enums.simAlertLevel import SimAlertLevel
 from ..enums.simAlertType import SimAlertType
+from ..enums.units.LengthUnit import LengthUnit
 from ..grain import FmmGrain
 from ..properties import FloatProperty, IntProperty
 from ..simResult import SimAlert
@@ -15,9 +16,9 @@ class Finocyl(FmmGrain):
     def __init__(self):
         super().__init__()
         self.props['numFins'] = IntProperty('Number of fins', '', 0, 64)
-        self.props['finWidth'] = FloatProperty('Fin width', 'm', 0, 1)
-        self.props['finLength'] = FloatProperty('Fin length', 'm', 0, 1)
-        self.props['coreDiameter'] = FloatProperty('Core diameter', 'm', 0, 1)
+        self.props['finWidth'] = FloatProperty('Fin width', LengthUnit.METER, 0, 1)
+        self.props['finLength'] = FloatProperty('Fin length', LengthUnit.METER, 0, 1)
+        self.props['coreDiameter'] = FloatProperty('Core diameter', LengthUnit.METER, 0, 1)
 
     def generateCoreMap(self):
         coreRadius = self.normalize(self.props['coreDiameter'].getValue()) / 2
@@ -44,7 +45,7 @@ class Finocyl(FmmGrain):
             # Open up the fin
             self.coreMap[np.logical_and(vect, ends)] = 0
 
-    def getDetailsString(self, lengthUnit='m'):
+    def getDetailsString(self, lengthUnit=LengthUnit.METER):
         return 'Length: {}, Core: {}, Fins: {}'.format(self.props['length'].dispFormat(lengthUnit),
                                                        self.props['coreDiameter'].dispFormat(lengthUnit),
                                                        self.props['numFins'].getValue())

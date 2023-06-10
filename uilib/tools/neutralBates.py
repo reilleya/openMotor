@@ -1,13 +1,14 @@
 import motorlib
+from motorlib.enums.units.LengthUnit import LengthUnit
 
 from ..tool import Tool
 
 
 class NeutralBatesTool(Tool):
     def __init__(self, manager):
-        props = {'length': motorlib.properties.FloatProperty('Propellant length', 'm', 0, 10),
-                 'diameter': motorlib.properties.FloatProperty('Propellant diameter', 'm', 0, 1),
-                 'grainSpace': motorlib.properties.FloatProperty('Grain spacer length', 'm', 0, 1),
+        props = {'length': motorlib.properties.FloatProperty('Propellant length', LengthUnit.METER, 0, 10),
+                 'diameter': motorlib.properties.FloatProperty('Propellant diameter', LengthUnit.METER, 0, 1),
+                 'grainSpace': motorlib.properties.FloatProperty('Grain spacer length', LengthUnit.METER, 0, 1),
                  'Kn': motorlib.properties.FloatProperty('Initial Kn', '', 1, 1000)}
 
         super().__init__(manager,

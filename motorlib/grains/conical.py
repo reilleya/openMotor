@@ -7,6 +7,7 @@ from math import atan, cos, sin
 
 from ..enums.simAlertLevel import SimAlertLevel
 from ..enums.simAlertType import SimAlertType
+from ..enums.units.LengthUnit import LengthUnit
 from ..grain import Grain
 from .. import geometry
 from ..simResult import SimAlert
@@ -17,8 +18,8 @@ class ConicalGrain(Grain):
     geomName = "Conical"
     def __init__(self):
         super().__init__()
-        self.props['forwardCoreDiameter'] = FloatProperty('Forward Core Diameter', 'm', 0, 1)
-        self.props['aftCoreDiameter'] = FloatProperty('Aft Core Diameter', 'm', 0, 1)
+        self.props['forwardCoreDiameter'] = FloatProperty('Forward Core Diameter', LengthUnit.METER, 0, 1)
+        self.props['aftCoreDiameter'] = FloatProperty('Aft Core Diameter', LengthUnit.METER, 0, 1)
         self.props['inhibitedEnds'] = EnumProperty('Inhibited ends', ['Both'])
 
     def isCoreInverted(self):
@@ -185,7 +186,7 @@ class ConicalGrain(Grain):
 
         return geometry.circleArea(aftCoreDiameter)
 
-    def getDetailsString(self, lengthUnit='m'):
+    def getDetailsString(self, lengthUnit=LengthUnit.METER):
         """Returns a short string describing the grain, formatted using the units that is passed in"""
         return 'Length: {}'.format(self.props['length'].dispFormat(lengthUnit))
 

@@ -6,6 +6,12 @@ from . import geometry
 from . import units
 from .enums.multiValueChannels import MultiValueChannels
 from .enums.singleValueChannels import SingleValueChannels
+from .enums.units.ForceUnit import ForceUnit
+from .enums.units.LengthUnit import LengthUnit
+from .enums.units.MassFlowUnit import MassFlowUnit
+from .enums.units.MassFluxUnit import MassFluxUnit
+from .enums.units.MassUnit import MassUnit
+from .enums.units.PressureUnit import PressureUnit
 
 
 class SimAlert():
@@ -92,16 +98,16 @@ class SimulationResult():
         self.channels = {
             SingleValueChannels.TIME: LogChannel('Time', float, 's'),
             SingleValueChannels.KN: LogChannel('Kn', float, ''),
-            SingleValueChannels.PRESSURE: LogChannel('Chamber Pressure', float, 'Pa'),
-            SingleValueChannels.FORCE: LogChannel('Thrust', float, 'N'),
-            MultiValueChannels.MASS: LogChannel('Propellant Mass', tuple, 'kg'),
+            SingleValueChannels.PRESSURE: LogChannel('Chamber Pressure', float, PressureUnit.PASCAL),
+            SingleValueChannels.FORCE: LogChannel('Thrust', float, ForceUnit.NEWTON),
+            MultiValueChannels.MASS: LogChannel('Propellant Mass', tuple, MassUnit.KILOGRAM),
             SingleValueChannels.VOLUME_LOADING: LogChannel('Volume Loading', float, '%'),
-            MultiValueChannels.MASS_FLOW: LogChannel('Mass Flow', tuple, 'kg/s'),
-            MultiValueChannels.MASS_FLUX: LogChannel('Mass Flux', tuple, 'kg/(m^2*s)'),
-            MultiValueChannels.REGRESSION: LogChannel('Regression Depth', tuple, 'm'),
-            MultiValueChannels.WEB: LogChannel('Web', tuple, 'm'),
-            SingleValueChannels.EXIT_PRESSURE: LogChannel('Nozzle Exit Pressure', float, 'Pa'),
-            SingleValueChannels.D_THROAT: LogChannel('Change in Throat Diameter', float, 'm')
+            MultiValueChannels.MASS_FLOW: LogChannel('Mass Flow', tuple, MassFlowUnit.KILOGRAM_PER_SECOND),
+            MultiValueChannels.MASS_FLUX: LogChannel('Mass Flux', tuple, MassFluxUnit.KILOGRAM_PER_SQUARE_METER_PER_SECOND),
+            MultiValueChannels.REGRESSION: LogChannel('Regression Depth', tuple, LengthUnit.METER),
+            MultiValueChannels.WEB: LogChannel('Web', tuple, LengthUnit.METER),
+            SingleValueChannels.EXIT_PRESSURE: LogChannel('Nozzle Exit Pressure', float, PressureUnit.PASCAL),
+            SingleValueChannels.D_THROAT: LogChannel('Change in Throat Diameter', float, LengthUnit.METER)
         }
 
     def addAlert(self, alert):
