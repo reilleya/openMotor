@@ -1,10 +1,11 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 
-from motorlib.properties import PropertyCollection, FloatProperty, IntProperty, EnumProperty
+from motorlib.properties import PropertyCollection, EnumProperty
 from motorlib.units import unitLabels, getAllConversions
 from motorlib.motor import MotorConfig
+from .enums.fileType import FileType
 
-from .fileIO import loadFile, saveFile, getConfigPath, fileTypes
+from .fileIO import loadFile, saveFile, getConfigPath
 from .defaults import DEFAULT_PREFERENCES
 from .widgets import preferencesMenu
 from .logger import logger
@@ -55,7 +56,7 @@ class PreferencesManager(QObject):
 
     def loadPreferences(self):
         try:
-            prefDict = loadFile(getConfigPath() + 'preferences.yaml', fileTypes.PREFERENCES)
+            prefDict = loadFile(getConfigPath() + 'preferences.yaml', FileType.PREFERENCES)
             self.preferences.applyDict(prefDict)
             self.publishPreferences()
         except FileNotFoundError:
@@ -65,7 +66,7 @@ class PreferencesManager(QObject):
     def savePreferences(self):
         try:
             logger.log('Saving preferences to "{}"'.format(getConfigPath() + 'preferences.yaml'))
-            saveFile(getConfigPath() + 'preferences.yaml', self.preferences.getDict(), fileTypes.PREFERENCES)
+            saveFile(getConfigPath() + 'preferences.yaml', self.preferences.getDict(), FileType.PREFERENCES)
         except:
             logger.warn('Unable to save preferences')
 

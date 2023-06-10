@@ -1,21 +1,15 @@
-from enum import Enum
 import os
-import platform
 
 from PyQt5.QtWidgets import QApplication
 import yaml
 import appdirs
 
 from .defaults import DEFAULT_PREFERENCES, DEFAULT_PROPELLANTS, KNSU_PROPS
+from .enums.fileType import FileType
 from .logger import logger
 
 appVersion = (0, 6, 0)
 appVersionStr = '.'.join(map(str, appVersion))
-
-class fileTypes(Enum):
-    PREFERENCES = 1
-    PROPELLANTS = 2
-    MOTOR = 3
 
 def futureVersion(verA, verB): # Returns true if a is newer than b
     major = verA[0] > verB[0]
@@ -157,33 +151,33 @@ def migrateMotor_0_2_0_to_0_3_0(data):
 migrations = {
     (0, 5, 0): {
         'to': (0, 6, 0),
-        fileTypes.PREFERENCES: passthrough,
-        fileTypes.PROPELLANTS: passthrough,
-        fileTypes.MOTOR: migrateMotor_0_5_0_to_0_6_0
+        FileType.PREFERENCES: passthrough,
+        FileType.PROPELLANTS: passthrough,
+        FileType.MOTOR: migrateMotor_0_5_0_to_0_6_0
     },
     (0, 4, 0): {
         'to': (0, 5, 0),
-        fileTypes.PREFERENCES: migratePref_0_4_0_to_0_5_0,
-        fileTypes.PROPELLANTS: migrateProp_0_4_0_to_0_5_0,
-        fileTypes.MOTOR: migrateMotor_0_4_0_to_0_5_0,
+        FileType.PREFERENCES: migratePref_0_4_0_to_0_5_0,
+        FileType.PROPELLANTS: migrateProp_0_4_0_to_0_5_0,
+        FileType.MOTOR: migrateMotor_0_4_0_to_0_5_0,
     },
     (0, 3, 0): {
         'to': (0, 4, 0),
-        fileTypes.PREFERENCES: migratePref_0_3_0_to_0_4_0,
-        fileTypes.PROPELLANTS: migrateProp_0_3_0_to_0_4_0,
-        fileTypes.MOTOR: migrateMotor_0_3_0_to_0_4_0
+        FileType.PREFERENCES: migratePref_0_3_0_to_0_4_0,
+        FileType.PROPELLANTS: migrateProp_0_3_0_to_0_4_0,
+        FileType.MOTOR: migrateMotor_0_3_0_to_0_4_0
     },
     (0, 2, 0): {
         'to': (0, 3, 0),
-        fileTypes.PREFERENCES: migratePref_0_2_0_to_0_3_0,
-        fileTypes.PROPELLANTS: passthrough,
-        fileTypes.MOTOR: migrateMotor_0_2_0_to_0_3_0
+        FileType.PREFERENCES: migratePref_0_2_0_to_0_3_0,
+        FileType.PROPELLANTS: passthrough,
+        FileType.MOTOR: migrateMotor_0_2_0_to_0_3_0
     },
     (0, 1, 0): {
         'to': (0, 2, 0),
-        fileTypes.PREFERENCES: passthrough,
-        fileTypes.PROPELLANTS: passthrough,
-        fileTypes.MOTOR: passthrough
+        FileType.PREFERENCES: passthrough,
+        FileType.PROPELLANTS: passthrough,
+        FileType.MOTOR: passthrough
     }
 }
 

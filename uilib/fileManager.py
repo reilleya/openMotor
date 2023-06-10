@@ -3,8 +3,9 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import pyqtSignal
 
 import motorlib
+from .enums.fileType import FileType
 
-from .fileIO import saveFile, loadFile, fileTypes
+from .fileIO import saveFile, loadFile
 from .helpers import FLAGS_NO_ICON
 from .logger import logger
 
@@ -55,7 +56,7 @@ class FileManager(QObject):
             self.saveAs()
         else:
             try:
-                saveFile(self.fileName, self.fileHistory[self.currentVersion], fileTypes.MOTOR)
+                saveFile(self.fileName, self.fileHistory[self.currentVersion], FileType.MOTOR)
                 self.savedVersion = self.currentVersion
                 self.sendTitleUpdate()
             except Exception as exc:
@@ -75,7 +76,7 @@ class FileManager(QObject):
                 path = QFileDialog.getOpenFileName(None, 'Load motor', '', 'Motor Files (*.ric)')[0]
             if path != '': # If they cancel the dialog, path will be an empty string
                 try:
-                    res = loadFile(path, fileTypes.MOTOR)
+                    res = loadFile(path, FileType.MOTOR)
                     if res is not None:
                         motor = motorlib.motor.Motor()
                         motor.applyDict(res)
