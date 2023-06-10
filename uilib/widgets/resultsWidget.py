@@ -2,7 +2,8 @@ from PyQt5.QtWidgets import QWidget, QHeaderView, QLabel
 import numpy as np
 
 import motorlib
-from motorlib.simResult import singleValueChannels, multiValueChannels
+from motorlib.enums.multiValueChannels import MultiValueChannels
+from motorlib.enums.singleValueChannels import SingleValueChannels
 
 from .grainImageWidget import GrainImageWidget
 
@@ -11,7 +12,10 @@ from ..views.ResultsWidget_ui import Ui_ResultsWidget
 class ResultsWidget(QWidget):
     # These channels are extracted from the simResult amd put into the grain table in this order that should match
     # the labels in the .ui file
-    grainTableFields = ('mass', 'massFlow', 'massFlux', 'web')
+    grainTableFields = (MultiValueChannels.MASS,
+                        MultiValueChannels.MASS_FLOW,
+                        MultiValueChannels.MASS_FLUX,
+                        MultiValueChannels.WEB)
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -21,10 +25,22 @@ class ResultsWidget(QWidget):
         self.simResult = None
         self.cachedChecks = None
 
-        excludes = ['kn', 'pressure', 'force', 'mass', 'massFlow', 'massFlux', 'exitPressure', 'dThroat', 'volumeLoading']
-        self.ui.channelSelectorX.setupChecks(False, default='time', exclude=excludes)
+        excludes = [SingleValueChannels.KN,
+                    SingleValueChannels.PRESSURE,
+                    SingleValueChannels.FORCE,
+                    MultiValueChannels.MASS,
+                    MultiValueChannels.MASS_FLOW,
+                    MultiValueChannels.MASS_FLUX,
+                    SingleValueChannels.EXIT_PRESSURE,
+                    SingleValueChannels.D_THROAT,
+                    SingleValueChannels.VOLUME_LOADING]
+        self.ui.channelSelectorX.setupChecks(False, default=SingleValueChannels.TIME, exclude=excludes)
         self.ui.channelSelectorX.setTitle('X Axis')
-        self.ui.channelSelectorY.setupChecks(True, default=['kn', 'pressure', 'force'], exclude=['time'])
+        self.ui.channelSelectorY.setupChecks(True,
+                                             default=[SingleValueChannels.KN,
+                                                      SingleValueChannels.PRESSURE,
+                                                      SingleValueChannels.FORCE],
+                                             exclude=[SingleValueChannels.TIME])
         self.ui.channelSelectorY.setTitle('Y Axis')
         self.ui.channelSelectorX.checksChanged.connect(self.xSelectionChanged)
         self.ui.channelSelectorY.checksChanged.connect(self.drawGraphs)
@@ -53,7 +69,7 @@ class ResultsWidget(QWidget):
         self.drawGraphs()
 
         self.cleanupGrainTab()
-        self.ui.horizontalSliderTime.setMaximum(len(simResult.channels['time'].getData()) - 1)
+        self.ui.horizontalSliderTime.setMaximum(len(simResult.channels[SingleValueChannels.TIME].getData()) - 1)
         self.ui.tableWidgetGrains.setColumnCount(len(simResult.motor.grains))
         for _ in range(len(self.grainImageWidgets)):
             del self.grainImageWidgets[-1]
@@ -71,11 +87,11 @@ class ResultsWidget(QWidget):
         self.updateGrainTab()
 
     def xSelectionChanged(self):
-        if self.ui.channelSelectorX.getSelectedChannels()[0] in multiValueChannels:
-            self.ui.channelSelectorY.unselect(singleValueChannels)
-            self.ui.channelSelectorY.toggleEnabled(singleValueChannels, False)
+        if self.ui.channelSelectorX.getSelectedChannels()[0] in MultiValueChannels:
+            self.ui.channelSelectorY.unselect(SingleValueChannels)
+            self.ui.channelSelectorY.toggleEnabled(SingleValueChannels, False)
         else:
-            self.ui.channelSelectorY.toggleEnabled(singleValueChannels, True)
+            self.ui.channelSelectorY.toggleEnabled(SingleValueChannels, True)
         self.drawGraphs()
 
     def drawGraphs(self):
@@ -91,8 +107,8 @@ class ResultsWidget(QWidget):
             index = self.ui.horizontalSliderTime.value()
             for gid, grain in enumerate(self.simResult.motor.grains):
                 if self.grainImages[gid] is not None:
-                    regDist = self.simResult.channels['regression'].getPoint(index)[gid]
-                    webRemaining = self.simResult.channels['web'].getPoint(index)[gid]
+                    regDist = self.simResult.channels[MultiValueChannels.REGRESSION].getPoint(index)[gid]
+                    webRemaining = self.simResult.channels[MultiValueChannels.WEB].getPoint(index)[gid]
                     hasWebLeft = webRemaining > self.simResult.motor.config.getProperty('burnoutWebThres')
                     mapDist = regDist / (0.5 * grain.props['diameter'].getValue())
                     image = np.logical_and(self.grainImages[gid] > mapDist, hasWebLeft)
@@ -106,8 +122,8 @@ class ResultsWidget(QWidget):
                     val = motorlib.units.convert(self.simResult.channels[field].getPoint(index)[gid], fromUnit, toUnit)
                     self.grainLabels[gid][field].setText('{:.3f} {}'.format(val, toUnit))
 
-            currentTime = self.simResult.channels['time'].getPoint(index)
-            remainingTime = self.simResult.channels['time'].getLast() - currentTime
+            currentTime = self.simResult.channels[SingleValueChannels.TIME].getPoint(index)
+            remainingTime = self.simResult.channels[SingleValueChannels.TIME].getLast() - currentTime
             self.ui.labelTimeProgress.setText('{:.3f} s'.format(currentTime))
             self.ui.labelTimeRemaining.setText('{:.3f} s'.format(remainingTime))
 

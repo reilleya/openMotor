@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QDialog, QApplication
 
-from motorlib.simResult import singleValueChannels, multiValueChannels
+from motorlib.enums.multiValueChannels import MultiValueChannels
+from motorlib.enums.singleValueChannels import SingleValueChannels
 from ..converter import Exporter
 
 from ..views.ImageExporter_ui import Ui_ImageExporter
@@ -17,9 +18,15 @@ class ImageExportMenu(QDialog):
 
     def exec(self):
         self.ui.independent.resetChecks()
-        self.ui.independent.setupChecks(False, exclude=['kn', 'pressure', 'force', 'mass',
-                                                        'massFlow', 'massFlux', 'exitPressure', 'dThroat'],
-                                        default='time')
+        self.ui.independent.setupChecks(False, exclude=[SingleValueChannels.KN,
+                                                        SingleValueChannels.PRESSURE,
+                                                        SingleValueChannels.FORCE,
+                                                        MultiValueChannels.MASS,
+                                                        MultiValueChannels.MASS_FLOW,
+                                                        MultiValueChannels.MASS_FLUX,
+                                                        SingleValueChannels.EXIT_PRESSURE,
+                                                        SingleValueChannels.D_THROAT],
+                                        default=SingleValueChannels.TIME)
         self.ui.independent.checksChanged.connect(self.validateChecks)
         self.ui.dependent.resetChecks()
         self.ui.dependent.setupChecks(True)
@@ -33,11 +40,11 @@ class ImageExportMenu(QDialog):
         return None
 
     def validateChecks(self):
-        if self.ui.independent.getSelectedChannels()[0] in multiValueChannels:
-            self.ui.dependent.unselect(singleValueChannels)
-            self.ui.dependent.toggleEnabled(singleValueChannels, False)
+        if self.ui.independent.getSelectedChannels()[0] in MultiValueChannels:
+            self.ui.dependent.unselect(SingleValueChannels)
+            self.ui.dependent.toggleEnabled(SingleValueChannels, False)
         else:
-            self.ui.dependent.toggleEnabled(singleValueChannels, True)
+            self.ui.dependent.toggleEnabled(SingleValueChannels, True)
 
 
 class ImageExporter(Exporter):

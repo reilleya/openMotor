@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget, QApplication, QGraphicsScene, QGraphicsPoly
 from PyQt5.QtGui import QPolygonF, QBrush
 from PyQt5.QtCore import QPointF, Qt
 
-import motorlib
+from motorlib.enums.simAlertLevel import SimAlertLevel
 from ..views.NozzlePreview_ui import Ui_NozzlePreview
 
 class NozzlePreviewWidget(QWidget):
@@ -37,7 +37,7 @@ class NozzlePreviewWidget(QWidget):
         self.lower.setPolygon(QPolygonF([]))
 
         for alert in geomAlerts:
-            if alert.level == motorlib.simResult.SimAlertLevel.ERROR:
+            if alert.level == SimAlertLevel.ERROR:
                 return
 
         convAngle = radians(nozzle.props['convAngle'].getValue())

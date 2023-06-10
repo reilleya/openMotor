@@ -3,7 +3,7 @@ from threading import Thread
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtSignal
 
-import motorlib
+from motorlib.enums.simAlertLevel import SimAlertLevel
 
 from ..views.GrainPreview_ui import Ui_GrainPreview
 
@@ -30,7 +30,7 @@ class GrainPreviewWidget(QWidget):
             self.ui.tabAlerts.addItem(err.description)
 
         for alert in geomAlerts:
-            if alert.level == motorlib.simResult.SimAlertLevel.ERROR:
+            if alert.level == SimAlertLevel.ERROR:
                 return
 
         dataThread = Thread(target=self._genData, args=[grain])

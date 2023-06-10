@@ -1,6 +1,8 @@
 """Conains the motor class and a supporting configuration property collection."""
+from .enums.multiValueChannels import MultiValueChannels
 from .enums.simAlertLevel import SimAlertLevel
 from .enums.simAlertType import SimAlertType
+from .enums.singleValueChannels import SingleValueChannels
 from .grains import grainTypes
 from .nozzle import Nozzle
 from .propellant import Propellant
@@ -186,18 +188,18 @@ class Motor():
         perGrainReg = [0 for grain in self.grains]
 
         # At t = 0, the motor has ignited
-        simRes.channels['time'].addData(0)
-        simRes.channels['kn'].addData(self.calcKN(perGrainReg, 0))
-        simRes.channels['pressure'].addData(self.calcIdealPressure(perGrainReg, 0, None))
-        simRes.channels['force'].addData(0)
-        simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
-        simRes.channels['volumeLoading'].addData(100 * (1 - (self.calcFreeVolume(perGrainReg) / motorVolume)))
-        simRes.channels['massFlow'].addData([0 for grain in self.grains])
-        simRes.channels['massFlux'].addData([0 for grain in self.grains])
-        simRes.channels['regression'].addData([0 for grains in self.grains])
-        simRes.channels['web'].addData([grain.getWebLeft(0) for grain in self.grains])
-        simRes.channels['exitPressure'].addData(0)
-        simRes.channels['dThroat'].addData(0)
+        simRes.channels[SingleValueChannels.TIME].addData(0)
+        simRes.channels[SingleValueChannels.KN].addData(self.calcKN(perGrainReg, 0))
+        simRes.channels[SingleValueChannels.PRESSURE].addData(self.calcIdealPressure(perGrainReg, 0, None))
+        simRes.channels[SingleValueChannels.FORCE].addData(0)
+        simRes.channels[MultiValueChannels.MASS].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
+        simRes.channels[SingleValueChannels.VOLUME_LOADING].addData(100 * (1 - (self.calcFreeVolume(perGrainReg) / motorVolume)))
+        simRes.channels[MultiValueChannels.MASS_FLOW].addData([0 for grain in self.grains])
+        simRes.channels[MultiValueChannels.MASS_FLUX].addData([0 for grain in self.grains])
+        simRes.channels[MultiValueChannels.REGRESSION].addData([0 for grains in self.grains])
+        simRes.channels[MultiValueChannels.WEB].addData([grain.getWebLeft(0) for grain in self.grains])
+        simRes.channels[SingleValueChannels.EXIT_PRESSURE].addData(0)
+        simRes.channels[SingleValueChannels.D_THROAT].addData(0)
 
         # Check port/throat ratio and add a warning if it is large enough
         aftPort = self.grains[-1].getPortArea(0)
@@ -219,44 +221,44 @@ class Motor():
             for gid, grain in enumerate(self.grains):
                 if grain.getWebLeft(perGrainReg[gid]) > burnoutWebThres:
                     # Calculate regression at the current pressure
-                    reg = dTime * self.propellant.getBurnRate(simRes.channels['pressure'].getLast())
+                    reg = dTime * self.propellant.getBurnRate(simRes.channels[SingleValueChannels.PRESSURE].getLast())
                     # Find the mass flux through the grain based on the mass flow fed into from grains above it
                     perGrainMassFlux[gid] = grain.getPeakMassFlux(massFlow, dTime, perGrainReg[gid], reg, density)
                     # Find the mass of the grain after regression
                     perGrainMass[gid] = grain.getVolumeAtRegression(perGrainReg[gid]) * density
                     # Add the change in grain mass to the mass flow
-                    massFlow += (simRes.channels['mass'].getLast()[gid] - perGrainMass[gid]) / dTime
+                    massFlow += (simRes.channels[MultiValueChannels.MASS].getLast()[gid] - perGrainMass[gid]) / dTime
                     # Apply the regression
                     perGrainReg[gid] += reg
                     perGrainWeb[gid] = grain.getWebLeft(perGrainReg[gid])
                 perGrainMassFlow[gid] = massFlow
-            simRes.channels['regression'].addData(perGrainReg[:])
-            simRes.channels['web'].addData(perGrainWeb)
+            simRes.channels[MultiValueChannels.REGRESSION].addData(perGrainReg[:])
+            simRes.channels[MultiValueChannels.WEB].addData(perGrainWeb)
 
-            simRes.channels['volumeLoading'].addData(100 * (1 - (self.calcFreeVolume(perGrainReg) / motorVolume)))
-            simRes.channels['mass'].addData(perGrainMass)
-            simRes.channels['massFlow'].addData(perGrainMassFlow)
-            simRes.channels['massFlux'].addData(perGrainMassFlux)
+            simRes.channels[SingleValueChannels.VOLUME_LOADING].addData(100 * (1 - (self.calcFreeVolume(perGrainReg) / motorVolume)))
+            simRes.channels[MultiValueChannels.MASS].addData(perGrainMass)
+            simRes.channels[MultiValueChannels.MASS_FLOW].addData(perGrainMassFlow)
+            simRes.channels[MultiValueChannels.MASS_FLUX].addData(perGrainMassFlux)
 
             # Calculate KN
-            dThroat = simRes.channels['dThroat'].getLast()
-            simRes.channels['kn'].addData(self.calcKN(perGrainReg, dThroat))
+            dThroat = simRes.channels[SingleValueChannels.D_THROAT].getLast()
+            simRes.channels[SingleValueChannels.KN].addData(self.calcKN(perGrainReg, dThroat))
 
             # Calculate Pressure
-            lastKn = simRes.channels['kn'].getLast()
+            lastKn = simRes.channels[SingleValueChannels.KN].getLast()
             pressure = self.calcIdealPressure(perGrainReg, dThroat, lastKn)
-            simRes.channels['pressure'].addData(pressure)
+            simRes.channels[SingleValueChannels.PRESSURE].addData(pressure)
 
             # Calculate Exit Pressure
             _, _, gamma, _, _ = self.propellant.getCombustionProperties(pressure)
             exitPressure = self.nozzle.getExitPressure(gamma, pressure)
-            simRes.channels['exitPressure'].addData(exitPressure)
+            simRes.channels[SingleValueChannels.EXIT_PRESSURE].addData(exitPressure)
 
             # Calculate force
-            force = self.calcForce(simRes.channels['pressure'].getLast(), dThroat, exitPressure)
-            simRes.channels['force'].addData(force)
+            force = self.calcForce(simRes.channels[SingleValueChannels.PRESSURE].getLast(), dThroat, exitPressure)
+            simRes.channels[SingleValueChannels.FORCE].addData(force)
 
-            simRes.channels['time'].addData(simRes.channels['time'].getLast() + dTime)
+            simRes.channels[SingleValueChannels.TIME].addData(simRes.channels[SingleValueChannels.TIME].getLast() + dTime)
 
             # Calculate any slag deposition or erosion of the throat
             if pressure == 0:
@@ -265,7 +267,7 @@ class Motor():
                 slagRate = (1 / pressure) * self.nozzle.getProperty('slagCoeff')
             erosionRate = pressure * self.nozzle.getProperty('erosionCoeff')
             change = dTime * ((-2 * slagRate) + (2 * erosionRate))
-            simRes.channels['dThroat'].addData(dThroat + change)
+            simRes.channels[SingleValueChannels.D_THROAT].addData(dThroat + change)
 
             if callback is not None:
                 # Uses the grain with the largest percentage of its web left
@@ -292,7 +294,7 @@ class Motor():
 
         # Note that this only adds all errors found on the first datapoint where there were errors to avoid repeating
         # errors. It should be revisited if getPressureErrors ever returns multiple types of errors
-        for pressure in simRes.channels['pressure'].getData():
+        for pressure in simRes.channels[SingleValueChannels.PRESSURE].getData():
             if pressure > 0:
                 err = self.propellant.getPressureErrors(pressure)
                 if len(err) > 0:

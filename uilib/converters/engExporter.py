@@ -1,8 +1,7 @@
-import xml.etree.ElementTree as ET
-from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox, QApplication
+from PyQt5.QtWidgets import QDialog, QApplication
 
+from motorlib.enums.singleValueChannels import SingleValueChannels
 from motorlib.properties import PropertyCollection, FloatProperty, StringProperty, EnumProperty
-import motorlib
 from ..converter import Exporter
 
 from ..views.EngExporter_ui import Ui_EngExporterDialog
@@ -59,8 +58,8 @@ class EngExporter(Exporter):
                                  config['manufacturer']
                                  ]) + '\n'
 
-            timeData = self.manager.simRes.channels['time'].getData()
-            forceData = self.manager.simRes.channels['force'].getData()
+            timeData = self.manager.simRes.channels[SingleValueChannels.TIME].getData()
+            forceData = self.manager.simRes.channels[SingleValueChannels.FORCE].getData()
             # Add on a 0-thrust datapoint right after the burn to satisfy RAS Aero
             if forceData[-1] != 0:
                 timeData.append(self.manager.simRes.getBurnTime() + 0.01)
