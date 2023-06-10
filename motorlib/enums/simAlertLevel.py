@@ -1,8 +1,10 @@
 from enum import Enum
 
 
-class SimAlertLevel(Enum):
+# Python 3.11 supports `StrEnum` that would make this a bit more concise to write
+# https://docs.python.org/3/library/enum.html#enum.StrEnum
+class SimAlertLevel(str, Enum):
     """Levels of severity for sim alerts"""
-    ERROR = 1
-    WARNING = 2
-    MESSAGE = 3
+    ERROR = 'Error'
+    WARNING = 'Warning'
+    MESSAGE = 'Message'

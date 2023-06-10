@@ -1,6 +1,7 @@
 import unittest
 import motorlib.grains
-from motorlib.simResult import SimAlertLevel, SimAlertType
+from motorlib.enums.simAlertLevel import SimAlertLevel
+from motorlib.enums.simAlertType import SimAlertType
 
 
 class BatesGrainMethods(unittest.TestCase):

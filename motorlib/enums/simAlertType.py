@@ -1,8 +1,9 @@
 from enum import Enum
 
-
-class SimAlertType(Enum):
+# Python 3.11 supports `StrEnum` that would make this a bit more concise to write
+# https://docs.python.org/3/library/enum.html#enum.StrEnum
+class SimAlertType(str, Enum):
     """Types of sim alerts"""
-    GEOMETRY = 1
-    CONSTRAINT = 2
-    VALUE = 3
+    GEOMETRY = 'Geometry'
+    CONSTRAINT = 'Constraint'
+    VALUE = 'Value'

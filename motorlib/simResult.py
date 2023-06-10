@@ -4,20 +4,7 @@ the channels and components that it is comprised of."""
 import math
 from . import geometry
 from . import units
-from .enums.simAlertLevel import SimAlertLevel
-from .enums.simAlertType import SimAlertType
 
-alertLevelNames = {
-    SimAlertLevel.ERROR: 'Error',
-    SimAlertLevel.WARNING: 'Warning',
-    SimAlertLevel.MESSAGE: 'Message'
-}
-
-alertTypeNames = {
-    SimAlertType.GEOMETRY: 'Geometry',
-    SimAlertType.CONSTRAINT: 'Constraint',
-    SimAlertType.VALUE: 'Value'
-}
 
 class SimAlert():
     """A sim alert signifies a possible problem with a motor. It has levels of severity including 'error' (simulation
