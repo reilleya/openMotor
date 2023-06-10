@@ -3,9 +3,11 @@ import math
 
 from scipy.optimize import fsolve
 
+from .enums.simAlertLevel import SimAlertLevel
+from .enums.simAlertType import SimAlertType
 from .properties import FloatProperty, PropertyCollection
 from . import geometry
-from .simResult import SimAlert, SimAlertLevel, SimAlertType
+from .simResult import SimAlert
 
 
 def eRatioFromPRatio(k, pRatio):

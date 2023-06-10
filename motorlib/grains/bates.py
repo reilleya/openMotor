@@ -4,9 +4,11 @@ import numpy as np
 import skfmm
 from skimage import measure
 
+from ..enums.simAlertLevel import SimAlertLevel
+from ..enums.simAlertType import SimAlertType
 from ..grain import PerforatedGrain
 from .. import geometry
-from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+from ..simResult import SimAlert
 from ..properties import FloatProperty
 
 class BatesGrain(PerforatedGrain):

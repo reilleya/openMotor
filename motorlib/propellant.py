@@ -1,7 +1,8 @@
 """Propellant submodule that contains the propellant class."""
-
+from .enums.simAlertLevel import SimAlertLevel
+from .enums.simAlertType import SimAlertType
 from .properties import PropertyCollection, FloatProperty, StringProperty, TabularProperty
-from .simResult import SimAlert, SimAlertLevel, SimAlertType
+from .simResult import SimAlert
 from .constants import gasConstant
 
 class PropellantTab(PropertyCollection):

@@ -10,7 +10,9 @@ from scipy.signal import savgol_filter
 from scipy import interpolate
 
 from . import geometry
-from .simResult import SimAlert, SimAlertLevel, SimAlertType
+from .enums.simAlertLevel import SimAlertLevel
+from .enums.simAlertType import SimAlertType
+from .simResult import SimAlert
 from .properties import FloatProperty, EnumProperty, PropertyCollection
 
 class Grain(PropertyCollection):

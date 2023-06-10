@@ -2,9 +2,11 @@
 
 import numpy as np
 
+from ..enums.simAlertLevel import SimAlertLevel
+from ..enums.simAlertType import SimAlertType
 from ..grain import FmmGrain
 from ..properties import FloatProperty
-from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+from ..simResult import SimAlert
 
 class CGrain(FmmGrain):
     """Defines a C grain, which is a cylindrical grain with a single slot taken out. The slot is a rectangular section

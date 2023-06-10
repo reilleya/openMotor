@@ -2,9 +2,11 @@
 
 import numpy as np
 
+from ..enums.simAlertLevel import SimAlertLevel
+from ..enums.simAlertType import SimAlertType
 from ..grain import FmmGrain
 from ..properties import IntProperty, FloatProperty
-from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+from ..simResult import SimAlert
 
 class StarGrain(FmmGrain):
     """A star grain has a core shaped like a star."""

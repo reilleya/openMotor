@@ -2,9 +2,11 @@
 
 import skimage.draw as draw
 
+from ..enums.simAlertLevel import SimAlertLevel
+from ..enums.simAlertType import SimAlertType
 from ..grain import FmmGrain
 from ..properties import PolygonProperty, EnumProperty
-from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+from ..simResult import SimAlert
 from ..units import getAllConversions, convert
 
 class CustomGrain(FmmGrain):

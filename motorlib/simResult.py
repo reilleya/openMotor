@@ -2,22 +2,10 @@
 the channels and components that it is comprised of."""
 
 import math
-from enum import Enum
-
 from . import geometry
 from . import units
-
-class SimAlertLevel(Enum):
-    """Levels of severity for sim alerts"""
-    ERROR = 1
-    WARNING = 2
-    MESSAGE = 3
-
-class SimAlertType(Enum):
-    """Types of sim alerts"""
-    GEOMETRY = 1
-    CONSTRAINT = 2
-    VALUE = 3
+from .enums.simAlertLevel import SimAlertLevel
+from .enums.simAlertType import SimAlertType
 
 alertLevelNames = {
     SimAlertLevel.ERROR: 'Error',

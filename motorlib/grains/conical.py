@@ -5,9 +5,11 @@ import skfmm
 from skimage import measure
 from math import atan, cos, sin
 
+from ..enums.simAlertLevel import SimAlertLevel
+from ..enums.simAlertType import SimAlertType
 from ..grain import Grain
 from .. import geometry
-from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+from ..simResult import SimAlert
 from ..properties import FloatProperty, EnumProperty
 
 class ConicalGrain(Grain):

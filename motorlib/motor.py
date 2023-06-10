@@ -1,9 +1,11 @@
 """Conains the motor class and a supporting configuration property collection."""
+from .enums.simAlertLevel import SimAlertLevel
+from .enums.simAlertType import SimAlertType
 from .grains import grainTypes
 from .nozzle import Nozzle
 from .propellant import Propellant
 from . import geometry
-from .simResult import SimulationResult, SimAlert, SimAlertLevel, SimAlertType
+from .simResult import SimulationResult, SimAlert
 from .grains import EndBurningGrain
 from .properties import PropertyCollection, FloatProperty, IntProperty
 from .constants import gasConstant
