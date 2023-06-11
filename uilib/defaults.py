@@ -1,15 +1,15 @@
 """Provides default properties for the UI."""
-from motorlib.enums.units.BurnRateCoefficientUnit import BurnRateCoefficientUnit
-from motorlib.enums.units.DensityUnit import DensityUnit
-from motorlib.enums.units.LengthUnit import LengthUnit
-from motorlib.enums.units.MassFlowUnit import MassFlowUnit
-from motorlib.enums.units.MassFluxUnit import MassFluxUnit
-from motorlib.enums.units.MassUnit import MassUnit
-from motorlib.enums.units.NozzleErosionCoefficientUnit import NozzleErosionCoefficientUnit
-from motorlib.enums.units.NozzleSlagCoefficientUnit import NozzleSlagCoefficientUnit
-from motorlib.enums.units.PressureUnit import PressureUnit
-from motorlib.enums.units.VelocityUnit import VelocityUnit
-from motorlib.enums.units.VolumeUnit import VolumeUnit
+from motorlib.enums.units.burnRateCoefficientUnit import BurnRateCoefficientUnit
+from motorlib.enums.units.densityUnit import DensityUnit
+from motorlib.enums.units.lengthUnit import LengthUnit
+from motorlib.enums.units.massFlowUnit import MassFlowUnit
+from motorlib.enums.units.massFluxUnit import MassFluxUnit
+from motorlib.enums.units.massUnit import MassUnit
+from motorlib.enums.units.nozzleErosionCoefficientUnit import NozzleErosionCoefficientUnit
+from motorlib.enums.units.nozzleSlagCoefficientUnit import NozzleSlagCoefficientUnit
+from motorlib.enums.units.pressureUnit import PressureUnit
+from motorlib.enums.units.velocityUnit import VelocityUnit
+from motorlib.enums.units.volumeUnit import VolumeUnit
 
 DEFAULT_PREFERENCES = {
     'general': {

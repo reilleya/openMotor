@@ -1,8 +1,8 @@
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-from motorlib.enums.units.PressureUnit import PressureUnit
-from motorlib.enums.units.VelocityUnit import VelocityUnit
+from motorlib.enums.units.pressureUnit import PressureUnit
+from motorlib.enums.units.velocityUnit import VelocityUnit
 from motorlib.units import convertAll
 
 class BurnrateGraph(FigureCanvas):

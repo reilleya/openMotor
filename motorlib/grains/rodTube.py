@@ -6,7 +6,7 @@ from skimage import measure
 
 from ..enums.simAlertLevel import SimAlertLevel
 from ..enums.simAlertType import SimAlertType
-from ..enums.units.LengthUnit import LengthUnit
+from ..enums.units.lengthUnit import LengthUnit
 from ..grain import PerforatedGrain
 from .. import geometry
 from ..simResult import SimAlert

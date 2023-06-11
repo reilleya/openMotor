@@ -6,11 +6,12 @@ from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QHeaderView
 import motorlib
 import uilib.widgets.aboutDialog
 import uilib.widgets.preferencesMenu
-from motorlib.enums.units.ImpulseUnit import ImpulseUnit
-from motorlib.enums.units.LengthUnit import LengthUnit
-from motorlib.enums.units.MassFluxUnit import MassFluxUnit
-from motorlib.enums.units.MassUnit import MassUnit
-from motorlib.enums.units.PressureUnit import PressureUnit
+from motorlib.enums.units.impulseUnit import ImpulseUnit
+from motorlib.enums.units.lengthUnit import LengthUnit
+from motorlib.enums.units.massFluxUnit import MassFluxUnit
+from motorlib.enums.units.massUnit import MassUnit
+from motorlib.enums.units.pressureUnit import PressureUnit
+from motorlib.enums.units.timeUnit import TimeUnit
 from uilib.views.MainWindow_ui import Ui_MainWindow
 
 
@@ -304,8 +305,8 @@ class Window(QMainWindow):
     def updateMotorStats(self, simResult):
         self.ui.labelMotorDesignation.setText(simResult.getDesignation())
         self.ui.labelImpulse.setText(self.formatMotorStat(simResult.getImpulse(), ImpulseUnit.NEWTON_SECOND))
-        self.ui.labelDeliveredISP.setText(self.formatMotorStat(simResult.getISP(), 's'))
-        self.ui.labelBurnTime.setText(self.formatMotorStat(simResult.getBurnTime(), 's'))
+        self.ui.labelDeliveredISP.setText(self.formatMotorStat(simResult.getISP(), TimeUnit.SECOND))
+        self.ui.labelBurnTime.setText(self.formatMotorStat(simResult.getBurnTime(), TimeUnit.SECOND))
         self.ui.labelVolumeLoading.setText('{:.2f}%'.format(simResult.getVolumeLoading()))
 
         self.ui.labelAveragePressure.setText(self.formatMotorStat(simResult.getAveragePressure(), PressureUnit.PASCAL))

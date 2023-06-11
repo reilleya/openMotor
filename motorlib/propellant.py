@@ -1,9 +1,11 @@
 """Propellant submodule that contains the propellant class."""
 from .enums.simAlertLevel import SimAlertLevel
 from .enums.simAlertType import SimAlertType
-from .enums.units.BurnRateCoefficientUnit import BurnRateCoefficientUnit
-from .enums.units.DensityUnit import DensityUnit
-from .enums.units.PressureUnit import PressureUnit
+from .enums.units.burnRateCoefficientUnit import BurnRateCoefficientUnit
+from .enums.units.densityUnit import DensityUnit
+from .enums.units.massUnit import MassUnit
+from .enums.units.pressureUnit import PressureUnit
+from .enums.units.temperatureUnit import TemperatureUnit
 from .properties import PropertyCollection, FloatProperty, StringProperty, TabularProperty
 from .simResult import SimAlert
 from .constants import gasConstant
@@ -17,8 +19,8 @@ class PropellantTab(PropertyCollection):
         self.props['a'] = FloatProperty('Burn rate Coefficient', BurnRateCoefficientUnit.METER_PER_SECOND_PASCAL_TO_THE_POWER_OF_N, 1E-8, 2)
         self.props['n'] = FloatProperty('Burn rate Exponent', '', -0.99, 0.99)
         self.props['k'] = FloatProperty('Specific Heat Ratio', '', 1+1e-6, 10)
-        self.props['t'] = FloatProperty('Combustion Temperature', 'K', 1, 10000)
-        self.props['m'] = FloatProperty('Exhaust Molar Mass', 'g/mol', 1e-6, 100)
+        self.props['t'] = FloatProperty('Combustion Temperature', TemperatureUnit.KELVIN, 1, 10000)
+        self.props['m'] = FloatProperty('Exhaust Molar Mass', MassUnit.GRAM_PER_MOLE, 1e-6, 100)
         if tabDict is not None:
             self.setProperties(tabDict)
 

@@ -5,9 +5,10 @@ from scipy.optimize import fsolve
 
 from .enums.simAlertLevel import SimAlertLevel
 from .enums.simAlertType import SimAlertType
-from .enums.units.LengthUnit import LengthUnit
-from .enums.units.NozzleErosionCoefficientUnit import NozzleErosionCoefficientUnit
-from .enums.units.NozzleSlagCoefficientUnit import NozzleSlagCoefficientUnit
+from .enums.units.angleUnit import AngleUnit
+from .enums.units.lengthUnit import LengthUnit
+from .enums.units.nozzleErosionCoefficientUnit import NozzleErosionCoefficientUnit
+from .enums.units.nozzleSlagCoefficientUnit import NozzleSlagCoefficientUnit
 from .properties import FloatProperty, PropertyCollection
 from . import geometry
 from .simResult import SimAlert
@@ -24,8 +25,8 @@ class Nozzle(PropertyCollection):
         self.props['throat'] = FloatProperty('Throat Diameter', LengthUnit.METER, 0, 0.5)
         self.props['exit'] = FloatProperty('Exit Diameter', LengthUnit.METER, 0, 1)
         self.props['efficiency'] = FloatProperty('Efficiency', '', 0, 2)
-        self.props['divAngle'] = FloatProperty('Divergence Half Angle', 'deg', 0, 90)
-        self.props['convAngle'] = FloatProperty('Convergence Half Angle', 'deg', 0, 90)
+        self.props['divAngle'] = FloatProperty('Divergence Half Angle', AngleUnit.DEGREES, 0, 90)
+        self.props['convAngle'] = FloatProperty('Convergence Half Angle', AngleUnit.DEGREES, 0, 90)
         self.props['throatLength'] = FloatProperty('Throat Length', LengthUnit.METER, 0, 0.5)
         self.props['slagCoeff'] = FloatProperty('Slag Buildup Coefficient', NozzleSlagCoefficientUnit.METER_PASCAL_PER_SECOND, 0, 1e6)
         self.props['erosionCoeff'] = FloatProperty('Throat Erosion Coefficient', NozzleErosionCoefficientUnit.METER_PER_SECOND_PASCAL, 0, 1e6)

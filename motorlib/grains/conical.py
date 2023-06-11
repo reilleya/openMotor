@@ -8,7 +8,7 @@ from math import atan, cos, sin
 from ..enums.inhibitedEnds import InhibitedEnds
 from ..enums.simAlertLevel import SimAlertLevel
 from ..enums.simAlertType import SimAlertType
-from ..enums.units.LengthUnit import LengthUnit
+from ..enums.units.lengthUnit import LengthUnit
 from ..grain import Grain
 from .. import geometry
 from ..simResult import SimAlert

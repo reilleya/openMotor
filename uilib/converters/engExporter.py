@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import QDialog, QApplication
 
 from motorlib.enums.singleValueChannels import SingleValueChannels
-from motorlib.enums.units.LengthUnit import LengthUnit
-from motorlib.enums.units.MassUnit import MassUnit
+from motorlib.enums.units.lengthUnit import LengthUnit
+from motorlib.enums.units.massUnit import MassUnit
 from motorlib.properties import PropertyCollection, FloatProperty, StringProperty, EnumProperty
 from ..converter import Exporter
+from ..enums.fileAction import FileAction
 
 from ..views.EngExporter_ui import Ui_EngExporterDialog
 
@@ -16,7 +17,7 @@ class EngSettings(PropertyCollection):
         self.props['hardwareMass'] = FloatProperty('Hardware Mass', MassUnit.KILOGRAM, 0, 1000)
         self.props['designation'] = StringProperty('Motor Designation')
         self.props['manufacturer'] = StringProperty('Motor Manufacturer')
-        self.props['append'] = EnumProperty('Existing File', ['Append', 'Overwrite'])
+        self.props['append'] = EnumProperty('Existing File', [FileAction.APPEND, FileAction.OVERWRITE])
 
 
 class EngExportMenu(QDialog):
@@ -48,7 +49,7 @@ class EngExporter(Exporter):
         self.reqNotMet = "Must have run a simulation to export a .ENG file."
 
     def doConversion(self, path, config):
-        mode = 'a' if config['append'] == 'Append' else 'w'
+        mode = 'a' if config['append'] == FileAction.APPEND else 'w'
         with open(path, mode) as outFile:
             propMass = self.manager.simRes.getPropellantMass()
             contents = ' '.join([config['designation'],

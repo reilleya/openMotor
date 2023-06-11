@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtCore import pyqtSignal
 
-from motorlib.enums.units.BurnRateCoefficientUnit import BurnRateCoefficientUnit
-from motorlib.enums.units.VelocityUnit import VelocityUnit
+from motorlib.enums.units.burnRateCoefficientUnit import BurnRateCoefficientUnit
+from motorlib.enums.units.velocityUnit import VelocityUnit
 from motorlib.units import convert
 from motorlib.propellant import PropellantTab
 from motorlib.constants import gasConstant

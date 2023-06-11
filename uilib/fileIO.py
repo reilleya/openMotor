@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import QApplication
 import yaml
 import appdirs
 
-from motorlib.enums.units.NozzleErosionCoefficientUnit import NozzleErosionCoefficientUnit
-from motorlib.enums.units.NozzleSlagCoefficientUnit import NozzleSlagCoefficientUnit
+from motorlib.enums.units.nozzleErosionCoefficientUnit import NozzleErosionCoefficientUnit
+from motorlib.enums.units.nozzleSlagCoefficientUnit import NozzleSlagCoefficientUnit
 from .defaults import DEFAULT_PREFERENCES, DEFAULT_PROPELLANTS, KNSU_PROPS
 from .enums.fileType import FileType
 from .logger import logger

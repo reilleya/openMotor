@@ -2,7 +2,7 @@ import unittest
 import motorlib.grains
 from motorlib.enums.simAlertLevel import SimAlertLevel
 from motorlib.enums.simAlertType import SimAlertType
-from motorlib.enums.units.LengthUnit import LengthUnit
+from motorlib.enums.units.lengthUnit import LengthUnit
 
 
 class BatesGrainMethods(unittest.TestCase):

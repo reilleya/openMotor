@@ -6,12 +6,13 @@ from . import geometry
 from . import units
 from .enums.multiValueChannels import MultiValueChannels
 from .enums.singleValueChannels import SingleValueChannels
-from .enums.units.ForceUnit import ForceUnit
-from .enums.units.LengthUnit import LengthUnit
-from .enums.units.MassFlowUnit import MassFlowUnit
-from .enums.units.MassFluxUnit import MassFluxUnit
-from .enums.units.MassUnit import MassUnit
-from .enums.units.PressureUnit import PressureUnit
+from .enums.units.forceUnit import ForceUnit
+from .enums.units.lengthUnit import LengthUnit
+from .enums.units.massFlowUnit import MassFlowUnit
+from .enums.units.massFluxUnit import MassFluxUnit
+from .enums.units.massUnit import MassUnit
+from .enums.units.pressureUnit import PressureUnit
+from .enums.units.timeUnit import TimeUnit
 
 
 class SimAlert():
@@ -96,7 +97,7 @@ class SimulationResult():
         self.success = False
 
         self.channels = {
-            SingleValueChannels.TIME: LogChannel('Time', float, 's'),
+            SingleValueChannels.TIME: LogChannel('Time', float, TimeUnit.SECOND),
             SingleValueChannels.KN: LogChannel('Kn', float, ''),
             SingleValueChannels.PRESSURE: LogChannel('Chamber Pressure', float, PressureUnit.PASCAL),
             SingleValueChannels.FORCE: LogChannel('Thrust', float, ForceUnit.NEWTON),

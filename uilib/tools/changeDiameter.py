@@ -1,5 +1,5 @@
 import motorlib
-from motorlib.enums.units.LengthUnit import LengthUnit
+from motorlib.enums.units.lengthUnit import LengthUnit
 
 from ..tool import Tool
 

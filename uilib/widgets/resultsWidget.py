@@ -4,8 +4,8 @@ import numpy as np
 import motorlib
 from motorlib.enums.multiValueChannels import MultiValueChannels
 from motorlib.enums.singleValueChannels import SingleValueChannels
-from motorlib.enums.units.ImpulseUnit import ImpulseUnit
-from motorlib.enums.units.MassUnit import MassUnit
+from motorlib.enums.units.impulseUnit import ImpulseUnit
+from motorlib.enums.units.massUnit import MassUnit
 
 from .grainImageWidget import GrainImageWidget
 

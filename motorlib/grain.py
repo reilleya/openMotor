@@ -13,7 +13,7 @@ from . import geometry
 from .enums.inhibitedEnds import InhibitedEnds
 from .enums.simAlertLevel import SimAlertLevel
 from .enums.simAlertType import SimAlertType
-from .enums.units.LengthUnit import LengthUnit
+from .enums.units.lengthUnit import LengthUnit
 from .simResult import SimAlert
 from .properties import FloatProperty, EnumProperty, PropertyCollection
 

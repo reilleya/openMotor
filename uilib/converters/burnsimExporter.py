@@ -1,9 +1,9 @@
 import xml.etree.ElementTree as ET
 
 from motorlib.enums.inhibitedEnds import InhibitedEnds
-from motorlib.enums.units.BurnRateCoefficientUnit import BurnRateCoefficientUnit
-from motorlib.enums.units.DensityUnit import DensityUnit
-from motorlib.enums.units.LengthUnit import LengthUnit
+from motorlib.enums.units.burnRateCoefficientUnit import BurnRateCoefficientUnit
+from motorlib.enums.units.densityUnit import DensityUnit
+from motorlib.enums.units.lengthUnit import LengthUnit
 from motorlib.properties import PropertyCollection, FloatProperty, StringProperty
 import motorlib
 from ..converter import Exporter
