@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 
 import motorlib
+from motorlib.enums.inhibitedEnds import InhibitedEnds
 from motorlib.enums.units.BurnRateCoefficientUnit import BurnRateCoefficientUnit
 from motorlib.enums.units.DensityUnit import DensityUnit
 from motorlib.enums.units.LengthUnit import LengthUnit
@@ -91,9 +92,9 @@ class BurnSimImporter(Importer):
                     grainType = child.attrib['Type']
 
                     if child.attrib['EndsInhibited'] == '1':
-                        motor.grains[-1].setProperty('inhibitedEnds', 'Top')
+                        motor.grains[-1].setProperty('inhibitedEnds', InhibitedEnds.TOP)
                     elif child.attrib['EndsInhibited'] == '2':
-                        motor.grains[-1].setProperty('inhibitedEnds', 'Both')
+                        motor.grains[-1].setProperty('inhibitedEnds', InhibitedEnds.BOTH)
 
                     if grainType in ('1', '3', '7'):  # Grains with core diameter
                         motor.grains[-1].setProperty('coreDiameter', inToM(child.attrib['CoreDiameter']))

@@ -1,5 +1,7 @@
 import unittest
 import motorlib.grains
+from motorlib.enums.inhibitedEnds import InhibitedEnds
+
 
 class ConicalGrainMethods(unittest.TestCase):
 
@@ -28,7 +30,7 @@ class ConicalGrainMethods(unittest.TestCase):
             'diameter': 0.01,
             'forwardCoreDiameter': 0.0025,
             'aftCoreDiameter': 0.002,
-            'inhibitedEnds': 'Both'
+            'inhibitedEnds': InhibitedEnds.BOTH
         }
 
         testGrain = motorlib.grains.ConicalGrain()
@@ -55,7 +57,7 @@ class ConicalGrainMethods(unittest.TestCase):
             'diameter': 0.01,
             'forwardCoreDiameter': 0.0025,
             'aftCoreDiameter': 0.002,
-            'inhibitedEnds': 'Both'
+            'inhibitedEnds': InhibitedEnds.BOTH
         }
 
         forwardFaceArea = 7.36310778e-05
@@ -69,13 +71,13 @@ class ConicalGrainMethods(unittest.TestCase):
         self.assertAlmostEqual(testGrain.getSurfaceAreaAtRegression(0.001), 0.0013351790867045452)
 
         # For when uninibited conical grains work:
-        """testGrain.setProperty('inhibitedEnds', 'Top')
+        """testGrain.setProperty('inhibitedEnds', InhibitedEnds.TOP)
         self.assertAlmostEqual(testGrain.getSurfaceAreaAtRegression(0), lateralArea + aftFaceArea)
 
-        testGrain.setProperty('inhibitedEnds', 'Bottom')
+        testGrain.setProperty('inhibitedEnds', InhibitedEnds.BOTTOM)
         self.assertAlmostEqual(testGrain.getSurfaceAreaAtRegression(0), lateralArea + forwardFaceArea)
 
-        testGrain.setProperty('inhibitedEnds', 'Neither')
+        testGrain.setProperty('inhibitedEnds', InhibitedEnds.NEITHER)
         self.assertAlmostEqual(testGrain.getSurfaceAreaAtRegression(0), lateralArea + forwardFaceArea + aftFaceArea)"""
 
     def test_getVolumeAtRegression(self):
@@ -84,7 +86,7 @@ class ConicalGrainMethods(unittest.TestCase):
             'diameter': 0.01,
             'forwardCoreDiameter': 0.0025,
             'aftCoreDiameter': 0.002,
-            'inhibitedEnds': 'Both'
+            'inhibitedEnds': InhibitedEnds.BOTH
         }
 
         testGrain = motorlib.grains.ConicalGrain()
@@ -100,7 +102,7 @@ class ConicalGrainMethods(unittest.TestCase):
             'diameter': 0.01,
             'forwardCoreDiameter': 0.0025,
             'aftCoreDiameter': 0.002,
-            'inhibitedEnds': 'Both'
+            'inhibitedEnds': InhibitedEnds.BOTH
         }
 
         testGrain = motorlib.grains.ConicalGrain()

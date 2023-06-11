@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 
+from motorlib.enums.inhibitedEnds import InhibitedEnds
 from motorlib.enums.units.BurnRateCoefficientUnit import BurnRateCoefficientUnit
 from motorlib.enums.units.DensityUnit import DensityUnit
 from motorlib.enums.units.LengthUnit import LengthUnit
@@ -70,9 +71,9 @@ class BurnSimExporter(Exporter):
                     outGrain.attrib['EndsInhibited'] = '1'
                 else:
                     ends = grain.getProperty('inhibitedEnds')
-                    if ends == 'Neither':
+                    if ends == InhibitedEnds.NEITHER:
                         outGrain.attrib['EndsInhibited'] = '0'
-                    elif ends in ('Top', 'Bottom'):
+                    elif ends in (InhibitedEnds.TOP, InhibitedEnds.BOTTOM):
                         outGrain.attrib['EndsInhibited'] = '1'
                     else:
                         outGrain.attrib['EndsInhibited'] = '2'
