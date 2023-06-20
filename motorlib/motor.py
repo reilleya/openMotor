@@ -3,10 +3,7 @@ from .enums.multiValueChannels import MultiValueChannels
 from .enums.simAlertLevel import SimAlertLevel
 from .enums.simAlertType import SimAlertType
 from .enums.singleValueChannels import SingleValueChannels
-from .enums.units.lengthUnit import LengthUnit
-from .enums.units.massFluxUnit import MassFluxUnit
-from .enums.units.pressureUnit import PressureUnit
-from .enums.units.timeUnit import TimeUnit
+from .enums.unit import Unit
 from .grains import grainTypes
 from .nozzle import Nozzle
 from .propellant import Propellant
@@ -22,15 +19,15 @@ class MotorConfig(PropertyCollection):
     def __init__(self):
         super().__init__()
         # Limits
-        self.props['maxPressure'] = FloatProperty('Maximum Allowed Pressure', PressureUnit.PASCAL, 0, 7e7)
-        self.props['maxMassFlux'] = FloatProperty('Maximum Allowed Mass Flux', MassFluxUnit.KILOGRAM_PER_SQUARE_METER_PER_SECOND, 0, 1e4)
+        self.props['maxPressure'] = FloatProperty('Maximum Allowed Pressure', Unit.PASCAL, 0, 7e7)
+        self.props['maxMassFlux'] = FloatProperty('Maximum Allowed Mass Flux', Unit.KILOGRAM_PER_SQUARE_METER_PER_SECOND, 0, 1e4)
         self.props['minPortThroat'] = FloatProperty('Minimum Allowed Port/Throat Ratio', '', 1, 4)
         self.props['flowSeparationWarnPercent'] = FloatProperty('Flow Separation Warning Threshold', '', 0.00, 1)
         # Simulation
-        self.props['burnoutWebThres'] = FloatProperty('Web Burnout Threshold', LengthUnit.METER, 2.54e-5, 3.175e-3)
+        self.props['burnoutWebThres'] = FloatProperty('Web Burnout Threshold', Unit.METER, 2.54e-5, 3.175e-3)
         self.props['burnoutThrustThres'] = FloatProperty('Thrust Burnout Threshold', '%', 0.01, 10)
-        self.props['timestep'] = FloatProperty('Simulation Timestep', TimeUnit.SECOND, 0.0001, 0.1)
-        self.props['ambPressure'] = FloatProperty('Ambient Pressure', PressureUnit.PASCAL, 0.0001, 102000)
+        self.props['timestep'] = FloatProperty('Simulation Timestep', Unit.SECOND, 0.0001, 0.1)
+        self.props['ambPressure'] = FloatProperty('Ambient Pressure', Unit.PASCAL, 0.0001, 102000)
         self.props['mapDim'] = IntProperty('Grain Map Dimension', '', 250, 2000)
         self.props['sepPressureRatio'] = FloatProperty('Separation Pressure Ratio', '', 0.001, 1)
 

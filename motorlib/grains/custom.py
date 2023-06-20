@@ -4,7 +4,7 @@ import skimage.draw as draw
 
 from ..enums.simAlertLevel import SimAlertLevel
 from ..enums.simAlertType import SimAlertType
-from ..enums.units.lengthUnit import LengthUnit
+from ..enums.unit import Unit
 from ..grain import FmmGrain
 from ..properties import PolygonProperty, EnumProperty
 from ..simResult import SimAlert
@@ -18,13 +18,13 @@ class CustomGrain(FmmGrain):
     def __init__(self):
         super().__init__()
         self.props['points'] = PolygonProperty('Core geometry')
-        self.props['dxfUnit'] = EnumProperty('DXF Unit', getAllConversions(LengthUnit.METER))
+        self.props['dxfUnit'] = EnumProperty('DXF Unit', getAllConversions(Unit.METER))
 
     def generateCoreMap(self):
         inUnit = self.props['dxfUnit'].getValue()
         for polygon in self.props['points'].getValue():
-            row = [(self.mapDim/2) + (-self.normalize(convert(p[1], inUnit, LengthUnit.METER)) * (self.mapDim/2)) for p in polygon]
-            col = [(self.mapDim/2) + (self.normalize(convert(p[0], inUnit, LengthUnit.METER)) * (self.mapDim/2)) for p in polygon]
+            row = [(self.mapDim/2) + (-self.normalize(convert(p[1], inUnit, Unit.METER)) * (self.mapDim/2)) for p in polygon]
+            col = [(self.mapDim/2) + (self.normalize(convert(p[0], inUnit, Unit.METER)) * (self.mapDim/2)) for p in polygon]
             imageRow, imageCol = draw.polygon(row, col, self.coreMap.shape)
             self.coreMap[imageRow, imageCol] = 0
 

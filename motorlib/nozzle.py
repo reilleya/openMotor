@@ -5,10 +5,7 @@ from scipy.optimize import fsolve
 
 from .enums.simAlertLevel import SimAlertLevel
 from .enums.simAlertType import SimAlertType
-from .enums.units.angleUnit import AngleUnit
-from .enums.units.lengthUnit import LengthUnit
-from .enums.units.nozzleErosionCoefficientUnit import NozzleErosionCoefficientUnit
-from .enums.units.nozzleSlagCoefficientUnit import NozzleSlagCoefficientUnit
+from .enums.unit import Unit
 from .properties import FloatProperty, PropertyCollection
 from . import geometry
 from .simResult import SimAlert
@@ -22,18 +19,18 @@ class Nozzle(PropertyCollection):
     """An object that contains the details about a motor's nozzle."""
     def __init__(self):
         super().__init__()
-        self.props['throat'] = FloatProperty('Throat Diameter', LengthUnit.METER, 0, 0.5)
-        self.props['exit'] = FloatProperty('Exit Diameter', LengthUnit.METER, 0, 1)
+        self.props['throat'] = FloatProperty('Throat Diameter', Unit.METER, 0, 0.5)
+        self.props['exit'] = FloatProperty('Exit Diameter', Unit.METER, 0, 1)
         self.props['efficiency'] = FloatProperty('Efficiency', '', 0, 2)
-        self.props['divAngle'] = FloatProperty('Divergence Half Angle', AngleUnit.DEGREES, 0, 90)
-        self.props['convAngle'] = FloatProperty('Convergence Half Angle', AngleUnit.DEGREES, 0, 90)
-        self.props['throatLength'] = FloatProperty('Throat Length', LengthUnit.METER, 0, 0.5)
-        self.props['slagCoeff'] = FloatProperty('Slag Buildup Coefficient', NozzleSlagCoefficientUnit.METER_PASCAL_PER_SECOND, 0, 1e6)
-        self.props['erosionCoeff'] = FloatProperty('Throat Erosion Coefficient', NozzleErosionCoefficientUnit.METER_PER_SECOND_PASCAL, 0, 1e6)
+        self.props['divAngle'] = FloatProperty('Divergence Half Angle', Unit.DEGREES, 0, 90)
+        self.props['convAngle'] = FloatProperty('Convergence Half Angle', Unit.DEGREES, 0, 90)
+        self.props['throatLength'] = FloatProperty('Throat Length', Unit.METER, 0, 0.5)
+        self.props['slagCoeff'] = FloatProperty('Slag Buildup Coefficient', Unit.METER_PASCAL_PER_SECOND, 0, 1e6)
+        self.props['erosionCoeff'] = FloatProperty('Throat Erosion Coefficient', Unit.METER_PER_SECOND_PASCAL, 0, 1e6)
 
-    def getDetailsString(self, lengthUnit=LengthUnit.METER):
+    def getDetailsString(self, Unit=Unit.METER):
         """Returns a human-readable string containing some details about the nozzle."""
-        return 'Throat: {}'.format(self.props['throat'].dispFormat(lengthUnit))
+        return 'Throat: {}'.format(self.props['throat'].dispFormat(Unit))
 
     def calcExpansion(self):
         """Returns the nozzle's expansion ratio."""

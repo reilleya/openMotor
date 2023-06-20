@@ -1,9 +1,8 @@
 import xml.etree.ElementTree as ET
 
 from motorlib.enums.inhibitedEnds import InhibitedEnds
-from motorlib.enums.units.burnRateCoefficientUnit import BurnRateCoefficientUnit
-from motorlib.enums.units.densityUnit import DensityUnit
-from motorlib.enums.units.lengthUnit import LengthUnit
+from motorlib.enums.unit import Unit
+from motorlib.enums.unit import Unit
 from motorlib.properties import PropertyCollection, FloatProperty, StringProperty
 import motorlib
 from ..converter import Exporter
@@ -35,7 +34,7 @@ EXPORT_TYPES = {
 
 def mToIn(value):
     """Converts a float containing meters to a string of inches"""
-    return str(motorlib.units.convert(value, LengthUnit.METER, LengthUnit.INCH))
+    return str(motorlib.units.convert(value, Unit.METER, Unit.INCH))
 
 
 class BurnSimExporter(Exporter):
@@ -108,12 +107,12 @@ class BurnSimExporter(Exporter):
                 ballA, ballN, gamma, _, m = motor.propellant.getCombustionProperties(exportPressure)
                 ballA = motorlib.units.convert(ballA * (6895 ** ballN),
 
-                                               BurnRateCoefficientUnit.INCH_PER_SECOND_POUND_PER_SQUARE_INCH_TO_THE_POWER_OF_N)
+                                               Unit.INCH_PER_SECOND_POUND_PER_SQUARE_INCH_TO_THE_POWER_OF_N)
                 outProp.attrib['BallisticA'] = str(ballA)
                 outProp.attrib['BallisticN'] = str(ballN)
                 density = str(motorlib.units.convert(motor.propellant.getProperty('density'),
-                                                     DensityUnit.KILOGRAM_PER_CUBIC_METER,
-                                                     DensityUnit.POUND_PER_CUBIC_INCH))
+                                                     Unit.KILOGRAM_PER_CUBIC_METER,
+                                                     Unit.POUND_PER_CUBIC_INCH))
                 outProp.attrib['Density'] = density
                 outProp.attrib['SpecificHeatRatio'] = str(gamma)
                 outProp.attrib['MolarMass'] = str(m)

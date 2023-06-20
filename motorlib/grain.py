@@ -13,7 +13,7 @@ from . import geometry
 from .enums.inhibitedEnds import InhibitedEnds
 from .enums.simAlertLevel import SimAlertLevel
 from .enums.simAlertType import SimAlertType
-from .enums.units.lengthUnit import LengthUnit
+from .enums.unit import Unit
 from .simResult import SimAlert
 from .properties import FloatProperty, EnumProperty, PropertyCollection
 
@@ -23,8 +23,8 @@ class Grain(PropertyCollection):
     geomName = None
     def __init__(self):
         super().__init__()
-        self.props['diameter'] = FloatProperty('Diameter', LengthUnit.METER, 0, 1)
-        self.props['length'] = FloatProperty('Length', LengthUnit.METER, 0, 3)
+        self.props['diameter'] = FloatProperty('Diameter', Unit.METER, 0, 1)
+        self.props['length'] = FloatProperty('Length', Unit.METER, 0, 3)
 
     def getVolumeSlice(self, regDist, dRegDist):
         """Returns the amount of propellant volume consumed as the grain regresses from a distance of 'regDist' to
@@ -71,9 +71,9 @@ class Grain(PropertyCollection):
         endPos = self.getEndPositions(regDist)
         return endPos[1] - endPos[0]
 
-    def getDetailsString(self, lengthUnit=LengthUnit.METER):
+    def getDetailsString(self, Unit=Unit.METER):
         """Returns a short string describing the grain, formatted using the units that is passed in"""
-        return 'Length: {}'.format(self.props['length'].dispFormat(lengthUnit))
+        return 'Length: {}'.format(self.props['length'].dispFormat(Unit))
 
     @abstractmethod
     def simulationSetup(self, config):

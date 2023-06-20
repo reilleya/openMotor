@@ -2,9 +2,7 @@ import xml.etree.ElementTree as ET
 
 import motorlib
 from motorlib.enums.inhibitedEnds import InhibitedEnds
-from motorlib.enums.units.burnRateCoefficientUnit import BurnRateCoefficientUnit
-from motorlib.enums.units.densityUnit import DensityUnit
-from motorlib.enums.units.lengthUnit import LengthUnit
+from motorlib.enums.unit import Unit
 
 from ..converter import Importer
 
@@ -28,7 +26,7 @@ UNSUPPORTED_GRAINS = {
 
 def inToM(value):
     """Converts a string containing a value in inches to a float of meters"""
-    return motorlib.units.convert(float(value), LengthUnit.INCH, LengthUnit.METER)
+    return motorlib.units.convert(float(value), Unit.INCH, Unit.METER)
 
 
 def importPropellant(node):
@@ -40,12 +38,12 @@ def importPropellant(node):
     propTab.setProperty('n', ballN)
     # Conversion only does in/s to m/s, the rest is handled above
     ballA = motorlib.units.convert(ballA,
-                                   BurnRateCoefficientUnit.INCH_PER_SECOND_POUND_PER_SQUARE_INCH_TO_THE_POWER_OF_N,
-                                   BurnRateCoefficientUnit.METER_PER_SECOND_PASCAL_TO_THE_POWER_OF_N)
+                                   Unit.INCH_PER_SECOND_POUND_PER_SQUARE_INCH_TO_THE_POWER_OF_N,
+                                   Unit.METER_PER_SECOND_PASCAL_TO_THE_POWER_OF_N)
     propTab.setProperty('a', ballA)
     density = motorlib.units.convert(float(node.attrib['Density']),
-                                     DensityUnit.POUND_PER_CUBIC_INCH,
-                                     DensityUnit.KILOGRAM_PER_CUBIC_METER)
+                                     Unit.POUND_PER_CUBIC_INCH,
+                                     Unit.KILOGRAM_PER_CUBIC_METER)
     propellant.setProperty('density', density)
     propTab.setProperty('k', float(node.attrib['SpecificHeatRatio']))
     impMolarMass = node.attrib['MolarMass']

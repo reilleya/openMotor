@@ -1,82 +1,70 @@
 """This module contains tables of units and their long form names, their conversion rates with other units, and
 functions for performing conversion."""
-from motorlib.enums.units.burnRateCoefficientUnit import BurnRateCoefficientUnit
-from motorlib.enums.units.densityUnit import DensityUnit
-from motorlib.enums.units.forceUnit import ForceUnit
-from motorlib.enums.units.impulseUnit import ImpulseUnit
-from motorlib.enums.units.lengthUnit import LengthUnit
-from motorlib.enums.units.massFlowUnit import MassFlowUnit
-from motorlib.enums.units.massFluxUnit import MassFluxUnit
-from motorlib.enums.units.massUnit import MassUnit
-from motorlib.enums.units.nozzleErosionCoefficientUnit import NozzleErosionCoefficientUnit
-from motorlib.enums.units.nozzleSlagCoefficientUnit import NozzleSlagCoefficientUnit
-from motorlib.enums.units.pressureUnit import PressureUnit
-from motorlib.enums.units.velocityUnit import VelocityUnit
-from motorlib.enums.units.volumeUnit import VolumeUnit
+from motorlib.enums.unit import Unit
 
 # The keys in this dictionary specify the units that all calculations are done in internally
 unitLabels = {
-    LengthUnit.METER: 'Length',
-    VolumeUnit.CUBIC_METER: 'Volume',
-    VelocityUnit.METER_PER_SECOND: 'Velocity',
-    ForceUnit.NEWTON: 'Force',
-    ImpulseUnit.NEWTON_SECOND: 'Impulse',
-    PressureUnit.PASCAL: 'Pressure',
-    MassUnit.KILOGRAM: 'Mass',
-    DensityUnit.KILOGRAM_PER_CUBIC_METER: 'Density',
-    MassFlowUnit.KILOGRAM_PER_SECOND: 'Mass Flow',
-    MassFluxUnit.KILOGRAM_PER_SQUARE_METER_PER_SECOND: 'Mass Flux',
-    BurnRateCoefficientUnit.METER_PER_SECOND_PASCAL_TO_THE_POWER_OF_N: 'Burn Rate Coefficient',
-    NozzleSlagCoefficientUnit.METER_PASCAL_PER_SECOND: 'Nozzle Slag Coefficient',
-    NozzleErosionCoefficientUnit.METER_PER_SECOND_PASCAL: 'Nozzle Erosion Coefficient'
+    Unit.METER: 'Length',
+    Unit.CUBIC_METER: 'Volume',
+    Unit.METER_PER_SECOND: 'Velocity',
+    Unit.NEWTON: 'Force',
+    Unit.NEWTON_SECOND: 'Impulse',
+    Unit.PASCAL: 'Pressure',
+    Unit.KILOGRAM: 'Mass',
+    Unit.KILOGRAM_PER_CUBIC_METER: 'Density',
+    Unit.KILOGRAM_PER_SECOND: 'Mass Flow',
+    Unit.KILOGRAM_PER_SQUARE_METER_PER_SECOND: 'Mass Flux',
+    Unit.METER_PER_SECOND_PASCAL_TO_THE_POWER_OF_N: 'Burn Rate Coefficient',
+    Unit.METER_PASCAL_PER_SECOND: 'Nozzle Slag Coefficient',
+    Unit.METER_PER_SECOND_PASCAL: 'Nozzle Erosion Coefficient'
 }
 
 unitTable = [
-    (LengthUnit.METER, LengthUnit.CENTIMETER, 100),
-    (LengthUnit.METER, LengthUnit.METER, 1000),
-    (LengthUnit.METER, LengthUnit.INCH, 39.37),
-    (LengthUnit.METER, LengthUnit.FOOT, 3.28),
+    (Unit.METER, Unit.CENTIMETER, 100),
+    (Unit.METER, Unit.METER, 1000),
+    (Unit.METER, Unit.INCH, 39.37),
+    (Unit.METER, Unit.FOOT, 3.28),
 
-    (VolumeUnit.CUBIC_METER, VolumeUnit.CUBIC_CENTIMETER, 100 ** 3),
-    (VolumeUnit.CUBIC_METER, VolumeUnit.CUBIC_MILLIMETER, 1000 ** 3),
-    (VolumeUnit.CUBIC_METER, VolumeUnit.CUBIC_INCH, 39.37 ** 3),
-    (VolumeUnit.CUBIC_METER, VolumeUnit.CUBIC_FOOT, 3.28 ** 3),
+    (Unit.CUBIC_METER, Unit.CUBIC_CENTIMETER, 100 ** 3),
+    (Unit.CUBIC_METER, Unit.CUBIC_MILLIMETER, 1000 ** 3),
+    (Unit.CUBIC_METER, Unit.CUBIC_INCH, 39.37 ** 3),
+    (Unit.CUBIC_METER, Unit.CUBIC_FOOT, 3.28 ** 3),
 
-    (VelocityUnit.METER_PER_SECOND, VelocityUnit.CENTIMETER_PER_SECOND, 100),
-    (VelocityUnit.METER_PER_SECOND, VelocityUnit.MILLIMETER_PER_SECOND, 1000),
-    (VelocityUnit.METER_PER_SECOND, VelocityUnit.FOOT_PER_SECOND, 3.28),
-    (VelocityUnit.METER_PER_SECOND, VelocityUnit.INCH_PER_SECOND, 39.37),
+    (Unit.METER_PER_SECOND, Unit.CENTIMETER_PER_SECOND, 100),
+    (Unit.METER_PER_SECOND, Unit.MILLIMETER_PER_SECOND, 1000),
+    (Unit.METER_PER_SECOND, Unit.FOOT_PER_SECOND, 3.28),
+    (Unit.METER_PER_SECOND, Unit.INCH_PER_SECOND, 39.37),
 
-    (ForceUnit.NEWTON, ForceUnit.POUND_FORCE, 0.2248),
+    (Unit.NEWTON, Unit.POUND_FORCE, 0.2248),
 
-    (ImpulseUnit.NEWTON_SECOND, ImpulseUnit.POUND_FORCE_SECOND, 0.2248),
+    (Unit.NEWTON_SECOND, Unit.POUND_FORCE_SECOND, 0.2248),
 
-    (PressureUnit.PASCAL, PressureUnit.MEGAPASCAL, 1 / 1000000),
-    (PressureUnit.PASCAL, PressureUnit.POUND_PER_SQUARE_INCH, 1 / 6895),
+    (Unit.PASCAL, Unit.MEGAPASCAL, 1 / 1000000),
+    (Unit.PASCAL, Unit.POUND_PER_SQUARE_INCH, 1 / 6895),
 
-    (MassUnit.KILOGRAM, MassUnit.GRAM, 1000),
-    (MassUnit.KILOGRAM, MassUnit.POUND, 2.205),
-    (MassUnit.KILOGRAM, MassUnit.OUNCE, 2.205 * 16),
+    (Unit.KILOGRAM, Unit.GRAM, 1000),
+    (Unit.KILOGRAM, Unit.POUND, 2.205),
+    (Unit.KILOGRAM, Unit.OUNCE, 2.205 * 16),
 
-    (DensityUnit.KILOGRAM_PER_CUBIC_METER, DensityUnit.POUND_PER_CUBIC_INCH, 3.61273e-5),
-    (DensityUnit.KILOGRAM_PER_CUBIC_METER, DensityUnit.GRAM_PER_CUBIC_CENTIMETER, 0.001),
+    (Unit.KILOGRAM_PER_CUBIC_METER, Unit.POUND_PER_CUBIC_INCH, 3.61273e-5),
+    (Unit.KILOGRAM_PER_CUBIC_METER, Unit.GRAM_PER_CUBIC_CENTIMETER, 0.001),
 
-    (MassFlowUnit.KILOGRAM_PER_SECOND, MassFlowUnit.POUND_PER_SECOND, 2.205),
-    (MassFlowUnit.KILOGRAM_PER_SECOND, MassFlowUnit.GRAM_PER_SECOND, 1000),
+    (Unit.KILOGRAM_PER_SECOND, Unit.POUND_PER_SECOND, 2.205),
+    (Unit.KILOGRAM_PER_SECOND, Unit.GRAM_PER_SECOND, 1000),
 
-    (MassFluxUnit.KILOGRAM_PER_SQUARE_METER_PER_SECOND, MassFluxUnit.POUND_PER_SQUARE_INCH_PER_SECOND, 0.001422),
+    (Unit.KILOGRAM_PER_SQUARE_METER_PER_SECOND, Unit.POUND_PER_SQUARE_INCH_PER_SECOND, 0.001422),
 
-    (NozzleSlagCoefficientUnit.METER_PASCAL_PER_SECOND, NozzleSlagCoefficientUnit.METER_MEGAPASCAL_PER_SECOND, 1000000),
-    (NozzleSlagCoefficientUnit.METER_PASCAL_PER_SECOND, NozzleSlagCoefficientUnit.INCH_POUND_PER_SQUARE_INCH_PER_SECOND,
+    (Unit.METER_PASCAL_PER_SECOND, Unit.METER_MEGAPASCAL_PER_SECOND, 1000000),
+    (Unit.METER_PASCAL_PER_SECOND, Unit.INCH_POUND_PER_SQUARE_INCH_PER_SECOND,
      0.00571014715),
 
-    (NozzleErosionCoefficientUnit.METER_PER_SECOND_PASCAL, NozzleErosionCoefficientUnit.METER_PER_SECOND_MEGAPASCAL,
+    (Unit.METER_PER_SECOND_PASCAL, Unit.METER_PER_SECOND_MEGAPASCAL,
      1 / 1000000),
-    (NozzleErosionCoefficientUnit.METER_PER_SECOND_PASCAL,
-     NozzleErosionCoefficientUnit.THOUSANDTH_INCH_PER_SECOND_POUND_PER_SQUARE_INCH, 271447138),
+    (Unit.METER_PER_SECOND_PASCAL,
+     Unit.THOUSANDTH_INCH_PER_SECOND_POUND_PER_SQUARE_INCH, 271447138),
 
-    (BurnRateCoefficientUnit.METER_PER_SECOND_PASCAL_TO_THE_POWER_OF_N,
-     BurnRateCoefficientUnit.INCH_PER_SECOND_POUND_PER_SQUARE_INCH_TO_THE_POWER_OF_N, 39.37)
+    (Unit.METER_PER_SECOND_PASCAL_TO_THE_POWER_OF_N,
+     Unit.INCH_PER_SECOND_POUND_PER_SQUARE_INCH_TO_THE_POWER_OF_N, 39.37)
     # Ratio converts m/s to in/s. The pressure conversion must be done separately
 ]
 

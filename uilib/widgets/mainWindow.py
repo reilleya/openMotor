@@ -6,12 +6,7 @@ from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QHeaderView
 import motorlib
 import uilib.widgets.aboutDialog
 import uilib.widgets.preferencesMenu
-from motorlib.enums.units.impulseUnit import ImpulseUnit
-from motorlib.enums.units.lengthUnit import LengthUnit
-from motorlib.enums.units.massFluxUnit import MassFluxUnit
-from motorlib.enums.units.massUnit import MassUnit
-from motorlib.enums.units.pressureUnit import PressureUnit
-from motorlib.enums.units.timeUnit import TimeUnit
+from motorlib.enums.unit import Unit
 from uilib.views.MainWindow_ui import Ui_MainWindow
 
 
@@ -194,14 +189,14 @@ class Window(QMainWindow):
     def updateGrainTable(self):
         cm = self.app.fileManager.getCurrentMotor()
         self.ui.tableWidgetGrainList.setRowCount(len(cm.grains) + 2)
-        lengthUnit = self.app.preferencesManager.preferences.units.getProperty('m')
+        Unit = self.app.preferencesManager.preferences.units.getProperty('m')
         for gid, grain in enumerate(cm.grains):
             self.ui.tableWidgetGrainList.setItem(gid, 0, QTableWidgetItem(grain.geomName))
-            self.ui.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString(lengthUnit)))
+            self.ui.tableWidgetGrainList.setItem(gid, 1, QTableWidgetItem(grain.getDetailsString(Unit)))
 
         self.ui.tableWidgetGrainList.setItem(len(cm.grains), 0, QTableWidgetItem('Nozzle'))
         self.ui.tableWidgetGrainList.setItem(len(cm.grains), 1,
-                                             QTableWidgetItem(cm.nozzle.getDetailsString(lengthUnit)))
+                                             QTableWidgetItem(cm.nozzle.getDetailsString(Unit)))
 
         self.ui.tableWidgetGrainList.setItem(len(cm.grains) + 1, 0, QTableWidgetItem('Config'))
         self.ui.tableWidgetGrainList.setItem(len(cm.grains) + 1, 1, QTableWidgetItem('-'))
@@ -304,25 +299,25 @@ class Window(QMainWindow):
 
     def updateMotorStats(self, simResult):
         self.ui.labelMotorDesignation.setText(simResult.getDesignation())
-        self.ui.labelImpulse.setText(self.formatMotorStat(simResult.getImpulse(), ImpulseUnit.NEWTON_SECOND))
-        self.ui.labelDeliveredISP.setText(self.formatMotorStat(simResult.getISP(), TimeUnit.SECOND))
-        self.ui.labelBurnTime.setText(self.formatMotorStat(simResult.getBurnTime(), TimeUnit.SECOND))
+        self.ui.labelImpulse.setText(self.formatMotorStat(simResult.getImpulse(), Unit.NEWTON_SECOND))
+        self.ui.labelDeliveredISP.setText(self.formatMotorStat(simResult.getISP(), Unit.SECOND))
+        self.ui.labelBurnTime.setText(self.formatMotorStat(simResult.getBurnTime(), Unit.SECOND))
         self.ui.labelVolumeLoading.setText('{:.2f}%'.format(simResult.getVolumeLoading()))
 
-        self.ui.labelAveragePressure.setText(self.formatMotorStat(simResult.getAveragePressure(), PressureUnit.PASCAL))
-        self.ui.labelPeakPressure.setText(self.formatMotorStat(simResult.getMaxPressure(), PressureUnit.PASCAL))
+        self.ui.labelAveragePressure.setText(self.formatMotorStat(simResult.getAveragePressure(), Unit.PASCAL))
+        self.ui.labelPeakPressure.setText(self.formatMotorStat(simResult.getMaxPressure(), Unit.PASCAL))
         self.ui.labelInitialKN.setText(self.formatMotorStat(simResult.getInitialKN(), ''))
         self.ui.labelPeakKN.setText(self.formatMotorStat(simResult.getPeakKN(), ''))
         self.ui.labelIdealThrustCoefficient.setText(self.formatMotorStat(simResult.getIdealThrustCoefficient(), ''))
 
-        self.ui.labelPropellantMass.setText(self.formatMotorStat(simResult.getPropellantMass(), MassUnit.KILOGRAM))
-        self.ui.labelPropellantLength.setText(self.formatMotorStat(simResult.getPropellantLength(), LengthUnit.METER))
+        self.ui.labelPropellantMass.setText(self.formatMotorStat(simResult.getPropellantMass(), Unit.KILOGRAM))
+        self.ui.labelPropellantLength.setText(self.formatMotorStat(simResult.getPropellantLength(), Unit.METER))
 
         # These only make sense for grains with cores, so blank them out for endburners
         if simResult.getPortRatio() is not None:
             self.ui.labelPortThroatRatio.setText(self.formatMotorStat(simResult.getPortRatio(), ''))
             peakMassFluxQuantity = self.formatMotorStat(simResult.getPeakMassFlux(),
-                                                        MassFluxUnit.KILOGRAM_PER_SQUARE_METER_PER_SECOND)
+                                                        Unit.KILOGRAM_PER_SQUARE_METER_PER_SECOND)
             peakMassFluxGrain = simResult.getPeakMassFluxLocation() + 1
             self.ui.labelPeakMassFlux.setText('{} (G: {})'.format(peakMassFluxQuantity, peakMassFluxGrain))
 

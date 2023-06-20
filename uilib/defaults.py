@@ -1,15 +1,5 @@
 """Provides default properties for the UI."""
-from motorlib.enums.units.burnRateCoefficientUnit import BurnRateCoefficientUnit
-from motorlib.enums.units.densityUnit import DensityUnit
-from motorlib.enums.units.lengthUnit import LengthUnit
-from motorlib.enums.units.massFlowUnit import MassFlowUnit
-from motorlib.enums.units.massFluxUnit import MassFluxUnit
-from motorlib.enums.units.massUnit import MassUnit
-from motorlib.enums.units.nozzleErosionCoefficientUnit import NozzleErosionCoefficientUnit
-from motorlib.enums.units.nozzleSlagCoefficientUnit import NozzleSlagCoefficientUnit
-from motorlib.enums.units.pressureUnit import PressureUnit
-from motorlib.enums.units.velocityUnit import VelocityUnit
-from motorlib.enums.units.volumeUnit import VolumeUnit
+from motorlib.enums.unit import Unit
 
 DEFAULT_PREFERENCES = {
     'general': {
@@ -26,17 +16,17 @@ DEFAULT_PREFERENCES = {
         'flowSeparationWarnPercent': 0.05
     },
     'units': {
-        LengthUnit.METER: LengthUnit.INCH,
-        VolumeUnit.CUBIC_METER: VolumeUnit.CUBIC_INCH,
-        VelocityUnit.METER_PER_SECOND: VelocityUnit.FOOT_PER_SECOND,
-        PressureUnit.PASCAL: PressureUnit.POUND_PER_SQUARE_INCH,
-        MassUnit.KILOGRAM: MassUnit.POUND,
-        DensityUnit.KILOGRAM_PER_CUBIC_METER: DensityUnit.POUND_PER_CUBIC_INCH,
-        MassFlowUnit.KILOGRAM_PER_SECOND:MassFlowUnit.POUND_PER_SECOND,
-        MassFluxUnit.KILOGRAM_PER_SQUARE_METER_PER_SECOND: MassFluxUnit.POUND_PER_SQUARE_INCH_PER_SECOND,
-        NozzleSlagCoefficientUnit.METER_PASCAL_PER_SECOND: NozzleSlagCoefficientUnit.INCH_POUND_PER_SQUARE_INCH_PER_SECOND,
-        NozzleErosionCoefficientUnit.METER_PER_SECOND_PASCAL: NozzleErosionCoefficientUnit.THOUSANDTH_INCH_PER_SECOND_POUND_PER_SQUARE_INCH,
-        BurnRateCoefficientUnit.METER_PER_SECOND_PASCAL_TO_THE_POWER_OF_N: BurnRateCoefficientUnit.INCH_PER_SECOND_POUND_PER_SQUARE_INCH_TO_THE_POWER_OF_N
+        Unit.METER: Unit.INCH,
+        Unit.CUBIC_METER: Unit.CUBIC_INCH,
+        Unit.METER_PER_SECOND: Unit.FOOT_PER_SECOND,
+        Unit.PASCAL: Unit.POUND_PER_SQUARE_INCH,
+        Unit.KILOGRAM: Unit.POUND,
+        Unit.KILOGRAM_PER_CUBIC_METER: Unit.POUND_PER_CUBIC_INCH,
+        Unit.KILOGRAM_PER_SECOND:Unit.POUND_PER_SECOND,
+        Unit.KILOGRAM_PER_SQUARE_METER_PER_SECOND: Unit.POUND_PER_SQUARE_INCH_PER_SECOND,
+        Unit.METER_PASCAL_PER_SECOND: Unit.INCH_POUND_PER_SQUARE_INCH_PER_SECOND,
+        Unit.METER_PER_SECOND_PASCAL: Unit.THOUSANDTH_INCH_PER_SECOND_POUND_PER_SQUARE_INCH,
+        Unit.METER_PER_SECOND_PASCAL_TO_THE_POWER_OF_N: Unit.INCH_PER_SECOND_POUND_PER_SQUARE_INCH_TO_THE_POWER_OF_N
     }
 }
 

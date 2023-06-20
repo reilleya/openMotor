@@ -4,8 +4,7 @@ import numpy as np
 import motorlib
 from motorlib.enums.multiValueChannels import MultiValueChannels
 from motorlib.enums.singleValueChannels import SingleValueChannels
-from motorlib.enums.units.impulseUnit import ImpulseUnit
-from motorlib.enums.units.massUnit import MassUnit
+from motorlib.enums.unit import Unit
 
 from .grainImageWidget import GrainImageWidget
 
@@ -131,15 +130,15 @@ class ResultsWidget(QWidget):
 
             currentImpulse = self.simResult.getImpulse(index)
             remainingImpulse = self.simResult.getImpulse() - currentImpulse
-            impUnit = self.preferences.getUnit(ImpulseUnit.NEWTON_SECOND)
-            self.ui.labelImpulseProgress.setText(motorlib.units.convFormat(currentImpulse, ImpulseUnit.NEWTON_SECOND, impUnit))
-            self.ui.labelImpulseRemaining.setText(motorlib.units.convFormat(remainingImpulse, ImpulseUnit.NEWTON_SECOND, impUnit))
+            impUnit = self.preferences.getUnit(Unit.NEWTON_SECOND)
+            self.ui.labelImpulseProgress.setText(motorlib.units.convFormat(currentImpulse, Unit.NEWTON_SECOND, impUnit))
+            self.ui.labelImpulseRemaining.setText(motorlib.units.convFormat(remainingImpulse, Unit.NEWTON_SECOND, impUnit))
 
             currentMass = self.simResult.getPropellantMass(index)
             remainingMass = self.simResult.getPropellantMass() - currentMass
-            massUnit = self.preferences.getUnit(MassUnit.KILOGRAM)
-            self.ui.labelMassProgress.setText(motorlib.units.convFormat(remainingMass, MassUnit.KILOGRAM, massUnit))
-            self.ui.labelMassRemaining.setText(motorlib.units.convFormat(currentMass, MassUnit.KILOGRAM, massUnit))
+            massUnit = self.preferences.getUnit(Unit.KILOGRAM)
+            self.ui.labelMassProgress.setText(motorlib.units.convFormat(remainingMass, Unit.KILOGRAM, massUnit))
+            self.ui.labelMassRemaining.setText(motorlib.units.convFormat(currentMass, Unit.KILOGRAM, massUnit))
 
             currentISP = self.simResult.getISP(index)
             self.ui.labelISPProgress.setText('{:.3f} s'.format(currentISP))

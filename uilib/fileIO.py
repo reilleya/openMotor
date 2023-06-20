@@ -4,8 +4,7 @@ from PyQt5.QtWidgets import QApplication
 import yaml
 import appdirs
 
-from motorlib.enums.units.nozzleErosionCoefficientUnit import NozzleErosionCoefficientUnit
-from motorlib.enums.units.nozzleSlagCoefficientUnit import NozzleSlagCoefficientUnit
+from motorlib.enums.unit import Unit
 from .defaults import DEFAULT_PREFERENCES, DEFAULT_PROPELLANTS, KNSU_PROPS
 from .enums.fileType import FileType
 from .logger import logger
@@ -126,8 +125,8 @@ def tabularizePropellant(data):
 
 def migratePref_0_3_0_to_0_4_0(data):
     data['general']['igniterPressure'] = DEFAULT_PREFERENCES['general']['igniterPressure']
-    data['units'][NozzleSlagCoefficientUnit.METER_PASCAL_PER_SECOND] = NozzleSlagCoefficientUnit.INCH_POUND_PER_SQUARE_INCH_PER_SECOND
-    data['units'][NozzleErosionCoefficientUnit.METER_PER_SECOND_PASCAL] = NozzleErosionCoefficientUnit.THOUSANDTH_INCH_PER_SECOND_POUND_PER_SQUARE_INCH
+    data['units'][Unit.METER_PASCAL_PER_SECOND] = Unit.INCH_POUND_PER_SQUARE_INCH_PER_SECOND
+    data['units'][Unit.METER_PER_SECOND_PASCAL] = Unit.THOUSANDTH_INCH_PER_SECOND_POUND_PER_SQUARE_INCH
     return data
 
 def migrateProp_0_3_0_to_0_4_0(data):
