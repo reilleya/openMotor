@@ -114,11 +114,11 @@ class PerforatedGrain(Grain):
         self.wallWeb = 0 # Max distance from the core to the wall
 
     def getEndPositions(self, regDist):
-        if self.props['inhibitedEnds'].getValue() == InhibitedEnds.NEITHER: # Neither
+        if self.props['inhibitedEnds'].getValue() == InhibitedEnds.NEITHER:
             return (regDist, self.props['length'].getValue() - regDist)
-        if self.props['inhibitedEnds'].getValue() == InhibitedEnds.TOP: # Top
+        if self.props['inhibitedEnds'].getValue() == InhibitedEnds.TOP:
             return (0, self.props['length'].getValue() - regDist)
-        if self.props['inhibitedEnds'].getValue() == InhibitedEnds.BOTTOM: # Bottom
+        if self.props['inhibitedEnds'].getValue() == InhibitedEnds.BOTTOM:
             return (regDist, self.props['length'].getValue())
         if self.props['inhibitedEnds'].getValue() == InhibitedEnds.BOTH:
             return (0, self.props['length'].getValue())
