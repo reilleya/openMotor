@@ -5,9 +5,13 @@ import skfmm
 from skimage import measure
 from math import atan, cos, sin
 
+from ..enums.inhibitedEnds import InhibitedEnds
+from ..enums.simAlertLevel import SimAlertLevel
+from ..enums.simAlertType import SimAlertType
+from ..enums.unit import Unit
 from ..grain import Grain
 from .. import geometry
-from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+from ..simResult import SimAlert
 from ..properties import FloatProperty, EnumProperty
 
 class ConicalGrain(Grain):
@@ -15,9 +19,9 @@ class ConicalGrain(Grain):
     geomName = "Conical"
     def __init__(self):
         super().__init__()
-        self.props['forwardCoreDiameter'] = FloatProperty('Forward Core Diameter', 'm', 0, 1)
-        self.props['aftCoreDiameter'] = FloatProperty('Aft Core Diameter', 'm', 0, 1)
-        self.props['inhibitedEnds'] = EnumProperty('Inhibited ends', ['Both'])
+        self.props['forwardCoreDiameter'] = FloatProperty('Forward Core Diameter', Unit.METER, 0, 1)
+        self.props['aftCoreDiameter'] = FloatProperty('Aft Core Diameter', Unit.METER, 0, 1)
+        self.props['inhibitedEnds'] = EnumProperty('Inhibited ends', [InhibitedEnds.BOTH])
 
     def isCoreInverted(self):
         """A simple helper that returns 'true' if the core's foward diameter is larger than its aft diameter"""
@@ -33,9 +37,9 @@ class ConicalGrain(Grain):
 
         exposedFaces = 0
         inhibitedEnds = self.props['inhibitedEnds'].getValue()
-        if inhibitedEnds == 'Neither':
+        if inhibitedEnds == InhibitedEnds.NEITHER:
             exposedFaces = 2
-        elif inhibitedEnds in ['Top', 'Bottom']:
+        elif inhibitedEnds in [InhibitedEnds.TOP, InhibitedEnds.BOTTOM]:
             exposedFaces = 1
 
         # These calculations are easiest if we work in terms of the core's "large end" and "small end"
@@ -86,9 +90,9 @@ class ConicalGrain(Grain):
         surfaceArea = geometry.frustumLateralSurfaceArea(aftDiameter, forwardDiameter, length)
 
         fullFaceArea = geometry.circleArea(self.props['diameter'].getValue())
-        if self.props['inhibitedEnds'].getValue() in ['Neither', 'Bottom']:
+        if self.props['inhibitedEnds'].getValue() in [InhibitedEnds.NEITHER, InhibitedEnds.BOTTOM]:
             surfaceArea += fullFaceArea - geometry.circleArea(forwardDiameter)
-        if self.props['inhibitedEnds'].getValue() in ['Neither', 'Top']:
+        if self.props['inhibitedEnds'].getValue() in [InhibitedEnds.NEITHER, InhibitedEnds.TOP]:
             surfaceArea += fullFaceArea - geometry.circleArea(aftDiameter)
 
         return surfaceArea
@@ -159,7 +163,7 @@ class ConicalGrain(Grain):
         inhibitedEnds = self.props['inhibitedEnds'].getValue()
 
         if self.isCoreInverted():
-            if inhibitedEnds == 'Bottom' or inhibitedEnds == 'Both':
+            if inhibitedEnds == InhibitedEnds.BOTTOM or inhibitedEnds == InhibitedEnds.BOTH:
                 # Because all of the change in length is due to the forward end moving, the forward end's position is
                 # just the amount the the grain has regressed by, The aft end stays where it started
                 return (originalLength - currentLength, originalLength)
@@ -169,7 +173,7 @@ class ConicalGrain(Grain):
             # total change in grain length to get the forward end position
             return (originalLength - currentLength - regDist, originalLength - regDist)
 
-        if inhibitedEnds == 'Top' or inhibitedEnds == 'Both':
+        if inhibitedEnds == InhibitedEnds.TOP or inhibitedEnds == InhibitedEnds.BOTH:
             # All of the change in grain length is due to the aft face moving, so the forward face stays at 0 and the
             # aft face is at the regressed grain length
             return (0, currentLength)
@@ -183,9 +187,9 @@ class ConicalGrain(Grain):
 
         return geometry.circleArea(aftCoreDiameter)
 
-    def getDetailsString(self, lengthUnit='m'):
+    def getDetailsString(self, Unit=Unit.METER):
         """Returns a short string describing the grain, formatted using the units that is passed in"""
-        return 'Length: {}'.format(self.props['length'].dispFormat(lengthUnit))
+        return 'Length: {}'.format(self.props['length'].dispFormat(Unit))
 
     def simulationSetup(self, config):
         """Do anything needed to prepare this grain for simulation"""

@@ -1,20 +1,22 @@
 """Propellant submodule that contains the propellant class."""
-
+from .enums.simAlertLevel import SimAlertLevel
+from .enums.simAlertType import SimAlertType
+from .enums.unit import Unit
 from .properties import PropertyCollection, FloatProperty, StringProperty, TabularProperty
-from .simResult import SimAlert, SimAlertLevel, SimAlertType
+from .simResult import SimAlert
 from .constants import gasConstant
 
 class PropellantTab(PropertyCollection):
     """Contains the combustion properties of a propellant over a specified pressure range."""
     def __init__(self, tabDict=None):
         super().__init__()
-        self.props['minPressure'] = FloatProperty('Minimum Pressure', 'Pa', 0, 7e7)
-        self.props['maxPressure'] = FloatProperty('Maximum Pressure', 'Pa', 0, 7e7)
-        self.props['a'] = FloatProperty('Burn rate Coefficient', 'm/(s*Pa^n)', 1E-8, 2)
+        self.props['minPressure'] = FloatProperty('Minimum Pressure', Unit.PASCAL, 0, 7e7)
+        self.props['maxPressure'] = FloatProperty('Maximum Pressure', Unit.PASCAL, 0, 7e7)
+        self.props['a'] = FloatProperty('Burn rate Coefficient', Unit.METER_PER_SECOND_PASCAL_TO_THE_POWER_OF_N, 1E-8, 2)
         self.props['n'] = FloatProperty('Burn rate Exponent', '', -0.99, 0.99)
         self.props['k'] = FloatProperty('Specific Heat Ratio', '', 1+1e-6, 10)
-        self.props['t'] = FloatProperty('Combustion Temperature', 'K', 1, 10000)
-        self.props['m'] = FloatProperty('Exhaust Molar Mass', 'g/mol', 1e-6, 100)
+        self.props['t'] = FloatProperty('Combustion Temperature', Unit.KELVIN, 1, 10000)
+        self.props['m'] = FloatProperty('Exhaust Molar Mass', Unit.GRAM_PER_MOLE, 1e-6, 100)
         if tabDict is not None:
             self.setProperties(tabDict)
 
@@ -24,7 +26,7 @@ class Propellant(PropertyCollection):
     def __init__(self, propDict=None):
         super().__init__()
         self.props['name'] = StringProperty('Name')
-        self.props['density'] = FloatProperty('Density', 'kg/m^3', 1, 10000)
+        self.props['density'] = FloatProperty('Density', Unit.KILOGRAM_PER_CUBIC_METER, 1, 10000)
         self.props['tabs'] = TabularProperty('Properties', PropellantTab)
         if propDict is not None:
             self.setProperties(propDict)

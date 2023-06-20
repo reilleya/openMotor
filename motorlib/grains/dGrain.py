@@ -1,8 +1,10 @@
 """D Grain submodule"""
-
+from ..enums.simAlertLevel import SimAlertLevel
+from ..enums.simAlertType import SimAlertType
+from ..enums.unit import Unit
 from ..grain import FmmGrain
 from ..properties import FloatProperty
-from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+from ..simResult import SimAlert
 
 class DGrain(FmmGrain):
     """Defines a D grain, which is a grain that has no propellant past a chord that is a user-specified distance from
@@ -10,7 +12,7 @@ class DGrain(FmmGrain):
     geomName = 'D Grain'
     def __init__(self):
         super().__init__()
-        self.props['slotOffset'] = FloatProperty('Slot offset', 'm', -1, 1)
+        self.props['slotOffset'] = FloatProperty('Slot offset', Unit.METER, -1, 1)
 
         self.props['slotOffset'].setValue(0)
 
@@ -19,9 +21,9 @@ class DGrain(FmmGrain):
 
         self.coreMap[self.mapX > slotOffset] = 0
 
-    def getDetailsString(self, lengthUnit='m'):
-        return 'Length: {}, Slot offset: {}'.format(self.props['length'].dispFormat(lengthUnit),
-                                                    self.props['slotOffset'].dispFormat(lengthUnit))
+    def getDetailsString(self, Unit=Unit.METER):
+        return 'Length: {}, Slot offset: {}'.format(self.props['length'].dispFormat(Unit),
+                                                    self.props['slotOffset'].dispFormat(Unit))
 
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()

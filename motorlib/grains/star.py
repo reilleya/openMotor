@@ -2,9 +2,12 @@
 
 import numpy as np
 
+from ..enums.simAlertLevel import SimAlertLevel
+from ..enums.simAlertType import SimAlertType
+from ..enums.unit import Unit
 from ..grain import FmmGrain
 from ..properties import IntProperty, FloatProperty
-from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+from ..simResult import SimAlert
 
 class StarGrain(FmmGrain):
     """A star grain has a core shaped like a star."""
@@ -12,8 +15,8 @@ class StarGrain(FmmGrain):
     def __init__(self):
         super().__init__()
         self.props['numPoints'] = IntProperty('Number of points', '', 0, 64)
-        self.props['pointLength'] = FloatProperty('Point length', 'm', 0, 1)
-        self.props['pointWidth'] = FloatProperty('Point base width', 'm', 0, 1)
+        self.props['pointLength'] = FloatProperty('Point length', Unit.METER, 0, 1)
+        self.props['pointWidth'] = FloatProperty('Point base width', Unit.METER, 0, 1)
 
     def generateCoreMap(self):
         numPoints = self.props['numPoints'].getValue()
@@ -31,8 +34,8 @@ class StarGrain(FmmGrain):
             near = comp1*self.mapX - comp0*self.mapY > -0.025
             self.coreMap[np.logical_and(vect, near)] = 0
 
-    def getDetailsString(self, lengthUnit='m'):
-        return 'Length: {}, Points: {}'.format(self.props['length'].dispFormat(lengthUnit),
+    def getDetailsString(self, Unit=Unit.METER):
+        return 'Length: {}, Points: {}'.format(self.props['length'].dispFormat(Unit),
                                                self.props['numPoints'].getValue())
 
     def getGeometryErrors(self):

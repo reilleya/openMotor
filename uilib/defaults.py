@@ -1,4 +1,5 @@
 """Provides default properties for the UI."""
+from motorlib.enums.unit import Unit
 
 DEFAULT_PREFERENCES = {
     'general': {
@@ -15,17 +16,17 @@ DEFAULT_PREFERENCES = {
         'flowSeparationWarnPercent': 0.05
     },
     'units': {
-        'm': 'in',
-        'm^3': 'in^3',
-        'm/s': 'ft/s',
-        'Pa': 'psi',
-        'kg': 'lb',
-        'kg/m^3': 'lb/in^3',
-        'kg/s': 'lb/s',
-        'kg/(m^2*s)': 'lb/(in^2*s)',
-        '(m*Pa)/s': '(in*psi)/s',
-        'm/(s*Pa)': 'thou/(s*psi)',
-        'm/(s*Pa^n)': 'in/(s*psi^n)'
+        Unit.METER: Unit.INCH,
+        Unit.CUBIC_METER: Unit.CUBIC_INCH,
+        Unit.METER_PER_SECOND: Unit.FOOT_PER_SECOND,
+        Unit.PASCAL: Unit.POUND_PER_SQUARE_INCH,
+        Unit.KILOGRAM: Unit.POUND,
+        Unit.KILOGRAM_PER_CUBIC_METER: Unit.POUND_PER_CUBIC_INCH,
+        Unit.KILOGRAM_PER_SECOND:Unit.POUND_PER_SECOND,
+        Unit.KILOGRAM_PER_SQUARE_METER_PER_SECOND: Unit.POUND_PER_SQUARE_INCH_PER_SECOND,
+        Unit.METER_PASCAL_PER_SECOND: Unit.INCH_POUND_PER_SQUARE_INCH_PER_SECOND,
+        Unit.METER_PER_SECOND_PASCAL: Unit.THOUSANDTH_INCH_PER_SECOND_POUND_PER_SQUARE_INCH,
+        Unit.METER_PER_SECOND_PASCAL_TO_THE_POWER_OF_N: Unit.INCH_PER_SECOND_POUND_PER_SQUARE_INCH_TO_THE_POWER_OF_N
     }
 }
 

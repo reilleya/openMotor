@@ -1,21 +1,22 @@
-import xml.etree.ElementTree as ET
-from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox, QApplication
+from PyQt5.QtWidgets import QDialog, QApplication
 
+from motorlib.enums.singleValueChannels import SingleValueChannels
+from motorlib.enums.unit import Unit
 from motorlib.properties import PropertyCollection, FloatProperty, StringProperty, EnumProperty
-import motorlib
 from ..converter import Exporter
+from ..enums.fileAction import FileAction
 
 from ..views.EngExporter_ui import Ui_EngExporterDialog
 
 class EngSettings(PropertyCollection):
     def __init__(self):
         super().__init__()
-        self.props['diameter'] = FloatProperty('Motor Diameter', 'm', 0, 1)
-        self.props['length'] = FloatProperty('Motor Length', 'm', 0, 4)
-        self.props['hardwareMass'] = FloatProperty('Hardware Mass', 'kg', 0, 1000)
+        self.props['diameter'] = FloatProperty('Motor Diameter', Unit.METER, 0, 1)
+        self.props['length'] = FloatProperty('Motor Length', Unit.METER, 0, 4)
+        self.props['hardwareMass'] = FloatProperty('Hardware Mass', Unit.KILOGRAM, 0, 1000)
         self.props['designation'] = StringProperty('Motor Designation')
         self.props['manufacturer'] = StringProperty('Motor Manufacturer')
-        self.props['append'] = EnumProperty('Existing File', ['Append', 'Overwrite'])
+        self.props['append'] = EnumProperty('Existing File', [FileAction.APPEND, FileAction.OVERWRITE])
 
 
 class EngExportMenu(QDialog):
@@ -47,7 +48,7 @@ class EngExporter(Exporter):
         self.reqNotMet = "Must have run a simulation to export a .ENG file."
 
     def doConversion(self, path, config):
-        mode = 'a' if config['append'] == 'Append' else 'w'
+        mode = 'a' if config['append'] == FileAction.APPEND else 'w'
         with open(path, mode) as outFile:
             propMass = self.manager.simRes.getPropellantMass()
             contents = ' '.join([config['designation'],
@@ -59,8 +60,8 @@ class EngExporter(Exporter):
                                  config['manufacturer']
                                  ]) + '\n'
 
-            timeData = self.manager.simRes.channels['time'].getData()
-            forceData = self.manager.simRes.channels['force'].getData()
+            timeData = self.manager.simRes.channels[SingleValueChannels.TIME].getData()
+            forceData = self.manager.simRes.channels[SingleValueChannels.FORCE].getData()
             # Add on a 0-thrust datapoint right after the burn to satisfy RAS Aero
             if forceData[-1] != 0:
                 timeData.append(self.manager.simRes.getBurnTime() + 0.01)

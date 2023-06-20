@@ -1,6 +1,7 @@
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+from motorlib.enums.unit import Unit
 from motorlib.units import convertAll
 
 class BurnrateGraph(FigureCanvas):
@@ -23,15 +24,15 @@ class BurnrateGraph(FigureCanvas):
         self.draw()
 
     def showGraph(self, points):
-        presUnit = self.preferences.getUnit('Pa')
-        rateUnit = self.preferences.getUnit('m/s')
+        presUnit = self.preferences.getUnit(Unit.PASCAL)
+        rateUnit = self.preferences.getUnit(Unit.METER_PER_SECOND)
         # I really don't like this, but it is necessary for this graph and the c* output to coexist
-        if rateUnit == 'ft/s':
-            rateUnit = 'in/s'
-        if rateUnit == 'm/s':
-            rateUnit = 'mm/s'
+        if rateUnit == Unit.FOOT_PER_SECOND:
+            rateUnit = Unit.INCH_PER_SECOND
+        if rateUnit == Unit.METER_PER_SECOND:
+            rateUnit = Unit.MILLIMETER_PER_SECOND
 
-        self.plot.plot(convertAll(points[0], 'Pa', presUnit), convertAll(points[1], 'm/s', rateUnit))
+        self.plot.plot(convertAll(points[0], Unit.PASCAL, presUnit), convertAll(points[1], Unit.METER_PER_SECOND, rateUnit))
         self.plot.set_xlabel('Pressure - {}'.format(presUnit))
         self.plot.set_ylabel('Burn Rate - {}'.format(rateUnit))
         self.plot.grid(True)

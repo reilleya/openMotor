@@ -10,7 +10,11 @@ from scipy.signal import savgol_filter
 from scipy import interpolate
 
 from . import geometry
-from .simResult import SimAlert, SimAlertLevel, SimAlertType
+from .enums.inhibitedEnds import InhibitedEnds
+from .enums.simAlertLevel import SimAlertLevel
+from .enums.simAlertType import SimAlertType
+from .enums.unit import Unit
+from .simResult import SimAlert
 from .properties import FloatProperty, EnumProperty, PropertyCollection
 
 class Grain(PropertyCollection):
@@ -19,8 +23,8 @@ class Grain(PropertyCollection):
     geomName = None
     def __init__(self):
         super().__init__()
-        self.props['diameter'] = FloatProperty('Diameter', 'm', 0, 1)
-        self.props['length'] = FloatProperty('Length', 'm', 0, 3)
+        self.props['diameter'] = FloatProperty('Diameter', Unit.METER, 0, 1)
+        self.props['length'] = FloatProperty('Length', Unit.METER, 0, 3)
 
     def getVolumeSlice(self, regDist, dRegDist):
         """Returns the amount of propellant volume consumed as the grain regresses from a distance of 'regDist' to
@@ -67,9 +71,9 @@ class Grain(PropertyCollection):
         endPos = self.getEndPositions(regDist)
         return endPos[1] - endPos[0]
 
-    def getDetailsString(self, lengthUnit='m'):
+    def getDetailsString(self, Unit=Unit.METER):
         """Returns a short string describing the grain, formatted using the units that is passed in"""
-        return 'Length: {}'.format(self.props['length'].dispFormat(lengthUnit))
+        return 'Length: {}'.format(self.props['length'].dispFormat(Unit))
 
     @abstractmethod
     def simulationSetup(self, config):
@@ -103,17 +107,20 @@ class PerforatedGrain(Grain):
     geomName = 'perfGrain'
     def __init__(self):
         super().__init__()
-        self.props['inhibitedEnds'] = EnumProperty('Inhibited ends', ['Neither', 'Top', 'Bottom', 'Both'])
+        self.props['inhibitedEnds'] = EnumProperty('Inhibited ends', [InhibitedEnds.NEITHER,
+                                                                      InhibitedEnds.TOP,
+                                                                      InhibitedEnds.BOTTOM,
+                                                                      InhibitedEnds.BOTH])
         self.wallWeb = 0 # Max distance from the core to the wall
 
     def getEndPositions(self, regDist):
-        if self.props['inhibitedEnds'].getValue() == 'Neither': # Neither
+        if self.props['inhibitedEnds'].getValue() == InhibitedEnds.NEITHER:
             return (regDist, self.props['length'].getValue() - regDist)
-        if self.props['inhibitedEnds'].getValue() == 'Top': # Top
+        if self.props['inhibitedEnds'].getValue() == InhibitedEnds.TOP:
             return (0, self.props['length'].getValue() - regDist)
-        if self.props['inhibitedEnds'].getValue() == 'Bottom': # Bottom
+        if self.props['inhibitedEnds'].getValue() == InhibitedEnds.BOTTOM:
             return (regDist, self.props['length'].getValue())
-        if self.props['inhibitedEnds'].getValue() == 'Both':
+        if self.props['inhibitedEnds'].getValue() == InhibitedEnds.BOTH:
             return (0, self.props['length'].getValue())
         # The enum should prevent this from even being raised, but to cover the case where it somehow gets set wrong
         raise ValueError('Invalid number of faces inhibited')
@@ -135,7 +142,7 @@ class PerforatedGrain(Grain):
 
     def getWebLeft(self, regDist):
         wallLeft = self.wallWeb - regDist
-        if self.props['inhibitedEnds'].getValue() == 'Both':
+        if self.props['inhibitedEnds'].getValue() == InhibitedEnds.BOTH:
             return wallLeft
         lengthLeft = self.getRegressedLength(regDist)
         return min(lengthLeft, wallLeft)
@@ -145,9 +152,9 @@ class PerforatedGrain(Grain):
         coreArea = self.getCoreSurfaceArea(regDist)
 
         exposedFaces = 2
-        if self.props['inhibitedEnds'].getValue() == 'Top' or self.props['inhibitedEnds'].getValue() == 'Bottom':
+        if self.props['inhibitedEnds'].getValue() == InhibitedEnds.TOP or self.props['inhibitedEnds'].getValue() == InhibitedEnds.BOTTOM:
             exposedFaces = 1
-        if self.props['inhibitedEnds'].getValue() == 'Both':
+        if self.props['inhibitedEnds'].getValue() == InhibitedEnds.BOTH:
             exposedFaces = 0
 
         return coreArea + (exposedFaces * faceArea)
@@ -172,7 +179,7 @@ class PerforatedGrain(Grain):
         # If a position in the grain is queried, the mass flow is the input mass, from the top face,
         # and from the tube up to the point. The diameter is the core.
         if position <= endPos[1]:
-            if self.props['inhibitedEnds'].getValue() in ('Top', 'Both'):
+            if self.props['inhibitedEnds'].getValue() in (InhibitedEnds.TOP, InhibitedEnds.BOTH):
                 top = 0
                 countedCoreLength = position
             else:

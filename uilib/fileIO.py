@@ -1,21 +1,16 @@
-from enum import Enum
 import os
-import platform
 
 from PyQt5.QtWidgets import QApplication
 import yaml
 import appdirs
 
+from motorlib.enums.unit import Unit
 from .defaults import DEFAULT_PREFERENCES, DEFAULT_PROPELLANTS, KNSU_PROPS
+from .enums.fileType import FileType
 from .logger import logger
 
 appVersion = (0, 6, 0)
 appVersionStr = '.'.join(map(str, appVersion))
-
-class fileTypes(Enum):
-    PREFERENCES = 1
-    PROPELLANTS = 2
-    MOTOR = 3
 
 def futureVersion(verA, verB): # Returns true if a is newer than b
     major = verA[0] > verB[0]
@@ -34,6 +29,8 @@ def saveFile(path, data, dataType):
         yaml.dump(output, saveLocation)
 
 def loadFile(path, dataType):
+    fix_enum_refs(path)
+
     with open(path, 'r') as readLocation:
         fileData = yaml.load(readLocation, Loader=yaml.Loader)
 
@@ -55,7 +52,19 @@ def loadFile(path, dataType):
         # Otherwise it is from a past version and will be migrated
         return doMigration(fileData)['data']
 
- # Returns the path that files like preferences and propellant library should be in. Previously, all platforms except
+
+def fix_enum_refs(path):
+    # changes to v0.6.0 that introduced the new enums, make so that the old files break since some classes do not exist.
+    # as a fix we run this check beforehand and rewrite the relevant parts. In the future... use Feature Flags kids!
+    with open(path, 'r') as file:
+        content = file.read()
+    modified_content = content.replace("!!python/object/apply:uilib.fileIO.fileTypes",
+                                       "!!python/object/apply:uilib.enums.fileType.FileType")
+    with open(path, 'w') as file:
+        file.write(modified_content)
+
+
+# Returns the path that files like preferences and propellant library should be in. Previously, all platforms except
  # Mac OS put these files alongside the executable, but the v0.5.0 added an installer for windows so it makes more
  # sense to use the user's data directory now.
 def getConfigPath():
@@ -68,7 +77,7 @@ def passthrough(data):
     return data
     
     
-#0.5.0 to 0.6.0
+# 0.5.0 to 0.6.0
 def migrateMotor_0_5_0_to_0_6_0(data):
     data['config']['sepPressureRatio'] = DEFAULT_PREFERENCES['general']['sepPressureRatio']
     data['config']['flowSeparationWarnPercent'] = DEFAULT_PREFERENCES['general']['flowSeparationWarnPercent']
@@ -116,8 +125,8 @@ def tabularizePropellant(data):
 
 def migratePref_0_3_0_to_0_4_0(data):
     data['general']['igniterPressure'] = DEFAULT_PREFERENCES['general']['igniterPressure']
-    data['units']['(m*Pa)/s'] = '(in*psi)/s'
-    data['units']['m/(s*Pa)'] = 'thou/(s*psi)'
+    data['units'][Unit.METER_PASCAL_PER_SECOND] = Unit.INCH_POUND_PER_SQUARE_INCH_PER_SECOND
+    data['units'][Unit.METER_PER_SECOND_PASCAL] = Unit.THOUSANDTH_INCH_PER_SECOND_POUND_PER_SQUARE_INCH
     return data
 
 def migrateProp_0_3_0_to_0_4_0(data):
@@ -157,33 +166,33 @@ def migrateMotor_0_2_0_to_0_3_0(data):
 migrations = {
     (0, 5, 0): {
         'to': (0, 6, 0),
-        fileTypes.PREFERENCES: passthrough,
-        fileTypes.PROPELLANTS: passthrough,
-        fileTypes.MOTOR: migrateMotor_0_5_0_to_0_6_0
+        FileType.PREFERENCES: passthrough,
+        FileType.PROPELLANTS: passthrough,
+        FileType.MOTOR: migrateMotor_0_5_0_to_0_6_0
     },
     (0, 4, 0): {
         'to': (0, 5, 0),
-        fileTypes.PREFERENCES: migratePref_0_4_0_to_0_5_0,
-        fileTypes.PROPELLANTS: migrateProp_0_4_0_to_0_5_0,
-        fileTypes.MOTOR: migrateMotor_0_4_0_to_0_5_0,
+        FileType.PREFERENCES: migratePref_0_4_0_to_0_5_0,
+        FileType.PROPELLANTS: migrateProp_0_4_0_to_0_5_0,
+        FileType.MOTOR: migrateMotor_0_4_0_to_0_5_0,
     },
     (0, 3, 0): {
         'to': (0, 4, 0),
-        fileTypes.PREFERENCES: migratePref_0_3_0_to_0_4_0,
-        fileTypes.PROPELLANTS: migrateProp_0_3_0_to_0_4_0,
-        fileTypes.MOTOR: migrateMotor_0_3_0_to_0_4_0
+        FileType.PREFERENCES: migratePref_0_3_0_to_0_4_0,
+        FileType.PROPELLANTS: migrateProp_0_3_0_to_0_4_0,
+        FileType.MOTOR: migrateMotor_0_3_0_to_0_4_0
     },
     (0, 2, 0): {
         'to': (0, 3, 0),
-        fileTypes.PREFERENCES: migratePref_0_2_0_to_0_3_0,
-        fileTypes.PROPELLANTS: passthrough,
-        fileTypes.MOTOR: migrateMotor_0_2_0_to_0_3_0
+        FileType.PREFERENCES: migratePref_0_2_0_to_0_3_0,
+        FileType.PROPELLANTS: passthrough,
+        FileType.MOTOR: migrateMotor_0_2_0_to_0_3_0
     },
     (0, 1, 0): {
         'to': (0, 2, 0),
-        fileTypes.PREFERENCES: passthrough,
-        fileTypes.PROPELLANTS: passthrough,
-        fileTypes.MOTOR: passthrough
+        FileType.PREFERENCES: passthrough,
+        FileType.PROPELLANTS: passthrough,
+        FileType.MOTOR: passthrough
     }
 }
 

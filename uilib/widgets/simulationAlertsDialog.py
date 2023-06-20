@@ -1,7 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QTableWidgetItem, QHeaderView, QApplication
 
-from motorlib.simResult import alertLevelNames, alertTypeNames
-
 from ..views.SimulationAlertsDialog_ui import Ui_SimAlertsDialog
 
 class SimulationAlertsDialog(QDialog):
@@ -27,8 +25,8 @@ class SimulationAlertsDialog(QDialog):
 
         self.ui.tableWidgetAlerts.setRowCount(len(simRes.alerts))
         for row, alert in enumerate(simRes.alerts):
-            self.ui.tableWidgetAlerts.setItem(row, 0, QTableWidgetItem(alertLevelNames[alert.level]))
-            self.ui.tableWidgetAlerts.setItem(row, 1, QTableWidgetItem(alertTypeNames[alert.type]))
+            self.ui.tableWidgetAlerts.setItem(row, 0, QTableWidgetItem(alert.level))
+            self.ui.tableWidgetAlerts.setItem(row, 1, QTableWidgetItem(alert.type))
             self.ui.tableWidgetAlerts.setItem(row, 2, QTableWidgetItem(alert.location))
             self.ui.tableWidgetAlerts.setItem(row, 3, QTableWidgetItem(alert.description))
         self.show()

@@ -1,9 +1,8 @@
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import pyqtSignal
-
-import motorlib
+from motorlib.enums.simAlertLevel import SimAlertLevel
 
 from ..views.PropellantPreview_ui import Ui_PropellantPreview
+
 
 class PropellantPreviewWidget(QWidget):
     def __init__(self):
@@ -22,11 +21,11 @@ class PropellantPreviewWidget(QWidget):
             self.ui.tabAlerts.addItem(err.description)
 
         for alert in alerts:
-            if alert.level == motorlib.simResult.SimAlertLevel.ERROR:
+            if alert.level == SimAlertLevel.ERROR:
                 return
 
         burnrateData = [[], []]
-        minPres = int(propellant.getMinimumValidPressure()) + 1 # Add 1 Pa to avoid crashing on burnrate for 0 Pa
+        minPres = int(propellant.getMinimumValidPressure()) + 1  # Add 1 Pa to avoid crashing on burnrate for 0 Pa
         maxPres = int(propellant.getMaximumValidPressure())
         for pres in range(minPres, maxPres, 2000):
             burnrateData[0].append(pres)

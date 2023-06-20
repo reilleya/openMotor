@@ -2,17 +2,20 @@
 
 import numpy as np
 
+from ..enums.simAlertLevel import SimAlertLevel
+from ..enums.simAlertType import SimAlertType
+from ..enums.unit import Unit
 from ..grain import FmmGrain
 from ..properties import FloatProperty
-from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+from ..simResult import SimAlert
 
 class XCore(FmmGrain):
     """An X Core grain has a core shaped like a plus sign or an X."""
     geomName = 'X Core'
     def __init__(self):
         super().__init__()
-        self.props['slotWidth'] = FloatProperty('Slot width', 'm', 0, 1)
-        self.props['slotLength'] = FloatProperty('Slot length', 'm', 0, 1)
+        self.props['slotWidth'] = FloatProperty('Slot width', Unit.METER, 0, 1)
+        self.props['slotLength'] = FloatProperty('Slot length', Unit.METER, 0, 1)
 
     def generateCoreMap(self):
         slotWidth = self.normalize(self.props['slotWidth'].getValue())
@@ -21,10 +24,10 @@ class XCore(FmmGrain):
         self.coreMap[np.logical_and(np.abs(self.mapY) < slotWidth/2, np.abs(self.mapX) < slotLength)] = 0
         self.coreMap[np.logical_and(np.abs(self.mapX) < slotWidth/2, np.abs(self.mapY) < slotLength)] = 0
 
-    def getDetailsString(self, lengthUnit='m'):
-        return 'Length: {}, Slots: {} by {}'.format(self.props['length'].dispFormat(lengthUnit),
-                                                    self.props['slotWidth'].dispFormat(lengthUnit),
-                                                    self.props['slotLength'].dispFormat(lengthUnit))
+    def getDetailsString(self, Unit=Unit.METER):
+        return 'Length: {}, Slots: {} by {}'.format(self.props['length'].dispFormat(Unit),
+                                                    self.props['slotWidth'].dispFormat(Unit),
+                                                    self.props['slotLength'].dispFormat(Unit))
 
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()

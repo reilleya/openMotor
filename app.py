@@ -50,10 +50,10 @@ class App(QApplication):
                 motor = self.fileManager.getCurrentMotor()
                 simulationResult = motor.runSimulation()
                 for alert in simulationResult.alerts:
-                    print('{} ({}, {}): {}'.format(motorlib.simResult.alertLevelNames[alert.level],
-                        motorlib.simResult.alertTypeNames[alert.type],
-                        alert.location,
-                        alert.description))
+                    print('{} ({}, {}): {}'.format(alert.level,
+                                                   alert.type,
+                                                   alert.location,
+                                                   alert.description))
                 print()
                 if '-o' in args:
                     with open(args[args.index('-o') + 1], 'w') as outputFile:

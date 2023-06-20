@@ -1,11 +1,11 @@
 import sys
 import os
-import matplotlib
 import yaml
 import warnings
 
 import motorlib.motor
-from uilib.fileIO import loadFile, fileTypes
+from uilib.enums.fileType import FileType
+from uilib.fileIO import loadFile
 
 separator = '-' * 65
 
@@ -30,7 +30,7 @@ def formatPercent(percent):
 
 def runSim(path):
     print('Loading motor from ' + path)
-    res = loadFile(path, fileTypes.MOTOR)
+    res = loadFile(path, FileType.MOTOR)
     if res is not None:
         motor = motorlib.motor.Motor(res)
         print('Simulating burn...')

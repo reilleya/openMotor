@@ -2,6 +2,8 @@ import unittest
 import motorlib.motor
 import motorlib.grains
 import motorlib.propellant
+from motorlib.enums.inhibitedEnds import InhibitedEnds
+
 
 class TestMotorMethods(unittest.TestCase):
 
@@ -14,7 +16,7 @@ class TestMotorMethods(unittest.TestCase):
             'diameter': 0.083058,
             'length': 0.1397,
             'coreDiameter': 0.05,
-            'inhibitedEnds': 'Neither'
+            'inhibitedEnds': InhibitedEnds.NEITHER
         })
 
         tm.grains.append(bg)
@@ -34,7 +36,7 @@ class TestMotorMethods(unittest.TestCase):
             'diameter': 0.083058,
             'length': 0.1397,
             'coreDiameter': 0.05,
-            'inhibitedEnds': 'Neither'
+            'inhibitedEnds': InhibitedEnds.NEITHER
         })
 
         tm.grains.append(bg)

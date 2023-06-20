@@ -1,6 +1,8 @@
 import xml.etree.ElementTree as ET
 
 import motorlib
+from motorlib.enums.inhibitedEnds import InhibitedEnds
+from motorlib.enums.unit import Unit
 
 from ..converter import Importer
 
@@ -21,21 +23,27 @@ UNSUPPORTED_GRAINS = {
     '9': 'Pie Segment'
 }
 
+
 def inToM(value):
     """Converts a string containing a value in inches to a float of meters"""
-    return motorlib.units.convert(float(value), 'in', 'm')
+    return motorlib.units.convert(float(value), Unit.INCH, Unit.METER)
+
 
 def importPropellant(node):
     propellant = motorlib.propellant.Propellant()
     propTab = motorlib.propellant.PropellantTab()
     propellant.setProperty('name', node.attrib['Name'])
     ballN = float(node.attrib['BallisticN'])
-    ballA = float(node.attrib['BallisticA']) * 1/(6895**ballN)
+    ballA = float(node.attrib['BallisticA']) * 1 / (6895 ** ballN)
     propTab.setProperty('n', ballN)
     # Conversion only does in/s to m/s, the rest is handled above
-    ballA = motorlib.units.convert(ballA, 'in/(s*psi^n)', 'm/(s*Pa^n)')
+    ballA = motorlib.units.convert(ballA,
+                                   Unit.INCH_PER_SECOND_POUND_PER_SQUARE_INCH_TO_THE_POWER_OF_N,
+                                   Unit.METER_PER_SECOND_PASCAL_TO_THE_POWER_OF_N)
     propTab.setProperty('a', ballA)
-    density = motorlib.units.convert(float(node.attrib['Density']), 'lb/in^3', 'kg/m^3')
+    density = motorlib.units.convert(float(node.attrib['Density']),
+                                     Unit.POUND_PER_CUBIC_INCH,
+                                     Unit.KILOGRAM_PER_CUBIC_METER)
     propellant.setProperty('density', density)
     propTab.setProperty('k', float(node.attrib['SpecificHeatRatio']))
     impMolarMass = node.attrib['MolarMass']
@@ -50,6 +58,7 @@ def importPropellant(node):
     propTab.setProperty('maxPressure', 6.895e+06)
     propellant.setProperty('tabs', [propTab.getProperties()])
     return propellant
+
 
 class BurnSimImporter(Importer):
     def __init__(self, manager):
@@ -81,34 +90,34 @@ class BurnSimImporter(Importer):
                     grainType = child.attrib['Type']
 
                     if child.attrib['EndsInhibited'] == '1':
-                        motor.grains[-1].setProperty('inhibitedEnds', 'Top')
+                        motor.grains[-1].setProperty('inhibitedEnds', InhibitedEnds.TOP)
                     elif child.attrib['EndsInhibited'] == '2':
-                        motor.grains[-1].setProperty('inhibitedEnds', 'Both')
+                        motor.grains[-1].setProperty('inhibitedEnds', InhibitedEnds.BOTH)
 
-                    if grainType in ('1', '3', '7'): # Grains with core diameter
+                    if grainType in ('1', '3', '7'):  # Grains with core diameter
                         motor.grains[-1].setProperty('coreDiameter', inToM(child.attrib['CoreDiameter']))
 
-                    if grainType == '2': # D grain specific properties
+                    if grainType == '2':  # D grain specific properties
                         motor.grains[-1].setProperty('slotOffset', inToM(child.attrib['EdgeOffset']))
 
-                    elif grainType == '3': # Moonburner specific properties
+                    elif grainType == '3':  # Moonburner specific properties
                         motor.grains[-1].setProperty('coreOffset', inToM(child.attrib['CoreOffset']))
 
-                    elif grainType == '5': # C grain specific properties
+                    elif grainType == '5':  # C grain specific properties
                         motor.grains[-1].setProperty('slotWidth', inToM(child.attrib['SlotWidth']))
                         radius = motor.grains[-1].getProperty('diameter') / 2
                         motor.grains[-1].setProperty('slotOffset', radius - inToM(child.attrib['SlotDepth']))
 
-                    elif grainType == '6': # X core specific properties
+                    elif grainType == '6':  # X core specific properties
                         motor.grains[-1].setProperty('slotWidth', inToM(child.attrib['SlotWidth']))
                         motor.grains[-1].setProperty('slotLength', inToM(child.attrib['CoreDiameter']) / 2)
 
-                    elif grainType == '7': # Finocyl specific properties
+                    elif grainType == '7':  # Finocyl specific properties
                         motor.grains[-1].setProperty('finWidth', inToM(child.attrib['FinWidth']))
                         motor.grains[-1].setProperty('finLength', inToM(child.attrib['FinLength']))
                         motor.grains[-1].setProperty('numFins', int(child.attrib['FinCount']))
 
-                    if not propSet: # Use propellant numbers from the forward grain
+                    if not propSet:  # Use propellant numbers from the forward grain
                         motor.propellant = importPropellant(child.find('Propellant'))
                         propSet = True
 
