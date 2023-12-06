@@ -72,6 +72,9 @@ def passthrough(data):
 def migrateMotor_0_5_0_to_0_6_0(data):
     data['config']['sepPressureRatio'] = DEFAULT_PREFERENCES['general']['sepPressureRatio']
     data['config']['flowSeparationWarnPercent'] = DEFAULT_PREFERENCES['general']['flowSeparationWarnPercent']
+    for grain in data['grains']:
+        if grain['type'] == 'Finocyl':
+            grain['properties']['invertedFins'] = False
     return data
 
 # 0.4.0 to 0.5.0
