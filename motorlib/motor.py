@@ -288,6 +288,11 @@ class Motor():
             alert = SimAlert(SimAlertLevel.WARNING, SimAlertType.VALUE, desc, 'Nozzle')
             simRes.addAlert(alert)
 
+        if simRes.getAverageForce() < burnoutThrustThres:
+            desc = 'Motor did not generate thrust. Check chamber pressure and expansion ratio.'
+            alert = SimAlert(SimAlertLevel.ERROR, SimAlertType.VALUE, desc, 'Motor')
+            simRes.addAlert(alert)
+
         # Note that this only adds all errors found on the first datapoint where there were errors to avoid repeating
         # errors. It should be revisited if getPressureErrors ever returns multiple types of errors
         for pressure in simRes.channels['pressure'].getData():
