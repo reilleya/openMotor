@@ -7,7 +7,7 @@ imageio==2.31.0
 matplotlib==3.7.1
 networkx==3.1
 numpy==1.24.3
-Pillow==9.5.0
+Pillow==10.0.1
 pyparsing==3.0.9
 pyqt-distutils==0.7.3
 PyQt6==6.4.2
