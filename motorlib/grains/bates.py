@@ -2,7 +2,7 @@
 
 import numpy as np
 import skfmm
-from skimage import measure
+import mathlib
 
 from ..grain import PerforatedGrain
 from .. import geometry
@@ -74,7 +74,7 @@ class BatesGrain(PerforatedGrain):
             for dist in np.linspace(0, regmax, numContours):
                 contours.append([])
                 contourLengths[dist] = 0
-                layerContours = measure.find_contours(regressionMap, dist, fully_connected='high')
+                layerContours = mathlib.find_perimeter(regressionMap, dist, fully_connected='high', including_contours=True)[1]
                 for contour in layerContours:
                     contours[-1].append(contour)
                     contourLengths[dist] += geometry.length(contour, mapDim)

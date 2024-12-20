@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# Cython
+*.c
+mathlib/_find_perimeter_cy.c
+
 # Distribution / packaging
 .Python
 build/
@@ -94,6 +98,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+myvenv
 
 # Spyder project settings
 .spyderproject

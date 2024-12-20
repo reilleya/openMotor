@@ -5,6 +5,7 @@ from abc import abstractmethod
 
 import numpy as np
 import skfmm
+import mathlib
 from skimage import measure
 from scipy.signal import savgol_filter
 from scipy import interpolate
@@ -282,14 +283,8 @@ class FmmGrain(PerforatedGrain):
 
     def getCorePerimeter(self, regDist):
         mapDist = self.normalize(regDist)
-
-        corePerimeter = 0
-        contours = measure.find_contours(self.regressionMap, mapDist, fully_connected='low')
-        for contour in contours:
-            corePerimeter += self.mapToLength(geometry.length(contour, self.mapDim))
-
-        return corePerimeter
-
+        return self.mapToLength(mathlib.find_perimeter(self.regressionMap, mapDist)[0])
+    
     def getFaceArea(self, regDist):
         mapDist = self.normalize(regDist)
         index = int(mapDist * self.mapDim)
@@ -325,7 +320,9 @@ class FmmGrain(PerforatedGrain):
             for dist in np.linspace(0, regmax, numContours):
                 contours.append([])
                 contourLengths[dist] = 0
-                layerContours = measure.find_contours(self.regressionMap, dist, fully_connected='low')
+                layerContours = mathlib.find_perimeter(self.regressionMap, dist,
+                                                       fully_connected='low',
+                                                       including_contours=True)[1]
                 for contour in layerContours:
                     contours[-1].append(geometry.clean(contour, self.mapDim, 3))
                     contourLengths[dist] += geometry.length(contour, self.mapDim)
