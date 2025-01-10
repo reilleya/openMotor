@@ -1,6 +1,6 @@
 # -*- mode: python -*-
 
-# Run with `pyinstaller --windowed --onefile`
+# Run with `pyinstaller --windowed --onedir`
 
 from uilib.fileIO import appVersionStr
 
@@ -17,23 +17,29 @@ a = Analysis(['../main.py'],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
              cipher=block_cipher,
-             noarchive=False)
+             noarchive=False,
+             target_arch=['x86_64', 'arm64'])
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
-          a.binaries,
-          a.zipfiles,
-          a.datas,
           [],
+          exclude_binaries=True,
           name='openMotor',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
-          console=False )
-app = BUNDLE(exe,
+          console=False)
+coll = COLLECT(exe,
+              a.binaries,
+              a.zipfiles,
+              a.datas,
+              strip=False,
+              upx=True,
+              name='openMotor')
+app = BUNDLE(coll,
              name='openMotor.app',
              icon='../resources/oMIconCycles.icns',
              version=appVersionStr,
