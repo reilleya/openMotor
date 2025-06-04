@@ -68,6 +68,10 @@ def getConfigPath():
 def passthrough(data):
     return data
     
+#0.6.0 to 0.6.1
+def migrateMotor_0_6_0_to_0_6_1(data):
+    data['config']['maxMachNumber'] = DEFAULT_PREFERENCES['general']['maxMachNumber']
+    return data
     
 #0.5.0 to 0.6.0
 def migrateMotor_0_5_0_to_0_6_0(data):
@@ -171,7 +175,7 @@ migrations = {
         'to': (0, 6, 1),
         fileTypes.PREFERENCES: passthrough,
         fileTypes.PROPELLANTS: passthrough,
-        fileTypes.MOTOR: passthrough,
+         fileTypes.MOTOR: migrateMotor_0_6_0_to_0_6_1,
         fileTypes.RECENT_FILES: passthrough
     },
     (0, 5, 0): {

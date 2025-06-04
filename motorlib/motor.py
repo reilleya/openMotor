@@ -7,6 +7,7 @@ from .simResult import SimulationResult, SimAlert, SimAlertLevel, SimAlertType
 from .grains import EndBurningGrain
 from .properties import PropertyCollection, FloatProperty, IntProperty
 from .constants import gasConstant
+from scipy.optimize import newton
 
 class MotorConfig(PropertyCollection):
     """Contains the settings required for simulation, including environmental conditions and details about
@@ -16,6 +17,7 @@ class MotorConfig(PropertyCollection):
         # Limits
         self.props['maxPressure'] = FloatProperty('Maximum Allowed Pressure', 'Pa', 0, 7e7)
         self.props['maxMassFlux'] = FloatProperty('Maximum Allowed Mass Flux', 'kg/(m^2*s)', 0, 1e4)
+        self.props['maxMachNumber'] = FloatProperty('Maximum Allowed Core Mach Number', '', 0.00, 1e2)
         self.props['minPortThroat'] = FloatProperty('Minimum Allowed Port/Throat Ratio', '', 1, 4)
         self.props['flowSeparationWarnPercent'] = FloatProperty('Flow Separation Warning Threshold', '', 0.00, 1)
         # Simulation
@@ -108,6 +110,32 @@ class Motor():
         """Calculates the bounding-cylinder volume of the combustion chamber."""
         return sum([grain.getGrainBoundingVolume() for grain in self.grains])
 
+    def calcMachNumber(self, chamberPres, massFlux):
+        """Calculates the mach number in the core of a grain for a given chamber pressure and mass flux."""
+        _, _, gamma, T, _ = self.propellant.getCombustionProperties(chamberPres)
+
+        if chamberPres <= 1e-6:
+            return 0
+
+        def machFunc(M, chamberPres, massFlux, gamma, T, gasConstant):
+            A = chamberPres * (gamma ** 0.5) / ((gasConstant * T) ** 0.5)
+            B = 1.0 + ((gamma - 1.0) / 2.0) * M**2
+            C = (gamma + 1.0) / (2.0 * (gamma - 1.0))
+            return A * M * (B ** C) - massFlux
+
+        def machFuncDerivative(M, chamberPres, massFlux, gamma, T, gasConstant):
+            A = chamberPres / ((gasConstant * T) ** 0.5) * (gamma ** 0.5)
+            B = 1.0 + ((gamma - 1.0) / 2.0) * M**2
+            C = (gamma + 1.0) / (2.0 * (gamma - 1.0))
+            dB_dM = (gamma - 1.0) * M
+            return A * (B**C + M * C * (B**(C - 1.0)) * dB_dM)
+
+        try:
+            M = newton(machFunc, fprime=machFuncDerivative, x0=0.5, args=(chamberPres, massFlux, gamma, T, gasConstant))
+        except RuntimeError:
+            M = 0.0
+        return max(M, 0)
+
     def runSimulation(self, callback=None):
         """Runs a simulation of the motor and returns a simRes instance with the results. Constraints are checked,
         including the number of grains, if the motor has a propellant set, and if the grains have geometry errors. If
@@ -174,6 +202,7 @@ class Motor():
         simRes.channels['web'].addData([grain.getWebLeft(0) for grain in self.grains])
         simRes.channels['exitPressure'].addData(0)
         simRes.channels['dThroat'].addData(0)
+        simRes.channels['machNumber'].addData([0 for grain in self.grains])
 
         # Check port/throat ratio and add a warning if it is not large enough
         aftPort = self.grains[-1].getPortArea(0)
@@ -223,6 +252,12 @@ class Motor():
             pressure = self.calcIdealPressure(perGrainReg, dThroat, lastKn)
             simRes.channels['pressure'].addData(pressure)
 
+            # Calculate Mach Number
+            perGrainMachNumber = [0 for grain in self.grains]
+            for gid, grain in enumerate(self.grains):
+                perGrainMachNumber[gid] = self.calcMachNumber(pressure, perGrainMassFlux[gid])
+            simRes.channels['machNumber'].addData(perGrainMachNumber)
+
             # Calculate Exit Pressure
             _, _, gamma, _, _ = self.propellant.getCombustionProperties(pressure)
             exitPressure = self.nozzle.getExitPressure(gamma, pressure)
@@ -258,6 +293,11 @@ class Motor():
 
         if simRes.getMaxPressure() > self.config.getProperty('maxPressure'):
             desc = 'Max pressure exceeded configured limit'
+            alert = SimAlert(SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, 'Motor')
+            simRes.addAlert(alert)
+
+        if simRes.getPeakMachNumber() > self.config.getProperty('maxMachNumber'):
+            desc = 'Max core Mach number exceeded configured limit'
             alert = SimAlert(SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, 'Motor')
             simRes.addAlert(alert)
 

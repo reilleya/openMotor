@@ -4,6 +4,7 @@ DEFAULT_PREFERENCES = {
     'general': {
         'maxPressure': 1500 * 6895,
         'maxMassFlux': 2 / 0.001422,
+        'maxMachNumber': 1,
         'minPortThroat': 2,
         'burnoutWebThres': 0.001 / 39.37,
         'burnoutThrustThres': 0.1,
