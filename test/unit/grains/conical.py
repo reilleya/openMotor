@@ -35,19 +35,19 @@ class ConicalGrainMethods(unittest.TestCase):
         testGrain.setProperties(properties)
 
         unregressed = testGrain.getFrustumInfo(0)
-        self.assertAlmostEqual(unregressed[0], properties['aftCoreDiameter'])
-        self.assertAlmostEqual(unregressed[1], properties['forwardCoreDiameter'])
+        self.assertAlmostEqual(unregressed[0], properties['forwardCoreDiameter'])
+        self.assertAlmostEqual(unregressed[1], properties['aftCoreDiameter'])
         self.assertAlmostEqual(unregressed[2], properties['length'])
 
         beforeHittingWall = testGrain.getFrustumInfo(0.001)
-        self.assertAlmostEqual(beforeHittingWall[0], 0.003999993750029297)
-        self.assertAlmostEqual(beforeHittingWall[1], 0.004499993750029296)
+        self.assertAlmostEqual(beforeHittingWall[0], 0.004499993750029296)
+        self.assertAlmostEqual(beforeHittingWall[1], 0.003999993750029297)
         self.assertAlmostEqual(beforeHittingWall[2], properties['length']) # Length hasn't changed yet
 
         hitWall = testGrain.getFrustumInfo(0.0038)
-        self.assertAlmostEqual(hitWall[0], 0.009599976250111327)
-        self.assertAlmostEqual(hitWall[1], properties['diameter']) # This end has burned all the way to the wall
-        self.assertAlmostEqual(hitWall[2], 0.08000468749267584)
+        self.assertAlmostEqual(hitWall[0], properties['diameter']) # This end has burned all the way to the wall
+        self.assertAlmostEqual(hitWall[1], 0.009599976250111327)
+        self.assertAlmostEqual(hitWall[2], 0.08000474997773462)
 
     def test_getSurfaceAreaAtRegression(self):
         properties = {
@@ -69,14 +69,14 @@ class ConicalGrainMethods(unittest.TestCase):
         self.assertAlmostEqual(testGrain.getSurfaceAreaAtRegression(0.001), 0.0013351790867045452)
 
         # For when uninibited conical grains work:
-        """testGrain.setProperty('inhibitedEnds', 'Top')
+        testGrain.setProperty('inhibitedEnds', 'Top')
         self.assertAlmostEqual(testGrain.getSurfaceAreaAtRegression(0), lateralArea + aftFaceArea)
 
         testGrain.setProperty('inhibitedEnds', 'Bottom')
         self.assertAlmostEqual(testGrain.getSurfaceAreaAtRegression(0), lateralArea + forwardFaceArea)
 
         testGrain.setProperty('inhibitedEnds', 'Neither')
-        self.assertAlmostEqual(testGrain.getSurfaceAreaAtRegression(0), lateralArea + forwardFaceArea + aftFaceArea)"""
+        self.assertAlmostEqual(testGrain.getSurfaceAreaAtRegression(0), lateralArea + forwardFaceArea + aftFaceArea)
 
     def test_getVolumeAtRegression(self):
         properties = {
