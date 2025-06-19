@@ -3,7 +3,7 @@
 import numpy as np
 import skfmm
 from skimage import measure
-from math import atan, cos, sin
+from math import atan, cos, sin, tan
 
 from ..grain import Grain
 from .. import geometry
@@ -17,7 +17,7 @@ class ConicalGrain(Grain):
         super().__init__()
         self.props['forwardCoreDiameter'] = FloatProperty('Forward Core Diameter', 'm', 0, 1)
         self.props['aftCoreDiameter'] = FloatProperty('Aft Core Diameter', 'm', 0, 1)
-        self.props['inhibitedEnds'] = EnumProperty('Inhibited ends', ['Both'])
+        self.props['inhibitedEnds'] = EnumProperty('Inhibited ends', ['Neither', 'Top', 'Bottom', 'Both'])
 
     def isCoreInverted(self):
         """A simple helper that returns 'true' if the core's foward diameter is larger than its aft diameter"""
@@ -38,6 +38,9 @@ class ConicalGrain(Grain):
         elif inhibitedEnds in ['Top', 'Bottom']:
             exposedFaces = 1
 
+        forward_exposed = (inhibitedEnds in ('Neither', 'Bottom'))
+        aft_exposed     = (inhibitedEnds in ('Neither', 'Top'))
+
         # These calculations are easiest if we work in terms of the core's "large end" and "small end"
         if self.isCoreInverted():
             coreMajorDiameter, coreMinorDiameter = forwardDiameter, aftDiameter
@@ -52,6 +55,18 @@ class ConicalGrain(Grain):
         # beyond the casting tube as that condition is checked in a later step
         regCoreMajorDiameter = coreMajorDiameter + (regDist * 2 * cos(angle))
         regCoreMinorDiameter = coreMinorDiameter + (regDist * 2 * cos(angle))
+
+        faceRadialGain = 0 # 2 * regDist * tan(angle)
+        if self.isCoreInverted():
+            if forward_exposed:
+                regCoreMajorDiameter += faceRadialGain
+            if aft_exposed:
+                regCoreMinorDiameter += faceRadialGain
+        else:
+            if aft_exposed:
+                regCoreMajorDiameter += faceRadialGain
+            if forward_exposed:
+                regCoreMinorDiameter += faceRadialGain
 
         # This is case where the larger core diameter has grown beyond the casting tube diameter. Once this happens,
         # the diameter of the large end of the core is clamped at the grain diameter and the length is changed to keep
@@ -74,7 +89,7 @@ class ConicalGrain(Grain):
             majorFrustumDiameter = regCoreMajorDiameter
             minorFrustumDiameter = regCoreMinorDiameter
             grainLength -= exposedFaces * regDist
-            
+
         if self.isCoreInverted():
             return minorFrustumDiameter, majorFrustumDiameter, grainLength
 
@@ -105,7 +120,7 @@ class ConicalGrain(Grain):
         """Returns the shortest distance the grain has to regress to burn out"""
         aftDiameter, forwardDiameter, length = self.getFrustumInfo(regDist)
 
-        return (self.props['diameter'].getValue() - min(aftDiameter, forwardDiameter)) / 2
+        return min((self.props['diameter'].getValue() - min(aftDiameter, forwardDiameter)) / 2, length)
 
     def getMassFlow(self, massIn, dTime, regDist, dRegDist, position, density):
         """Returns the mass flow at a point along the grain. Takes in the mass flow into the grain, a timestep, the
@@ -125,10 +140,13 @@ class ConicalGrain(Grain):
         unsteppedPartialFrustum, _ = geometry.splitFrustum(*unsteppedFrustum, position)
         steppedPartialFrustum, _ = geometry.splitFrustum(*steppedFrustum, position)
 
-        unsteppedVolume = geometry.frustumVolume(*unsteppedPartialFrustum)
-        steppedVolume = geometry.frustumVolume(*steppedPartialFrustum)
+        unsteppedFrustumVolume = geometry.frustumVolume(*unsteppedPartialFrustum)
+        steppedFrustumVolume = geometry.frustumVolume(*steppedPartialFrustum)
 
-        massFlow = (steppedVolume - unsteppedVolume) * density / dTime
+        unsteppedPropVolume = geometry.cylinderVolume(self.props['diameter'].getValue(), unsteppedPartialFrustum[2]) - unsteppedFrustumVolume
+        steppedPropVolume = geometry.cylinderVolume(self.props['diameter'].getValue(), steppedPartialFrustum[2]) - steppedFrustumVolume
+
+        massFlow = (unsteppedPropVolume - steppedPropVolume) * density / dTime
         massFlow += massIn
 
         return massFlow, steppedPartialFrustum[1]
