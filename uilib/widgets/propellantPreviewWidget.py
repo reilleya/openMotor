@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QWidget
+from PyQt6.QtCore import pyqtSignal
 
 import motorlib
 
@@ -13,10 +13,12 @@ class PropellantPreviewWidget(QWidget):
 
     def setPreferences(self, pref):
         self.ui.tabBurnRate.setPreferences(pref)
+        self.ui.tabPressure.setPreferences(pref)
 
     def loadPropellant(self, propellant):
         self.ui.tabAlerts.clear()
         self.ui.tabBurnRate.cleanup()
+        self.ui.tabPressure.cleanup()
         alerts = propellant.getErrors()
         for err in alerts:
             self.ui.tabAlerts.addItem(err.description)
@@ -33,6 +35,13 @@ class PropellantPreviewWidget(QWidget):
             burnrateData[1].append(propellant.getBurnRate(pres))
         self.ui.tabBurnRate.showGraph(burnrateData)
 
+        pressureData = [[], []]
+        for kn in range(1, 750, 10):
+            pressureData[0].append(kn)
+            pressureData[1].append(propellant.getPressureFromKn(kn))
+        self.ui.tabPressure.showGraph(pressureData)
+
     def cleanup(self):
         self.ui.tabAlerts.clear()
         self.ui.tabBurnRate.cleanup()
+        self.ui.tabPressure.cleanup()

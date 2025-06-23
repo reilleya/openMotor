@@ -17,12 +17,15 @@ class MotorConfig(PropertyCollection):
         self.props['maxPressure'] = FloatProperty('Maximum Allowed Pressure', 'Pa', 0, 7e7)
         self.props['maxMassFlux'] = FloatProperty('Maximum Allowed Mass Flux', 'kg/(m^2*s)', 0, 1e4)
         self.props['minPortThroat'] = FloatProperty('Minimum Allowed Port/Throat Ratio', '', 1, 4)
+        self.props['flowSeparationWarnPercent'] = FloatProperty('Flow Separation Warning Threshold', '', 0.00, 1)
         # Simulation
         self.props['burnoutWebThres'] = FloatProperty('Web Burnout Threshold', 'm', 2.54e-5, 3.175e-3)
         self.props['burnoutThrustThres'] = FloatProperty('Thrust Burnout Threshold', '%', 0.01, 10)
         self.props['timestep'] = FloatProperty('Simulation Timestep', 's', 0.0001, 0.1)
         self.props['ambPressure'] = FloatProperty('Ambient Pressure', 'Pa', 0.0001, 102000)
         self.props['mapDim'] = IntProperty('Grain Map Dimension', '', 250, 2000)
+        self.props['sepPressureRatio'] = FloatProperty('Separation Pressure Ratio', '', 0.001, 1)
+
 
 
 class Motor():
@@ -86,29 +89,7 @@ class Motor():
         optionally be passed in to save time on motors where calculating surface area is expensive."""
         if kn is None:
             kn = self.calcKN(regDepth, dThroat)
-        density = self.propellant.getProperty('density')
-        tabPressures = []
-        for tab in self.propellant.getProperty('tabs'):
-            ballA, ballN, gamma, temp, molarMass = tab['a'], tab['n'], tab['k'], tab['t'], tab['m']
-            num = kn * density * ballA
-            exponent = 1 / (1 - ballN)
-            denom = ((gamma / ((gasConstant / molarMass) * temp)) * ((2 / (gamma + 1)) ** ((gamma + 1) / (gamma - 1)))) ** 0.5
-            tabPressure = (num / denom) ** exponent
-            # If the pressure that a burnrate produces falls into its range, we know it is the proper burnrate
-            # Due to floating point error, we sometimes get a situation in which no burnrate produces the proper pressure
-            # For this scenario, we go by whichever produces the least error
-            minTabPressure = tab['minPressure']
-            maxTabPressure = tab['maxPressure']
-            if minTabPressure == self.propellant.getMinimumValidPressure() and tabPressure < maxTabPressure:
-                return tabPressure
-            if maxTabPressure == self.propellant.getMaximumValidPressure() and minTabPressure < tabPressure:
-                return tabPressure
-            if minTabPressure < tabPressure < maxTabPressure:
-                return tabPressure
-            tabPressures.append([min(abs(minTabPressure - tabPressure), abs(tabPressure - maxTabPressure)), tabPressure])
-
-        tabPressures.sort(key=lambda x: x[0]) # Sort by the pressure error
-        return tabPressures[0][1] # Return the pressure
+        return self.propellant.getPressureFromKn(kn)
 
     def calcForce(self, chamberPres, dThroat, exitPres=None):
         """Calculates the force of the motor at a given regression depth per grain. Calculates exit pressure by
@@ -278,6 +259,16 @@ class Motor():
         if simRes.getMaxPressure() > self.config.getProperty('maxPressure'):
             desc = 'Max pressure exceeded configured limit'
             alert = SimAlert(SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, 'Motor')
+            simRes.addAlert(alert)
+
+        if (simRes.getPercentBelowThreshold('exitPressure', self.config.getProperty('ambPressure') * self.config.getProperty('sepPressureRatio')) > self.config.getProperty('flowSeparationWarnPercent')):
+            desc = 'Low exit pressure, nozzle flow may separate'
+            alert = SimAlert(SimAlertLevel.WARNING, SimAlertType.VALUE, desc, 'Nozzle')
+            simRes.addAlert(alert)
+
+        if simRes.getAverageForce() < burnoutThrustThres:
+            desc = 'Motor did not generate thrust. Check chamber pressure and expansion ratio.'
+            alert = SimAlert(SimAlertLevel.ERROR, SimAlertType.VALUE, desc, 'Motor')
             simRes.addAlert(alert)
 
         # Note that this only adds all errors found on the first datapoint where there were errors to avoid repeating

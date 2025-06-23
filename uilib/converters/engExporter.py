@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from PyQt5.QtWidgets import QDialog, QFileDialog, QDialogButtonBox, QApplication
+from PyQt6.QtWidgets import QDialog, QFileDialog, QDialogButtonBox, QApplication
 
 from motorlib.properties import PropertyCollection, FloatProperty, StringProperty, EnumProperty
 import motorlib

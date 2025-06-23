@@ -1,8 +1,8 @@
 from math import radians, tan
 
-from PyQt5.QtWidgets import QWidget, QApplication, QGraphicsScene, QGraphicsPolygonItem
-from PyQt5.QtGui import QPolygonF, QBrush
-from PyQt5.QtCore import QPointF, Qt
+from PyQt6.QtWidgets import QWidget, QApplication, QGraphicsScene, QGraphicsPolygonItem
+from PyQt6.QtGui import QPolygonF, QBrush
+from PyQt6.QtCore import QPointF, Qt, QTimer
 
 import motorlib
 from ..views.NozzlePreview_ui import Ui_NozzlePreview
@@ -14,7 +14,11 @@ class NozzlePreviewWidget(QWidget):
         self.ui.setupUi(self)
 
         self.brush = QBrush()
-        self.brush.setStyle(1)
+
+        if QApplication.instance() and QApplication.instance().isDarkMode():
+            self.brush.setColor(Qt.GlobalColor.lightGray)
+
+        self.brush.setStyle(Qt.BrushStyle.SolidPattern)
         self.scene = QGraphicsScene(self)
         self.upper = QGraphicsPolygonItem()
         self.lower = QGraphicsPolygonItem()
@@ -38,6 +42,7 @@ class NozzlePreviewWidget(QWidget):
 
         for alert in geomAlerts:
             if alert.level == motorlib.simResult.SimAlertLevel.ERROR:
+                self.ui.tabWidget.setCurrentIndex(0)
                 return
 
         convAngle = radians(nozzle.props['convAngle'].getValue())
@@ -63,7 +68,7 @@ class NozzlePreviewWidget(QWidget):
         else:
             convLen = 0
             
-        nozzleBottomRad = max(exitRad*1.1, outerRad)
+        nozzleBottomRad = max(exitRad * 1.1, outerRad)
             
         upperPoints = [
             [throatLen, throatRad],
@@ -78,8 +83,11 @@ class NozzlePreviewWidget(QWidget):
 
         self.upper.setPolygon(upper)
         self.lower.setPolygon(lower)
-        self.rescale()
+
+        self.ui.tabWidget.setCurrentIndex(1)
+
+        QTimer.singleShot(0, self.rescale) # I really don't know why this "delay" is needed
 
     def rescale(self):
         self.scene.setSceneRect(self.scene.itemsBoundingRect())
-        self.ui.tabCrossSection.fitInView(self.scene.sceneRect(), Qt.KeepAspectRatio)
+        self.ui.tabCrossSection.fitInView(self.scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)

@@ -22,15 +22,15 @@ Planned Features:
 
 The calculations involved were sourced from Rocket Propulsion Elements by George Sutton and from [Richard Nakka's website](https://www.nakka-rocketry.net/rtheory.html).
 
-![Screenshot](http://reilley.net/openMotor/screenshot.png)
+![Screenshot](https://www.reilley.net/openMotor/screenshot.png)
 
 Download
 -------
-The easiest way to use openMotor is to navigate to the 'releases' sidebar, click 'latest', and download the version for your system. From there, just unzip the file and run it. Alternatively, you can run it from source code to get the latest features. 
+You can download the latest version for your system [here](https://github.com/reilleya/openMotor/releases/latest). From there, just unzip the file and run it. Alternatively, you can run it from source code to get the latest features. 
 
 Building from Source
 --------------------
-The program is currently being developed using python 3.10. The dependencies are outlined in `requirements.txt`, the main ones include `PyQt5`, `matplot`, `numpy`, `scipy`, `scikit-fmm`, and `scikit-image`. Because the PyQt5 bindings are used for the GUI, Qt5 must also be installed.
+The program is currently being developed using python 3.10. The dependencies are outlined in `requirements.txt`, the main ones include `PyQt6`, `matplot`, `numpy`, `scipy`, `scikit-fmm`, and `scikit-image`. Because the PyQt6 bindings are used for the GUI, Qt6 must also be installed.
 
 The easiest way to build/run from source code is to clone the repository and install the required dependencies into a virtual enviornment:
 ```

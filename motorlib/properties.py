@@ -78,6 +78,12 @@ class StringProperty(Property):
         super().__init__(dispName, '', str)
 
 
+class BooleanProperty(Property):
+    """A property with a single boolean as the value"""
+    def __init__(self, dispName):
+        super().__init__(dispName, '', bool)
+
+
 class PolygonProperty(Property):
     """A property that contains a list of polygons, each a list of points"""
     def __init__(self, dispName):

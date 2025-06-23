@@ -5,8 +5,6 @@
             "uilib/views"
         ]
     ],
-    "pyrcc": "pyrcc5",
-    "pyrcc_options": "",
-    "pyuic": "pyuic5",
-    "pyuic_options": "--from-imports"
+    "pyuic": "pyuic6",
+    "pyuic_options": ""
 }

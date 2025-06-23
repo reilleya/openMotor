@@ -1,6 +1,5 @@
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QAction
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QObject
+from PyQt6.QtGui import QAction
 
 from .converter import Importer
 from .converters import BurnSimImporter, BurnSimExporter, EngExporter, CsvExporter, ImageExporter

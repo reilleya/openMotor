@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal
 
 from motorlib.properties import PropertyCollection, FloatProperty, IntProperty, EnumProperty
 from motorlib.units import unitLabels, getAllConversions
@@ -64,8 +64,9 @@ class PreferencesManager(QObject):
 
     def savePreferences(self):
         try:
-            logger.log('Saving preferences to "{}"'.format(getConfigPath() + 'preferences.yaml'))
-            saveFile(getConfigPath() + 'preferences.yaml', self.preferences.getDict(), fileTypes.PREFERENCES)
+            destinationPath = getConfigPath() + 'preferences.yaml'
+            logger.log('Saving preferences to "{}"'.format(destinationPath))
+            saveFile(destinationPath, self.preferences.getDict(), fileTypes.PREFERENCES)
         except:
             logger.warn('Unable to save preferences')
 

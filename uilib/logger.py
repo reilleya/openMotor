@@ -3,7 +3,7 @@ import datetime
 import sys
 import traceback
 import os
-import appdirs
+import platformdirs
 
 class Logger():
     def __init__(self):
@@ -16,7 +16,7 @@ class Logger():
         self.log('Application started at {}'.format(startDate))
 
     def _openLogFile(self):
-        path = appdirs.user_log_dir('openMotor', 'openMotor')
+        path = platformdirs.user_log_dir('openMotor', 'openMotor')
         if not os.path.isdir(path):
             os.makedirs(path)
         self._file = open(os.path.join(path, "openMotor.log"), 'a')

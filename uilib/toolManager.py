@@ -1,8 +1,7 @@
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QAction
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtGui import QAction
 
-from .tools import ChangeDiameterTool, InitialKNTool, MaxKNTool
+from .tools import ChangeDiameterTool, InitialKNTool, MaxKNTool, MaxPressureTool
 from .tools import ExpansionTool
 from .tools import NeutralBatesTool
 from .logger import logger
@@ -18,7 +17,12 @@ class ToolManager(QObject):
         self.simulationManager = app.simulationManager
         self.propellantManager = app.propellantManager
 
-        self.tools = {'Set': [ChangeDiameterTool(self), InitialKNTool(self), MaxKNTool(self)],
+        self.tools = {'Set': [
+                                ChangeDiameterTool(self),
+                                InitialKNTool(self),
+                                MaxKNTool(self),
+                                MaxPressureTool(self)
+                            ],
                       'Optimize': [ExpansionTool(self)],
                       'Design': [NeutralBatesTool(self)]}
 

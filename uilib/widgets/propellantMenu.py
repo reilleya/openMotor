@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import QDialog, QMessageBox, QApplication
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QDialog, QMessageBox, QApplication
+from PyQt6.QtCore import pyqtSignal
 from ..helpers import FLAGS_NO_ICON
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 
 import motorlib.propellant
 
@@ -126,15 +126,19 @@ class PropellantMenu(QDialog):
         msg.setWindowFlags(FLAGS_NO_ICON);
         msg.setText("Close without saving current propellant?")
         msg.setWindowTitle("Close without saving?")
-        msg.setStandardButtons(QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+        msg.setStandardButtons(
+            QMessageBox.StandardButton.Save
+            | QMessageBox.StandardButton.Discard
+            | QMessageBox.StandardButton.Cancel
+        )
 
-        res = msg.exec_()
-        if res == QMessageBox.Save:
+        res = msg.exec()
+        if res == QMessageBox.StandardButton.Save:
             self.propEdited(self.ui.propEditor.getProperties())
             return True
-        return res == QMessageBox.Discard
+        return res == QMessageBox.StandardButton.Discard
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Delete or event.key() == Qt.Key_Backspace:
+        if event.key() == Qt.Key.Key_Delete or event.key() == Qt.Key.Key_Backspace:
             if len(self.ui.listWidgetPropellants.selectedItems()) != 0:
                 self.deleteProp()

@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>1300</width>
-    <height>900</height>
+    <height>850</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>1300</width>
-    <height>900</height>
+    <height>850</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -42,10 +42,16 @@
       <item>
        <widget class="MotorEditor" name="motorEditor" native="true">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>475</height>
+         </size>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <property name="leftMargin">
@@ -255,19 +261,31 @@
         <property name="minimumSize">
          <size>
           <width>300</width>
-          <height>190</height>
+          <height>170</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>190</height>
+          <height>170</height>
          </size>
         </property>
         <property name="title">
          <string>Motor Statistics</string>
         </property>
         <layout class="QGridLayout" name="gridLayout">
+         <property name="leftMargin">
+          <number>6</number>
+         </property>
+         <property name="topMargin">
+          <number>6</number>
+         </property>
+         <property name="rightMargin">
+          <number>6</number>
+         </property>
+         <property name="bottomMargin">
+          <number>6</number>
+         </property>
          <item row="0" column="0">
           <layout class="QHBoxLayout" name="horizontalLayoutMotorDesignation">
            <item>
@@ -551,7 +569,7 @@
      <x>0</x>
      <y>0</y>
      <width>1300</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

@@ -1,6 +1,6 @@
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QFileDialog, QApplication
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtCore import QObject
+from PyQt6.QtWidgets import QFileDialog, QApplication
+from PyQt6.QtCore import pyqtSignal
 
 class Converter(QObject):
     def __init__(self, manager, name, description, fileTypes):
@@ -33,7 +33,7 @@ class Exporter(Converter):
         title = 'Export {}'.format(self.name)
         types = self.getFileTypeString()
         if not self.confirmOverwrite:
-            path = QFileDialog.getSaveFileName(None, title, '', types, options=QFileDialog.DontConfirmOverwrite)[0]
+            path = QFileDialog.getSaveFileName(None, title, '', types, options=QFileDialog.Option.DontConfirmOverwrite)[0]
         else:
             path = QFileDialog.getSaveFileName(None, title, '', types)[0]
         if path == '' or path is None:

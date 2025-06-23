@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QHeaderView, QLabel
+from PyQt6.QtWidgets import QWidget, QHeaderView, QLabel
 import numpy as np
 
 import motorlib
@@ -99,7 +99,7 @@ class ResultsWidget(QWidget):
                     self.grainImageWidgets[gid].showImage(image)
                 else:
                     self.grainImageWidgets[gid].setText('-')
-                self.ui.tableWidgetGrains.horizontalHeader().setSectionResizeMode(gid, QHeaderView.ResizeToContents)
+                self.ui.tableWidgetGrains.horizontalHeader().setSectionResizeMode(gid, QHeaderView.ResizeMode.ResizeToContents)
                 for field in self.grainTableFields:
                     fromUnit = self.simResult.channels[field].unit
                     toUnit = self.preferences.getUnit(fromUnit)

@@ -1,5 +1,7 @@
 """Propellant submodule that contains the propellant class."""
 
+from scipy.optimize import fsolve
+
 from .properties import PropertyCollection, FloatProperty, StringProperty, TabularProperty
 from .simResult import SimAlert, SimAlertLevel, SimAlertType
 from .constants import gasConstant
@@ -40,6 +42,36 @@ class Propellant(PropertyCollection):
         """Returns the propellant's burn rate for the given pressure"""
         ballA, ballN, _, _, _ = self.getCombustionProperties(pressure)
         return ballA * (pressure ** ballN)
+
+    def getPressureFromKn(self, kn):
+        density = self.getProperty('density')
+        tabPressures = []
+        for tab in self.getProperty('tabs'):
+            ballA, ballN, gamma, temp, molarMass = tab['a'], tab['n'], tab['k'], tab['t'], tab['m']
+            num = kn * density * ballA
+            exponent = 1 / (1 - ballN)
+            denom = ((gamma / ((gasConstant / molarMass) * temp)) * ((2 / (gamma + 1)) ** ((gamma + 1) / (gamma - 1)))) ** 0.5
+            tabPressure = (num / denom) ** exponent
+            # If the pressure that a burnrate produces falls into its range, we know it is the proper burnrate
+            # Due to floating point error, we sometimes get a situation in which no burnrate produces the proper pressure
+            # For this scenario, we go by whichever produces the least error
+            minTabPressure = tab['minPressure']
+            maxTabPressure = tab['maxPressure']
+            if minTabPressure == self.getMinimumValidPressure() and tabPressure < maxTabPressure:
+                return tabPressure
+            if maxTabPressure == self.getMaximumValidPressure() and minTabPressure < tabPressure:
+                return tabPressure
+            if minTabPressure < tabPressure < maxTabPressure:
+                return tabPressure
+            tabPressures.append([min(abs(minTabPressure - tabPressure), abs(tabPressure - maxTabPressure)), tabPressure])
+
+        tabPressures.sort(key=lambda x: x[0]) # Sort by the pressure error
+        return tabPressures[0][1] # Return the pressure
+
+    def getKnFromPressure(self, pressure):
+        func = lambda kn: self.getPressureFromKn(kn) - pressure
+
+        return fsolve(func, [250], maxfev=1000)
 
     def getCombustionProperties(self, pressure):
         """Returns the propellant's a, n, gamma, combustion temp and molar mass for a given pressure"""

@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QGroupBox, QCheckBox, QRadioButton, QVBoxLayout
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QGroupBox, QCheckBox, QRadioButton, QVBoxLayout
+from PyQt6.QtCore import pyqtSignal, Qt
 
 class GrainSelector(QGroupBox):
 
@@ -23,7 +23,7 @@ class GrainSelector(QGroupBox):
             checkTitle = "Grain " + str(gid + 1)
             if multiselect:
                 check = QCheckBox(checkTitle)
-                check.setCheckState(2)
+                check.setCheckState(Qt.CheckState.Checked)
             else:
                 check = QRadioButton(checkTitle)
             self.layout().addWidget(check)
@@ -46,6 +46,6 @@ class GrainSelector(QGroupBox):
 
     def setChecks(self, checks):
         for check in self.checks:
-            check.setCheckState(0)
+            check.setCheckState(Qt.CheckState.Unchecked)
         for check in checks:
-            self.checks[check].setCheckState(2)
+            self.checks[check].setCheckState(Qt.CheckState.Checked)

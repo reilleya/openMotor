@@ -1,4 +1,7 @@
 from itertools import cycle
+import numpy as np
+
+from PyQt6.QtWidgets import QApplication
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -38,12 +41,24 @@ class GrainPreviewGraph(FigureCanvas):
             self.image = None
         if self.numContours > 0:
             for _ in range(0, self.numContours):
-                self.plot.lines.pop(0)
+                self.plot.lines[0].remove()
             self.numContours = 0
         self.draw()
 
     def showImage(self, image):
-        self.image = self.plot.imshow(image, cmap='Greys')
+        isDarkMode = QApplication.instance() and QApplication.instance().isDarkMode()
+        # Image is an array core is 0, any other value is propellant
+        # Cast it to a bool so core is 0, propellant is 1
+        np.ma.set_fill_value(image, 0)
+        image = image.filled().astype(bool)
+
+        coreColor = 30 if isDarkMode else 255
+        propellantColor = 192 if isDarkMode else 0
+
+        image = np.where(image, propellantColor, coreColor).astype(np.uint8)
+
+        self.image = self.plot.imshow(image, cmap='gray', vmin=0, vmax=255)
+
         self.draw()
 
     def showContours(self, contours):

@@ -80,6 +80,23 @@
        <string>Burn Rate</string>
       </attribute>
      </widget>
+     <widget class="PropellantPressureGraph" name="tabPressure">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>220</height>
+       </size>
+      </property>
+      <attribute name="title">
+       <string>Pressure</string>
+      </attribute>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -89,6 +106,12 @@
    <class>BurnrateGraph</class>
    <extends>QWidget</extends>
    <header location="global">uilib.widgets.burnrateGraph</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>PropellantPressureGraph</class>
+   <extends>QWidget</extends>
+   <header location="global">uilib.widgets.propellantPressureGraph</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QGroupBox, QCheckBox, QRadioButton, QVBoxLayout
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QGroupBox, QCheckBox, QRadioButton, QVBoxLayout
+from PyQt6.QtCore import pyqtSignal, Qt
 
 import motorlib
 
@@ -27,7 +27,7 @@ class ChannelSelector(QGroupBox):
                 if default is not None:
                     if multiselect:
                         if channel in default:
-                            self.checks[channel].setCheckState(2)
+                            self.checks[channel].setCheckState(Qt.CheckState.Checked)
                     else:
                         self.checks[channel].setChecked(channel == default)
                 self.checks[channel].toggled.connect(self.checksChanged.emit)
@@ -56,7 +56,7 @@ class ChannelSelector(QGroupBox):
     def unselect(self, channels):
         for channel in channels:
             if channel in self.checks.keys():
-                self.checks[channel].setCheckState(0)
+                self.checks[channel].setCheckState(Qt.CheckState.Unchecked)
 
     def toggleEnabled(self, channels, enabled):
         for channel in channels:

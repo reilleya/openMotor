@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QDialog, QApplication
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QDialog, QApplication
+from PyQt6.QtCore import pyqtSignal
 
 from ..views.Preferences_ui import Ui_PreferencesDialog
 

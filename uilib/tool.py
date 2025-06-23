@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QApplication
-from PyQt5.QtGui import QIcon
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QApplication
+from PyQt6.QtGui import QIcon
 
 import motorlib
 

@@ -1,6 +1,6 @@
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtCore import QObject
+from PyQt6.QtWidgets import QFileDialog, QMessageBox
+from PyQt6.QtCore import pyqtSignal
 
 import motorlib
 
@@ -155,14 +155,18 @@ class FileManager(QObject):
         msg.setWindowFlags(FLAGS_NO_ICON)
         msg.setText("The current file has unsaved changes. Close without saving?")
         msg.setWindowTitle("Close without saving?")
-        msg.setStandardButtons(QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+        msg.setStandardButtons(
+            QMessageBox.StandardButton.Save
+            | QMessageBox.StandardButton.Discard
+            | QMessageBox.StandardButton.Cancel
+        )
 
-        res = msg.exec_()
-        if res == QMessageBox.Save:
+        res = msg.exec()
+        if res == QMessageBox.StandardButton.Save:
             self.save()
             return True
 
-        return res == QMessageBox.Discard
+        return res == QMessageBox.StandardButton.Discard
 
     # Outputs the filename component of the title
     def sendTitleUpdate(self):

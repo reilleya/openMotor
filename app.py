@@ -1,7 +1,10 @@
 import sys
+import matplotlib.pyplot as plt
+import matplotlib as mpl
 
-from PyQt5.QtWidgets import QApplication, QMessageBox
-from PyQt5.QtGui import QIcon
+from PyQt6.QtWidgets import QApplication, QMessageBox
+from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import Qt
 
 import motorlib
 from motorlib import simResult
@@ -17,6 +20,12 @@ class App(QApplication):
         self.icon = QIcon('resources/oMIconCyclesSmall.png')
 
         self.headless = '-h' in args
+
+        if not self.headless and self.isDarkMode():
+            # Change these settings before any graph widgets are built, so they apply everywhere
+            plt.style.use('dark_background')
+            mpl.rcParams['axes.facecolor'] = '1e1e1e'
+            mpl.rcParams['figure.facecolor'] = '1e1e1e'
 
         self.preferencesManager = uilib.preferencesManager.PreferencesManager()
 
@@ -63,13 +72,19 @@ class App(QApplication):
             sys.exit(0)
 
         else:
-            logger.log('Opening window')
+            logger.log('Opening window (dark mode: {})'.format(self.isDarkMode()))
             self.window = uilib.widgets.mainWindow.Window(self)
             self.preferencesManager.publishPreferences()
             if startupFileLoaded:
                 self.fileManager.sendTitleUpdate()
             self.window.show()
             logger.log('Window opened')
+
+    def isDarkMode(self):
+        if self.headless:
+            return False
+
+        return self.styleHints().colorScheme() == Qt.ColorScheme.Dark
 
     def outputMessage(self, content, title='openMotor'):
         if self.headless:
@@ -80,7 +95,7 @@ class App(QApplication):
             msg.setWindowIcon(self.icon)
             msg.setText(content)
             msg.setWindowTitle(title)
-            msg.exec_()
+            msg.exec()
 
     def outputException(self, exception, text, title='openMotor - Error'):
         if self.headless:
@@ -93,4 +108,4 @@ class App(QApplication):
             msg.setText(text)
             msg.setInformativeText(str(exception))
             msg.setWindowTitle(title)
-            msg.exec_()
+            msg.exec()

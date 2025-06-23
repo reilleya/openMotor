@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QLabel
+from PyQt6.QtCore import pyqtSignal
 
 from motorlib.units import convert
 from motorlib.propellant import PropellantTab
