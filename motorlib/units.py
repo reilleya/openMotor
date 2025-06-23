@@ -56,11 +56,16 @@ unitTable = [
     ('(m*Pa)/s', '(m*MPa)/s', 1000000),
     ('(m*Pa)/s', '(in*psi)/s', 0.00571014715),
 
-    ('m/(s*Pa)', 'm/(s*MPa)', 1/1000000),
     ('m/(s*Pa)', 'thou/(s*psi)', 271447138),
+    ('m/(s*Pa)', 'um/(s*mPa)', 1E9),
 
-    ('m/(s*Pa^n)', 'in/(s*psi^n)', 39.37) # Ratio converts m/s to in/s. The pressure conversion must be done separately
+    ('m/(s*Pa^n)', 'in/(s*psi^n)', 39.37), # Ratio converts m/s to in/s. The pressure conversion must be done separately
+    ('m/(s*Pa^n)', 'mm/(s*Pa^n)', 1000)
 ]
+
+# Some base units are... not well chosen because any reasonable value in them will have too many/few digits to edit,
+# leading to them getting truncated. They all have conversions that work much better, so just don't show them in the UI
+internalOnlyUnits = ['m/(s*Pa^n)', 'm/(s*Pa)']
 
 def getAllConversions(unit):
     """Returns a list of all units that the passed unit can be converted to."""
@@ -70,6 +75,9 @@ def getAllConversions(unit):
             allConversions.append(conversion[1])
         elif conversion[1] == unit:
             allConversions.append(conversion[0])
+    for internalOnlyUnit in internalOnlyUnits:
+        if internalOnlyUnit in allConversions:
+            allConversions.remove(internalOnlyUnit)
     return allConversions
 
 def getConversion(originUnit, destUnit):

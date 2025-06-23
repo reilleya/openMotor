@@ -24,7 +24,7 @@ class ImageExportMenu(QDialog):
         self.ui.dependent.resetChecks()
         self.ui.dependent.setupChecks(True)
         self.ui.grainSelector.resetChecks()
-        self.ui.grainSelector.setupChecks(self.converter.manager.simRes, True)
+        self.ui.grainSelector.setupChecks(len(self.converter.manager.simRes.motor.grains), True)
         if super().exec():
             xChannel = self.ui.independent.getSelectedChannels()[0]
             yChannels = self.ui.dependent.getSelectedChannels()

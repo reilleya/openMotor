@@ -35,7 +35,7 @@ class PropertyEditor(QWidget):
             convMax = motorlib.units.convert(self.prop.max, self.prop.unit, self.dispUnit)
             self.editor.setRange(convMin, convMax)
 
-            self.editor.setDecimals(6) # Large number of decimals for now while I pick a better method
+            self.editor.setDecimals(8) # Large number of decimals for now while I pick a better method
             self.editor.setSingleStep(10 ** (int(math.log(convMax, 10) - 4)))
 
             self.editor.setValue(motorlib.units.convert(self.prop.getValue(), prop.unit, self.dispUnit))

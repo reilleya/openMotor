@@ -18,7 +18,7 @@ class CsvExportMenu(QDialog):
         self.ui.channelSelector.resetChecks()
         self.ui.channelSelector.setupChecks(True, disabled=["time"], default=["time"])
         self.ui.grainSelector.resetChecks()
-        self.ui.grainSelector.setupChecks(self.converter.manager.simRes, True)
+        self.ui.grainSelector.setupChecks(len(self.converter.manager.simRes.motor.grains), True)
         if super().exec():
             return [self.ui.channelSelector.getUnselectedChannels(), self.ui.grainSelector.getUnselectedGrains()]
         return None

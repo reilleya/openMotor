@@ -6,6 +6,7 @@ from enum import Enum
 
 from . import geometry
 from . import units
+from . import constants
 
 class SimAlertLevel(Enum):
     """Levels of severity for sim alerts"""
@@ -99,7 +100,7 @@ class LogChannel():
         return min(self.data)
 
 singleValueChannels = ['time', 'kn', 'pressure', 'force', 'volumeLoading', 'exitPressure', 'dThroat']
-multiValueChannels = ['mass', 'massFlow', 'massFlux', 'regression', 'web']
+multiValueChannels = ['mass', 'massFlow', 'massFlux', 'regression', 'web', 'machNumber']
 
 class SimulationResult():
     """A SimulationResult instance contains all results from a single simulation. It has a number of LogChannels, each
@@ -123,7 +124,8 @@ class SimulationResult():
             'regression': LogChannel('Regression Depth', tuple, 'm'),
             'web': LogChannel('Web', tuple, 'm'),
             'exitPressure': LogChannel('Nozzle Exit Pressure', float, 'Pa'),
-            'dThroat': LogChannel('Change in Throat Diameter', float, 'm')
+            'dThroat': LogChannel('Change in Throat Diameter', float, 'm'),
+            'machNumber': LogChannel('Core Mach Number', tuple, ''),
         }
 
     def addAlert(self, alert):
@@ -212,6 +214,19 @@ class SimulationResult():
                 return frame.index(value)
         return None
 
+    def getPeakMachNumber(self):
+        """Returns the maximum core mach number observed at any grain end."""
+        return self.channels['machNumber'].getMax()
+
+    def getPeakMachNumberLocation(self):
+        """Returns the grain number at which the peak core mach number was observed."""
+        value = self.getPeakMachNumber()
+        # Find the value to get the location
+        for frame in self.channels['machNumber'].getData():
+            if value in frame:
+                return frame.index(value)
+        return None
+
     def getISP(self, index=None):
         """Returns the specific impulse that the simulated motor delivered."""
         if index is None:
@@ -220,7 +235,7 @@ class SimulationResult():
             propMass = self.getPropellantMass() - self.getPropellantMass(index)
         if propMass == 0:
             return 0
-        return self.getImpulse(index) / (propMass * 9.80665)
+        return self.getImpulse(index) / (propMass * constants.standardGravity)
 
     def getPortRatio(self):
         """Returns the port/throat ratio of the motor, or None if it doesn't have a port."""

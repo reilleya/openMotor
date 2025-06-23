@@ -1,17 +1,23 @@
-from PyQt6.QtCore import QObject
+from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QFileDialog, QMessageBox
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtGui import QAction
 
+import os
 import motorlib
 
-from .fileIO import saveFile, loadFile, fileTypes
-from .helpers import FLAGS_NO_ICON
+from .fileIO import saveFile, loadFile, fileTypes, getConfigPath
+from .helpers import FLAGS_NO_ICON, excludeKeys
 from .logger import logger
 
 class FileManager(QObject):
 
+    MAX_RECENT_FILES = 5
+
     fileNameChanged = pyqtSignal(str, bool)
     newMotor = pyqtSignal(object)
+    # TODO: eventually a signal like this that makes the mainWindow repopulate the propellant editor should
+    # be emitted whenever load() is called
+    recentFileLoaded = pyqtSignal()
 
     def __init__(self, app):
         super().__init__()
@@ -24,6 +30,12 @@ class FileManager(QObject):
         self.fileName = None
 
         self.newFile()
+
+        self.recentlyOpenedMenu = None
+        self.recentlyOpenedFiles = []
+        self.recentFilesPath = os.path.join(getConfigPath(), 'recent_files.yaml')
+
+        self.loadRecentlyOpenedFilesList()
 
     # Check if current motor is unsaved and start over from default motor. Called when the menu item is triggered.
     def newFile(self):
@@ -67,6 +79,7 @@ class FileManager(QObject):
         if fileName is not None:
             self.fileName = fileName
             self.save()
+            self.addRecentFile(fileName)
 
     # Checks for unsaved changes, asks for a filename, and loads the file
     def load(self, path=None):
@@ -80,6 +93,7 @@ class FileManager(QObject):
                         motor = motorlib.motor.Motor()
                         motor.applyDict(res)
                         self.startFromMotor(motor, path)
+                        self.addRecentFile(path)
                         return True
                 except Exception as exc:
                     self.app.outputException(exc, "An error occurred while loading the file: ")
@@ -189,28 +203,92 @@ class FileManager(QObject):
         if motor.propellant is None:
             return motor
 
+        propManager = self.app.propellantManager
         originalName = motor.propellant.getProperty('name')
         # If the motor has a propellant that we don't have, add it to our library
-        if originalName not in self.app.propellantManager.getNames():
+        if originalName not in propManager.getNames():
+            # Check if any propellants in the library have the same properties and offer to dedupe
+            for libraryPropellantName in propManager.getNames():
+                libraryProperties = excludeKeys(propManager.getPropellantByName(libraryPropellantName).getProperties(), ['name'])
+                motorProperties = excludeKeys(motor.propellant.getProperties(), ['name'])
+                if libraryProperties == motorProperties:
+                    message = 'The propellant from the loaded motor ("{}") was not in the library, but the properties match "{}" from the library. Should the loaded motor be updated to use this propellant?'
+                    shouldDeDupe = self.app.promptYesNo(message.format(motor.propellant.getProperty('name'), libraryPropellantName))
+                    if shouldDeDupe:
+                        motor.propellant.setProperty('name', libraryPropellantName)
+                        return motor
+
             self.app.outputMessage('The propellant from the loaded motor was not in the library, so it was added as "{}"'.format(originalName),
                                    'New propellant added')
-            self.app.propellantManager.propellants.append(motor.propellant)
-            self.app.propellantManager.savePropellants()
+            propManager.propellants.append(motor.propellant)
+            propManager.savePropellants()
             logger.log('Propellant from loaded motor added to library under original name "{}"'.format(originalName))
 
             return motor
 
-        # If a propellant by the name already exists, we need to check if they are the same and change the name if not
-        if motor.propellant.getProperties() == self.app.propellantManager.getPropellantByName(originalName).getProperties():
-            return motor
-
-        addedNumber = 1
-        while motor.propellant.getProperty('name') + ' (' + str(addedNumber) + ')' in self.app.propellantManager.getNames():
+        addedNumber = 0
+        name = originalName
+        while name in propManager.getNames():
+            existingProps = excludeKeys(propManager.getPropellantByName(name).getProperties(), ['name'])
+            motorProps = excludeKeys(motor.propellant.getProperties(), ['name'])
+            if existingProps == motorProps:
+                # If this isn't the first loop, we need to change the name to add the number
+                if addedNumber != 0:
+                    motor.propellant.setProperty('name', name)
+                    message = 'Propellant from loaded motor has the same name as one in the library ("{}"), but their properties do not match. It does match "{}", so it has been updated to that propellant.'.format(originalName, name)
+                    self.app.outputMessage(message)
+                return motor
             addedNumber += 1
-        motor.propellant.setProperty('name', originalName + ' (' + str(addedNumber) + ')')
-        self.app.propellantManager.propellants.append(motor.propellant)
-        self.app.propellantManager.savePropellants()
+            name = '{} ({})'.format(originalName, addedNumber)
+        motor.propellant.setProperty('name', '{} ({})'.format(originalName, addedNumber))
+        propManager.propellants.append(motor.propellant)
+        propManager.savePropellants()
         self.app.outputMessage('The propellant from the loaded motor matches an existing item in the library, but they have different properties. The propellant from the motor has been added to the library as "{}"'.format(motor.propellant.getProperty('name')),
                                'New propellant added')
 
         return motor
+
+    def loadRecentlyOpenedFilesList(self):
+        try:
+            self.recentFilesList = loadFile(self.recentFilesPath, fileTypes.RECENT_FILES)['recentFilesList']
+        except FileNotFoundError:
+            logger.warn('Unable to load recent files, creating new file at {}'.format(self.recentFilesPath))
+            self.recentFilesList = []
+            saveFile(self.recentFilesPath, {'recentFilesList': self.recentFilesList}, fileTypes.RECENT_FILES)
+
+    def createRecentlyOpenedMenu(self, recentlyOpenedMenu):
+        self.recentlyOpenedMenu = recentlyOpenedMenu
+        self.loadRecentlyOpenedFilesList()
+        self.createRecentlyOpenedItems()
+
+    def createRecentlyOpenedItems(self):
+        if self.recentlyOpenedMenu is None:
+            return
+
+        self.recentlyOpenedMenu.clear()
+
+        if len(self.recentFilesList) == 0:
+            self.recentlyOpenedMenu.addAction(QAction('No Recent Files', self.recentlyOpenedMenu))
+            return
+
+        for filepath in self.recentFilesList:
+            _, filename = os.path.split(filepath)
+            action = QAction(filename, self.recentlyOpenedMenu)
+            action.triggered.connect(lambda _, path=filepath: self.loadRecentFile(path))
+            self.recentlyOpenedMenu.addAction(action)
+
+    def loadRecentFile(self, path):
+        self.load(path)
+        self.recentFileLoaded.emit()
+
+    def addRecentFile(self, filepath):
+        if filepath in self.recentFilesList:
+            self.recentFilesList.remove(filepath)
+
+        self.recentFilesList = [filepath] + self.recentFilesList
+
+        self.recentFilesList = self.recentFilesList[:FileManager.MAX_RECENT_FILES]
+
+        saveFile(self.recentFilesPath, {'recentFilesList': self.recentFilesList}, fileTypes.RECENT_FILES)
+
+        self.createRecentlyOpenedItems()

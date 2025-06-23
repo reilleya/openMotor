@@ -62,8 +62,8 @@ class PolygonEditor(QWidget):
                     self.points.append(part)
 
                 elif ent.dxftype() == 'LINE':
-                    point1 = ent.dxf.end[:2]
-                    point2 = ent.dxf.start[:2]
+                    point1 = (ent.dxf.end[0], ent.dxf.end[1])
+                    point2 = (ent.dxf.start[0], ent.dxf.start[1])
 
                     chunks.append([point1, point2])
 

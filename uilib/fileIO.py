@@ -9,13 +9,14 @@ import platformdirs
 from .defaults import DEFAULT_PREFERENCES, DEFAULT_PROPELLANTS, KNSU_PROPS
 from .logger import logger
 
-appVersion = (0, 6, 0)
+appVersion = (0, 6, 1)
 appVersionStr = '.'.join(map(str, appVersion))
 
 class fileTypes(Enum):
     PREFERENCES = 1
     PROPELLANTS = 2
     MOTOR = 3
+    RECENT_FILES = 4
 
 def futureVersion(verA, verB): # Returns true if a is newer than b
     major = verA[0] > verB[0]
@@ -67,6 +68,10 @@ def getConfigPath():
 def passthrough(data):
     return data
     
+#0.6.0 to 0.6.1
+def migrateMotor_0_6_0_to_0_6_1(data):
+    data['config']['maxMachNumber'] = DEFAULT_PREFERENCES['general']['maxMachNumber']
+    return data
     
 #0.5.0 to 0.6.0
 def migrateMotor_0_5_0_to_0_6_0(data):
@@ -75,6 +80,14 @@ def migrateMotor_0_5_0_to_0_6_0(data):
     for grain in data['grains']:
         if grain['type'] == 'Finocyl':
             grain['properties']['invertedFins'] = False
+    return data
+
+def migratePref_0_5_0_to_0_6_0(data):
+    # If they are using the units that are becoming internal-only, replace them
+    if data['units']['m/(s*Pa)'] in ('m/(s*Pa)', 'm/(s*MPa)'):
+        data['units']['(m*Pa)/s'] = 'um/(s*mPa)'
+    if data['units']['m/(s*Pa^n)'] == 'm/(s*Pa^n)':
+        data['units']['m/(s*Pa^n)'] = 'mm/(s*Pa^n)'
     return data
 
 # 0.4.0 to 0.5.0
@@ -158,11 +171,19 @@ def migrateMotor_0_2_0_to_0_3_0(data):
     return data
 
 migrations = {
-    (0, 5, 0): {
-        'to': (0, 6, 0),
+    (0, 6, 0): {
+        'to': (0, 6, 1),
         fileTypes.PREFERENCES: passthrough,
         fileTypes.PROPELLANTS: passthrough,
-        fileTypes.MOTOR: migrateMotor_0_5_0_to_0_6_0
+         fileTypes.MOTOR: migrateMotor_0_6_0_to_0_6_1,
+        fileTypes.RECENT_FILES: passthrough
+    },
+    (0, 5, 0): {
+        'to': (0, 6, 0),
+        fileTypes.PREFERENCES: migratePref_0_5_0_to_0_6_0,
+        fileTypes.PROPELLANTS: passthrough,
+        fileTypes.MOTOR: migrateMotor_0_5_0_to_0_6_0,
+        fileTypes.RECENT_FILES: passthrough
     },
     (0, 4, 0): {
         'to': (0, 5, 0),

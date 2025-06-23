@@ -1,4 +1,5 @@
 import sys
+from threading import Thread
 
 from PyQt6.QtWidgets import QWidget, QMainWindow, QTableWidgetItem, QHeaderView, QTableWidget
 from PyQt6.QtCore import Qt
@@ -31,7 +32,9 @@ class Window(QMainWindow):
                                ]
 
         self.app.fileManager.fileNameChanged.connect(self.updateWindowTitle)
-        self.app.fileManager.newMotor.connect(self.resetOutput)
+        self.app.fileManager.newMotor.connect(lambda _: self.resetOutput(True))
+        self.app.fileManager.newMotor.connect(self.getQuickResults)
+        self.app.fileManager.recentFileLoaded.connect(self.motorImported)
 
         self.app.importExportManager.motorImported.connect(self.motorImported)
 
@@ -86,6 +89,7 @@ class Window(QMainWindow):
         self.ui.actionOpen.triggered.connect(lambda x: self.loadMotor(None))
 
         self.app.importExportManager.createMenus(self.ui.menuImport, self.ui.menuExport)
+        self.app.fileManager.createRecentlyOpenedMenu(self.ui.menuOpen_Recent)
 
         self.ui.actionQuit.triggered.connect(self.closeEvent)
 
@@ -318,15 +322,29 @@ class Window(QMainWindow):
             self.ui.labelPeakMassFlux.setText('-')
         self.ui.labelDeliveredThrustCoefficient.setText(self.formatMotorStat(simResult.getAdjustedThrustCoefficient(), ''))
 
+    def getQuickResults(self, motor):
+        thread = lambda: self.showQuickResults(motor.getQuickResults())
+
+        dataThread = Thread(target=thread)
+        dataThread.start()
+
+    def showQuickResults(self, results):
+        self.ui.labelVolumeLoading.setText('{:.2f}%'.format(results['volumeLoading']))
+        self.ui.labelInitialKN.setText(self.formatMotorStat(results['initialKn'], ''))
+        self.ui.labelPropellantLength.setText(self.formatMotorStat(results['length'], 'm'))
+        self.ui.labelPropellantMass.setText(self.formatMotorStat(results['propellantMass'], 'kg'))
+        self.ui.labelPortThroatRatio.setText(self.formatMotorStat(results['portRatio'], ''))
+
     def runSimulation(self):
         self.resetOutput()
         cm = self.app.fileManager.getCurrentMotor()
         self.app.simulationManager.runSimulation(cm)
 
-    def resetOutput(self):
+    def resetOutput(self, keepGrainChecks = True):
         self.setupMotorStats()
         self.ui.resultsWidget.resetPlot()
         self.updateGrainTable()
+        self.ui.resultsWidget.setupGrainChecks(len(self.app.fileManager.getCurrentMotor().grains), keepGrainChecks)
 
     def undo(self):
         self.app.fileManager.undo()
@@ -351,18 +369,21 @@ class Window(QMainWindow):
     def motorImported(self):
         self.ui.motorEditor.close()
         self.postLoadUpdate()
+        self.getQuickResults(self.app.fileManager.getCurrentMotor())
 
     def loadMotor(self, path=None):
         self.disablePropSelector()
         if self.app.fileManager.load(path):
             self.postLoadUpdate()
+             # Needed because postLoadUpdate clears results
+            self.getQuickResults(self.app.fileManager.getCurrentMotor())
         self.enablePropSelector()
         self.ui.motorEditor.close()
 
     # Clear out all info related to old motor/sim in the interface
     def postLoadUpdate(self):
         self.disablePropSelector() # It is enabled again at the end of updatePropBoxSelection
-        self.resetOutput()
+        self.resetOutput(False)
         self.updateGrainTable()
         self.populatePropSelector()
         self.updatePropBoxSelection()

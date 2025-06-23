@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 
 from motorlib.properties import PropertyCollection, FloatProperty, StringProperty
 import motorlib
+from motorlib.constants import standardGravity
 from ..converter import Exporter
 
 # Attributes for the root element of the BSX file
@@ -109,7 +110,7 @@ class BurnSimExporter(Exporter):
                 outProp.attrib['SpecificHeatRatio'] = str(gamma)
                 outProp.attrib['MolarMass'] = str(m)
                 outProp.attrib['CombustionTemp'] = '0' # Unclear if this is used anyway
-                ispStar = motor.propellant.getCStar(exportPressure) / 9.80665
+                ispStar = motor.propellant.getCStar(exportPressure) / standardGravity
                 outProp.attrib['ISPStar'] = str(ispStar)
                 # Add empty notes section
                 ET.SubElement(outProp, 'Notes')

@@ -1,15 +1,16 @@
-from PyQt6.QtWidgets import QWidget, QHeaderView, QLabel
+from PyQt6.QtWidgets import QWidget, QHeaderView, QLabel, QTableWidgetItem
 import numpy as np
 
 import motorlib
-from motorlib.simResult import singleValueChannels, multiValueChannels
+from motorlib.simResult import singleValueChannels, multiValueChannels, alertLevelNames, alertTypeNames
+from motorlib.constants import standardGravity
 
 from .grainImageWidget import GrainImageWidget
 
 from ..views.ResultsWidget_ui import Ui_ResultsWidget
 
 class ResultsWidget(QWidget):
-    # These channels are extracted from the simResult amd put into the grain table in this order that should match
+    # These channels are extracted from the simResult and put into the grain table in this order that should match
     # the labels in the .ui file
     grainTableFields = ('mass', 'massFlow', 'massFlux', 'web')
 
@@ -21,7 +22,7 @@ class ResultsWidget(QWidget):
         self.simResult = None
         self.cachedChecks = None
 
-        excludes = ['kn', 'pressure', 'force', 'mass', 'massFlow', 'massFlux', 'exitPressure', 'dThroat', 'volumeLoading']
+        excludes = ['kn', 'pressure', 'force', 'mass', 'massFlow', 'massFlux', 'exitPressure', 'dThroat', 'volumeLoading', 'machNumber']
         self.ui.channelSelectorX.setupChecks(False, default='time', exclude=excludes)
         self.ui.channelSelectorX.setTitle('X Axis')
         self.ui.channelSelectorY.setupChecks(True, default=['kn', 'pressure', 'force'], exclude=['time'])
@@ -32,6 +33,13 @@ class ResultsWidget(QWidget):
 
         self.ui.horizontalSliderTime.valueChanged.connect(self.updateGrainTab)
         self.ui.tableWidgetGrains.setRowHeight(0, 128)
+
+        header = self.ui.tableWidgetAlerts.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
+
         self.grainImageWidgets = []
         self.grainImages = []
         self.grainLabels = []
@@ -40,16 +48,19 @@ class ResultsWidget(QWidget):
         self.preferences = pref
         self.ui.widgetGraph.setPreferences(pref)
 
-    def showData(self, simResult):
-        if self.simResult is not None:
-            newMotor = len(simResult.motor.grains) != len(self.simResult.motor.grains)
-        else:
-            newMotor = True
-        self.simResult = simResult
+    def setupGrainChecks(self, numGrains, restoreCachedChecks):
         self.ui.grainSelector.resetChecks()
-        self.ui.grainSelector.setupChecks(simResult, True)
-        if not newMotor and self.cachedChecks is not None:
+        self.ui.grainSelector.setupChecks(numGrains, True)
+        if restoreCachedChecks and self.cachedChecks is not None and len(self.cachedChecks) > 0 and max(self.cachedChecks or []) < self.ui.grainSelector.getNumberChecks():
             self.ui.grainSelector.setChecks(self.cachedChecks)
+        else:
+            self.cachedChecks = None
+
+    def showData(self, simResult):
+        self.simResult = simResult
+
+        self.setupGrainChecks(len(simResult.motor.grains), True)
+
         self.drawGraphs()
 
         self.cleanupGrainTab()
@@ -69,6 +80,14 @@ class ResultsWidget(QWidget):
                 self.grainLabels[gid][field] = QLabel(field)
                 self.ui.tableWidgetGrains.setCellWidget(1 + fid, gid, self.grainLabels[gid][field])
         self.updateGrainTab()
+
+        self.ui.tableWidgetAlerts.setRowCount(0) # Clear the table
+        self.ui.tableWidgetAlerts.setRowCount(len(simResult.alerts))
+        for row, alert in enumerate(simResult.alerts):
+            self.ui.tableWidgetAlerts.setItem(row, 0, QTableWidgetItem(alertLevelNames[alert.level]))
+            self.ui.tableWidgetAlerts.setItem(row, 1, QTableWidgetItem(alertTypeNames[alert.type]))
+            self.ui.tableWidgetAlerts.setItem(row, 2, QTableWidgetItem(alert.location))
+            self.ui.tableWidgetAlerts.setItem(row, 3, QTableWidgetItem(alert.description))
 
     def xSelectionChanged(self):
         if self.ui.channelSelectorX.getSelectedChannels()[0] in multiValueChannels:
@@ -126,13 +145,14 @@ class ResultsWidget(QWidget):
             currentISP = self.simResult.getISP(index)
             self.ui.labelISPProgress.setText('{:.3f} s'.format(currentISP))
             if currentMass != 0:
-                remainingISP = remainingImpulse / (currentMass * 9.80665)
+                remainingISP = remainingImpulse / (currentMass * standardGravity)
                 self.ui.labelISPRemaining.setText('{:.3f} s'.format(remainingISP))
             else:
                 self.ui.labelISPRemaining.setText('-')
 
     def resetPlot(self):
         self.cachedChecks = self.ui.grainSelector.getSelectedGrains()
+        self.simResult = None
         self.ui.grainSelector.resetChecks()
         self.ui.widgetGraph.resetPlot()
         self.cleanupGrainTab()

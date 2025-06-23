@@ -18,8 +18,8 @@ class GrainSelector(QGroupBox):
             self.checks[-1].deleteLater()
             del self.checks[-1]
 
-    def setupChecks(self, simRes, multiselect):
-        for gid, _ in enumerate(simRes.motor.grains):
+    def setupChecks(self, numGrains, multiselect):
+        for gid in range(numGrains):
             checkTitle = "Grain " + str(gid + 1)
             if multiselect:
                 check = QCheckBox(checkTitle)
@@ -49,3 +49,6 @@ class GrainSelector(QGroupBox):
             check.setCheckState(Qt.CheckState.Unchecked)
         for check in checks:
             self.checks[check].setCheckState(Qt.CheckState.Checked)
+
+    def getNumberChecks(self):
+        return len(self.checks)
