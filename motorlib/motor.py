@@ -8,6 +8,7 @@ from .grains import EndBurningGrain
 from .properties import PropertyCollection, FloatProperty, IntProperty
 from .constants import gasConstant
 from scipy.optimize import newton
+import numpy as np
 
 class MotorConfig(PropertyCollection):
     """Contains the settings required for simulation, including environmental conditions and details about
@@ -112,28 +113,32 @@ class Motor():
 
     def calcMachNumber(self, chamberPres, massFlux):
         """Calculates the mach number in the core of a grain for a given chamber pressure and mass flux."""
-        _, _, gamma, T, _ = self.propellant.getCombustionProperties(chamberPres)
+        _, _, gamma, T, molarMass = self.propellant.getCombustionProperties(chamberPres)
 
         if chamberPres <= 1e-6:
             return 0
 
-        def machFunc(M, chamberPres, massFlux, gamma, T, gasConstant):
-            A = chamberPres * (gamma ** 0.5) / ((gasConstant * T) ** 0.5)
+        def machFunc(M, chamberPres, massFlux, gamma, T, molarMass, gasConstant):
+            A = chamberPres * (gamma * molarMass / (gasConstant * T)) ** 0.5
             B = 1.0 + ((gamma - 1.0) / 2.0) * M**2
-            C = (gamma + 1.0) / (2.0 * (gamma - 1.0))
+            C = -(gamma + 1.0) / (2.0 * (gamma - 1.0))
             return A * M * (B ** C) - massFlux
 
-        def machFuncDerivative(M, chamberPres, massFlux, gamma, T, gasConstant):
-            A = chamberPres / ((gasConstant * T) ** 0.5) * (gamma ** 0.5)
+        def machFuncDerivative(M, chamberPres, massFlux, gamma, T, molarMass, gasConstant):
+            A = chamberPres * (gamma * molarMass / gasConstant / T) ** 0.5
             B = 1.0 + ((gamma - 1.0) / 2.0) * M**2
-            C = (gamma + 1.0) / (2.0 * (gamma - 1.0))
+            C = -(gamma + 1.0) / (2.0 * (gamma - 1.0))
             dB_dM = (gamma - 1.0) * M
             return A * (B**C + M * C * (B**(C - 1.0)) * dB_dM)
 
-        try:
-            M = newton(machFunc, fprime=machFuncDerivative, x0=0.5, args=(chamberPres, massFlux, gamma, T, gasConstant))
-        except RuntimeError:
-            M = 0.0
+        maxMassFlux = machFunc(1.0, chamberPres, massFlux, gamma, T, molarMass, gasConstant) + massFlux
+
+        if massFlux >= maxMassFlux: # Boom
+            return 1.0
+
+        x0 = np.arcsin(massFlux / maxMassFlux) * 2 / np.pi
+        M = newton(machFunc, fprime=machFuncDerivative, x0=x0, args=(chamberPres, massFlux, gamma, T, molarMass, gasConstant))
+
         return max(M, 0)
 
     def runSimulation(self, callback=None):
@@ -296,7 +301,11 @@ class Motor():
             alert = SimAlert(SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, 'Motor')
             simRes.addAlert(alert)
 
-        if simRes.getPeakMachNumber() > self.config.getProperty('maxMachNumber'):
+        if simRes.getPeakMachNumber() >= 1.0:
+            desc = 'Max core Mach number exceeded allowable subsonic limit (M>1.0)'
+            alert = SimAlert(SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, 'Motor')
+            simRes.addAlert(alert)
+        elif simRes.getPeakMachNumber() > self.config.getProperty('maxMachNumber'):
             desc = 'Max core Mach number exceeded configured limit'
             alert = SimAlert(SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, 'Motor')
             simRes.addAlert(alert)
