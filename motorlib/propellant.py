@@ -41,8 +41,9 @@ class Propellant(PropertyCollection):
     def getBurnRate(self, pressure):
         """Returns the propellant's burn rate for the given pressure"""
         ballA, ballN, _, _, _ = self.getCombustionProperties(pressure)
-        return ballA * (pressure ** ballN)
-
+        result = ballA * (pressure ** ballN)
+        return "{:.8f}".format(float(result))
+    
     def getPressureFromKn(self, kn):
         density = self.getProperty('density')
         tabPressures = []
