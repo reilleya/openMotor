@@ -93,11 +93,22 @@ class App(QApplication):
             self.window.show()
             logger.log('Window opened')
 
-    def isDarkMode(self):
-        if self.headless:
-            return False
+    # def isDarkMode(self):
+    #     if self.headless:
+    #         return False
 
-        return self.styleHints().colorScheme() == Qt.ColorScheme.Dark
+    #     return self.styleHints().colorScheme() == Qt.ColorScheme.Dark
+
+
+    def isDarkMode(self):
+        try:
+        # Try the newer Qt6 way first
+            return self.styleHints().colorScheme() == Qt.ColorScheme.Dark
+        except AttributeError:
+        # Fallback method for older Qt versions
+            palette = self.palette()
+            window = palette.color(palette.ColorRole.Window)
+            return window.lightness() < 128
 
     def outputMessage(self, content, title='openMotor'):
         if self.headless:
