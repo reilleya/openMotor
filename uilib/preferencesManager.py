@@ -1,6 +1,6 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 
-from motorlib.properties import PropertyCollection, FloatProperty, IntProperty, EnumProperty
+from motorlib.properties import PropertyCollection, EnumProperty
 from motorlib.units import unitLabels, getAllConversions
 from motorlib.motor import MotorConfig
 

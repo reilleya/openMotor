@@ -1,4 +1,4 @@
-"""Conains the motor class and a supporting configuration property collection."""
+"""Contains the motor class and a supporting configuration property collection."""
 from .grains import grainTypes
 from .nozzle import Nozzle
 from .propellant import Propellant

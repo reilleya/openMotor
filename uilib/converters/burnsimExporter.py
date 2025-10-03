@@ -1,6 +1,5 @@
 import xml.etree.ElementTree as ET
 
-from motorlib.properties import PropertyCollection, FloatProperty, StringProperty
 import motorlib
 from motorlib.constants import standardGravity
 from ..converter import Exporter

@@ -1,12 +1,11 @@
 import sys
 from threading import Thread
 
-from PyQt6.QtWidgets import QWidget, QMainWindow, QTableWidgetItem, QHeaderView, QTableWidget
+from PyQt6.QtWidgets import QMainWindow, QTableWidgetItem, QHeaderView
 from PyQt6.QtCore import Qt
 
 import motorlib
 import uilib.widgets.aboutDialog
-import uilib.widgets.preferencesMenu
 from uilib.views.MainWindow_ui import Ui_MainWindow
 
 class Window(QMainWindow):

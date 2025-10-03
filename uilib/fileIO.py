@@ -1,6 +1,5 @@
 from enum import Enum
 import os
-import platform
 
 from PyQt6.QtWidgets import QApplication
 import yaml

@@ -6,7 +6,6 @@ from abc import abstractmethod
 import numpy as np
 import skfmm
 import mathlib
-from skimage import measure
 from scipy.signal import savgol_filter
 from scipy import interpolate
 

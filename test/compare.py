@@ -1,6 +1,5 @@
 import sys
 import os
-import matplotlib
 import yaml
 import warnings
 

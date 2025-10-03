@@ -1,10 +1,10 @@
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QApplication
-from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QApplication, QDialog, QLabel, QVBoxLayout
 
 import motorlib
 
-from .widgets.collectionEditor import CollectionEditor
 from .logger import logger
+from .widgets.collectionEditor import CollectionEditor
+
 
 class Tool(QDialog):
     def __init__(self, manager, name, description, propDict, needsSimulation):

@@ -1,8 +1,6 @@
-import xml.etree.ElementTree as ET
-from PyQt6.QtWidgets import QDialog, QFileDialog, QDialogButtonBox, QApplication
+from PyQt6.QtWidgets import QDialog, QApplication
 
 from motorlib.properties import PropertyCollection, FloatProperty, StringProperty, EnumProperty
-import motorlib
 from ..converter import Exporter
 
 from ..views.EngExporter_ui import Ui_EngExporterDialog
