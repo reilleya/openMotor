@@ -2,6 +2,7 @@
 the channels and components that it is comprised of."""
 
 from typing import List
+from typing import List
 import math
 from enum import Enum
 
