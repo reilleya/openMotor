@@ -9,7 +9,10 @@ from typing import Tuple, List, Union
 import numpy as np
 import skfmm
 from scipy import interpolate
+from scipy import interpolate
 from scipy.signal import savgol_filter
+
+import mathlib
 
 import mathlib
 
@@ -217,6 +220,7 @@ class PerforatedGrain(Grain):
 
     def getWebLeft(self, regDist: float) -> float:
         wallLeft = self.wallWeb - regDist
+        if self.props["inhibitedEnds"].getValue() == "Both":
         if self.props["inhibitedEnds"].getValue() == "Both":
             return wallLeft
         lengthLeft = self.getRegressedLength(regDist)

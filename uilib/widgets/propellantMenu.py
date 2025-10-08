@@ -1,12 +1,12 @@
-from PyQt6.QtWidgets import QDialog, QMessageBox, QApplication
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtWidgets import QApplication, QDialog, QMessageBox
+
+from motorlib.propellant import Propellant, PropellantTab
+
 from ..helpers import FLAGS_NO_ICON
-from PyQt6.QtCore import Qt
-
-import motorlib.propellant
-
-from ..views.PropMenu_ui import Ui_PropellantDialog
 from ..logger import logger
+from ..views.PropMenu_ui import Ui_PropellantDialog
+
 
 class PropellantMenu(QDialog):
 
@@ -59,9 +59,9 @@ class PropellantMenu(QDialog):
             while propName + " " + str(propNumber) in self.manager.getNames():
                 propNumber += 1
             propName = propName + " " + str(propNumber)
-        newProp = motorlib.propellant.Propellant()
+        newProp = Propellant()
         newProp.setProperty('name', propName)
-        newPropTab = motorlib.propellant.PropellantTab()
+        newPropTab = PropellantTab()
         newProp.props['tabs'].addTab(newPropTab)
         self.manager.propellants.append(newProp)
         self.setupPropList()

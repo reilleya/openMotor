@@ -1,13 +1,19 @@
-from PyQt6.QtWidgets import QWidget, QHeaderView, QLabel, QTableWidgetItem
 import numpy as np
+from PyQt6.QtWidgets import QHeaderView, QLabel, QTableWidgetItem, QWidget
 
-import motorlib
-from motorlib.simResult import singleValueChannels, multiValueChannels, alertLevelNames, alertTypeNames
 from motorlib.constants import standardGravity
-
-from .grainImageWidget import GrainImageWidget
+from motorlib.grain import PerforatedGrain
+from motorlib.simResult import (
+    alertLevelNames,
+    alertTypeNames,
+    multiValueChannels,
+    singleValueChannels,
+)
+from motorlib.units import convert, convFormat
 
 from ..views.ResultsWidget_ui import Ui_ResultsWidget
+from .grainImageWidget import GrainImageWidget
+
 
 class ResultsWidget(QWidget):
     # These channels are extracted from the simResult and put into the grain table in this order that should match
@@ -72,7 +78,7 @@ class ResultsWidget(QWidget):
             self.grainImageWidgets.append(GrainImageWidget())
             self.grainLabels.append({})
             self.ui.tableWidgetGrains.setCellWidget(0, gid, self.grainImageWidgets[-1])
-            if isinstance(grain, motorlib.grain.PerforatedGrain):
+            if isinstance(grain, PerforatedGrain):
                 self.grainImages.append(grain.getRegressionData(128, coreBlack=False)[1])
             else:
                 self.grainImages.append(None)
@@ -122,7 +128,7 @@ class ResultsWidget(QWidget):
                 for field in self.grainTableFields:
                     fromUnit = self.simResult.channels[field].unit
                     toUnit = self.preferences.getUnit(fromUnit)
-                    val = motorlib.units.convert(self.simResult.channels[field].getPoint(index)[gid], fromUnit, toUnit)
+                    val = convert(self.simResult.channels[field].getPoint(index)[gid], fromUnit, toUnit)
                     self.grainLabels[gid][field].setText('{:.3f} {}'.format(val, toUnit))
 
             currentTime = self.simResult.channels['time'].getPoint(index)
@@ -133,14 +139,14 @@ class ResultsWidget(QWidget):
             currentImpulse = self.simResult.getImpulse(index)
             remainingImpulse = self.simResult.getImpulse() - currentImpulse
             impUnit = self.preferences.getUnit('Ns')
-            self.ui.labelImpulseProgress.setText(motorlib.units.convFormat(currentImpulse, 'Ns', impUnit))
-            self.ui.labelImpulseRemaining.setText(motorlib.units.convFormat(remainingImpulse, 'Ns', impUnit))
+            self.ui.labelImpulseProgress.setText(convFormat(currentImpulse, 'Ns', impUnit))
+            self.ui.labelImpulseRemaining.setText(convFormat(remainingImpulse, 'Ns', impUnit))
 
             currentMass = self.simResult.getPropellantMass(index)
             remainingMass = self.simResult.getPropellantMass() - currentMass
             massUnit = self.preferences.getUnit('kg')
-            self.ui.labelMassProgress.setText(motorlib.units.convFormat(remainingMass, 'kg', massUnit))
-            self.ui.labelMassRemaining.setText(motorlib.units.convFormat(currentMass, 'kg', massUnit))
+            self.ui.labelMassProgress.setText(convFormat(remainingMass, 'kg', massUnit))
+            self.ui.labelMassRemaining.setText(convFormat(currentMass, 'kg', massUnit))
 
             currentISP = self.simResult.getISP(index)
             self.ui.labelISPProgress.setText('{:.3f} s'.format(currentISP))

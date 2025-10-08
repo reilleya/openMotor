@@ -1,11 +1,12 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 
-import motorlib
+from motorlib.propellant import Propellant
 
 from .defaults import DEFAULT_PROPELLANTS
-from .fileIO import loadFile, saveFile, fileTypes, getConfigPath
-from .widgets.propellantMenu import PropellantMenu
+from .fileIO import fileTypes, getConfigPath, loadFile, saveFile
 from .logger import logger
+from .widgets.propellantMenu import PropellantMenu
+
 
 class PropellantManager(QObject):
 
@@ -23,12 +24,12 @@ class PropellantManager(QObject):
         try:
             propList = loadFile(getConfigPath() + 'propellants.yaml', fileTypes.PROPELLANTS)
             for propDict in propList:
-                newProp = motorlib.propellant.Propellant()
+                newProp = Propellant()
                 newProp.setProperties(propDict)
                 self.propellants.append(newProp)
         except FileNotFoundError:
             logger.warn('No propellant file found, saving defaults')
-            self.propellants = [motorlib.propellant.Propellant(prop) for prop in DEFAULT_PROPELLANTS]
+            self.propellants = [Propellant(prop) for prop in DEFAULT_PROPELLANTS]
             self.savePropellants()
 
     def savePropellants(self):

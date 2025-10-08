@@ -1,11 +1,12 @@
 from threading import Thread
 
-from PyQt6.QtWidgets import QWidget
 from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QWidget
 
-import motorlib
+from motorlib.simResult import SimAlertLevel
 
 from ..views.GrainPreview_ui import Ui_GrainPreview
+
 
 class GrainPreviewWidget(QWidget):
 
@@ -35,7 +36,7 @@ class GrainPreviewWidget(QWidget):
             self.ui.tabAlerts.addItem(err.description)
 
         for alert in geomAlerts:
-            if alert.level == motorlib.simResult.SimAlertLevel.ERROR:
+            if alert.level == SimAlertLevel.ERROR:
                 # Go to alerts tab and clear up graph/images
                 self.ui.tabWidget.setCurrentIndex(0)
                 self.ui.tabFace.cleanup()

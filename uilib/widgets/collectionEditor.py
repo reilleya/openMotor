@@ -1,7 +1,14 @@
-from PyQt6.QtWidgets import QWidget, QFormLayout, QVBoxLayout, QHBoxLayout
-from PyQt6.QtWidgets import QLabel, QPushButton
-from PyQt6.QtWidgets import QSpacerItem, QSizePolicy
 from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtWidgets import (
+    QFormLayout,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QSizePolicy,
+    QSpacerItem,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .propertyEditor import PropertyEditor
 

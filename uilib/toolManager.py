@@ -6,9 +6,17 @@ from .tools import ExpansionTool
 from .tools import NeutralBatesTool
 from .tools import NozzleCoeffTool
 from .logger import logger
+from .tools import (
+    ChangeDiameterTool,
+    ExpansionTool,
+    InitialKNTool,
+    MaxKNTool,
+    MaxPressureTool,
+    NeutralBatesTool,
+)
+
 
 class ToolManager(QObject):
-
     changeApplied = pyqtSignal()
 
     def __init__(self, app):
@@ -18,15 +26,17 @@ class ToolManager(QObject):
         self.simulationManager = app.simulationManager
         self.propellantManager = app.propellantManager
 
-        self.tools = {'Set': [
-                                ChangeDiameterTool(self),
-                                InitialKNTool(self),
-                                MaxKNTool(self),
-                                MaxPressureTool(self)
-                            ],
-                      'Optimize': [ExpansionTool(self)],
-                      'Design': [NeutralBatesTool(self)],
-                      'Analyze': [NozzleCoeffTool(self)]}
+        self.tools = {
+            "Set": [
+                ChangeDiameterTool(self),
+                InitialKNTool(self),
+                MaxKNTool(self),
+                MaxPressureTool(self),
+            ],
+            "Optimize": [ExpansionTool(self)],
+            "Design": [NeutralBatesTool(self)],
+            "Analyze": [NozzleCoeffTool(self)],
+        }
 
         for toolCategory in self.tools:
             for toolToAdd in self.tools[toolCategory]:
@@ -59,9 +69,9 @@ class ToolManager(QObject):
     def updateMotor(self, motor):
         self.fileManager.addNewMotorHistory(motor)
         self.changeApplied.emit()
-        logger.log('Tool applied change to motor')
+        logger.log("Tool applied change to motor")
 
     def requestSimulation(self):
-        logger.log('Tool requested simulation')
+        logger.log("Tool requested simulation")
         motor = self.fileManager.getCurrentMotor()
         self.simulationManager.runSimulation(motor, False)

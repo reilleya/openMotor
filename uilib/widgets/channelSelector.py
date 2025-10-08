@@ -1,7 +1,9 @@
-from PyQt6.QtWidgets import QGroupBox, QCheckBox, QRadioButton, QVBoxLayout
-from PyQt6.QtCore import pyqtSignal, Qt
+from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtWidgets import QCheckBox, QGroupBox, QRadioButton, QVBoxLayout
 
-import motorlib
+from motorlib.motor import Motor
+from motorlib.simResult import SimulationResult
+
 
 class ChannelSelector(QGroupBox):
 
@@ -15,7 +17,7 @@ class ChannelSelector(QGroupBox):
 
     def setupChecks(self, multiselect, disabled=[], default=None, exclude=[]):
         # This simres is only used to get the list of channels available
-        simres = motorlib.simResult.SimulationResult(motorlib.motor.Motor())
+        simres = SimulationResult(Motor())
         for channel in simres.channels:
             if channel not in exclude:
                 if multiselect:

@@ -1,11 +1,12 @@
 import sys
 from threading import Thread
 
-from PyQt6.QtWidgets import QMainWindow, QTableWidgetItem, QHeaderView
 from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QHeaderView, QMainWindow, QTableWidgetItem
 
-import motorlib
 import uilib.widgets.aboutDialog
+from motorlib.grains import grainTypes
+from motorlib.units import convert
 from uilib.views.MainWindow_ui import Ui_MainWindow
 
 
@@ -92,7 +93,7 @@ class Window(QMainWindow):
         self.ui.motorEditor.closed.connect(self.checkGrainSelection)
 
     def setupGrainAddition(self):
-        self.ui.comboBoxGrainGeometry.addItems(motorlib.grains.grainTypes.keys())
+        self.ui.comboBoxGrainGeometry.addItems(grainTypes.keys())
         self.ui.pushButtonAddGrain.pressed.connect(self.addGrain)
 
     def setupMenu(self):
@@ -325,7 +326,7 @@ class Window(QMainWindow):
 
     def addGrain(self):
         cm = self.app.fileManager.getCurrentMotor()
-        newGrain = motorlib.grains.grainTypes[
+        newGrain = grainTypes[
             self.ui.comboBoxGrainGeometry.currentText()
         ]()
         if len(cm.grains) != 0:
@@ -341,7 +342,7 @@ class Window(QMainWindow):
     def formatMotorStat(self, quantity, inUnit):
         convUnit = self.app.preferencesManager.preferences.getUnit(inUnit)
         return "{:.2f} {}".format(
-            motorlib.units.convert(quantity, inUnit, convUnit), convUnit
+            convert(quantity, inUnit, convUnit), convUnit
         )
 
     def updateMotorStats(self, simResult):

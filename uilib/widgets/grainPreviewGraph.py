@@ -1,10 +1,10 @@
 from itertools import cycle
+
 import numpy as np
-
-from PyQt6.QtWidgets import QApplication
-
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from PyQt6.QtWidgets import QApplication
+
 
 class GrainPreviewGraph(FigureCanvas):
     def __init__(self):

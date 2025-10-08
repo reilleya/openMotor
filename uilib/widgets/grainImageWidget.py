@@ -1,6 +1,7 @@
-from PyQt6.QtWidgets import QLabel, QApplication
-from PyQt6.QtGui import QPixmap, QImage
 import numpy as np
+from PyQt6.QtGui import QImage, QPixmap
+from PyQt6.QtWidgets import QApplication, QLabel
+
 
 class GrainImageWidget(QLabel):
     def showImage(self, image):

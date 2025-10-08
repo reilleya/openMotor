@@ -1,11 +1,12 @@
-from PyQt6.QtWidgets import QLabel
 from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QLabel
 
-from motorlib.units import convert
-from motorlib.propellant import PropellantTab
 from motorlib.constants import gasConstant
+from motorlib.propellant import PropellantTab
+from motorlib.units import convert
 
 from .collectionEditor import CollectionEditor
+
 
 class PropellantTabEditor(CollectionEditor):
 

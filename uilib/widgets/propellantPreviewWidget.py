@@ -1,8 +1,9 @@
 from PyQt6.QtWidgets import QWidget
 
-import motorlib
+from motorlib.simResult import SimAlertLevel
 
 from ..views.PropellantPreview_ui import Ui_PropellantPreview
+
 
 class PropellantPreviewWidget(QWidget):
     def __init__(self):
@@ -23,7 +24,7 @@ class PropellantPreviewWidget(QWidget):
             self.ui.tabAlerts.addItem(err.description)
 
         for alert in alerts:
-            if alert.level == motorlib.simResult.SimAlertLevel.ERROR:
+            if alert.level == SimAlertLevel.ERROR:
                 return
 
         burnrateData = [[], []]

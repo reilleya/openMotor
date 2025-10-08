@@ -1,11 +1,13 @@
-import time
 import datetime
-import sys
-import traceback
 import os
+import sys
+import time
+import traceback
+
 import platformdirs
 
-class Logger():
+
+class Logger:
     def __init__(self):
         self.buffer = []
         startDate = datetime.datetime.now().isoformat()

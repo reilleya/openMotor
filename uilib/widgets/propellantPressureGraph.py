@@ -3,6 +3,7 @@ from matplotlib.figure import Figure
 
 from motorlib.units import convertAll
 
+
 class PropellantPressureGraph(FigureCanvas):
     def __init__(self):
         super(PropellantPressureGraph, self).__init__(Figure())

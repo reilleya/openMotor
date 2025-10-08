@@ -1,5 +1,6 @@
-from PyQt6.QtWidgets import QGroupBox, QCheckBox, QRadioButton, QVBoxLayout
-from PyQt6.QtCore import pyqtSignal, Qt
+from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtWidgets import QCheckBox, QGroupBox, QRadioButton, QVBoxLayout
+
 
 class GrainSelector(QGroupBox):
 

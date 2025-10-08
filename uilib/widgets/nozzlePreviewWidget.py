@@ -1,11 +1,13 @@
 from math import radians, tan
 
-from PyQt6.QtWidgets import QWidget, QApplication, QGraphicsScene, QGraphicsPolygonItem
-from PyQt6.QtGui import QPolygonF, QBrush
 from PyQt6.QtCore import QPointF, Qt, QTimer
+from PyQt6.QtGui import QBrush, QPolygonF
+from PyQt6.QtWidgets import QApplication, QGraphicsPolygonItem, QGraphicsScene, QWidget
 
-import motorlib
+from motorlib.simResult import SimAlertLevel
+
 from ..views.NozzlePreview_ui import Ui_NozzlePreview
+
 
 class NozzlePreviewWidget(QWidget):
     def __init__(self):
@@ -41,7 +43,7 @@ class NozzlePreviewWidget(QWidget):
         self.lower.setPolygon(QPolygonF([]))
 
         for alert in geomAlerts:
-            if alert.level == motorlib.simResult.SimAlertLevel.ERROR:
+            if alert.level == SimAlertLevel.ERROR:
                 self.ui.tabWidget.setCurrentIndex(0)
                 return
 

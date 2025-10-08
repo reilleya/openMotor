@@ -1,6 +1,7 @@
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+
 def selectGrains(data, grains):
     # Returns the data corresponding to specific grains from data structured like [[G1, G2], [G1, G2], [G1, G2]...]
     out = []

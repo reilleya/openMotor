@@ -1,12 +1,13 @@
 from PyQt6.QtWidgets import QLabel
 
-import motorlib.grain
-import motorlib.nozzle
-import motorlib.motor
+from motorlib.grain import PerforatedGrain
+from motorlib.motor import MotorConfig
+from motorlib.nozzle import Nozzle
 
 from .collectionEditor import CollectionEditor
 from .grainPreviewWidget import GrainPreviewWidget
 from .nozzlePreviewWidget import NozzlePreviewWidget
+
 
 class MotorEditor(CollectionEditor):
     def __init__(self, parent):
@@ -27,7 +28,7 @@ class MotorEditor(CollectionEditor):
         self.objType = None
 
     def propertyUpdate(self):
-        if issubclass(self.objType, motorlib.nozzle.Nozzle):
+        if issubclass(self.objType, Nozzle):
             exitDia = self.propertyEditors['exit'].getValue()
             throatDia = self.propertyEditors['throat'].getValue()
             if throatDia == 0:
@@ -38,7 +39,7 @@ class MotorEditor(CollectionEditor):
             nozzle.setProperties(self.getProperties())
             self.nozzlePreview.loadNozzle(nozzle)
 
-        if issubclass(self.objType, motorlib.grain.PerforatedGrain):
+        if issubclass(self.objType, PerforatedGrain):
             testGrain = self.objType()
             testGrain.setProperties(self.getProperties())
             self.grainPreview.loadGrain(testGrain)
@@ -47,18 +48,18 @@ class MotorEditor(CollectionEditor):
         self.objType = type(obj)
         self.loadProperties(obj)
 
-        if issubclass(self.objType, motorlib.grain.PerforatedGrain):
+        if issubclass(self.objType, PerforatedGrain):
             self.grainPreview.show()
             self.nozzlePreview.hide()
             self.expRatioLabel.hide()
             self.propertyUpdate()
 
-        if issubclass(self.objType, motorlib.nozzle.Nozzle):
+        if issubclass(self.objType, Nozzle):
             self.expRatioLabel.show()
             self.nozzlePreview.show()
             self.grainPreview.hide()
 
-        if issubclass(self.objType, motorlib.motor.MotorConfig):
+        if issubclass(self.objType, MotorConfig):
             self.expRatioLabel.hide()
             self.nozzlePreview.hide()
             self.grainPreview.hide()

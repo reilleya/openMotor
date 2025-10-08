@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QDialog, QLabel, QVBoxLayout
 
-import motorlib
+from motorlib.properties import PropertyCollection
 
 from .logger import logger
 from .widgets.collectionEditor import CollectionEditor
@@ -14,7 +14,7 @@ class Tool(QDialog):
         self.description = description
         self.needsSimulation = needsSimulation
         self.preferences = None
-        self.propCollection = motorlib.properties.PropertyCollection()
+        self.propCollection = PropertyCollection()
         self.propCollection.props = propDict
 
         self.motor = None

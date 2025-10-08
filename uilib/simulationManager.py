@@ -1,11 +1,11 @@
 from threading import Thread
 
-from PyQt6.QtCore import QObject
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal
 
+from .logger import logger
 from .widgets.simulationAlertsDialog import SimulationAlertsDialog
 from .widgets.simulationProgressDialog import SimulationProgressDialog
-from .logger import logger
+
 
 class SimulationManager(QObject):
 

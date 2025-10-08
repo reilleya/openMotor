@@ -1,11 +1,12 @@
-from PyQt6.QtCore import QObject, pyqtSignal
-from PyQt6.QtWidgets import QFileDialog, QMessageBox
-from PyQt6.QtGui import QAction
-
 import os
-import motorlib
 
-from .fileIO import saveFile, loadFile, fileTypes, getConfigPath
+from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QFileDialog, QMessageBox
+
+from motorlib.motor import Motor
+
+from .fileIO import fileTypes, getConfigPath, loadFile, saveFile
 from .helpers import FLAGS_NO_ICON, excludeKeys
 from .logger import logger
 
@@ -43,7 +44,7 @@ class FileManager(QObject):
             logger.log("Cannot start new file because of existing one")
             return
         logger.log("Starting new motor file")
-        newMotor = motorlib.motor.Motor()
+        newMotor = Motor()
         motorConfig = self.app.preferencesManager.preferences.general.getProperties()
         newMotor.config.setProperties(motorConfig)  # Copy over user's preferences
         self.startFromMotor(newMotor)
@@ -98,7 +99,7 @@ class FileManager(QObject):
                 try:
                     res = loadFile(path, fileTypes.MOTOR)
                     if res is not None:
-                        motor = motorlib.motor.Motor()
+                        motor = Motor()
                         motor.applyDict(res)
                         self.startFromMotor(motor, path)
                         self.addRecentFile(path)
@@ -112,7 +113,7 @@ class FileManager(QObject):
 
     # Return the recent end of the motor history
     def getCurrentMotor(self):
-        newMotor = motorlib.Motor()
+        newMotor = Motor()
         newMotor.applyDict(self.fileHistory[self.currentVersion])
         return newMotor
 

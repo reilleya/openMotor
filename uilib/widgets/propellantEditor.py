@@ -1,6 +1,8 @@
 from motorlib.propellant import Propellant
+
 from .collectionEditor import CollectionEditor
 from .propellantPreviewWidget import PropellantPreviewWidget
+
 
 class PropellantEditor(CollectionEditor):
     def __init__(self, parent):

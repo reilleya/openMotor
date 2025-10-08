@@ -7,10 +7,10 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication, QMessageBox
 
-import motorlib
 import uilib
 import uilib.widgets.mainWindow
-from motorlib import Motor, SimulationResult
+from motorlib.motor import Motor
+from motorlib.simResult import SimulationResult, alertLevelNames, alertTypeNames
 from uilib.fileIO import appVersionStr
 from uilib.logger import logger
 
@@ -77,8 +77,8 @@ class App(QApplication):
                 for alert in simulationResult.alerts:
                     print(
                         "{} ({}, {}): {}".format(
-                            motorlib.alertLevelNames[alert.level],
-                            motorlib.alertTypeNames[alert.type],
+                            alertLevelNames[alert.level],
+                            alertTypeNames[alert.type],
                             alert.location,
                             alert.description,
                         )

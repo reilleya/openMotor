@@ -1,8 +1,9 @@
-from PyQt6.QtWidgets import QDialog, QTableWidgetItem, QHeaderView, QApplication
+from PyQt6.QtWidgets import QApplication, QDialog, QHeaderView, QTableWidgetItem
 
 from motorlib.simResult import alertLevelNames, alertTypeNames
 
 from ..views.SimulationAlertsDialog_ui import Ui_SimAlertsDialog
+
 
 class SimulationAlertsDialog(QDialog):
     def __init__(self):
