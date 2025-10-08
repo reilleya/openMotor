@@ -23,7 +23,7 @@ The calculations involved were sourced from Rocket Propulsion Elements by George
 
 Download
 -------
-You can download the latest version for your system [here](https://github.com/reilleya/openMotor/releases/latest). From there, just unzip the file and run it. Alternatively, you can run it from source code to get the latest features. 
+You can download the latest version for your system [here](https://github.com/reilleya/openMotor/releases/latest). From there, just unzip the file and run it. Alternatively, you can run it from source code to get the latest features. Openmotor is avaliable on the AUR as `openmotor` and on debian apt as `openmotor`
 
 Building from Source
 --------------------
