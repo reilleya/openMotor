@@ -6,7 +6,7 @@ from . import geometry
 from .simResult import SimulationResult, SimAlert, SimAlertLevel, SimAlertType
 from .grains import EndBurningGrain
 from .properties import PropertyCollection, FloatProperty, IntProperty
-from .constants import gasConstant
+from .constants import gasConstant, atmosphericPressure
 from scipy.optimize import newton
 import numpy as np
 
@@ -115,7 +115,7 @@ class Motor():
         """Calculates the mach number in the core of a grain for a given chamber pressure and mass flux."""
         _, _, gamma, T, molarMass = self.propellant.getCombustionProperties(chamberPres)
 
-        if chamberPres <= 1e-6:
+        if chamberPres <= atmosphericPressure: # Mach calculation gets weird at low chamber pressures
             return 0
 
         def machFunc(M, chamberPres, massFlux, gamma, T, molarMass, gasConstant):
