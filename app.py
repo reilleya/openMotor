@@ -7,12 +7,17 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication, QMessageBox
 
-import uilib
-import uilib.widgets.mainWindow
 from motorlib.motor import Motor
 from motorlib.simResult import SimulationResult, alertLevelNames, alertTypeNames
 from uilib.fileIO import appVersionStr
+from uilib.fileManager import FileManager
+from uilib.importExportManager import ImportExportManager
 from uilib.logger import logger
+from uilib.preferencesManager import PreferencesManager
+from uilib.propellantManager import PropellantManager
+from uilib.simulationManager import SimulationManager
+from uilib.toolManager import ToolManager
+from uilib.widgets import mainWindow
 
 
 class App(QApplication):
@@ -33,30 +38,30 @@ class App(QApplication):
             mpl.rcParams["axes.facecolor"] = "1e1e1e"
             mpl.rcParams["figure.facecolor"] = "1e1e1e"
 
-        self.preferencesManager = uilib.PreferencesManager()
+        self.preferencesManager = PreferencesManager()
 
-        self.propellantManager = uilib.PropellantManager()
+        self.propellantManager = PropellantManager()
         self.preferencesManager.preferencesChanged.connect(
             self.propellantManager.setPreferences
         )
 
-        self.simulationManager = uilib.SimulationManager()
+        self.simulationManager = SimulationManager()
         self.preferencesManager.preferencesChanged.connect(
             self.simulationManager.setPreferences
         )
 
-        self.fileManager = uilib.FileManager(self)
+        self.fileManager = FileManager(self)
         startupFileLoaded = False
         if len(args) > 1 and args[-1][0] != "-":
             startupFileLoaded = self.fileManager.load(args[-1])
         self.propellantManager.updated.connect(self.fileManager.updatePropellant)
 
-        self.toolManager = uilib.ToolManager(self)
+        self.toolManager = ToolManager(self)
         self.preferencesManager.preferencesChanged.connect(
             self.toolManager.setPreferences
         )
 
-        self.importExportManager = uilib.ImportExportManager(self)
+        self.importExportManager = ImportExportManager(self)
         self.preferencesManager.preferencesChanged.connect(
             self.importExportManager.setPreferences
         )
@@ -108,7 +113,7 @@ class App(QApplication):
             if usingDarkMode and currentTheme in ["windows", "windowsvista"]:
                 logger.log("Overriding theme to fusion to get dark mode")
                 self.setStyle("fusion")
-            self.window = uilib.widgets.mainWindow.Window(self)
+            self.window = mainWindow.Window(self)
             self.preferencesManager.publishPreferences()
             if startupFileLoaded:
                 self.fileManager.sendTitleUpdate()
