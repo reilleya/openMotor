@@ -1,9 +1,10 @@
-from PyQt6.QtWidgets import QDialog, QApplication
+from PyQt6.QtWidgets import QApplication, QDialog
 
-from motorlib.simResult import singleValueChannels, multiValueChannels
+from motorlib.simResult import multiValueChannels, singleValueChannels
+
 from ..converter import Exporter
-
 from ..views.ImageExporter_ui import Ui_ImageExporter
+
 
 class ImageExportMenu(QDialog):
     def __init__(self, converter):

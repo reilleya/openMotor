@@ -1,8 +1,8 @@
-from PyQt6.QtWidgets import QDialog, QApplication
+from PyQt6.QtWidgets import QApplication, QDialog
 
 from ..converter import Exporter
-
 from ..views.CSVExporter_ui import Ui_CSVExporter
+
 
 class CsvExportMenu(QDialog):
     def __init__(self, converter):

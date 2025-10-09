@@ -1,7 +1,8 @@
-from setuptools import setup, find_packages, Extension
-from Cython.Build import cythonize
-import numpy
 import multiprocessing
+
+import numpy
+from Cython.Build import cythonize
+from setuptools import Extension, find_packages, setup
 
 try:
     from pyqt_distutils.build_ui import build_ui
