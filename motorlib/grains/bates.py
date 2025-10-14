@@ -15,7 +15,7 @@ class BatesGrain(PerforatedGrain):
     geomName = "BATES"
     def __init__(self):
         super().__init__()
-        self.props['coreDiameter'] = FloatProperty('Core Diameter', 'm', 0, 1)
+        self.props['coreDiameter'] = FloatProperty('Core Diameter', 'm', 0, 5)
 
     def simulationSetup(self, config):
         self.wallWeb = (self.props['diameter'].getValue() - self.props['coreDiameter'].getValue()) / 2

@@ -3,14 +3,15 @@
 from ..grain import FmmGrain
 from ..properties import FloatProperty
 from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+from ..constants import maximumRefDiameter
 
 class MoonBurner(FmmGrain):
     """A moonburner is very similar to a BATES grain except the core is off center by a specified distance."""
     geomName = 'Moon Burner'
     def __init__(self):
         super().__init__()
-        self.props['coreOffset'] = FloatProperty('Core offset', 'm', 0, 1)
-        self.props['coreDiameter'] = FloatProperty('Core diameter', 'm', 0, 1)
+        self.props['coreOffset'] = FloatProperty('Core offset', 'm', 0, maximumRefDiameter)
+        self.props['coreDiameter'] = FloatProperty('Core diameter', 'm', 0, maximumRefDiameter)
 
     def generateCoreMap(self):
         coreRadius = self.normalize(self.props['coreDiameter'].getValue()) / 2

@@ -4,13 +4,14 @@ from motorlib.properties import PropertyCollection, FloatProperty, StringPropert
 from ..converter import Exporter
 
 from ..views.EngExporter_ui import Ui_EngExporterDialog
+from motorlib.constants import maximumRefDiameter, maximumRefLength
 
 class EngSettings(PropertyCollection):
     def __init__(self):
         super().__init__()
-        self.props['diameter'] = FloatProperty('Motor Diameter', 'm', 0, 1)
-        self.props['length'] = FloatProperty('Motor Length', 'm', 0, 4)
-        self.props['hardwareMass'] = FloatProperty('Hardware Mass', 'kg', 0, 1000)
+        self.props['diameter'] = FloatProperty('Motor Diameter', 'm', 0, maximumRefDiameter)
+        self.props['length'] = FloatProperty('Motor Length', 'm', 0, maximumRefLength)
+        self.props['hardwareMass'] = FloatProperty('Hardware Mass', 'kg', 0, 10000)
         self.props['designation'] = StringProperty('Motor Designation')
         self.props['manufacturer'] = StringProperty('Motor Manufacturer')
         self.props['append'] = EnumProperty('Existing File', ['Append', 'Overwrite'])

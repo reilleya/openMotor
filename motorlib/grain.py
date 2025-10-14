@@ -12,6 +12,7 @@ from scipy import interpolate
 from . import geometry
 from .simResult import SimAlert, SimAlertLevel, SimAlertType
 from .properties import FloatProperty, EnumProperty, PropertyCollection
+from .constants import maximumRefDiameter, maximumRefLength
 
 class Grain(PropertyCollection):
     """A basic propellant grain. This is the class that all grains inherit from. It provides a few properties and
@@ -19,8 +20,8 @@ class Grain(PropertyCollection):
     geomName = None
     def __init__(self):
         super().__init__()
-        self.props['diameter'] = FloatProperty('Diameter', 'm', 0, 1)
-        self.props['length'] = FloatProperty('Length', 'm', 0, 3)
+        self.props['diameter'] = FloatProperty('Diameter', 'm', 0, maximumRefDiameter)
+        self.props['length'] = FloatProperty('Length', 'm', 0, maximumRefLength)
 
     def getVolumeSlice(self, regDist, dRegDist):
         """Returns the amount of propellant volume consumed as the grain regresses from a distance of 'regDist' to

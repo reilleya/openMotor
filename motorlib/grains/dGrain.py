@@ -3,6 +3,7 @@
 from ..grain import FmmGrain
 from ..properties import FloatProperty
 from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+from ..constants import maximumRefDiameter
 
 class DGrain(FmmGrain):
     """Defines a D grain, which is a grain that has no propellant past a chord that is a user-specified distance from
@@ -10,7 +11,7 @@ class DGrain(FmmGrain):
     geomName = 'D Grain'
     def __init__(self):
         super().__init__()
-        self.props['slotOffset'] = FloatProperty('Slot offset', 'm', -1, 1)
+        self.props['slotOffset'] = FloatProperty('Slot offset', 'm', -maximumRefDiameter, maximumRefDiameter)
 
         self.props['slotOffset'].setValue(0)
 

@@ -8,6 +8,7 @@ from ..grain import PerforatedGrain
 from .. import geometry
 from ..simResult import SimAlert, SimAlertLevel, SimAlertType
 from ..properties import FloatProperty
+from ..constants import maximumRefDiameter
 
 class RodTubeGrain(PerforatedGrain):
     """Tbe rod and tube grain resembles a BATES grain except that it features a fully-uninhibited rod of propellant in
@@ -15,9 +16,9 @@ class RodTubeGrain(PerforatedGrain):
     geomName = "Rod and Tube"
     def __init__(self):
         super().__init__()
-        self.props['coreDiameter'] = FloatProperty('Core Diameter', 'm', 0, 1)
-        self.props['rodDiameter'] = FloatProperty('Rod Diameter', 'm', 0, 1)
-        self.props['supportDiameter'] = FloatProperty('Support Diameter', 'm', 0, 1)
+        self.props['coreDiameter'] = FloatProperty('Core Diameter', 'm', 0, maximumRefDiameter)
+        self.props['rodDiameter'] = FloatProperty('Rod Diameter', 'm', 0, maximumRefDiameter)
+        self.props['supportDiameter'] = FloatProperty('Support Diameter', 'm', 0, maximumRefDiameter)
         self.tubeWeb = None
         self.rodWeb = None
 

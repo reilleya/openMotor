@@ -6,14 +6,15 @@ from ..grain import Grain
 from .. import geometry
 from ..simResult import SimAlert, SimAlertLevel, SimAlertType
 from ..properties import FloatProperty, EnumProperty
+from ..constants import maximumRefDiameter
 
 class ConicalGrain(Grain):
     """A conical grain is similar to a BATES grain except it has different core diameters at each end."""
     geomName = "Conical"
     def __init__(self):
         super().__init__()
-        self.props['forwardCoreDiameter'] = FloatProperty('Forward Core Diameter', 'm', 0, 1)
-        self.props['aftCoreDiameter'] = FloatProperty('Aft Core Diameter', 'm', 0, 1)
+        self.props['forwardCoreDiameter'] = FloatProperty('Forward Core Diameter', 'm', 0, maximumRefDiameter)
+        self.props['aftCoreDiameter'] = FloatProperty('Aft Core Diameter', 'm', 0, maximumRefDiameter)
         self.props['inhibitedEnds'] = EnumProperty('Inhibited ends', ['Neither', 'Top', 'Bottom', 'Both'])
 
     def isCoreInverted(self):

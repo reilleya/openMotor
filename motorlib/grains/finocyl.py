@@ -5,6 +5,7 @@ import numpy as np
 from ..grain import FmmGrain
 from ..properties import FloatProperty, IntProperty, BooleanProperty
 from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+from ..constants import maximumRefDiameter
 
 class Finocyl(FmmGrain):
     """A finocyl (fins on cylinder) grain has a circular core with a number of rectangular extensions that start at the
@@ -13,9 +14,9 @@ class Finocyl(FmmGrain):
     def __init__(self):
         super().__init__()
         self.props['numFins'] = IntProperty('Number of fins', '', 0, 64)
-        self.props['finWidth'] = FloatProperty('Fin width', 'm', 0, 1)
-        self.props['finLength'] = FloatProperty('Fin length', 'm', 0, 1)
-        self.props['coreDiameter'] = FloatProperty('Core diameter', 'm', 0, 1)
+        self.props['finWidth'] = FloatProperty('Fin width', 'm', 0, maximumRefDiameter)
+        self.props['finLength'] = FloatProperty('Fin length', 'm', 0, maximumRefDiameter)
+        self.props['coreDiameter'] = FloatProperty('Core diameter', 'm', 0, maximumRefDiameter)
         self.props['invertedFins'] = BooleanProperty('Inverted fins')
 
     def generateCoreMap(self):

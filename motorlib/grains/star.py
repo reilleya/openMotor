@@ -5,6 +5,7 @@ import numpy as np
 from ..grain import FmmGrain
 from ..properties import IntProperty, FloatProperty
 from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+from ..constants import maximumRefDiameter
 
 class StarGrain(FmmGrain):
     """A star grain has a core shaped like a star."""
@@ -12,8 +13,8 @@ class StarGrain(FmmGrain):
     def __init__(self):
         super().__init__()
         self.props['numPoints'] = IntProperty('Number of points', '', 0, 64)
-        self.props['pointLength'] = FloatProperty('Point length', 'm', 0, 1)
-        self.props['pointWidth'] = FloatProperty('Point base width', 'm', 0, 1)
+        self.props['pointLength'] = FloatProperty('Point length', 'm', 0, maximumRefDiameter)
+        self.props['pointWidth'] = FloatProperty('Point base width', 'm', 0, maximumRefDiameter)
 
     def generateCoreMap(self):
         numPoints = self.props['numPoints'].getValue()

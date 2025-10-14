@@ -5,6 +5,7 @@ import numpy as np
 from ..grain import FmmGrain
 from ..properties import FloatProperty
 from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+from ..constants import maximumRefDiameter
 
 class CGrain(FmmGrain):
     """Defines a C grain, which is a cylindrical grain with a single slot taken out. The slot is a rectangular section
@@ -13,8 +14,8 @@ class CGrain(FmmGrain):
     geomName = 'C Grain'
     def __init__(self):
         super().__init__()
-        self.props['slotWidth'] = FloatProperty('Slot width', 'm', 0, 1)
-        self.props['slotOffset'] = FloatProperty('Slot offset', 'm', -1, 1)
+        self.props['slotWidth'] = FloatProperty('Slot width', 'm', 0, maximumRefDiameter)
+        self.props['slotOffset'] = FloatProperty('Slot offset', 'm', -maximumRefDiameter, maximumRefDiameter)
 
         self.props['slotOffset'].setValue(0)
 
