@@ -186,7 +186,13 @@ class SimulationResult():
         imp = self.getImpulse()
         if imp < 1.25: # This is to avoid a domain error finding log(0)
             return 'N/A'
-        return ('A' if imp > (1.25 * (2**26)) else '') + chr(int(math.log(imp / (1.25 * 2**(26 * (imp > (1.25 * (2**26))))), 2)) + 65) + str(int(self.getAverageForce()))
+        letters = ''
+        order = int(math.log(imp / 1.25, 2)) + 1 # The number of powers of two in the impulse
+        for place in range(0, int(math.log(order, 26)) + 1): # Loop over the number of letters in the designation
+            remainder = order % 26
+            letters = chr(remainder + 64) + letters # 64 + 1 will produce "A", 64 + 2 "B", and so on
+            order = int((order - remainder) / 26) # Move up a place by subtracting this one and dividing by the base (26)
+        return '{}{:.0f}'.format(letters, self.getAverageForce())
 
     def getFullDesignation(self):
         """Returns the full motor designation, which also includes the total impulse prepended on"""
