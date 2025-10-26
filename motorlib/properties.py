@@ -140,7 +140,7 @@ class PropertyCollection:
             props = self.props.keys()
         return {k: self.props[k].getValue() for k in props}
 
-    def getProperty(self, prop):
+    def getProperty(self, prop: str):
         """Returns the value of a specific property."""
         return self.props[prop].getValue()
 
