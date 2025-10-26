@@ -5,14 +5,15 @@ import numpy as np
 from ..grain import FmmGrain
 from ..properties import FloatProperty
 from ..simResult import SimAlert, SimAlertLevel, SimAlertType
+from ..constants import maximumRefDiameter
 
 class XCore(FmmGrain):
     """An X Core grain has a core shaped like a plus sign or an X."""
     geomName = 'X Core'
     def __init__(self):
         super().__init__()
-        self.props['slotWidth'] = FloatProperty('Slot width', 'm', 0, 1)
-        self.props['slotLength'] = FloatProperty('Slot length', 'm', 0, 1)
+        self.props['slotWidth'] = FloatProperty('Slot width', 'm', 0, maximumRefDiameter)
+        self.props['slotLength'] = FloatProperty('Slot length', 'm', 0, maximumRefDiameter)
 
     def generateCoreMap(self):
         slotWidth = self.normalize(self.props['slotWidth'].getValue())

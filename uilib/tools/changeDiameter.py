@@ -1,11 +1,11 @@
 import motorlib
 
 from ..tool import Tool
-
+from motorlib.constants import maximumRefDiameter
 
 class ChangeDiameterTool(Tool):
     def __init__(self, manager):
-        props = {'diameter': motorlib.properties.FloatProperty('Diameter', 'm', 0, 1)}
+        props = {'diameter': motorlib.properties.FloatProperty('Diameter', 'm', 0, maximumRefDiameter)}
         super().__init__(manager,
                          'Motor Diameter',
                          'Use this tool to set the diameter of all grains in the motor.',

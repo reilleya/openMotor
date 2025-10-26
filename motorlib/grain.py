@@ -16,6 +16,7 @@ import mathlib
 from . import geometry
 from .simResult import SimAlert, SimAlertLevel, SimAlertType
 from .properties import FloatProperty, EnumProperty, PropertyCollection
+from .constants import maximumRefDiameter, maximumRefLength
 
 
 class Grain(PropertyCollection):
@@ -34,13 +35,13 @@ class Grain(PropertyCollection):
             dispName="Diameter",
             unit="m",
             minValue=0,
-            maxValue=1,
+            maxValue=maximumRefDiameter,
         )
         self.props["length"] = FloatProperty(
             dispName="Length",
             unit="m",
             minValue=0,
-            maxValue=3,
+            maxValue=maximumRefLength,
         )
 
     def getVolumeSlice(self, regDist: float, dRegDist: float) -> float:

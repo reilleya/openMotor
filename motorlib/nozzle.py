@@ -6,7 +6,7 @@ from scipy.optimize import fsolve
 from .properties import FloatProperty, PropertyCollection
 from . import geometry
 from .simResult import SimAlert, SimAlertLevel, SimAlertType
-
+from .constants import maximumRefDiameter, maximumRefLength
 
 def eRatioFromPRatio(k, pRatio):
     """Returns the expansion ratio of a nozzle given the pressure ratio it causes."""
@@ -16,12 +16,12 @@ class Nozzle(PropertyCollection):
     """An object that contains the details about a motor's nozzle."""
     def __init__(self):
         super().__init__()
-        self.props['throat'] = FloatProperty('Throat Diameter', 'm', 0, 0.5)
-        self.props['exit'] = FloatProperty('Exit Diameter', 'm', 0, 1)
+        self.props['throat'] = FloatProperty('Throat Diameter', 'm', 0, maximumRefDiameter)
+        self.props['exit'] = FloatProperty('Exit Diameter', 'm', 0, maximumRefDiameter)
         self.props['efficiency'] = FloatProperty('Efficiency', '', 0, 2)
         self.props['divAngle'] = FloatProperty('Divergence Half Angle', 'deg', 0, 90)
         self.props['convAngle'] = FloatProperty('Convergence Half Angle', 'deg', 0, 90)
-        self.props['throatLength'] = FloatProperty('Throat Length', 'm', 0, 0.5)
+        self.props['throatLength'] = FloatProperty('Throat Length', 'm', 0, maximumRefLength / 10)
         self.props['slagCoeff'] = FloatProperty('Slag Buildup Coefficient', '(m*Pa)/s', 0, 1e6)
         self.props['erosionCoeff'] = FloatProperty('Throat Erosion Coefficient', 'm/(s*Pa)', 0, 1e6)
 

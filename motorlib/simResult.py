@@ -186,7 +186,7 @@ class SimulationResult():
         imp = self.getImpulse()
         if imp < 1.25: # This is to avoid a domain error finding log(0)
             return 'N/A'
-        return chr(int(math.log(imp / 1.25, 2)) + 65) + str(int(self.getAverageForce()))
+        return ('A' if imp > (1.25 * (2**26)) else '') + chr(int(math.log(imp / (1.25 * 2**(26 * (imp > (1.25 * (2**26))))), 2)) + 65) + str(int(self.getAverageForce()))
 
     def getFullDesignation(self):
         """Returns the full motor designation, which also includes the total impulse prepended on"""
