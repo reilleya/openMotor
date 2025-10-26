@@ -214,11 +214,11 @@ class Motor:
 
         maxMassFlux = (
             machFunc(
-                M=1.0,
-                chamberPres=chamberPres,
-                massFlux=massFlux,
+                machNumber=1.0,
+                chamberPressure=chamberPres,
+                massFlowRation=massFlux,
                 gamma=gamma,
-                T=T,
+                staticTemperature=T,
                 molarMass=molarMass,
                 gasConstant=gasConstant,
             )
