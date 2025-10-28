@@ -1,16 +1,12 @@
 from motorlib.properties import FloatProperty
+from motorlib.constants import maximumRefDiameter
 
 from ..tool import Tool
-from motorlib.constants import maximumRefDiameter
 
 
 class ChangeDiameterTool(Tool):
     def __init__(self, manager):
-        props = {
-            "diameter": motorlib.properties.FloatProperty(
-                "Diameter", "m", 0, maximumRefDiameter
-            )
-        }
+        props = {"diameter": FloatProperty("Diameter", "m", 0, maximumRefDiameter)}
         super().__init__(
             manager,
             "Motor Diameter",
