@@ -14,8 +14,6 @@ from scipy.signal import savgol_filter
 
 import mathlib
 
-import mathlib
-
 from . import geometry
 from .properties import EnumProperty, FloatProperty, PropertyCollection
 from .simResult import SimAlert, SimAlertLevel, SimAlertType
@@ -220,7 +218,6 @@ class PerforatedGrain(Grain):
 
     def getWebLeft(self, regDist: float) -> float:
         wallLeft = self.wallWeb - regDist
-        if self.props["inhibitedEnds"].getValue() == "Both":
         if self.props["inhibitedEnds"].getValue() == "Both":
             return wallLeft
         lengthLeft = self.getRegressedLength(regDist)
