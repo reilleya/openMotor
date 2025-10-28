@@ -5,7 +5,7 @@ from .propellant import Propellant
 from . import geometry
 from .simResult import SimulationResult, SimAlert, SimAlertLevel, SimAlertType
 from .grains import EndBurningGrain
-from .properties import PropertyCollection, FloatProperty, IntProperty
+from .properties import PropertyCollection, FloatProperty, IntProperty, BooleanProperty
 from .constants import gasConstant, atmosphericPressure
 from scipy.optimize import newton
 import numpy as np
@@ -28,7 +28,7 @@ class MotorConfig(PropertyCollection):
         self.props['ambPressure'] = FloatProperty('Ambient Pressure', 'Pa', 0.0001, 102000)
         self.props['mapDim'] = IntProperty('Grain Map Dimension', '', 250, 2000)
         self.props['sepPressureRatio'] = FloatProperty('Separation Pressure Ratio', '', 0.001, 1)
-
+        self.props['dualAxis'] = BooleanProperty('Use Dual-Axis Plotting When Applicable')
 
 
 class Motor():
