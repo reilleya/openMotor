@@ -4,9 +4,11 @@ conversion of the value."""
 
 from . import units
 
-class Property():
+
+class Property:
     """The base class that properties inherit from. It associates a human-readable display name with the data, as well
     as a unit and value type that it casts all inputs to."""
+
     def __init__(self, dispName, unit, valueType):
         self.dispName = dispName
         self.unit = unit
@@ -23,11 +25,12 @@ class Property():
 
     def dispFormat(self, unit):
         """Returns a human-readable version of the property's current value, including the unit."""
-        return '{} {}'.format(self.value, unit)
+        return "{} {}".format(self.value, unit)
 
 
 class FloatProperty(Property):
     """A property that handles floats. It forces the value to be in a certain range."""
+
     def __init__(self, dispName, unit, minValue, maxValue):
         super().__init__(dispName, unit, float)
         self.min = minValue
@@ -39,14 +42,15 @@ class FloatProperty(Property):
             super().setValue(value)
 
     def dispFormat(self, unit):
-        return '{:.6g} {}'.format(units.convert(self.value, self.unit, unit), unit)
+        return "{:.6g} {}".format(units.convert(self.value, self.unit, unit), unit)
 
 
 class EnumProperty(Property):
     """This property operates on strings, but only allows values from a list that is set when the property is
     defined"""
+
     def __init__(self, dispName, values):
-        super().__init__(dispName, '', object)
+        super().__init__(dispName, "", object)
         self.values = values
         self.value = self.values[0]
 
@@ -61,6 +65,7 @@ class EnumProperty(Property):
 
 class IntProperty(Property):
     """A property with an integer as the value that is clamped to a certain range."""
+
     def __init__(self, dispName, unit, minValue, maxValue):
         super().__init__(dispName, unit, int)
         self.min = minValue
@@ -74,27 +79,31 @@ class IntProperty(Property):
 
 class StringProperty(Property):
     """A property that works on the set of all strings"""
+
     def __init__(self, dispName):
-        super().__init__(dispName, '', str)
+        super().__init__(dispName, "", str)
 
 
 class BooleanProperty(Property):
     """A property with a single boolean as the value"""
+
     def __init__(self, dispName):
-        super().__init__(dispName, '', bool)
+        super().__init__(dispName, "", bool)
 
 
 class PolygonProperty(Property):
     """A property that contains a list of polygons, each a list of points"""
+
     def __init__(self, dispName):
-        super().__init__(dispName, '', list)
+        super().__init__(dispName, "", list)
         self.value = []
 
 
 class TabularProperty(Property):
     """A property that is composed of a number of 'tabs', each of which is a property collection of its own."""
+
     def __init__(self, dispName, collection):
-        super().__init__(dispName, '', list)
+        super().__init__(dispName, "", list)
         self.collection = collection
         self.tabs = []
 
@@ -109,8 +118,9 @@ class TabularProperty(Property):
         self.tabs = [self.collection(data) for data in value]
 
 
-class PropertyCollection():
+class PropertyCollection:
     """Holds a set of properties and allows batch operations on them through dictionaries"""
+
     def __init__(self):
         self.props = {}
 
@@ -118,7 +128,9 @@ class PropertyCollection():
         """Sets the value(s) of one of more properties at a time by passing in a dictionary of property names and
         values"""
         for prop in props.keys():
-            if prop in self.props: # This allows loading settings when the name of a field has changed
+            if (
+                prop in self.props
+            ):  # This allows loading settings when the name of a field has changed
                 self.props[prop].setValue(props[prop])
 
     def getProperties(self, props=None):
@@ -126,7 +138,7 @@ class PropertyCollection():
         being requested. It defaults to None, which returns all properties."""
         if props is None:
             props = self.props.keys()
-        return {k:self.props[k].getValue() for k in props}
+        return {k: self.props[k].getValue() for k in props}
 
     def getProperty(self, prop):
         """Returns the value of a specific property."""
