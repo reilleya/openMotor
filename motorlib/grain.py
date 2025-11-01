@@ -8,14 +8,14 @@ from typing import Tuple, List, Union
 
 import numpy as np
 import skfmm
-
-from scipy.signal import savgol_filter
 from scipy import interpolate
+from scipy.signal import savgol_filter
 
 import mathlib
+
 from . import geometry
+from .properties import EnumProperty, FloatProperty, PropertyCollection
 from .simResult import SimAlert, SimAlertLevel, SimAlertType
-from .properties import FloatProperty, EnumProperty, PropertyCollection
 from .constants import maximumRefDiameter, maximumRefLength
 
 
