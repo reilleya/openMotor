@@ -1,19 +1,18 @@
 """Contains the motor class and a supporting configuration property collection."""
 
-from typing import Any, Dict, List, Iterable, Union
+from typing import Any, Dict, Iterable, List, Union
 
-from scipy.optimize import newton
 import numpy as np
+from scipy.optimize import newton
 
-from .grains import grainTypes
+from .constants import atmosphericPressure, gasConstant, machSubsonicLimit
+from .geometry import circleArea
+from .grain import Grain
+from .grains import EndBurningGrain, grainTypes
 from .nozzle import Nozzle
 from .propellant import Propellant
-from . import geometry
-from .simResult import SimulationResult, SimAlert, SimAlertLevel, SimAlertType
-from .grain import Grain
-from .grains import EndBurningGrain
-from .properties import PropertyCollection, FloatProperty, IntProperty
-from .constants import gasConstant, atmosphericPressure, machSubsonicLimit
+from .properties import FloatProperty, IntProperty, PropertyCollection
+from .simResult import SimAlert, SimAlertLevel, SimAlertType, SimulationResult
 from .utils import machFunc, machFuncDerivative
 
 
@@ -314,9 +313,7 @@ class Motor:
         aftPort = self.grains[-1].getPortArea(0)
         if aftPort is not None:
             minAllowed = self.config.getProperty("minPortThroat")
-            ratio = aftPort / geometry.circleArea(
-                self.nozzle.props["throat"].getValue()
-            )
+            ratio = aftPort / circleArea(self.nozzle.props["throat"].getValue())
             if ratio < minAllowed:
                 simRes.addAlert(
                     SimAlert(
