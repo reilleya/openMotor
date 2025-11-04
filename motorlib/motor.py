@@ -38,21 +38,6 @@ class MotorConfig(PropertyCollection):
         self.props["flowSeparationWarnPercent"] = FloatProperty(
             "Flow Separation Warning Threshold", "", 0.00, 1
         )
-        self.props["maxPressure"] = FloatProperty(
-            "Maximum Allowed Pressure", "Pa", 0, 7e7
-        )
-        self.props["maxMassFlux"] = FloatProperty(
-            "Maximum Allowed Mass Flux", "kg/(m^2*s)", 0, 1e4
-        )
-        self.props["maxMachNumber"] = FloatProperty(
-            "Maximum Allowed Core Mach Number", "", 0.00, 1e2
-        )
-        self.props["minPortThroat"] = FloatProperty(
-            "Minimum Allowed Port/Throat Ratio", "", 1, 4
-        )
-        self.props["flowSeparationWarnPercent"] = FloatProperty(
-            "Flow Separation Warning Threshold", "", 0.00, 1
-        )
         # Simulation
         self.props["burnoutWebThres"] = FloatProperty(
             "Web Burnout Threshold", "m", 2.54e-5, 3.175e-3
