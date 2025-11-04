@@ -1,4 +1,9 @@
-"""Module for utils functions to prevent reassign values from an outer scope."""
+"""
+Collection of isolated helper functions extracted from the motor.py.
+
+Purpose: To enforce a clear Separation of Concerns (SRP) and prevent unintended side effects
+caused by variable name overlapping/shadowing in nested scopes of the original logic.
+"""
 
 
 def machFunc(

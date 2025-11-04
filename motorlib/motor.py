@@ -87,15 +87,10 @@ class Motor:
             self.applyDict(propDict)
 
     def getDict(self) -> Dict:
-        """
-        Returns a serializable representation of the motor.
-
-        The dictionary has keys 'nozzle', 'propellant', 'grains', and 'config', which hold to the properties
-        of their corresponding fields.
-
-        Grains is a list of dicts, each containing a type and properties.
-        Propellant may be None if the motor has no propellant set.
-        """
+        """Returns a serializable representation of the motor. The dictionary has keys 'nozzle', 'propellant',
+        'grains', and 'config', which hold to the properties of their corresponding fields. Grains is a list
+        of dicts, each containing a type and properties. Propellant may be None if the motor has no propellant
+        set."""
         motorData: Dict[str, Union[Dict, List[Dict], None]] = {}
         motorData["nozzle"] = self.nozzle.getProperties()
         if self.propellant is not None:
@@ -110,10 +105,8 @@ class Motor:
         return motorData
 
     def applyDict(self, dictionary: Dict[str, Dict]) -> None:
-        """
-        Makes the motor copy properties from the dictionary that is passed in, which must be formatted like
-        the result passed out by 'getDict'
-        """
+        """Makes the motor copy properties from the dictionary that is passed in, which must be formatted like
+        the result passed out by 'getDict'"""
         self.nozzle.setProperties(dictionary["nozzle"])
         if dictionary["propellant"] is not None:
             self.propellant = Propellant(dictionary["propellant"])
@@ -135,10 +128,8 @@ class Motor:
         return sum(perGrain)
 
     def calcKN(self, regDepth: Iterable, dThroat: int) -> float:
-        """
-        Returns the motor's Kn when it has each grain has regressed by its value in regDepth, which should be a list
-        with the same number of elements as there are grains in the motor.
-        """
+        """Returns the motor's Kn when it has each grain has regressed by its value in regDepth, which should be a list
+        with the same number of elements as there are grains in the motor."""
         burningSurfaceArea = self.calcBurningSurfaceArea(regDepth)
         nozzleArea = self.nozzle.getThroatArea(dThroat)
         return burningSurfaceArea / nozzleArea
@@ -146,13 +137,11 @@ class Motor:
     def calcIdealPressure(
         self, regDepth: Iterable, dThroat: int, kn: Union[float, None] = None
     ) -> float:
-        """
-        Returns the steady-state pressure of the motor at a given reg. Kn is calculated automatically, but it can
-        optionally be passed in to save time on motors where calculating surface area is expensive.
-        """
+        """Returns the steady-state pressure of the motor at a given reg. Kn is calculated automatically, but it can
+        optionally be passed in to save time on motors where calculating surface area is expensive."""
         if not self.propellant:
             raise ValueError(
-                "Ideal pressure cannot be calculated. Propelant is missing."
+                "Ideal pressure cannot be calculated. Propellant is missing."
             )
 
         if kn is None:
@@ -163,15 +152,10 @@ class Motor:
     def calcForce(
         self, chamberPres: float, dThroat: int, exitPres: Union[Dict, None] = None
     ) -> float:
-        """
-        Calculates the force of the motor at a given regression depth per grain.
-
-        Calculates exit pressure by default, but can also use a value passed in.
-        """
+        """Calculates the force of the motor at a given regression depth per grain. Calculates exit pressure by
+        default, but can also use a value passed in."""
         if not self.propellant:
-            raise ValueError(
-                "Ideal pressure cannot be calculated. Propelant is missing."
-            )
+            raise ValueError("Force cannot be calculated. Propellant is missing.")
 
         _, _, gamma, _, _ = self.propellant.getCombustionProperties(chamberPres)
         ambPressure = self.config.getProperty("ambPressure")
@@ -190,9 +174,6 @@ class Motor:
         return sum(
             [grain.getFreeVolume(reg) for grain, reg in zip(self.grains, regDepth)]
         )
-        return sum(
-            [grain.getFreeVolume(reg) for grain, reg in zip(self.grains, regDepth)]
-        )
 
     def calcTotalVolume(self) -> float:
         """Calculates the bounding-cylinder volume of the combustion chamber."""
@@ -201,9 +182,7 @@ class Motor:
     def calcMachNumber(self, chamberPres: float, massFlux: float):
         """Calculates the mach number in the core of a grain for a given chamber pressure and mass flux."""
         if not self.propellant:
-            raise ValueError(
-                "Ideal pressure cannot be calculated. Propelant is missing."
-            )
+            raise ValueError("Mach Number cannot be calculated. Propellant is missing.")
 
         _, _, gamma, T, molarMass = self.propellant.getCombustionProperties(chamberPres)
 
@@ -557,7 +536,7 @@ class Motor:
 
             grain.simulationSetup(self.config)
 
-        perGrainReg = [0] * len(self.grains)
+        perGrainReg = [0 for grain in self.grains]
 
         results["volumeLoading"] = 100 * (
             1 - (self.calcFreeVolume(perGrainReg) / motorVolume)
