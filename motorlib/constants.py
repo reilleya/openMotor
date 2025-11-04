@@ -14,3 +14,6 @@ maximumRefLength = 24.6
 
 # Maximum reference diameter for capping user inputs, in units of meters
 maximumRefDiameter = 6.6
+
+# Max core Mach number subsonic limit
+machSubsonicLimit: float = 1.0

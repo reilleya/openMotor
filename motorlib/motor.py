@@ -1,17 +1,19 @@
 """Contains the motor class and a supporting configuration property collection."""
 
-from typing import Dict, Union, List
+from typing import Any, Dict, Iterable, List, Union
+
 import numpy as np
 from scipy.optimize import newton
 
-from . import geometry
-from .constants import atmosphericPressure, gasConstant
+from .constants import atmosphericPressure, gasConstant, machSubsonicLimit
+from .geometry import circleArea
+from .grain import Grain
 from .grains import EndBurningGrain, grainTypes
 from .nozzle import Nozzle
 from .propellant import Propellant
 from .properties import FloatProperty, IntProperty, PropertyCollection
 from .simResult import SimAlert, SimAlertLevel, SimAlertType, SimulationResult
-from .grain import Grain
+from .utils import machFunc, machFuncDerivative
 
 
 class MotorConfig(PropertyCollection):
@@ -62,8 +64,8 @@ class Motor:
     def __init__(self, propDict: Union[Dict, None] = None) -> None:
         self.grains: List[Grain] = []
         self.propellant = None
-        self.nozzle = Nozzle()
-        self.config = MotorConfig()
+        self.nozzle: Nozzle = Nozzle()
+        self.config: MotorConfig = MotorConfig()
 
         if propDict is not None:
             self.applyDict(propDict)
@@ -73,7 +75,7 @@ class Motor:
         'grains', and 'config', which hold to the properties of their corresponding fields. Grains is a list
         of dicts, each containing a type and properties. Propellant may be None if the motor has no propellant
         set."""
-        motorData = {}
+        motorData: Dict[str, Union[Dict, List[Dict], None]] = {}
         motorData["nozzle"] = self.nozzle.getProperties()
         if self.propellant is not None:
             motorData["propellant"] = self.propellant.getProperties()
@@ -86,7 +88,7 @@ class Motor:
         motorData["config"] = self.config.getProperties()
         return motorData
 
-    def applyDict(self, dictionary):
+    def applyDict(self, dictionary: Dict[str, Dict]) -> None:
         """Makes the motor copy properties from the dictionary that is passed in, which must be formatted like
         the result passed out by 'getDict'"""
         self.nozzle.setProperties(dictionary["nozzle"])
@@ -100,7 +102,7 @@ class Motor:
             self.grains[-1].setProperties(entry["properties"])
         self.config.setProperties(dictionary["config"])
 
-    def calcBurningSurfaceArea(self, regDepth):
+    def calcBurningSurfaceArea(self, regDepth: Iterable) -> float:
         burnoutThres = self.config.getProperty("burnoutWebThres")
         gWithReg = zip(self.grains, regDepth)
         perGrain = [
@@ -109,43 +111,63 @@ class Motor:
         ]
         return sum(perGrain)
 
-    def calcKN(self, regDepth, dThroat):
+    def calcKN(self, regDepth: Iterable, dThroat: int) -> float:
         """Returns the motor's Kn when it has each grain has regressed by its value in regDepth, which should be a list
         with the same number of elements as there are grains in the motor."""
         burningSurfaceArea = self.calcBurningSurfaceArea(regDepth)
         nozzleArea = self.nozzle.getThroatArea(dThroat)
         return burningSurfaceArea / nozzleArea
 
-    def calcIdealPressure(self, regDepth, dThroat, kn=None):
+    def calcIdealPressure(
+        self, regDepth: Iterable, dThroat: int, kn: Union[float, None] = None
+    ) -> float:
         """Returns the steady-state pressure of the motor at a given reg. Kn is calculated automatically, but it can
         optionally be passed in to save time on motors where calculating surface area is expensive."""
+        if not self.propellant:
+            raise ValueError(
+                "Ideal pressure cannot be calculated. Propellant is missing."
+            )
+
         if kn is None:
             kn = self.calcKN(regDepth, dThroat)
+
         return self.propellant.getPressureFromKn(kn)
 
-    def calcForce(self, chamberPres, dThroat, exitPres=None):
+    def calcForce(
+        self, chamberPres: float, dThroat: int, exitPres: Union[Dict, None] = None
+    ) -> float:
         """Calculates the force of the motor at a given regression depth per grain. Calculates exit pressure by
         default, but can also use a value passed in."""
+        if not self.propellant:
+            raise ValueError("Force cannot be calculated. Propellant is missing.")
+
         _, _, gamma, _, _ = self.propellant.getCombustionProperties(chamberPres)
         ambPressure = self.config.getProperty("ambPressure")
         thrustCoeff = self.nozzle.getAdjustedThrustCoeff(
-            chamberPres, ambPressure, gamma, dThroat, exitPres
+            chamberPres=chamberPres,
+            ambPres=ambPressure,
+            gamma=gamma,
+            dThroat=dThroat,
+            exitPres=exitPres,
         )
         thrust = thrustCoeff * self.nozzle.getThroatArea(dThroat) * chamberPres
         return max(thrust, 0)
 
-    def calcFreeVolume(self, regDepth):
+    def calcFreeVolume(self, regDepth: Iterable) -> float:
         """Calculates the volume inside of the motor not occupied by proppellant for a set of regression depths."""
         return sum(
             [grain.getFreeVolume(reg) for grain, reg in zip(self.grains, regDepth)]
         )
 
-    def calcTotalVolume(self):
+    def calcTotalVolume(self) -> float:
         """Calculates the bounding-cylinder volume of the combustion chamber."""
         return sum([grain.getGrainBoundingVolume() for grain in self.grains])
 
-    def calcMachNumber(self, chamberPres, massFlux):
+    def calcMachNumber(self, chamberPres: float, massFlux: float) -> float:
         """Calculates the mach number in the core of a grain for a given chamber pressure and mass flux."""
+        if not self.propellant:
+            raise ValueError("Mach Number cannot be calculated. Propellant is missing.")
+
         _, _, gamma, T, molarMass = self.propellant.getCombustionProperties(chamberPres)
 
         if (
@@ -153,23 +175,16 @@ class Motor:
         ):  # Mach calculation gets weird at low chamber pressures
             return 0
 
-        def machFunc(M, chamberPres, massFlux, gamma, T, molarMass, gasConstant):
-            A = chamberPres * (gamma * molarMass / (gasConstant * T)) ** 0.5
-            B = 1.0 + ((gamma - 1.0) / 2.0) * M**2
-            C = -(gamma + 1.0) / (2.0 * (gamma - 1.0))
-            return A * M * (B**C) - massFlux
-
-        def machFuncDerivative(
-            M, chamberPres, massFlux, gamma, T, molarMass, gasConstant
-        ):
-            A = chamberPres * (gamma * molarMass / gasConstant / T) ** 0.5
-            B = 1.0 + ((gamma - 1.0) / 2.0) * M**2
-            C = -(gamma + 1.0) / (2.0 * (gamma - 1.0))
-            dB_dM = (gamma - 1.0) * M
-            return A * (B**C + M * C * (B ** (C - 1.0)) * dB_dM)
-
         maxMassFlux = (
-            machFunc(1.0, chamberPres, massFlux, gamma, T, molarMass, gasConstant)
+            machFunc(
+                machNumber=1.0,
+                chamberPressure=chamberPres,
+                massFlowRation=massFlux,
+                gamma=gamma,
+                staticTemperature=T,
+                molarMass=molarMass,
+                gasConstant=gasConstant,
+            )
             + massFlux
         )
 
@@ -202,25 +217,28 @@ class Motor:
 
         # Check for geometry errors
         if len(self.grains) == 0:
-            aText = "Motor must have at least one propellant grain"
             simRes.addAlert(
-                SimAlert(SimAlertLevel.ERROR, SimAlertType.CONSTRAINT, aText, "Motor")
+                SimAlert(
+                    level=SimAlertLevel.ERROR,
+                    alertType=SimAlertType.CONSTRAINT,
+                    description="Motor must have at least one propellant grain",
+                    location="Motor",
+                )
             )
         for gid, grain in enumerate(self.grains):
             if (
                 isinstance(grain, EndBurningGrain) and gid != 0
             ):  # Endburners have to be at the foward end
-                aText = "End burning grains must be the forward-most grain in the motor"
                 simRes.addAlert(
                     SimAlert(
-                        SimAlertLevel.ERROR,
-                        SimAlertType.CONSTRAINT,
-                        aText,
-                        "Grain {}".format(gid + 1),
+                        level=SimAlertLevel.ERROR,
+                        alertType=SimAlertType.CONSTRAINT,
+                        description="End burning grains must be the forward-most grain in the motor",
+                        location=f"Grain {gid + 1}",
                     )
                 )
             for alert in grain.getGeometryErrors():
-                alert.location = "Grain {}".format(gid + 1)
+                alert.location = f"Grain {gid + 1}"
                 simRes.addAlert(alert)
         for alert in self.nozzle.getGeometryErrors():
             simRes.addAlert(alert)
@@ -228,10 +246,10 @@ class Motor:
         # Make sure the motor has a propellant set
         if self.propellant is None:
             alert = SimAlert(
-                SimAlertLevel.ERROR,
-                SimAlertType.CONSTRAINT,
-                "Motor must have a propellant set",
-                "Motor",
+                level=SimAlertLevel.ERROR,
+                alertType=SimAlertType.CONSTRAINT,
+                description="Motor must have a propellant set",
+                location="Motor",
             )
             simRes.addAlert(alert)
         else:
@@ -243,10 +261,10 @@ class Motor:
             return simRes
 
         # Pull the required numbers from the propellant
-        density = self.propellant.getProperty("density")
+        density: float = self.propellant.getProperty("density")
 
         # Precalculate these are they don't change
-        motorVolume = self.calcTotalVolume()
+        motorVolume: float = self.calcTotalVolume()
 
         # Generate coremaps for perforated grains
         for grain in self.grains:
@@ -280,21 +298,14 @@ class Motor:
         aftPort = self.grains[-1].getPortArea(0)
         if aftPort is not None:
             minAllowed = self.config.getProperty("minPortThroat")
-            ratio = aftPort / geometry.circleArea(
-                self.nozzle.props["throat"].getValue()
-            )
+            ratio = aftPort / circleArea(self.nozzle.props["throat"].getValue())
             if ratio < minAllowed:
-                description = (
-                    "Initial port/throat ratio of {:.3f} was less than {:.3f}".format(
-                        ratio, minAllowed
-                    )
-                )
                 simRes.addAlert(
                     SimAlert(
-                        SimAlertLevel.WARNING,
-                        SimAlertType.CONSTRAINT,
-                        description,
-                        "N/A",
+                        level=SimAlertLevel.WARNING,
+                        alertType=SimAlertType.CONSTRAINT,
+                        description=f"Initial port/throat ratio of {ratio:.3f} was less than {minAllowed:.3f}",
+                        location="N/A",
                     )
                 )
 
@@ -314,7 +325,11 @@ class Motor:
                     )
                     # Find the mass flux through the grain based on the mass flow fed into from grains above it
                     perGrainMassFlux[gid] = grain.getPeakMassFlux(
-                        massFlow, dTime, perGrainReg[gid], reg, density
+                        massIn=massFlow,
+                        dTime=dTime,
+                        regDist=perGrainReg[gid],
+                        dRegDist=reg,
+                        density=density,
                     )
                     # Find the mass of the grain after regression
                     perGrainMass[gid] = (
@@ -344,7 +359,7 @@ class Motor:
 
             # Calculate Pressure
             lastKn = simRes.channels["kn"].getLast()
-            pressure = self.calcIdealPressure(perGrainReg, dThroat, lastKn)
+            pressure: float = self.calcIdealPressure(perGrainReg, dThroat, lastKn)
             simRes.channels["pressure"].addData(pressure)
 
             # Calculate Mach Number
@@ -365,57 +380,54 @@ class Motor:
                 simRes.channels["pressure"].getLast(), dThroat, exitPressure
             )
             simRes.channels["force"].addData(force)
-
             simRes.channels["time"].addData(simRes.channels["time"].getLast() + dTime)
 
-            # Calculate any slag deposition or erosion of the throat
-            if pressure == 0:
-                slagRate = 0
-            else:
-                slagRate = (1 / pressure) * self.nozzle.getProperty("slagCoeff")
+            slagRate: float = self.getSlagRate(pressure)
+
             erosionRate = pressure * self.nozzle.getProperty("erosionCoeff")
             change = dTime * ((-2 * slagRate) + (2 * erosionRate))
             simRes.channels["dThroat"].addData(dThroat + change)
 
             if callback is not None:
                 # Uses the grain with the largest percentage of its web left
-                progress = max(
-                    [
-                        g.getWebLeft(r) / g.getWebLeft(0)
-                        for g, r in zip(self.grains, perGrainReg)
-                    ]
-                )
-                if callback(
-                    1 - progress
-                ):  # If the callback returns true, it is time to cancel
+                progress = max([g.getWebLeft(r) / g.getWebLeft(0)for g, r in zip(self.grains, perGrainReg)])
+                if callback(1 - progress):  # If the callback returns true, it is time to cancel
                     return simRes
 
         simRes.success = True
 
         if simRes.getPeakMassFlux() > self.config.getProperty("maxMassFlux"):
-            desc = "Peak mass flux exceeded configured limit"
             alert = SimAlert(
-                SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, "Motor"
+                level=SimAlertLevel.WARNING,
+                alertType=SimAlertType.CONSTRAINT,
+                description="Peak mass flux exceeded configured limit",
+                location="Motor",
             )
             simRes.addAlert(alert)
 
         if simRes.getMaxPressure() > self.config.getProperty("maxPressure"):
-            desc = "Max pressure exceeded configured limit"
             alert = SimAlert(
-                SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, "Motor"
+                level=SimAlertLevel.WARNING,
+                alertType=SimAlertType.CONSTRAINT,
+                description="Max pressure exceeded configured limit",
+                location="Motor",
             )
             simRes.addAlert(alert)
 
-        if simRes.getPeakMachNumber() >= 1.0:
-            desc = "Max core Mach number exceeded allowable subsonic limit (M>1.0)"
+        if simRes.getPeakMachNumber() >= machSubsonicLimit:
             alert = SimAlert(
-                SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, "Motor"
+                level=SimAlertLevel.WARNING,
+                alertType=SimAlertType.CONSTRAINT,
+                description="Max core Mach number exceeded allowable subsonic limit (M>1.0)",
+                location="Motor",
             )
             simRes.addAlert(alert)
         elif simRes.getPeakMachNumber() > self.config.getProperty("maxMachNumber"):
-            desc = "Max core Mach number exceeded configured limit"
             alert = SimAlert(
-                SimAlertLevel.WARNING, SimAlertType.CONSTRAINT, desc, "Motor"
+                level=SimAlertLevel.WARNING,
+                alertType=SimAlertType.CONSTRAINT,
+                description="Max core Mach number exceeded configured limit",
+                location="Motor",
             )
             simRes.addAlert(alert)
 
@@ -424,27 +436,50 @@ class Motor:
             self.config.getProperty("ambPressure")
             * self.config.getProperty("sepPressureRatio"),
         ) > self.config.getProperty("flowSeparationWarnPercent"):
-            desc = "Low exit pressure, nozzle flow may separate"
-            alert = SimAlert(SimAlertLevel.WARNING, SimAlertType.VALUE, desc, "Nozzle")
+            alert = SimAlert(
+                level=SimAlertLevel.WARNING,
+                alertType=SimAlertType.VALUE,
+                description="Low exit pressure, nozzle flow may separate",
+                location="Nozzle",
+            )
             simRes.addAlert(alert)
 
         if simRes.getAverageForce() < burnoutThrustThres:
-            desc = "Motor did not generate thrust. Check chamber pressure and expansion ratio."
-            alert = SimAlert(SimAlertLevel.ERROR, SimAlertType.VALUE, desc, "Motor")
+            alert = SimAlert(
+                level=SimAlertLevel.ERROR,
+                alertType=SimAlertType.VALUE,
+                description="Motor did not generate thrust. Check chamber pressure and expansion ratio.",
+                location="Motor",
+            )
             simRes.addAlert(alert)
 
         # Note that this only adds all errors found on the first datapoint where there were errors to avoid repeating
         # errors. It should be revisited if getPressureErrors ever returns multiple types of errors
-        for pressure in simRes.channels["pressure"].getData():
-            if pressure > 0:
-                err = self.propellant.getPressureErrors(pressure)
+        pressureValues: List = simRes.channels["pressure"].getData()
+        for pressureValue in pressureValues:
+            if pressureValue > 0:
+                err = self.propellant.getPressureErrors(pressureValue)
                 if len(err) > 0:
                     simRes.addAlert(err[0])
                     break
 
         return simRes
 
-    def getQuickResults(self):
+    def getSlagRate(self, pressure: float) -> float:
+        """
+        Calculate any slag deposition or erosion of the throat.
+
+        Args:
+            pressure (float): chamber pressure
+        Returns:
+            slagRate (float): Slag rate
+        """
+        if pressure == 0:
+            return 0
+        else:
+            return (1 / pressure) * self.nozzle.getProperty("slagCoeff")
+
+    def getQuickResults(self) -> Dict[str, Any]:
         results = {
             "volumeLoading": 0,
             "initialKn": 0,
