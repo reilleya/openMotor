@@ -160,11 +160,11 @@ class Motor:
         _, _, gamma, _, _ = self.propellant.getCombustionProperties(chamberPres)
         ambPressure = self.config.getProperty("ambPressure")
         thrustCoeff = self.nozzle.getAdjustedThrustCoeff(
-            chamberPres, ambPressure, gamma, dThroat, exitPres
-        )
-        ambPressure = self.config.getProperty("ambPressure")
-        thrustCoeff = self.nozzle.getAdjustedThrustCoeff(
-            chamberPres, ambPressure, gamma, dThroat, exitPres
+            chamberPres=chamberPres,
+            ambPres=ambPressure,
+            gamma=gamma,
+            dThroat=dThroat,
+            exitPres=exitPres,
         )
         thrust = thrustCoeff * self.nozzle.getThroatArea(dThroat) * chamberPres
         return max(thrust, 0)
@@ -245,12 +245,11 @@ class Motor:
             if (
                 isinstance(grain, EndBurningGrain) and gid != 0
             ):  # Endburners have to be at the foward end
-                aText = "End burning grains must be the forward-most grain in the motor"
                 simRes.addAlert(
                     SimAlert(
                         level=SimAlertLevel.ERROR,
                         alertType=SimAlertType.CONSTRAINT,
-                        description=aText,
+                        description="End burning grains must be the forward-most grain in the motor",
                         location=f"Grain {gid + 1}",
                     )
                 )
@@ -319,12 +318,11 @@ class Motor:
                 self.nozzle.props["throat"].getValue()
             )
             if ratio < minAllowed:
-                description = f"Initial port/throat ratio of {ratio:.3f} was less than {minAllowed:.3f}"
                 simRes.addAlert(
                     SimAlert(
                         level=SimAlertLevel.WARNING,
                         alertType=SimAlertType.CONSTRAINT,
-                        description=description,
+                        description=f"Initial port/throat ratio of {ratio:.3f} was less than {minAllowed:.3f}",
                         location="N/A",
                     )
                 )
