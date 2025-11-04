@@ -178,7 +178,7 @@ class Motor:
         """Calculates the bounding-cylinder volume of the combustion chamber."""
         return sum([grain.getGrainBoundingVolume() for grain in self.grains])
 
-    def calcMachNumber(self, chamberPres: float, massFlux: float):
+    def calcMachNumber(self, chamberPres: float, massFlux: float) -> float:
         """Calculates the mach number in the core of a grain for a given chamber pressure and mass flux."""
         if not self.propellant:
             raise ValueError("Mach Number cannot be calculated. Propellant is missing.")
@@ -286,7 +286,7 @@ class Motor:
             grain.simulationSetup(self.config)
 
         # Setup initial values
-        perGrainReg = [0 for _ in self.grains]
+        perGrainReg = [0 for grain in self.grains]
 
         # At t = 0, the motor has ignited
         simRes.channels["time"].addData(0)
@@ -328,10 +328,10 @@ class Motor:
         while simRes.shouldContinueSim(burnoutThrustThres):
             # Calculate regression
             massFlow = 0
-            perGrainMass = [0] * len(self.grains)
-            perGrainMassFlow = [0] * len(self.grains)
-            perGrainMassFlux = [0] * len(self.grains)
-            perGrainWeb = [0] * len(self.grains)
+            perGrainMass = [0 for grain in self.grains]
+            perGrainMassFlow = [0 for grain in self.grains]
+            perGrainMassFlux = [0 for grain in self.grains]
+            perGrainWeb = [0 for grain in self.grains]
             for gid, grain in enumerate(self.grains):
                 if grain.getWebLeft(perGrainReg[gid]) > burnoutWebThres:
                     # Calculate regression at the current pressure
@@ -378,7 +378,7 @@ class Motor:
             simRes.channels["pressure"].addData(pressure)
 
             # Calculate Mach Number
-            perGrainMachNumber = [0] * len(self.grains)
+            perGrainMachNumber = [0 for grain in self.grains]
             for gid, grain in enumerate(self.grains):
                 perGrainMachNumber[gid] = self.calcMachNumber(
                     pressure, perGrainMassFlux[gid]
