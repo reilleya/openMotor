@@ -390,15 +390,8 @@ class Motor:
 
             if callback is not None:
                 # Uses the grain with the largest percentage of its web left
-                progress = max(
-                    [
-                        g.getWebLeft(r) / g.getWebLeft(0)
-                        for g, r in zip(self.grains, perGrainReg)
-                    ]
-                )
-                if callback(
-                    1 - progress
-                ):  # If the callback returns true, it is time to cancel
+                progress = max([g.getWebLeft(r) / g.getWebLeft(0)for g, r in zip(self.grains, perGrainReg)])
+                if callback(1 - progress):  # If the callback returns true, it is time to cancel
                     return simRes
 
         simRes.success = True
