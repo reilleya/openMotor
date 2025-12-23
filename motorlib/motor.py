@@ -429,7 +429,7 @@ class Motor:
             simRes.addAlert(alert)
 
         if simRes.getAverageForce() < burnoutThrustThres:
-            desc = "Motor did not generate thrust. Check chamber pressure and expansion ratio."
+            desc = "Motor did not generate thrust. Check Kn, chamber pressure and expansion ratio."
             alert = SimAlert(SimAlertLevel.ERROR, SimAlertType.VALUE, desc, "Motor")
             simRes.addAlert(alert)
 
