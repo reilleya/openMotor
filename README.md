@@ -57,7 +57,7 @@ Note that if you make changes to the UI using the `.ui` forms, you must re-build
 #### Cython Files:
 to speed up some more computationally expensive parts of the codebase, openMotor uses the Cython programming language to run calculations in C.
 
-because the Cyphon code must be compiled separately for each system, you must build the library by running:
+because the Cython code must be compiled separately for each system, you must build the library by running:
 ```
 $ python setup.py build_ext --inplace
 ```
@@ -82,3 +82,8 @@ openMotor is released under the GNU GPL v3 license. The source code is distribut
 Contributing
 ------------
 As openMotor is open source, one of the goals of the project is to have as many eyes on the code as possible. I believe this is the best way to avoid bugs and also the easiest way to get new features added to the software. If you have ideas on how to improve the program or find an error, please open an issue ticket for discussion or file a pull request if possible.
+
+Disclaimer
+----------
+
+Rocket motors can be dangerous! Always verify calculations before testing a motor, and test far enough away from people and structures to avoid damage. The results from this program are provided as an estimate, and come with NO guarantees!
