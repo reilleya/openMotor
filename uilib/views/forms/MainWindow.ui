@@ -397,14 +397,14 @@
          <item row="1" column="2">
           <layout class="QHBoxLayout" name="horizontalLayoutPropellantLength">
            <item>
-            <widget class="QLabel" name="labelPropellantLengthText">
+            <widget class="QLabel" name="labelPropellantDimensionsText">
              <property name="text">
-              <string>Propellant Length:</string>
+              <string>Propellant Dimensions:</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="labelPropellantLength">
+            <widget class="QLabel" name="labelPropellantDimensions">
              <property name="text">
               <string>-</string>
              </property>

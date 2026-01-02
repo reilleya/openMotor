@@ -27,7 +27,7 @@ class Window(QMainWindow):
 
         self.motorStatLabels = [self.ui.labelMotorDesignation, self.ui.labelImpulse, self.ui.labelDeliveredISP, self.ui.labelBurnTime,  self.ui.labelVolumeLoading,
                                 self.ui.labelAveragePressure, self.ui.labelPeakPressure, self.ui.labelInitialKN, self.ui.labelPeakKN, self.ui.labelIdealThrustCoefficient,
-                                self.ui.labelPropellantMass, self.ui.labelPropellantLength, self.ui.labelPortThroatRatio, self.ui.labelPeakMassFlux, self.ui.labelDeliveredThrustCoefficient
+                                self.ui.labelPropellantMass, self.ui.labelPropellantDimensions, self.ui.labelPortThroatRatio, self.ui.labelPeakMassFlux, self.ui.labelDeliveredThrustCoefficient
                                ]
 
         self.app.fileManager.fileNameChanged.connect(self.updateWindowTitle)
@@ -307,7 +307,11 @@ class Window(QMainWindow):
         self.ui.labelIdealThrustCoefficient.setText(self.formatMotorStat(simResult.getIdealThrustCoefficient(), ''))
 
         self.ui.labelPropellantMass.setText(self.formatMotorStat(simResult.getPropellantMass(), 'kg'))
-        self.ui.labelPropellantLength.setText(self.formatMotorStat(simResult.getPropellantLength(), 'm'))
+        propellantDimensionString = '⌀ {} x {}'.format(
+            self.formatMotorStat(simResult.getMaxPropellantDiameter(), 'm'),
+            self.formatMotorStat(simResult.getPropellantLength(), 'm')
+        )
+        self.ui.labelPropellantDimensions.setText(propellantDimensionString)
 
         # These only make sense for grains with cores, so blank them out for endburners
         if simResult.getPortRatio() is not None:
@@ -330,7 +334,11 @@ class Window(QMainWindow):
     def showQuickResults(self, results):
         self.ui.labelVolumeLoading.setText('{:.2f}%'.format(results['volumeLoading']))
         self.ui.labelInitialKN.setText(self.formatMotorStat(results['initialKn'], ''))
-        self.ui.labelPropellantLength.setText(self.formatMotorStat(results['length'], 'm'))
+        propellantDimensionString = '⌀ {} x {}'.format(
+            self.formatMotorStat(results['diameter'], 'm'),
+            self.formatMotorStat(results['length'], 'm')
+        )
+        self.ui.labelPropellantDimensions.setText(propellantDimensionString)
         self.ui.labelPropellantMass.setText(self.formatMotorStat(results['propellantMass'], 'kg'))
         self.ui.labelPortThroatRatio.setText(self.formatMotorStat(results['portRatio'], ''))
 

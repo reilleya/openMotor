@@ -451,6 +451,7 @@ class Motor:
             "propellantMass": 0,
             "portRatio": 0,
             "length": 0,
+            "diameter": 0,
         }
 
         simRes = SimulationResult(self)
@@ -487,5 +488,6 @@ class Motor:
                 [grain.getVolumeAtRegression(0) * density for grain in self.grains]
             )
         results["length"] = simRes.getPropellantLength()
+        results["diameter"] = simRes.getMaxPropellantDiameter()
 
         return results

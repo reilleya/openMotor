@@ -286,6 +286,10 @@ class SimulationResult:
         """Returns the total length of all propellant before the simulated burn."""
         return sum([g.props["length"].getValue() for g in self.motor.grains])
 
+    def getMaxPropellantDiameter(self):
+        """Returns the outer diameter of the largest-diameter propellant grain."""
+        return max([g.props["diameter"].getValue() for g in self.motor.grains])
+
     def getPropellantMass(self, index=0):
         """Returns the total mass of all propellant before the simulated burn. Optionally accepts a index that the mass
         will be sampled at."""
