@@ -29,7 +29,7 @@ Building from Source
 --------------------
 The program is currently being developed using python 3.10. The dependencies are outlined in `requirements.txt`, the main ones include `PyQt6`, `matplot`, `numpy`, `scipy`, `scikit-fmm`, and `scikit-image`. Because the PyQt6 bindings are used for the GUI, Qt6 must also be installed.
 
-The easiest way to build/run from source code is to clone the repository and install the required dependencies into a virtual enviornment:
+The easiest way to build/run from source code is to clone the repository and install the required dependencies into a virtual environment:
 ```
 $ git clone https://github.com/reilleya/openMotor
 $ cd openMotor
@@ -43,6 +43,8 @@ Failed building wheel for scikit-fmm
 skfmm/fmm.cpp:4:10: fatal error: Python.h: No such file or directory
 ```
 The fix is to install `python3-dev` or the equivalent with your system package manager.
+
+If you are running Windows and get errors like `DLL load failed while importing _cext` when trying to run the application after installing the dependencies, you may need to install the latest Microsoft Visual C++ Redistributable.
 
 #### UI Files:
 openMotor uses Qt Designer to lay out the GUI, which generates `.ui` files describing the user interface. 
