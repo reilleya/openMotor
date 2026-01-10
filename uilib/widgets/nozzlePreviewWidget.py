@@ -50,16 +50,21 @@ class NozzlePreviewWidget(QWidget):
         throatRad = nozzle.props['throat'].getValue() / 2
         divAngle = radians(nozzle.props['divAngle'].getValue())
         exitRad = nozzle.props['exit'].getValue() / 2
+
+        # Guess a nozzle outer radius that's a bit bigger than the exit diameter
         outerRad = 1.25 * exitRad
-        if QApplication.instance() and QApplication.instance().fileManager: # Check if the app exists and has a fm
+
+        # If they have a grain diameter, base the nozzle radius on that instead
+        if QApplication.instance() and QApplication.instance().fileManager:
             motor = QApplication.instance().fileManager.getCurrentMotor()
             if len(motor.grains) > 0:
                 outerRad = motor.grains[0].getProperty('diameter') / 2
 
-        scale = 100 / nozzle.props['exit'].getValue()
-        radDiff = exitRad - throatRad
+        # Casing radius a bit larger than nozzle radius
+        casingRad = outerRad * 1.1
+
         if divAngle != 0:
-            divLen = radDiff / tan(divAngle)
+            divLen = (exitRad - throatRad) / tan(divAngle)
         else:
             divLen = 0
             
@@ -67,17 +72,24 @@ class NozzlePreviewWidget(QWidget):
             convLen = (outerRad - throatRad) / tan(convAngle)
         else:
             convLen = 0
-            
-        nozzleBottomRad = max(exitRad * 1.1, outerRad)
+
+        # We want a bit over a cal of casing sticking off the forward end
+        casingLength = (outerRad * 1.25) + convLen + throatLen
+
+        nozzleAftRad = max(exitRad * 1.1, casingRad)
             
         upperPoints = [
-            [throatLen, throatRad],
-            [0, throatRad],
-            [-divLen, exitRad],
-            [-divLen, nozzleBottomRad],
-            [0, outerRad],
-            [throatLen + convLen, outerRad],
+            [throatLen, throatRad], # Forward throat point
+            [0, throatRad], # Aft throat point
+            [-divLen, exitRad], # Exit point
+            [-divLen, nozzleAftRad], # Aft-most OD point
+            [0, casingRad],
+            [casingLength, casingRad], # Casing OD point
+            [casingLength, outerRad], # Casing ID point
+            [throatLen + convLen, outerRad], # Convergence OD
         ]
+
+        scale = 100 / nozzle.props['exit'].getValue()
         lower = QPolygonF([QPointF(p[0] * scale, p[1] * scale) for p in upperPoints])
         upper = QPolygonF([QPointF(p[0] * scale, -p[1] * scale) for p in upperPoints])
 
