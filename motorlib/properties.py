@@ -128,9 +128,8 @@ class PropertyCollection:
         """Sets the value(s) of one of more properties at a time by passing in a dictionary of property names and
         values"""
         for prop in props.keys():
-            if (
-                prop in self.props
-            ):  # This allows loading settings when the name of a field has changed
+            # Conditional allows loading settings when the name of a field has changed
+            if prop in self.props:
                 self.props[prop].setValue(props[prop])
 
     def getProperties(self, props=None):
