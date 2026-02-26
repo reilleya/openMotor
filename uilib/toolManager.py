@@ -4,6 +4,7 @@ from PyQt6.QtGui import QAction
 from .tools import ChangeDiameterTool, InitialKNTool, MaxKNTool, MaxPressureTool
 from .tools import ExpansionTool
 from .tools import NeutralBatesTool
+from .tools import NozzleCoeffTool
 from .logger import logger
 
 class ToolManager(QObject):
@@ -24,7 +25,8 @@ class ToolManager(QObject):
                                 MaxPressureTool(self)
                             ],
                       'Optimize': [ExpansionTool(self)],
-                      'Design': [NeutralBatesTool(self)]}
+                      'Design': [NeutralBatesTool(self)],
+                      'Analyze': [NozzleCoeffTool(self)]}
 
         for toolCategory in self.tools:
             for toolToAdd in self.tools[toolCategory]:
