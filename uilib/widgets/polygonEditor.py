@@ -78,25 +78,28 @@ class PolygonEditor(QWidget):
             close = 0.001 # Max distance between endpoints of adjacent segments
             join = None
             while join != []:
-                join = [] # Will be populated like [ida, idb, flip] if there is work to do
+                join = [] # Will be populated like [ida, idb, flipa, flipb] if there is work to do
                 for (chunkId, chunk), (compChunkID, compChunk) in itertools.combinations(enumerate(chunks), 2):
                     if motorlib.geometry.dist(chunk[0], compChunk[-1]) < close:
-                        join = [compChunkID, chunkId, False]
+                        join = [compChunkID, chunkId, False, False]
                         break
                     elif motorlib.geometry.dist(chunk[-1], compChunk[0]) < close:
-                        join = [chunkId, compChunkID, False]
+                        join = [chunkId, compChunkID, False, False]
                         break
                     elif motorlib.geometry.dist(chunk[-1], compChunk[-1]) < close:
-                        join = [chunkId, compChunkID, True]
+                        join = [chunkId, compChunkID, False, True]
                         break
                     elif motorlib.geometry.dist(chunk[0], compChunk[0]) < close:
-                        join = [chunkId, compChunkID, True]
+                        join = [chunkId, compChunkID, True, False]
                         break
-                if join != []: # Add the second chunk on to the first and flip it if the bool is true
-                    addChunk = chunks[join[1]]
+                if join != []: # Connect the chunks
+                    firstChunk = chunks[join[0]]
+                    secondChunk = chunks[join[1]]
                     if join[2]:
-                        addChunk.reverse()
-                    chunks[join[0]] += addChunk
+                        firstChunk.reverse()
+                    if join[3]:
+                        secondChunk.reverse()
+                    chunks[join[0]] = firstChunk + secondChunk
                     del chunks[join[1]]
 
             oldLen = len(chunks)
