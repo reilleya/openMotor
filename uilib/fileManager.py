@@ -251,7 +251,8 @@ class FileManager(QObject):
     def loadRecentlyOpenedFilesList(self):
         try:
             self.recentFilesList = loadFile(self.recentFilesPath, fileTypes.RECENT_FILES)['recentFilesList']
-        except FileNotFoundError:
+        except:
+            # No need to back up any existing file because a user likely doesn't care about the contents
             logger.warn('Unable to load recent files, creating new file at {}'.format(self.recentFilesPath))
             self.recentFilesList = []
             saveFile(self.recentFilesPath, {'recentFilesList': self.recentFilesList}, fileTypes.RECENT_FILES)

@@ -1,4 +1,8 @@
+from os.path import join
+from os import replace
+
 from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtWidgets import QApplication
 
 from motorlib.properties import PropertyCollection, EnumProperty
 from motorlib.units import unitLabels, getAllConversions
@@ -54,12 +58,19 @@ class PreferencesManager(QObject):
         self.publishPreferences()
 
     def loadPreferences(self):
+        preferencesPath = join(getConfigPath(), 'preferences.yaml')
         try:
-            prefDict = loadFile(getConfigPath() + 'preferences.yaml', fileTypes.PREFERENCES)
+            prefDict = loadFile(preferencesPath, fileTypes.PREFERENCES)
             self.preferences.applyDict(prefDict)
             self.publishPreferences()
         except FileNotFoundError:
-            logger.warn('Unable to load preferences, creating new file')
+            logger.warn('Preferences file does not exist, creating new file')
+            self.savePreferences()
+        except Exception as error:
+            backupPath = join(getConfigPath(), 'preferences_backup.yaml')
+            logger.warn('Error loading preferences: {}'.format(error))
+            QApplication.instance().outputException(error, "Failed to load preferences. Backing up file to '{}' and starting fresh.".format(backupPath))
+            replace(preferencesPath, backupPath)
             self.savePreferences()
 
     def savePreferences(self):
