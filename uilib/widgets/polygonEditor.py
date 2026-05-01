@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QFileDialog, QApp
 from PyQt6.QtCore import pyqtSignal
 
 import ezdxf
+import ezdxf.path
 import motorlib
 
 class PolygonEditor(QWidget):
@@ -30,38 +31,14 @@ class PolygonEditor(QWidget):
             dwg = ezdxf.readfile(path)
             msp = dwg.modelspace()
 
+            close = 0.001 # Max distance between endpoints of adjacent segments
+
             alerts = []
             self.points = [] # Closed contours go here
             chunks = [] # Individual segments of lines or arcs go here
 
             for ent in msp:
-                if ent.dxftype() == 'ARC':
-                    arcPoints = 20 # Number of segments in the arc
-                    part = []
-                    startAngle = ent.dxf.start_angle
-                    endAngle = ent.dxf.end_angle
-                    if startAngle > endAngle: # This ensures that the angle step (ea - sa) is not negative
-                        endAngle += 360
-                    for i in range(0, arcPoints):
-                        angle = startAngle + ((endAngle - startAngle) * (i / (arcPoints - 1)))
-                        pointX = ent.dxf.center[0] + (math.cos(angle * math.pi / 180) * ent.dxf.radius)
-                        pointY = ent.dxf.center[1] + (math.sin(angle * math.pi / 180) * ent.dxf.radius)
-                        part.append((pointX, pointY))
-
-                    chunks.append(part)
-
-                elif ent.dxftype() == 'CIRCLE':
-                    part = []
-                    circlePoints = 36 # Number of segments in the arc
-                    for i in range(0, circlePoints):
-                        angle = 2 * math.pi * (i / circlePoints)
-                        pointX = ent.dxf.center[0] + (math.cos(angle) * ent.dxf.radius)
-                        pointY = ent.dxf.center[1] + (math.sin(angle) * ent.dxf.radius)
-                        part.append((pointX, pointY))
-
-                    self.points.append(part)
-
-                elif ent.dxftype() == 'LINE':
+                if ent.dxftype() == 'LINE':
                     point1 = (ent.dxf.end[0], ent.dxf.end[1])
                     point2 = (ent.dxf.start[0], ent.dxf.start[1])
 
@@ -71,11 +48,19 @@ class PolygonEditor(QWidget):
                     with ent.points() as points:
                         self.points.append(points)
 
+                elif ent.dxftype() in ('SPLINE', 'ELLIPSE', 'ARC', 'CIRCLE'):
+                    p = ezdxf.path.make_path(ent)
+                    pts = [(v.x, v.y) for v in p.flattening(0.01)]
+                    if len(pts) < 2:
+                        alerts.append('Skipped degenerate {} entity'.format(ent.dxftype()))
+                    elif motorlib.geometry.dist(pts[0], pts[-1]) < close:
+                        self.points.append(pts)
+                    else:
+                        chunks.append(pts)
                 else:
-                    alerts.append("Can't import entity of type: " + ent.dxftype())
+                    alerts.append("Can't import entity of type: {}".format(ent.dxftype()))
 
             # Join together the segments in chunks to closed contours
-            close = 0.001 # Max distance between endpoints of adjacent segments
             join = None
             while join != []:
                 join = [] # Will be populated like [ida, idb, flipa, flipb] if there is work to do
