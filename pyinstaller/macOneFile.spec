@@ -9,7 +9,7 @@ block_cipher = None
 a = Analysis(['../main.py'],
              pathex=['../'],
              binaries=[],
-             datas=[],
+             datas=[('../resources/oMFile256.icns', '.')],
              hiddenimports=['pywt._extensions._cwt'],
              hookspath=[],
              runtime_hooks=[],
@@ -28,6 +28,7 @@ exe = EXE(pyz,
           name='openMotor',
           debug=False,
           bootloader_ignore_signals=False,
+          argv_emulation=True,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
@@ -45,5 +46,14 @@ app = BUNDLE(coll,
              version=appVersionStr,
              info_plist={
               'NSHighResolutionCapable': True,
+              'CFBundleDocumentTypes': [
+               {
+                'CFBundleTypeName': 'openMotor Motor File',
+                'CFBundleTypeExtensions': ['ric'],
+                'CFBundleTypeRole': 'Editor',
+                'CFBundleTypeIconFile': 'oMFile256',
+                'LSHandlerRank': 'Owner',
+               }
+              ],
              },
              bundle_identifier=None)
