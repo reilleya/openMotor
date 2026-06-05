@@ -208,4 +208,205 @@ KNSU_PROPS = {
             ]
 }
 
-DEFAULT_PROPELLANTS = [CL_PROPS, OW_PROPS, KNDX_PROPS, KNSB_PROPS, KNSU_PROPS, WL_PROPS, BT_PROPS]
+REDLINE_PROPS = {
+            'name': 'RCS - Redline',
+            'density': 1750,
+            'tabs': [
+                {
+                    'minPressure': 0.0,
+                    'maxPressure': 10342500,
+                    'a': 1.25e-05,
+                    'n': 0.42,
+                    't': 2550.0,
+                    'm': 25.8,
+                    'k': 1.24
+                }
+            ]
+}
+BLACK_MAX_PROPS = {
+            'name': 'RCS - Black Max',
+            'density': 1680,
+            'tabs': [
+                {
+                    'minPressure': 0.0,
+                    'maxPressure': 10342500,
+                    'a': 2.27e-05,
+                    'n': 0.38,
+                    't': 2750.0,
+                    'm': 24.5,
+                    'k': 1.22
+                }
+            ]
+}
+WARP_9_PROPS = {
+            'name': 'RCS - Warp-9',
+            'density': 1780,
+            'tabs': [
+                {
+                    'minPressure': 0.0,
+                    'maxPressure': 10342500,
+                    'a': 1.05e-05,
+                    'n': 0.44,
+                    't': 2400.0,
+                    'm': 26.0,
+                    'k': 1.24
+                }
+            ]
+}
+MOJAVE_GREEN_PROPS = {
+            'name': 'RCS - Mojave Green',
+            'density': 1700,
+            'tabs': [
+                {
+                    'minPressure': 0.0,
+                    'maxPressure': 10342500,
+                    'a': 3.85e-05,
+                    'n': 0.35,
+                    't': 2200.0,
+                    'm': 27.5,
+                    'k': 1.25
+                }
+            ]
+}
+CLASSIC_PROPS = {
+            'name': 'RCS - Classic',
+            'density': 1760,
+            'tabs': [
+                {
+                    'minPressure': 0.0,
+                    'maxPressure': 10342500,
+                    'a': 8.5e-06,
+                    'n': 0.43,
+                    't': 2450.0,
+                    'm': 26.5,
+                    'k': 1.24
+                }
+            ]
+}
+KNER_PROPS = {
+            'name': 'Nakka - KNER',
+            'density': 1820,
+            'tabs': [
+                {
+                    'minPressure': 0.0,
+                    'maxPressure': 10342500,
+                    'a': 2.9e-05,
+                    'n': 0.40,
+                    't': 1580.0,
+                    'm': 42.0,
+                    'k': 1.13
+                }
+            ]
+}
+AP_HTPB_8020_PROPS = {
+            'name': 'AP/HTPB 80/20 (fine AP)',
+            'density': 1720,
+            'tabs': [
+                {
+                    'minPressure': 0.0,
+                    'maxPressure': 10342500,
+                    'a': 2.75e-05,
+                    'n': 0.35,
+                    't': 2580.0,
+                    'm': 25.0,
+                    'k': 1.24
+                }
+            ]
+}
+AP_HTPB_AL_PROPS = {
+            'name': 'AP/HTPB/Al 68/14/18',
+            'density': 1780,
+            'tabs': [
+                {
+                    'minPressure': 0.0,
+                    'maxPressure': 10342500,
+                    'a': 1.85e-05,
+                    'n': 0.40,
+                    't': 3200.0,
+                    'm': 28.0,
+                    'k': 1.17
+                }
+            ]
+}
+AP_PBAN_AL_PROPS = {
+            'name': 'AP/PBAN/Al (Space Shuttle SRB type)',
+            'density': 1770,
+            'tabs': [
+                {
+                    'minPressure': 0.0,
+                    'maxPressure': 10342500,
+                    'a': 5.606e-06,
+                    'n': 0.45,
+                    't': 3450.0,
+                    'm': 28.3,
+                    'k': 1.16
+                }
+            ]
+}
+AEROTECH_FAST_PROPS = {
+            'name': 'Aerotech-type Fast AP/HTPB',
+            'density': 1700,
+            'tabs': [
+                {
+                    'minPressure': 0.0,
+                    'maxPressure': 10342500,
+                    'a': 5.0e-05,
+                    'n': 0.34,
+                    't': 2500.0,
+                    'm': 25.5,
+                    'k': 1.24
+                }
+            ]
+}
+AEROTECH_SLOW_PROPS = {
+            'name': 'Aerotech-type Slow AP/HTPB',
+            'density': 1750,
+            'tabs': [
+                {
+                    'minPressure': 0.0,
+                    'maxPressure': 10342500,
+                    'a': 5.5e-06,
+                    'n': 0.45,
+                    't': 2350.0,
+                    'm': 27.0,
+                    'k': 1.24
+                }
+            ]
+}
+AN_HTPB_PROPS = {
+            'name': 'AN/HTPB (Ammonium Nitrate)',
+            'density': 1550,
+            'tabs': [
+                {
+                    'minPressure': 0.0,
+                    'maxPressure': 10342500,
+                    'a': 1.5e-05,
+                    'n': 0.40,
+                    't': 1600.0,
+                    'm': 20.0,
+                    'k': 1.28
+                }
+            ]
+}
+
+DEFAULT_PROPELLANTS = [
+    CL_PROPS,
+    OW_PROPS,
+    KNDX_PROPS,
+    KNSB_PROPS,
+    KNSU_PROPS,
+    WL_PROPS,
+    BT_PROPS,
+    REDLINE_PROPS,
+    BLACK_MAX_PROPS,
+    WARP_9_PROPS,
+    MOJAVE_GREEN_PROPS,
+    CLASSIC_PROPS,
+    KNER_PROPS,
+    AP_HTPB_8020_PROPS,
+    AP_HTPB_AL_PROPS,
+    AP_PBAN_AL_PROPS,
+    AEROTECH_FAST_PROPS,
+    AEROTECH_SLOW_PROPS,
+    AN_HTPB_PROPS
+]
