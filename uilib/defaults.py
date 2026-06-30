@@ -207,105 +207,38 @@ KNSU_PROPS = {
                 }
             ]
 }
-
-CL_PROPS = {
-            'name': 'MIT - Cherry Limeade',
-            'density': 1670, # kg/m^3
-            'tabs': [
-                {
-                    'minPressure': 0,
-                    'maxPressure': 6.895e+06,
-                    'a': 3.517054143255937e-05,
-                    'n': 0.3273,
-                    't': 2800, 
-                    'm': 23.67,
-                    'k': 1.21
-                }
-            ]
-}
-
-WL_PROPS = {
-            'name': 'RCS - White Lightning',
-            'density': 1820.230534,
-            'tabs': [
-                {
-                    'minPressure': 0,
-                    'maxPressure': 10342500,
-                    'a': 5.71052e-05,
-                    'n': 0.45,
-                    't': 2339, 
-                    'm': 27.125,
-                    'k': 1.243
-                }
-            ]
-}
-
-BT_PROPS = {
-            'name': 'RCS - Blue Thunder',
-            'density': 1625.087206,
-            'tabs': [
-                {
-                    'minPressure': 0,
-                    'maxPressure': 10342500,
-                    'a': 6.994601e-05,
-                    'n': 0.321,
-                    't': 2616.532, 
-                    'm': 22.959,
-                    'k': 1.235
-                }
-            ]
-}
-
 BJ_PROPS = {
             'name': 'RCS - Black Jack',
+            'density': 2085.95715705,
+            'tabs': [
+                {
+                    'minPressure': 0,
+                    'maxPressure': 10342500,
+                    'a': 0.00123560472,
+                    'n': 0.05600000,
+                    't': 1428.99, 
+                    'm': 30.561,
+                    'k': 1.247
+                }
+            ]
+}
+R_PROPS = {
+            'name': 'RCS - Redline',
             'density': 1729.99366130,
             'tabs': [
                 {
                     'minPressure': 0,
                     'maxPressure': 10342500,
                     'a': 0.00002969528,
-                    'n': 0.36600000,
+                    'n': 0.366,
                     't': 2238.589, 
                     'm': 26.502,
                     'k': 1.225
                 }
             ]
 }
-
-R_PROPS = {
-            'name': 'RCS - Redline',
-            'density': 2085.95715705,
-            'tabs': [
-                {
-                    'minPressure': 0,
-                    'maxPressure': 10342500,
-                    'a': 1.23560472e-03,
-                    'n': 0.056,
-                    't': 1428.99, 
-                    'm': 30.561,
-                    'k': 1.247
-                }
-            ]
-}
-
 BM_PROPS = {
             'name': 'RCS - Black Max',
-            'density': 2085.95715705,
-            'tabs': [
-                {
-                    'minPressure': 0,
-                    'maxPressure': 10342500,
-                    'a': 1.23560472e-03,
-                    'n': 0.056,
-                    't': 1428.99, 
-                    'm': 30.561,
-                    'k': 1.247
-                }
-            ]
-}
-
-WN_PROPS = {
-            'name': 'RCS - Warp 9',
             'density': 2021.18619437,
             'tabs': [
                 {
@@ -319,7 +252,21 @@ WN_PROPS = {
                 }
             ]
 }
-
+WN_PROPS = {
+            'name': 'RCS - Warp 9',
+            'density': 1641.41798584,
+            'tabs': [
+                {
+                    'minPressure': 0,
+                    'maxPressure': 10342500,
+                    'a': 0.00024721816,
+                    'n': 0.287,
+                    't': 2780.64, 
+                    'm': 23.669,
+                    'k': 1.229
+                }
+            ]
+}
 MG_PROPS = {
             'name': 'RCS - Mojave Green',
             'density': 1807.77417632,
@@ -335,7 +282,6 @@ MG_PROPS = {
                 }
             ]
 }
-
 C_PROPS = {
             'name': 'RCS - Classic',
             'density': 1646.95396556,
@@ -351,7 +297,6 @@ C_PROPS = {
                 }
             ]
 }
-
 M_PROPS = {
             'name': 'RCS - Metalstorm',
             'density': 1819.39973372,
@@ -367,7 +312,6 @@ M_PROPS = {
                 }
             ]
 }
-
 MD_PROPS = {
             'name': 'RCS - Metalstorm DM',
             'density': 1697.88497895,
@@ -383,7 +327,6 @@ MD_PROPS = {
                 }
             ]
 }
-
 PX_PROPS = {
             'name': 'RCS - Propellant X (K1103X)',
             'density': 1746.60160045,
@@ -399,7 +342,6 @@ PX_PROPS = {
                 }
             ]
 }
-
 ST_PROPS = {
             'name': 'RCS - Super Thunder',
             'density': 1644.18597570,
@@ -415,7 +357,6 @@ ST_PROPS = {
                 }
             ]
 }
-
 SWL_PROPS = {
             'name': 'RCS - Slow White Lightning',
             'density': 1815.80134690,
@@ -431,7 +372,6 @@ SWL_PROPS = {
                 }
             ]
 }
-
 NBT_PROPS = {
             'name': 'RCS - New Blue Thunder',
             'density': 1702.59056171,
@@ -447,7 +387,6 @@ NBT_PROPS = {
                 }
             ]
 }
-
 SSWL_PROPS = {
             'name': 'RCS - Slower White Lightning',
             'density': 1815.80134690,
