@@ -8,8 +8,8 @@ def get_float(prompt, default):
         if val.strip() == "":
             return default
         return float(val)
-    except ValueError:
-        print("Geçersiz giriş, varsayılan değer kullanılıyor.")
+    except (ValueError, EOFError):
+        print("Geçersiz giriş veya EOF, varsayılan değer kullanılıyor.")
         return default
 
 def get_int(prompt, default):
@@ -18,8 +18,8 @@ def get_int(prompt, default):
         if val.strip() == "":
             return default
         return int(val)
-    except ValueError:
-        print("Geçersiz giriş, varsayılan değer kullanılıyor.")
+    except (ValueError, EOFError):
+        print("Geçersiz giriş veya EOF, varsayılan değer kullanılıyor.")
         return default
 
 def eRatioFromPRatio(k, pRatio):
@@ -286,5 +286,17 @@ def run_simulation():
     fig.tight_layout()  
     plt.show()
 
+    try:
+        input("\nÇıkmak için ENTER tuşuna basın...")
+    except EOFError:
+        pass
+
 if __name__ == "__main__":
-    run_simulation()
+    try:
+        run_simulation()
+    except Exception as e:
+        print(f"\nBeklenmeyen bir hata oluştu: {e}")
+        try:
+            input("\nÇıkmak için ENTER tuşuna basın...")
+        except EOFError:
+            pass
