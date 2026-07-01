@@ -1,6 +1,27 @@
 import math
-import matplotlib.pyplot as plt
-from scipy.optimize import fsolve
+import sys
+import subprocess
+
+def _install_package(package):
+    print(f"'{package}' kütüphanesi bulunamadı. Otomatik olarak yükleniyor...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+        print(f"'{package}' başarıyla yüklendi!")
+    except Exception as e:
+        print(f"'{package}' yüklenirken hata oluştu: {e}")
+        sys.exit(1)
+
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    _install_package("matplotlib")
+    import matplotlib.pyplot as plt
+
+try:
+    from scipy.optimize import fsolve
+except ImportError:
+    _install_package("scipy")
+    from scipy.optimize import fsolve
 
 def get_float(prompt, default):
     try:
