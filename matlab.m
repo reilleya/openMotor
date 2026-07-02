@@ -6,12 +6,18 @@ clear; clc; close all;
 
 %% 1. Input Parameters
 
+% Plot Settings
+plot_settings.show_thrust = true;
+plot_settings.show_pressure = true;
+plot_settings.show_burn_rate = true;
+plot_settings.show_kn = false;
+plot_settings.show_mass_flux = false;
+
 % Grain Details
 grain.outer_diameter_mm = 98.7;   % Dış çap [mm]
 grain.core_diameter_mm = 43.7;    % İç (çekirdek) çap [mm]
 grain.length_mm = 145;            % Tek bir grain uzunluğu [mm]
 grain.number = 2;                 % Grain sayısı
-grain.outer_inhibited = true;     % Dış yüzeyin yanmaz olduğu varsayıldı (False = Yanar)
 grain.ends_inhibited = false;     % Uç kısımların yanmaz olması ayarı (False = Yanar) -> Isterlerde istendiği gibi
 
 % Nozzle Details
@@ -84,6 +90,21 @@ P_arr = zeros(1, num_steps);
 F_arr = zeros(1, num_steps);
 Kn_arr = zeros(1, num_steps);
 mass_flux_arr = zeros(1, num_steps);
+burn_rate_arr = zeros(1, num_steps);
+
+% RK4 Parameters Struct
+rk_params.Pa_atm = Pa_atm;
+rk_params.a = propellant.a_burn_rate_coef;
+rk_params.n = propellant.n_burn_rate_exp;
+rk_params.mm2m = mm2m;
+rk_params.N = N;
+rk_params.ends_inhibited = grain.ends_inhibited;
+rk_params.r_outer = r_outer;
+rk_params.density = propellant.density_kg_m3;
+rk_params.At = At;
+rk_params.c_star = c_star;
+rk_params.R_spec = R_spec;
+rk_params.Tc = Tc;
 
 % State variables
 P = Pa_atm; % Initial pressure is atmospheric (Pa)
@@ -100,44 +121,26 @@ ignited = true;
 
 % To avoid infinite loop, burn loop
 while ignited && r_core < r_outer && L_g > 0 && idx < num_steps
-    % Burn rate (mm/s) expects Pressure in Pa per KNSU (a=0.025 at Pa)
-    if P < Pa_atm
-        P_burn = Pa_atm;
-    else
-        P_burn = P;
-    end
-    r_burn_m_s = (propellant.a_burn_rate_coef * (P_burn^propellant.n_burn_rate_exp)) * mm2m;
 
-    % Current Geometry
-    Ab_core = N * 2 * pi * r_core * L_g;
-    if grain.ends_inhibited
-        Ab_ends = 0;
-    else
-        Ab_ends = N * 2 * pi * (r_outer^2 - r_core^2); % 2 ends per grain
-    end
+    dt = other.dt_s;
 
-    Ab_total = Ab_core + Ab_ends;
+    % RK4 State Integration
+    % k1 (Ayrıca bu adımda hesaplanan mdot_in, mdot_out, r_burn_m_s gibi değerleri loglamak için alıyoruz)
+    [k1_dP, k1_dr, k1_dL, k1_dV, mdot_in, mdot_out, r_burn_m_s, Ab_total, Ap] = eval_derivatives(P, r_core, L_g, free_vol, rk_params);
 
-    % Current Port Area
-    Ap = pi * r_core^2;
+    % k2, k3, k4
+    [k2_dP, k2_dr, k2_dL, k2_dV, ~, ~, ~, ~, ~] = eval_derivatives(P + 0.5*dt*k1_dP, r_core + 0.5*dt*k1_dr, L_g + 0.5*dt*k1_dL, free_vol + 0.5*dt*k1_dV, rk_params);
+    [k3_dP, k3_dr, k3_dL, k3_dV, ~, ~, ~, ~, ~] = eval_derivatives(P + 0.5*dt*k2_dP, r_core + 0.5*dt*k2_dr, L_g + 0.5*dt*k2_dL, free_vol + 0.5*dt*k2_dV, rk_params);
+    [k4_dP, k4_dr, k4_dL, k4_dV, ~, ~, ~, ~, ~] = eval_derivatives(P + dt*k3_dP, r_core + dt*k3_dr, L_g + dt*k3_dL, free_vol + dt*k3_dV, rk_params);
 
-    % Mass Generation Rate (in)
-    mdot_in = propellant.density_kg_m3 * Ab_total * r_burn_m_s;
+    % Update State
+    P = P + (dt/6) * (k1_dP + 2*k2_dP + 2*k3_dP + k4_dP);
 
-    % Mass Flow Rate (out)
-    if P > Pa_atm
-        mdot_out = (P * At) / c_star;
-    else
-        mdot_out = 0;
-    end
+    % Update Geometry variables
+    r_core = r_core + (dt/6) * (k1_dr + 2*k2_dr + 2*k3_dr + k4_dr);
+    L_g = L_g + (dt/6) * (k1_dL + 2*k2_dL + 2*k3_dL + k4_dL);
+    free_vol = free_vol + (dt/6) * (k1_dV + 2*k2_dV + 2*k3_dV + k4_dV);
 
-    % Transient Pressure Differential Equation
-    % dP/dt = (R_spec * Tc / V_c) * (mdot_in - mdot_out) - P * (dV_c / dt) / V_c
-    dVc_dt = Ab_total * r_burn_m_s;
-    dP_dt = (R_spec * Tc / free_vol) * (mdot_in - mdot_out) - P * dVc_dt / free_vol;
-
-    % Update Pressure (Euler integration)
-    P = P + dP_dt * other.dt_s;
     if P < Pa_atm
         P = Pa_atm;
     end
@@ -161,13 +164,7 @@ while ignited && r_core < r_outer && L_g > 0 && idx < num_steps
     F_arr(idx) = Thrust;
     Kn_arr(idx) = Ab_total / At;
     mass_flux_arr(idx) = mdot_out / Ap;
-
-    % Update Geometry
-    r_core = r_core + r_burn_m_s * other.dt_s;
-    if ~grain.ends_inhibited
-        L_g = L_g - 2 * r_burn_m_s * other.dt_s;
-    end
-    free_vol = free_vol + dVc_dt * other.dt_s;
+    burn_rate_arr(idx) = r_burn_m_s / mm2m; % Log burn rate in mm/s
 
     burned_mass = burned_mass + mdot_in * other.dt_s;
 
@@ -182,12 +179,32 @@ end
 
 % Tail-off (Gas blowdown after burnout)
 while P > Pa_atm * 1.05 && idx < num_steps
+    dt = other.dt_s;
     mdot_in = 0;
-    mdot_out = (P * At) / c_star;
-    dVc_dt = 0;
-    dP_dt = (R_spec * Tc / free_vol) * (mdot_in - mdot_out) - P * dVc_dt / free_vol;
+    Ap = pi * r_core^2; % Constant in tail-off
 
-    P = P + dP_dt * other.dt_s;
+    % RK4 for Tail-off (Only Pressure changes)
+    % k1
+    mdot_out = (P * At) / c_star;
+    k1_dP = (R_spec * Tc / free_vol) * (mdot_in - mdot_out);
+
+    % k2
+    P_k2 = P + 0.5 * dt * k1_dP;
+    mdot_out_k2 = (P_k2 * At) / c_star;
+    k2_dP = (R_spec * Tc / free_vol) * (mdot_in - mdot_out_k2);
+
+    % k3
+    P_k3 = P + 0.5 * dt * k2_dP;
+    mdot_out_k3 = (P_k3 * At) / c_star;
+    k3_dP = (R_spec * Tc / free_vol) * (mdot_in - mdot_out_k3);
+
+    % k4
+    P_k4 = P + dt * k3_dP;
+    mdot_out_k4 = (P_k4 * At) / c_star;
+    k4_dP = (R_spec * Tc / free_vol) * (mdot_in - mdot_out_k4);
+
+    P = P + (dt/6) * (k1_dP + 2*k2_dP + 2*k3_dP + k4_dP);
+
     if P < Pa_atm
         P = Pa_atm;
     end
@@ -206,6 +223,7 @@ while P > Pa_atm * 1.05 && idx < num_steps
     F_arr(idx) = Thrust;
     Kn_arr(idx) = 0;
     mass_flux_arr(idx) = mdot_out / Ap;
+    burn_rate_arr(idx) = 0;
 
     t = t + other.dt_s;
     idx = idx + 1;
@@ -217,6 +235,7 @@ P_arr = P_arr(1:idx-1);
 F_arr = F_arr(1:idx-1);
 Kn_arr = Kn_arr(1:idx-1);
 mass_flux_arr = mass_flux_arr(1:idx-1);
+burn_rate_arr = burn_rate_arr(1:idx-1);
 
 %% 6. Calculations & Outputs
 % Motor Designation (Total Impulse Classification)
@@ -292,18 +311,102 @@ fprintf('Peak Mass Flux:            %.2f kg/(m^2*s)\n', peak_mass_flux);
 fprintf('======================================================\n');
 
 %% 7. Plots
-figure('Name', 'Thrust and Pressure vs Time', 'NumberTitle', 'off');
-yyaxis left;
-plot(time_arr, F_arr, 'b-', 'LineWidth', 2);
-ylabel('Thrust [N]');
-ylim([0, max(F_arr)*1.1]);
+% Determine how many plots are active
+num_plots = sum([plot_settings.show_thrust, plot_settings.show_pressure, plot_settings.show_burn_rate, plot_settings.show_kn, plot_settings.show_mass_flux]);
 
-yyaxis right;
-plot(time_arr, P_arr / MPa2Pa, 'r--', 'LineWidth', 2);
-ylabel('Pressure [MPa]');
-ylim([0, max(P_arr / MPa2Pa)*1.1]);
+if num_plots > 0
+    figure('Name', 'Motor Performance', 'NumberTitle', 'off');
+    plot_idx = 1;
 
-xlabel('Time [s]');
-title('Motor Performance (Thrust & Pressure vs. Time)');
-grid on;
-legend('Thrust', 'Pressure');
+    if plot_settings.show_thrust
+        subplot(num_plots, 1, plot_idx);
+        plot(time_arr, F_arr, 'b-', 'LineWidth', 2);
+        ylabel('Thrust [N]');
+        title('Thrust vs Time');
+        grid on;
+        plot_idx = plot_idx + 1;
+    end
+
+    if plot_settings.show_pressure
+        subplot(num_plots, 1, plot_idx);
+        plot(time_arr, P_arr / MPa2Pa, 'r-', 'LineWidth', 2);
+        ylabel('Pressure [MPa]');
+        title('Pressure vs Time');
+        grid on;
+        plot_idx = plot_idx + 1;
+    end
+
+    if plot_settings.show_burn_rate
+        subplot(num_plots, 1, plot_idx);
+        plot(time_arr, burn_rate_arr, 'g-', 'LineWidth', 2);
+        ylabel('Burn Rate [mm/s]');
+        title('Burn Rate vs Time');
+        grid on;
+        plot_idx = plot_idx + 1;
+    end
+
+    if plot_settings.show_kn
+        subplot(num_plots, 1, plot_idx);
+        plot(time_arr, Kn_arr, 'm-', 'LineWidth', 2);
+        ylabel('Kn [-]');
+        title('Kn vs Time');
+        grid on;
+        plot_idx = plot_idx + 1;
+    end
+
+    if plot_settings.show_mass_flux
+        subplot(num_plots, 1, plot_idx);
+        plot(time_arr, mass_flux_arr, 'k-', 'LineWidth', 2);
+        ylabel('Mass Flux [kg/(m^2*s)]');
+        title('Mass Flux vs Time');
+        grid on;
+        xlabel('Time [s]'); % xlabel on the last active plot
+        plot_idx = plot_idx + 1;
+    else
+        % Make sure the last plotted subplot gets the x-label
+        subplot(num_plots, 1, num_plots);
+        xlabel('Time [s]');
+    end
+end
+
+
+%% Local Functions
+function [dP_dt, dr_core_dt, dL_g_dt, dVc_dt, mdot_in, mdot_out, r_burn_m_s, Ab_total, Ap] = eval_derivatives(P, r_core, L_g, free_vol, params)
+    % Evaluate state derivatives for RK4
+
+    if P < params.Pa_atm
+        P_burn = params.Pa_atm;
+    else
+        P_burn = P;
+    end
+
+    r_burn_m_s = (params.a * (P_burn^params.n)) * params.mm2m;
+
+    Ab_core = params.N * 2 * pi * r_core * L_g;
+    if params.ends_inhibited
+        Ab_ends = 0;
+    else
+        Ab_ends = params.N * 2 * pi * (params.r_outer^2 - r_core^2); % 2 ends per grain
+    end
+
+    Ab_total = Ab_core + Ab_ends;
+    Ap = pi * r_core^2;
+
+    mdot_in = params.density * Ab_total * r_burn_m_s;
+
+    if P > params.Pa_atm
+        mdot_out = (P * params.At) / params.c_star;
+    else
+        mdot_out = 0;
+    end
+
+    dVc_dt = Ab_total * r_burn_m_s;
+    dP_dt = (params.R_spec * params.Tc / free_vol) * (mdot_in - mdot_out) - P * dVc_dt / free_vol;
+
+    dr_core_dt = r_burn_m_s;
+    if params.ends_inhibited
+        dL_g_dt = 0;
+    else
+        dL_g_dt = -2 * r_burn_m_s;
+    end
+end
