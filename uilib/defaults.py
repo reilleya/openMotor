@@ -207,5 +207,202 @@ KNSU_PROPS = {
                 }
             ]
 }
+BJ_PROPS = {
+            'name': 'RCS - Black Jack',
+            'density': 2085.95715705,
+            'tabs': [
+                {
+                    'minPressure': 0,
+                    'maxPressure': 10342500,
+                    'a': 0.00123560472,
+                    'n': 0.05600000,
+                    't': 1428.99, 
+                    'm': 30.561,
+                    'k': 1.247
+                }
+            ]
+}
+R_PROPS = {
+            'name': 'RCS - Redline',
+            'density': 1729.99366130,
+            'tabs': [
+                {
+                    'minPressure': 0,
+                    'maxPressure': 10342500,
+                    'a': 0.00002969528,
+                    'n': 0.366,
+                    't': 2238.589, 
+                    'm': 26.502,
+                    'k': 1.225
+                }
+            ]
+}
+BM_PROPS = {
+            'name': 'RCS - Black Max',
+            'density': 2021.18619437,
+            'tabs': [
+                {
+                    'minPressure': 0,
+                    'maxPressure': 10342500,
+                    'a': 0.00001507051,
+                    'n': 0.398,
+                    't': 1462.331, 
+                    'm': 27.627,
+                    'k': 1.275
+                }
+            ]
+}
+WN_PROPS = {
+            'name': 'RCS - Warp 9',
+            'density': 1641.41798584,
+            'tabs': [
+                {
+                    'minPressure': 0,
+                    'maxPressure': 10342500,
+                    'a': 0.00024721816,
+                    'n': 0.287,
+                    't': 2780.64, 
+                    'm': 23.669,
+                    'k': 1.229
+                }
+            ]
+}
+MG_PROPS = {
+            'name': 'RCS - Mojave Green',
+            'density': 1807.77417632,
+            'tabs': [
+                {
+                    'minPressure': 0,
+                    'maxPressure': 10342500,
+                    'a': 0.00000813177,
+                    'n': 0.462,
+                    't': 2913.486, 
+                    'm': 29.784,
+                    'k': 1.209
+                }
+            ]
+}
+C_PROPS = {
+            'name': 'RCS - Classic',
+            'density': 1646.95396556,
+            'tabs': [
+                {
+                    'minPressure': 0,
+                    'maxPressure': 10342500,
+                    'a': 0.00004444896,
+                    'n': 0.323,
+                    't': 2887.981, 
+                    'm': 24.145,
+                    'k': 1.225
+                }
+            ]
+}
+M_PROPS = {
+            'name': 'RCS - Metalstorm',
+            'density': 1819.39973372,
+            'tabs': [
+                {
+                    'minPressure': 0,
+                    'maxPressure': 10342500,
+                    'a': 0.00000571052,
+                    'n': 0.45,
+                    't': 2558.168, 
+                    'm': 29.153,
+                    'k': 1.21
+                }
+            ]
+}
+MD_PROPS = {
+            'name': 'RCS - Metalstorm DM',
+            'density': 1697.88497895,
+            'tabs': [
+                {
+                    'minPressure': 0,
+                    'maxPressure': 10342500,
+                    'a': 0.00004643358,
+                    'n': 0.334,
+                    't': 1895.29, 
+                    'm': 23.262,
+                    'k': 1.257
+                }
+            ]
+}
+PX_PROPS = {
+            'name': 'RCS - Propellant X (K1103X)',
+            'density': 1746.60160045,
+            'tabs': [
+                {
+                    'minPressure': 0,
+                    'maxPressure': 10342500,
+                    'a': 0.00004614321,
+                    'n': 0.358,
+                    't': 3442.461, 
+                    'm': 27.704,
+                    'k': 1.177
+                }
+            ]
+}
+ST_PROPS = {
+            'name': 'RCS - Super Thunder',
+            'density': 1644.18597570,
+            'tabs': [
+                {
+                    'minPressure': 0,
+                    'maxPressure': 10342500,
+                    'a': 0.00027247858,
+                    'n': 0.277,
+                    't': 2737.657, 
+                    'm': 23.767,
+                    'k': 1.223
+                }
+            ]
+}
+SWL_PROPS = {
+            'name': 'RCS - Slow White Lightning',
+            'density': 1815.80134690,
+            'tabs': [
+                {
+                    'minPressure': 0,
+                    'maxPressure': 10342500,
+                    'a': 0.00002147703,
+                    'n': 0.346,
+                    't': 2364.133, 
+                    'm': 27.022,
+                    'k': 1.245
+                }
+            ]
+}
+NBT_PROPS = {
+            'name': 'RCS - New Blue Thunder',
+            'density': 1702.59056171,
+            'tabs': [
+                {
+                    'minPressure': 0,
+                    'maxPressure': 10342500,
+                    'a': 0.00001470602,
+                    'n': 0.410,
+                    't': 3184.414, 
+                    'm': 26.005,
+                    'k': 1.203
+                }
+            ]
+}
+SSWL_PROPS = {
+            'name': 'RCS - Slower White Lightning',
+            'density': 1815.80134690,
+            'tabs': [
+                {
+                    'minPressure': 0,
+                    'maxPressure': 10342500,
+                    'a': 0.00007994681,
+                    'n': 0.244,
+                    't': 2364.133, 
+                    'm': 27.022,
+                    'k': 1.245
+                }
+            ]
+}
 
-DEFAULT_PROPELLANTS = [CL_PROPS, OW_PROPS, KNDX_PROPS, KNSB_PROPS, KNSU_PROPS, WL_PROPS, BT_PROPS]
+
+DEFAULT_PROPELLANTS = [CL_PROPS, OW_PROPS, KNDX_PROPS, KNSB_PROPS, KNSU_PROPS, 
+                       WL_PROPS, BT_PROPS, BJ_PROPS, R_PROPS, BM_PROPS, WN_PROPS, MG_PROPS, C_PROPS, M_PROPS, MD_PROPS, PX_PROPS, ST_PROPS, SWL_PROPS, NBT_PROPS, SSWL_PROPS]

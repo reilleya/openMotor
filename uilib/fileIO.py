@@ -8,7 +8,7 @@ import platformdirs
 from .defaults import DEFAULT_PREFERENCES, DEFAULT_PROPELLANTS, KNSU_PROPS
 from .logger import logger
 
-appVersion = (0, 6, 1)
+appVersion = (0, 6, 2)
 appVersionStr = '.'.join(map(str, appVersion))
 
 class fileTypes(Enum):
@@ -65,6 +65,14 @@ def getConfigPath():
     return '{}/'.format(path)
 
 def passthrough(data):
+    return data
+
+# 0.6.1 to 0.6.2
+def migrateProp_0_6_1_to_0_6_2(data):
+    # Add RCS propellants to library
+    for propellant in DEFAULT_PROPELLANTS:
+        if propellant['name'] not in [cProp['name'] for cProp in data]:
+            data.append(propellant)
     return data
     
 #0.6.0 to 0.6.1
@@ -170,6 +178,13 @@ def migrateMotor_0_2_0_to_0_3_0(data):
     return data
 
 migrations = {
+    (0, 6, 1): {
+        'to': (0, 6, 2),
+        fileTypes.PREFERENCES: passthrough,
+        fileTypes.PROPELLANTS: migrateProp_0_6_1_to_0_6_2,
+        fileTypes.MOTOR: passthrough,
+        fileTypes.RECENT_FILES: passthrough
+    },
     (0, 6, 0): {
         'to': (0, 6, 1),
         fileTypes.PREFERENCES: passthrough,
