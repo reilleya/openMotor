@@ -5,7 +5,7 @@ clear; clc; close all;
 
 %% Configuration & Constants
 % Constants
-R_gas = 8.31446261815324; % Universal gas constant, J/(mol*K)
+R_gas = 8314.462618; % Universal gas constant, J/(mol*K)
 atm_pres = 101325; % Ambient pressure, Pa
 
 % Simulation Settings
@@ -20,7 +20,7 @@ prop.a = 0.025 / 1000; % Burn rate coefficient, converted from mm/(s*Pa^n) to m/
 prop.n = 0.43; % Burn rate exponent
 prop.gamma = 1.17; % Specific Heat Ratio (k)
 prop.t = 3019; % Combustion Temperature, K
-prop.m = 25.935 / 1000; % Exhaust Molar Mass, converted from kg/Kmol to kg/mol
+prop.m = 25.935; % Exhaust Molar Mass, converted from kg/Kmol to kg/mol
 
 % Nozzle Geometry
 nozzle.throat_dia = 21 / 1000; % converted from mm to m
@@ -55,7 +55,7 @@ else
     throatLoss = 0.99 - (0.0333 * throatAspect);
 end
 skinLoss = 0.99;
-nozzle_adjusted_eff = divLoss * throatLoss * nozzle.efficiency;
+nozzle_adjusted_eff_mult = divLoss * throatLoss * nozzle.efficiency;
 
 %% Helper Functions
 
@@ -83,41 +83,73 @@ function Pe = calc_exit_pressure(Pc, eps, gamma)
 end
 
 % BATES Grain geometry calculations
+function face_area = get_face_area(reg, grain)
+    uncored = pi * (grain.outer_dia / 2)^2;
+    core_area = pi * ((grain.core_dia / 2) + reg)^2;
+    face_area = uncored - core_area;
+    if face_area < 0
+        face_area = 0;
+    end
+end
+
+function port_area = get_port_area(reg, grain)
+    uncored = pi * (grain.outer_dia / 2)^2;
+    face_area = get_face_area(reg, grain);
+    port_area = uncored - face_area;
+end
+
+function length_left = get_regressed_length(reg, grain)
+    end_pos_0 = reg;
+    end_pos_1 = grain.length - reg;
+    length_left = end_pos_1 - end_pos_0;
+    if length_left < 0
+        length_left = 0;
+    end
+end
+
+function core_SA = get_core_surface_area(reg, grain)
+    core_perimeter = 2 * pi * ((grain.core_dia / 2) + reg);
+    core_SA = core_perimeter * get_regressed_length(reg, grain);
+end
+
 function [SA, vol, free_vol, is_web_left] = calc_bates_geom(reg, grain, burnout_thres)
     is_web_left = (grain.web - reg) > burnout_thres;
-    if ~is_web_left
+    if ~is_web_left || get_regressed_length(reg, grain) <= 0
         SA = 0;
         vol = 0;
         free_vol = pi * (grain.outer_dia / 2)^2 * grain.length;
         return;
     end
 
-    current_length = grain.length - (2 * reg);
-    if current_length <= 0
-        SA = 0;
-        vol = 0;
-        free_vol = pi * (grain.outer_dia / 2)^2 * grain.length;
-        return;
-    end
-
-    current_core_rad = (grain.core_dia / 2) + reg;
-    outer_rad = grain.outer_dia / 2;
-
-    % End areas (2 faces)
-    face_area = pi * (outer_rad^2 - current_core_rad^2);
-
-    % Core surface area
-    core_SA = 2 * pi * current_core_rad * current_length;
-
-    % Total surface area
+    face_area = get_face_area(reg, grain);
+    core_SA = get_core_surface_area(reg, grain);
     SA = (2 * face_area) + core_SA;
+    vol = face_area * get_regressed_length(reg, grain);
 
-    % Volume of propellant
-    vol = face_area * current_length;
-
-    % Free volume (chamber volume minus propellant volume)
     total_grain_vol = pi * (grain.outer_dia / 2)^2 * grain.length;
     free_vol = total_grain_vol - vol;
+end
+
+function mass_flux = get_peak_mass_flux(mass_in, dt, reg, d_reg, density, grain)
+    % Equivalent to PerforatedGrain.getMassFlux at the bottom of the grain
+    % position = endPos[1]
+    end_pos_0 = reg;
+    end_pos_1 = grain.length - reg;
+    position = end_pos_1;
+
+    % Bates has Both ends uninhibited
+    top = get_face_area(reg + d_reg, grain) * d_reg * density;
+    counted_core_length = position - (end_pos_0 + d_reg);
+    if counted_core_length < 0
+        counted_core_length = 0;
+    end
+
+    core = (get_port_area(reg + d_reg, grain) * counted_core_length) - ...
+           (get_port_area(reg, grain) * counted_core_length);
+    core = core * density;
+
+    mass_flow = mass_in + ((top + core) / dt);
+    mass_flux = mass_flow / get_port_area(reg + d_reg, grain);
 end
 
 
@@ -162,38 +194,43 @@ volume_loading = (1 - (total_free_vol / total_motor_volume)) * 100;
 
 %% Simulation Loop
 while true
+    % Store last regression distance before updating
+    last_regression = regression;
+
     % Regression for this step based on LAST step's pressure
     if Pc > 0
         burn_rate = prop.a * (Pc ^ prop.n);
     else
         burn_rate = 0;
     end
-    regression = regression + (burn_rate * dt);
+    d_reg = burn_rate * dt;
+    regression = regression + d_reg;
 
     % Check if all grains are burned out
     is_burning = false;
     total_SA = 0;
     current_mass = 0;
+    mass_flow = 0;
+    mass_flux = 0;
 
     for i = 1:grain.num_grains
         [SA, v, ~, is_web_left] = calc_bates_geom(regression, grain, burnout_web_thres);
         if is_web_left && SA > 0
             is_burning = true;
+
+            % Python: perGrainMassFlux[gid] = grain.getPeakMassFlux(massFlow, dTime, perGrainReg[gid], reg, density)
+            grain_mass_flux = get_peak_mass_flux(mass_flow, dt, last_regression, d_reg, prop.density, grain);
+
+            % Python logic for massFlow
+            last_grain_mass = get_face_area(last_regression, grain) * get_regressed_length(last_regression, grain) * prop.density;
+            current_grain_mass = v * prop.density;
+            mass_flow = mass_flow + (last_grain_mass - current_grain_mass) / dt;
+
+            mass_flux = grain_mass_flux; % highest at the bottom
         end
         total_SA = total_SA + SA;
         current_mass = current_mass + (v * prop.density);
     end
-
-    % Mass flux calculation for this step
-    last_mass = mass_data(end);
-    mass_flow = (last_mass - current_mass) / dt;
-    % Since it's identical Bates grains, peak mass flux occurs at the bottom grain's port
-    current_core_rad = (grain.core_dia / 2) + regression;
-    if current_core_rad > grain.outer_dia / 2
-        current_core_rad = grain.outer_dia / 2;
-    end
-    current_port_area = pi * current_core_rad^2;
-    mass_flux = mass_flow / current_port_area;
 
     % If burnout occurred and pressure is practically zero, break
     if ~is_burning
@@ -232,7 +269,7 @@ while true
         C_f_ideal = momentumThrust + pressureThrust;
 
         % Adjusted Thrust Coefficient
-        C_f_adj = nozzle_adjusted_eff * (skinLoss * C_f_ideal + (1 - skinLoss));
+        C_f_adj = nozzle_adjusted_eff_mult * (skinLoss * C_f_ideal + (1 - skinLoss));
 
         Thrust = C_f_adj * throat_area * Pc;
     else
@@ -296,15 +333,20 @@ else
     burn_end_idx = burn_indices(end);
 end
 
-burn_time = time_data(burn_end_idx) - time_data(burn_start_idx);
+burn_time = time_data(burn_end_idx);
 
 % Propellant mass
 initial_mass = mass_data(1);
 final_mass = mass_data(end);
 propellant_mass_consumed = initial_mass - final_mass;
 
-% Total Impulse
-total_impulse = trapz(time_data, thrust_data);
+% Total Impulse (motorlib calculates using Euler integration)
+total_impulse = 0;
+last_time = 0;
+for j = 1:length(time_data)
+    total_impulse = total_impulse + thrust_data(j) * (time_data(j) - last_time);
+    last_time = time_data(j);
+end
 
 % Averages and Maxima
 max_thrust = max(thrust_data);
@@ -313,8 +355,9 @@ max_pressure = max_pressure_pa / 1e6; % Convert to MPa
 peak_kn = max(kn_data);
 peak_mass_flux = max(mass_flux_data);
 
-avg_thrust = trapz(time_data(burn_start_idx:burn_end_idx), thrust_data(burn_start_idx:burn_end_idx)) / burn_time;
-avg_pressure_pa = trapz(time_data(burn_start_idx:burn_end_idx), pressure_data(burn_start_idx:burn_end_idx)) / burn_time;
+% motorlib computes average via sum(data)/len(data)
+avg_thrust = sum(thrust_data) / length(thrust_data);
+avg_pressure_pa = sum(pressure_data) / length(pressure_data);
 avg_pressure = avg_pressure_pa / 1e6;
 
 % Ideal and Delivered Thrust Coefficients at average pressure
@@ -326,7 +369,7 @@ if avg_pressure_pa > 0
     momentumThrust_avg = sqrt(term1 * term2 * term3);
     pressureThrust_avg = ((Pe_avg - atm_pres) * nozzle_exit_area) / (nozzle_throat_area_initial * avg_pressure_pa);
     ideal_thrust_coeff = momentumThrust_avg + pressureThrust_avg;
-    delivered_thrust_coeff = nozzle_adjusted_eff * (skinLoss * ideal_thrust_coeff + (1 - skinLoss));
+    delivered_thrust_coeff = nozzle_adjusted_eff_mult * (skinLoss * ideal_thrust_coeff + (1 - skinLoss));
 else
     ideal_thrust_coeff = 0;
     delivered_thrust_coeff = 0;
