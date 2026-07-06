@@ -138,15 +138,27 @@ end
 mass_data = [mass];
 
 % Initial Calculations (t=0)
-[total_SA, ~, ~, ~] = calc_bates_geom(0, grain, burnout_web_thres);
+[total_SA, ~, free_vol, ~] = calc_bates_geom(0, grain, burnout_web_thres);
 total_SA = total_SA * grain.num_grains;
 throat_area = pi * ((nozzle.throat_dia + dThroat) / 2)^2;
 Kn = total_SA / throat_area;
 kn_data = [Kn];
+initial_kn = Kn;
 
 Pc = calc_ideal_pressure(Kn, prop, R_gas);
 pressure_data = [Pc];
 thrust_data = [0];
+mass_flux_data = [0];
+
+% Pre-calculate new metrics
+propellant_length = grain.length * grain.num_grains * 1000; % mm
+initial_port_area = pi * (grain.core_dia / 2)^2;
+port_throat_ratio = initial_port_area / throat_area;
+
+% volume loading = 1 - (free volume / total volume)
+per_grain_free_vol = free_vol; % at t=0
+total_free_vol = per_grain_free_vol * grain.num_grains;
+volume_loading = (1 - (total_free_vol / total_motor_volume)) * 100;
 
 %% Simulation Loop
 while true
@@ -171,6 +183,17 @@ while true
         total_SA = total_SA + SA;
         current_mass = current_mass + (v * prop.density);
     end
+
+    % Mass flux calculation for this step
+    last_mass = mass_data(end);
+    mass_flow = (last_mass - current_mass) / dt;
+    % Since it's identical Bates grains, peak mass flux occurs at the bottom grain's port
+    current_core_rad = (grain.core_dia / 2) + regression;
+    if current_core_rad > grain.outer_dia / 2
+        current_core_rad = grain.outer_dia / 2;
+    end
+    current_port_area = pi * current_core_rad^2;
+    mass_flux = mass_flow / current_port_area;
 
     % If burnout occurred and pressure is practically zero, break
     if ~is_burning
@@ -233,6 +256,7 @@ while true
     pressure_data = [pressure_data, Pc];
     thrust_data = [thrust_data, Thrust];
     mass_data = [mass_data, current_mass];
+    mass_flux_data = [mass_flux_data, mass_flux];
 end
 
 %% Plotting Results
@@ -284,26 +308,72 @@ total_impulse = trapz(time_data, thrust_data);
 
 % Averages and Maxima
 max_thrust = max(thrust_data);
-max_pressure = max(pressure_data) / 1e6; % Convert to MPa
+max_pressure_pa = max(pressure_data);
+max_pressure = max_pressure_pa / 1e6; % Convert to MPa
+peak_kn = max(kn_data);
+peak_mass_flux = max(mass_flux_data);
 
 avg_thrust = trapz(time_data(burn_start_idx:burn_end_idx), thrust_data(burn_start_idx:burn_end_idx)) / burn_time;
-avg_pressure = trapz(time_data(burn_start_idx:burn_end_idx), pressure_data(burn_start_idx:burn_end_idx)) / burn_time / 1e6;
+avg_pressure_pa = trapz(time_data(burn_start_idx:burn_end_idx), pressure_data(burn_start_idx:burn_end_idx)) / burn_time;
+avg_pressure = avg_pressure_pa / 1e6;
+
+% Ideal and Delivered Thrust Coefficients at average pressure
+if avg_pressure_pa > 0
+    Pe_avg = calc_exit_pressure(avg_pressure_pa, nozzle_expansion_ratio, prop.gamma);
+    term1 = (2 * (prop.gamma ^ 2)) / (prop.gamma - 1);
+    term2 = (2 / (prop.gamma + 1)) ^ ((prop.gamma + 1) / (prop.gamma - 1));
+    term3 = 1 - ((Pe_avg / avg_pressure_pa) ^ ((prop.gamma - 1) / prop.gamma));
+    momentumThrust_avg = sqrt(term1 * term2 * term3);
+    pressureThrust_avg = ((Pe_avg - atm_pres) * nozzle_exit_area) / (nozzle_throat_area_initial * avg_pressure_pa);
+    ideal_thrust_coeff = momentumThrust_avg + pressureThrust_avg;
+    delivered_thrust_coeff = nozzle_adjusted_eff * (skinLoss * ideal_thrust_coeff + (1 - skinLoss));
+else
+    ideal_thrust_coeff = 0;
+    delivered_thrust_coeff = 0;
+end
 
 % Specific Impulse
 g0 = 9.80665;
 specific_impulse = total_impulse / (propellant_mass_consumed * g0);
 
+% Motor Designation
+motor_designation = 'N/A';
+class_percentage = 0;
+if total_impulse >= 1.25
+    order = floor(log2(total_impulse / 1.25)) + 1;
+    min_class_impulse = 1.25 * 2^(order - 1);
+    class_percentage = (total_impulse - min_class_impulse) / min_class_impulse * 100;
+
+    letters = '';
+
+    order = floor(log2(total_impulse / 1.25)) + 1;
+    for place = 0:floor(log(order) / log(26))
+        remainder = mod(order, 26);
+        letters = [char(remainder + 64), letters];
+        order = floor((order - remainder) / 26);
+    end
+
+    motor_designation = sprintf('%s%.0f', letters, avg_thrust);
+end
+
 %% Print Results to Console
 disp('----------------------------------------------------');
 disp('            openMotor MATLAB Simulation             ');
 disp('----------------------------------------------------');
-fprintf('Total Impulse (Ns)      : %.2f\n', total_impulse);
-fprintf('Max Thrust (N)          : %.2f\n', max_thrust);
-fprintf('Average Thrust (N)      : %.2f\n', avg_thrust);
-fprintf('Max Pressure (MPa)      : %.4f\n', max_pressure);
-fprintf('Average Pressure (MPa)  : %.4f\n', avg_pressure);
-fprintf('Burn Time (s)           : %.3f\n', burn_time);
-fprintf('Propellant Mass (kg)    : %.4f\n', propellant_mass_consumed);
-fprintf('Specific Impulse (s)    : %.2f\n', specific_impulse);
+fprintf('Motor Designation         : %s - %.0f%%\n', motor_designation, class_percentage);
+fprintf('Impulse (Ns)              : %.2f\n', total_impulse);
+fprintf('Delivered ISP (s)         : %.2f\n', specific_impulse);
+fprintf('Burn Time (s)             : %.3f\n', burn_time);
+fprintf('Volume Loading (%%)        : %.2f\n', volume_loading);
+fprintf('Average Pressure (MPa)    : %.4f\n', avg_pressure);
+fprintf('Peak Pressure (MPa)       : %.4f\n', max_pressure);
+fprintf('Initial Kn                : %.2f\n', initial_kn);
+fprintf('Peak Kn                   : %.2f\n', peak_kn);
+fprintf('Ideal Thrust Coefficient  : %.4f\n', ideal_thrust_coeff);
+fprintf('Propellant Mass (kg)      : %.4f\n', propellant_mass_consumed);
+fprintf('Propellant Length (mm)    : %.2f\n', propellant_length);
+fprintf('Port/Throat Ratio         : %.2f\n', port_throat_ratio);
+fprintf('Peak Mass Flux (kg/m^2*s) : %.2f\n', peak_mass_flux);
+fprintf('Delivered Thrust Coeff    : %.4f\n', delivered_thrust_coeff);
 disp('----------------------------------------------------');
 disp('Simulation completed successfully!');
