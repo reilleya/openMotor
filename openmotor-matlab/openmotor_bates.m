@@ -15,27 +15,27 @@ burnout_thrust_thres = 0.1; % Thrust burnout threshold, N
 
 %% Inputs
 % Propellant Properties
-prop.density = 1600; % kg/m^3 (approximate value for APCP)
-prop.a = 5e-5; % Burn rate coefficient, m/(s*Pa^n)
-prop.n = 0.35; % Burn rate exponent
-prop.gamma = 1.2; % Specific Heat Ratio (k)
-prop.t = 2500; % Combustion Temperature, K
-prop.m = 25e-3; % Exhaust Molar Mass, kg/mol (25 g/mol)
+prop.density = 1710; % kg/m^3 (approximate value for APCP)
+prop.a = 0.025 / 1000; % Burn rate coefficient, converted from mm/(s*Pa^n) to m/(s*Pa^n)
+prop.n = 0.43; % Burn rate exponent
+prop.gamma = 1.17; % Specific Heat Ratio (k)
+prop.t = 3019; % Combustion Temperature, K
+prop.m = 25.935 / 1000; % Exhaust Molar Mass, converted from kg/Kmol to kg/mol
 
 % Nozzle Geometry
-nozzle.throat_dia = 0.02; % m
-nozzle.exit_dia = 0.06; % m
+nozzle.throat_dia = 21 / 1000; % converted from mm to m
+nozzle.exit_dia = 44.4 / 1000; % converted from mm to m
 nozzle.efficiency = 0.95;
 nozzle.div_angle = 15; % Divergence half-angle, degrees
-nozzle.conv_angle = 30; % Convergence half-angle, degrees
-nozzle.throat_length = 0.02; % m
+nozzle.conv_angle = 45; % Convergence half-angle, degrees
+nozzle.throat_length = 2 / 1000; % converted from mm to m
 nozzle.slag_coeff = 0; % (m*Pa)/s
 nozzle.erosion_coeff = 0; % m/(s*Pa)
 
 % Grain Geometry (BATES)
-grain.outer_dia = 0.1; % m
-grain.core_dia = 0.03; % m
-grain.length = 0.2; % m
+grain.outer_dia = 98.7 / 1000; % converted from mm to m
+grain.core_dia = 43.7 / 1000; % converted from mm to m
+grain.length = 145 / 1000; % converted from mm to m
 grain.num_grains = 2;
 
 %% Pre-calculations
@@ -261,4 +261,49 @@ xlabel('Time (s)');
 ylabel('Kn');
 grid on;
 
+%% Performance Metrics Calculations
+% Calculate active burn time indices
+burn_indices = find(thrust_data > burnout_thrust_thres);
+if isempty(burn_indices)
+    burn_start_idx = 1;
+    burn_end_idx = length(time_data);
+else
+    burn_start_idx = burn_indices(1);
+    burn_end_idx = burn_indices(end);
+end
+
+burn_time = time_data(burn_end_idx) - time_data(burn_start_idx);
+
+% Propellant mass
+initial_mass = mass_data(1);
+final_mass = mass_data(end);
+propellant_mass_consumed = initial_mass - final_mass;
+
+% Total Impulse
+total_impulse = trapz(time_data, thrust_data);
+
+% Averages and Maxima
+max_thrust = max(thrust_data);
+max_pressure = max(pressure_data) / 1e6; % Convert to MPa
+
+avg_thrust = trapz(time_data(burn_start_idx:burn_end_idx), thrust_data(burn_start_idx:burn_end_idx)) / burn_time;
+avg_pressure = trapz(time_data(burn_start_idx:burn_end_idx), pressure_data(burn_start_idx:burn_end_idx)) / burn_time / 1e6;
+
+% Specific Impulse
+g0 = 9.80665;
+specific_impulse = total_impulse / (propellant_mass_consumed * g0);
+
+%% Print Results to Console
+disp('----------------------------------------------------');
+disp('            openMotor MATLAB Simulation             ');
+disp('----------------------------------------------------');
+fprintf('Total Impulse (Ns)      : %.2f\n', total_impulse);
+fprintf('Max Thrust (N)          : %.2f\n', max_thrust);
+fprintf('Average Thrust (N)      : %.2f\n', avg_thrust);
+fprintf('Max Pressure (MPa)      : %.4f\n', max_pressure);
+fprintf('Average Pressure (MPa)  : %.4f\n', avg_pressure);
+fprintf('Burn Time (s)           : %.3f\n', burn_time);
+fprintf('Propellant Mass (kg)    : %.4f\n', propellant_mass_consumed);
+fprintf('Specific Impulse (s)    : %.2f\n', specific_impulse);
+disp('----------------------------------------------------');
 disp('Simulation completed successfully!');
