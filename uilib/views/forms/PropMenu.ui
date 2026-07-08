@@ -9,13 +9,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>850</width>
+    <width>1000</width>
     <height>700</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>850</width>
+    <width>1000</width>
     <height>700</height>
    </size>
   </property>
@@ -41,16 +41,22 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <property name="topMargin">
-        <number>12</number>
+        <number>0</number>
        </property>
        <property name="rightMargin">
         <number>0</number>
        </property>
        <item>
         <widget class="QListWidget" name="listWidgetPropellants">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="maximumSize">
           <size>
-           <width>150</width>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
          </property>
@@ -78,6 +84,13 @@
           <widget class="QPushButton" name="pushButtonEdit">
            <property name="text">
             <string>Edit</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonCopy">
+           <property name="text">
+            <string>Copy</string>
            </property>
           </widget>
          </item>

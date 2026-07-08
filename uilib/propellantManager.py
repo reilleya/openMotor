@@ -58,6 +58,16 @@ class PropellantManager(QObject):
     def getPropellantByName(self, name):
         return self.propellants[self.getNames().index(name)]
 
+    # Modifies a propellant's name to not collide with any existing propellants, if necessary
+    def getUniquePropellantName(self, name):
+        if name not in self.getNames():
+            return name
+        withNumber = "{} ({})"
+        number = 1
+        while withNumber.format(name, number) in self.getNames():
+            number += 1
+        return withNumber.format(name, number)
+
     def showMenu(self):
         logger.log('Showing propellant menu')
         self.propMenu.setupPropList()

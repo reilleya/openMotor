@@ -31,6 +31,7 @@ class PropellantMenu(QDialog):
         self.ui.pushButtonNewPropellant.pressed.connect(self.newPropellant)
         self.ui.pushButtonDelete.pressed.connect(self.deleteProp)
         self.ui.pushButtonEdit.pressed.connect(self.editProp)
+        self.ui.pushButtonCopy.pressed.connect(self.copyProp)
 
         self.ui.listWidgetPropellants.doubleClicked.connect(self.editProp)
 
@@ -47,22 +48,26 @@ class PropellantMenu(QDialog):
     def setupButtons(self):
         self.ui.pushButtonEdit.setEnabled(False)
         self.ui.pushButtonDelete.setEnabled(False)
+        self.ui.pushButtonCopy.setEnabled(False)
 
     def setupPropList(self):
         self.ui.listWidgetPropellants.clear()
         self.ui.listWidgetPropellants.addItems(self.manager.getNames())
 
+    def copyProp(self):
+        propProperties = self.manager.propellants[self.ui.listWidgetPropellants.currentRow()].getProperties()
+        propProperties['name'] = self.manager.getUniquePropellantName('{} (Copy)'.format(propProperties['name']))
+        newProp = motorlib.propellant.Propellant(propProperties)
+        self.addNewPropellantAndEdit(newProp)
+
     def newPropellant(self):
-        propName = "New Propellant"
-        if propName in self.manager.getNames():
-            propNumber = 1
-            while propName + " " + str(propNumber) in self.manager.getNames():
-                propNumber += 1
-            propName = propName + " " + str(propNumber)
         newProp = motorlib.propellant.Propellant()
-        newProp.setProperty('name', propName)
+        newProp.setProperty('name', self.manager.getUniquePropellantName('New Propellant'))
         newPropTab = motorlib.propellant.PropellantTab()
         newProp.props['tabs'].addTab(newPropTab)
+        self.addNewPropellantAndEdit(newProp)
+
+    def addNewPropellantAndEdit(self, newProp):
         self.manager.propellants.append(newProp)
         self.setupPropList()
         self.setupButtons()
@@ -71,6 +76,11 @@ class PropellantMenu(QDialog):
         self.editProp()
 
     def deleteProp(self):
+        propellantName = self.manager.propellants[self.ui.listWidgetPropellants.currentRow()].getProperty('name')
+        warning = 'Are you sure you would like to delete the propellant "{}"? This action cannot be undone.'
+        if not QApplication.instance().promptYesNo(warning.format(propellantName)):
+            return
+
         del self.manager.propellants[self.ui.listWidgetPropellants.currentRow()]
         self.manager.savePropellants()
         self.setupPropList()
@@ -97,6 +107,7 @@ class PropellantMenu(QDialog):
     def propSelected(self):
         self.ui.pushButtonEdit.setEnabled(True)
         self.ui.pushButtonDelete.setEnabled(True)
+        self.ui.pushButtonCopy.setEnabled(True)
 
     def editorClosed(self):
         self.editingPropellant = False
@@ -107,6 +118,7 @@ class PropellantMenu(QDialog):
         self.ui.pushButtonNewPropellant.setEnabled(not editing)
         self.ui.pushButtonEdit.setEnabled(not editing)
         self.ui.pushButtonDelete.setEnabled(not editing)
+        self.ui.pushButtonCopy.setEnabled(not editing)
 
     def closeEvent(self, event=None):
         if not self.unsavedCheck():
