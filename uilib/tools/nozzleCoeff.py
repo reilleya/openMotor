@@ -20,7 +20,7 @@ class NozzleCoeffTool(Tool):
         }
         props['convergenceThreshold'].setValue(1)
         super().__init__(manager,
-                         'Nozzle Coefficient',
+                         'Nozzle Erosion/Slag Coefficient',
                          'Use this tool to back-calculate the throat erosion or '
                          'slag buildup coefficient from a measured post-firing '
                          'throat diameter. If the throat grew, the erosion '
