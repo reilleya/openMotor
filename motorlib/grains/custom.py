@@ -27,8 +27,6 @@ class CustomGrain(FmmGrain):
     #         imageRow, imageCol = draw.polygon(row, col, self.coreMap.shape)
     #         self.coreMap[imageRow, imageCol] = 0
 
-    # vibe coded stuff
-
     def generateCoreMap(self):
         inUnit = self.props['dxfUnit'].getValue()
         void_mask = np.zeros(self.coreMap.shape, dtype=bool)
