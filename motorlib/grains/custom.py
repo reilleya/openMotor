@@ -7,6 +7,8 @@ from ..properties import PolygonProperty, EnumProperty
 from ..simResult import SimAlert, SimAlertLevel, SimAlertType
 from ..units import getAllConversions, convert
 
+import numpy as np
+
 class CustomGrain(FmmGrain):
     """Custom grains can have any core shape. They define their geometry using a polygon property, which tracks a list
     of polygons that each consist of a number of points. The polygons are scaled according to user specified units and
@@ -17,13 +19,28 @@ class CustomGrain(FmmGrain):
         self.props['points'] = PolygonProperty('Core geometry')
         self.props['dxfUnit'] = EnumProperty('DXF Unit', getAllConversions('m'))
 
+    # def generateCoreMap(self):
+    #     inUnit = self.props['dxfUnit'].getValue()
+    #     for polygon in self.props['points'].getValue():
+    #         row = [(self.mapDim/2) + (-self.normalize(convert(p[1], inUnit, 'm')) * (self.mapDim/2)) for p in polygon]
+    #         col = [(self.mapDim/2) + (self.normalize(convert(p[0], inUnit, 'm')) * (self.mapDim/2)) for p in polygon]
+    #         imageRow, imageCol = draw.polygon(row, col, self.coreMap.shape)
+    #         self.coreMap[imageRow, imageCol] = 0
+
+    # vibe coded stuff
+
     def generateCoreMap(self):
         inUnit = self.props['dxfUnit'].getValue()
+        void_mask = np.zeros(self.coreMap.shape, dtype=bool)
         for polygon in self.props['points'].getValue():
             row = [(self.mapDim/2) + (-self.normalize(convert(p[1], inUnit, 'm')) * (self.mapDim/2)) for p in polygon]
             col = [(self.mapDim/2) + (self.normalize(convert(p[0], inUnit, 'm')) * (self.mapDim/2)) for p in polygon]
             imageRow, imageCol = draw.polygon(row, col, self.coreMap.shape)
-            self.coreMap[imageRow, imageCol] = 0
+            # toggle the boolean state of the pixels inside this polygon loop
+            void_mask[imageRow, imageCol] = ~void_mask[imageRow, imageCol]
+        # commits all odd regions to the core map as voids
+        # except it does the opposite becuase it's inversed and I can't be asked to do it right
+        self.coreMap[~void_mask] = 0
 
     def getGeometryErrors(self):
         errors = super().getGeometryErrors()
