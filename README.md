@@ -44,6 +44,8 @@ skfmm/fmm.cpp:4:10: fatal error: Python.h: No such file or directory
 ```
 The fix is to install `python3-dev` or the equivalent with your system package manager.
 
+###### Note: The versions pinned in `requirements.txt` (numpy, scipy, scikit-fmm, etc.) do not have prebuilt wheels for very new Python releases (e.g. 3.13), which causes `pip install -r requirements.txt` to fail while building from source. If you hit this, create the venv with Python 3.11 instead (e.g. `python3.11 -m venv .venv`, installed via `brew install python@3.11` on Mac or your system package manager elsewhere).
+
 If you are running Windows and get errors like `DLL load failed while importing _cext` when trying to run the application after installing the dependencies, you may need to install the latest Microsoft Visual C++ Redistributable.
 
 #### UI Files:
