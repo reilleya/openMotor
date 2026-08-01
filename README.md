@@ -58,6 +58,10 @@ $ python setup.py build_ui
 ```
 Note that if you make changes to the UI using the `.ui` forms, you must re-build using the same command.
 
+###### Note: `build_ui` depends on `pyqt-distutils`, which still imports the deprecated `pkg_resources` module. Recent versions of `setuptools` (81+) removed it, so `setup.py build_ui` will silently report "pyqt_distutils not found, build_ui command will be unavailable" and fail with `error: invalid command 'build_ui'`. If you hit this, run `pip install "setuptools<81"` first.
+
+Skipping this step (or the Cython step below) will make `python main.py` fail at import time, e.g. `ModuleNotFoundError: No module named 'mathlib._find_perimeter_cy'` or errors importing `uilib.views.MainWindow_ui`.
+
 #### Cython Files:
 to speed up some more computationally expensive parts of the codebase, openMotor uses the Cython programming language to run calculations in C.
 
