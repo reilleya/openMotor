@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61.0", "Cython>=3.0.11", "numpy>=1.24.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openMotor"
+version = "0.6.2"
+description = "Internal ballistics simulator for rocket motors"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "Cython>=3.0.11",
+    "docopt>=0.6.2",
+    "ezdxf>=1.4.0",
+    "imageio>=2.31.0",
+    "matplotlib>=3.7.1",
+    "networkx>=3.1",
+    "numpy>=1.24.3",
+    "Pillow>=9.5.0",
+    "platformdirs>=4.2.2",
+    "PyQt6>=6.7.1",
+    "pyqt-distutils>=0.7.3",
+    "PyYAML>=6.0",
+    "scikit-fmm>=2023.4.2",
+    "scikit-image>=0.18.3",
+    "scipy>=1.10.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "sphinx>=7.0.1",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"] # Basic errors, warnings, and import sorting (isort)
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.uv.extra-build-dependencies]
+openmotor = ["Cython"]
