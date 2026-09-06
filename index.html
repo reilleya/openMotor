@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>openMotor, Internal Ballistics Simulator</title>
+<meta name="description" content="openMotor is an open-source internal ballistics simulator for rocket motor experimenters. Estimates chamber pressure and thrust from propellant properties, grain geometry, and nozzle spec. Free.">
+<style>
+  :root{
+    --bg:#0b0e13;
+    --fg:#dde2e7;
+    --dim:#8a919e;
+    --accent:#e07a1f;
+    --line:#1a2130;
+    --card:#111620;
+    --serif:Georgia,"Times New Roman",Times,serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--fg);
+    line-height:1.6;
+  }
+  a{color:#c49a6c;text-decoration:none;border-bottom:1px solid rgba(196,154,108,.3)}
+  a:hover{border-bottom-color:var(--accent);color:#e8c49a}
+  img{max-width:100%;height:auto;border-radius:6px}
+  .container{max-width:680px;margin:0 auto;padding:0 1.5rem}
+
+  /* nav */
+  nav{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 1.5rem;max-width:100%;border-bottom:1px solid var(--line)}
+  .nav-inner{max-width:680px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;width:100%}
+  nav .logo{display:flex;align-items:center;gap:.6rem;font-weight:600;font-size:.95rem;color:var(--fg)}
+  nav .logo img{width:28px;height:28px;border-radius:4px}
+  nav .nav-links{display:flex;gap:1.2rem}
+  nav .nav-links a{color:var(--dim);border-bottom:0;font-size:.85rem}
+  nav .nav-links a:hover{color:var(--fg)}
+
+  /* hero */
+  .hero{padding:4rem 0 3rem;border-bottom:1px solid var(--line)}
+  .hero p.tag{font-size:.75rem;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:1rem}
+  .hero h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700;letter-spacing:-0.04em;line-height:1.05;color:#f0f1f3;margin-bottom:.7rem}
+  .hero .sub{font-size:1.15rem;color:var(--dim);max-width:540px;line-height:1.55;margin-bottom:1.8rem}
+  .hero .dl-row{display:flex;gap:.7rem;flex-wrap:wrap;align-items:center}
+  .btn{padding:.5rem 1rem;border-radius:5px;font-size:.88rem;font-weight:500;display:inline-block}
+  .btn-primary{background:var(--accent);color:#0b0e13;border-bottom:0}
+  .btn-primary:hover{background:#f08830;color:#0b0e13}
+  .btn-secondary{background:var(--card);color:var(--fg);border:1px solid var(--line);border-bottom:0}
+  .btn-secondary:hover{border-color:var(--dim);color:var(--fg)}
+
+  /* sections */
+  section{padding:3rem 0;border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:0}
+  .section-label{font-size:.72rem;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem}
+  h2{font-size:1.5rem;font-weight:700;letter-spacing:-.03em;color:#f0f1f3;margin-bottom:1rem;line-height:1.2}
+
+  /* about */
+  .about-text{font-size:1.05rem;color:var(--fg);line-height:1.7;margin-bottom:1.2rem}
+  .about-text:last-child{margin-bottom:0}
+
+  /* capability items */
+  .cap-list{display:flex;flex-direction:column;gap:1.5rem;margin-top:1.2rem}
+  .cap{display:flex;gap:1.2rem;align-items:flex-start}
+  .cap-num{font-family:var(--serif);font-size:1.8rem;color:var(--accent);line-height:1;min-width:2.2rem;font-weight:700}
+  .cap h3{font-size:1rem;font-weight:600;color:#f0f1f3;margin-bottom:.25rem}
+  .cap p{font-size:.9rem;color:var(--dim);line-height:1.5;margin:0}
+
+  /* screenshot */
+  .screenshot{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:1.2rem;background:var(--card)}
+  .screenshot img{width:100%;display:block;border-radius:0}
+
+  /* how */
+  .how-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.2rem}
+  .how-card{padding:1.2rem;background:var(--card);border:1px solid var(--line);border-radius:6px}
+  .how-card h3{font-size:.95rem;font-weight:600;color:#f0f1f3;margin-bottom:.4rem}
+  .how-card p{font-size:.85rem;color:var(--dim);line-height:1.5;margin:0}
+
+  /* code */
+  pre{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:.83rem;background:var(--card);padding:1.2rem;border-radius:8px;overflow-x:auto;border:1px solid var(--line);line-height:1.65;margin-top:1rem}
+  pre .c{color:#4a5568}
+  pre .k{color:#82aaff}
+  pre .s{color:#c3e88d}
+  pre .cm{color:#546e7a}
+
+  /* links */
+  .link-grid{display:flex;flex-direction:column;gap:.7rem;margin-top:1.2rem}
+  .link-item{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:6px}
+  .link-item .link-label{font-size:.9rem;color:var(--fg)}
+  .link-item .link-desc{font-size:.8rem;color:var(--dim);margin-top:.1rem}
+  .link-item a{color:#c49a6c;font-size:.85rem;border-bottom:0}
+  .link-item a:hover{color:#e8c49a}
+
+  /* footer */
+  footer{padding:2.5rem 0;text-align:center;border-top:1px solid var(--line)}
+  footer p{font-size:.82rem;color:var(--dim);margin-bottom:.4rem}
+  footer p:last-child{margin-bottom:0}
+  @media(max-width:520px){
+    .how-grid{grid-template-columns:1fr}
+    nav .nav-links{gap:.8rem}
+    nav .nav-links a{font-size:.8rem}
+  }
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">
+      <img src="resources/oMIconCycles.png" alt="openMotor">
+      openMotor
+    </div>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#how">How it works</a>
+      <a href="#download">Download</a>
+      <a href="https://github.com/reilleya/openMotor">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+<section class="hero">
+  <p class="tag">Open source · GPL-3.0</p>
+  <h1>Simulate your rocket motor<br>before you burn it.</h1>
+  <p class="sub">openMotor is a desktop application for rocketeers who want to estimate chamber pressure and thrust before building a motor. It handles arbitrary grain geometries using the Fast Marching Method, not just the simple ones.</p>
+  <div class="dl-row">
+    <a href="https://github.com/reilleya/openMotor/releases/latest" class="btn btn-primary">Download latest release</a>
+    <a href="https://github.com/reilleya/openMotor" class="btn btn-secondary">View source</a>
+  </div>
+</section>
+
+<section id="about">
+  <p class="section-label">About</p>
+  <h2>What this is, and what it isn't.</h2>
+  <p class="about-text">openMotor estimates internal ballistics for solid rocket motors. You feed it your propellant properties, grain geometry, and nozzle specs. It gives you chamber pressure and thrust curves over the burn. It won't design the rest of your rocket, and it won't fly it for you. It does one thing: tells you what your motor is likely to do.</p>
+  <p class="about-text">The math comes from George Sutton's <em>Rocket Propulsion Elements</em> and Richard Nakka's website. The software is Python, with some Cython for the parts that need to be fast. The source is there so you can check it. You don't have to trust us.</p>
+  <p class="about-text">If you build motors and want to reduce the guesswork, this is a tool worth having.</p>
+</section>
+
+<section id="capabilities">
+  <p class="section-label">Capabilities</p>
+  <h2>What you can do with it.</h2>
+
+  <div class="cap-list">
+    <div class="cap">
+      <span class="cap-num">01</span>
+      <div>
+        <h3>Model arbitrary grain shapes</h3>
+        <p>Most grain geometry calculators only handle cylinders. openMotor uses the Fast Marching Method to compute regression for any core shape you can draw: BATES, Finocyl, Star, custom DXF imports, whatever you lay out.</p>
+      </div>
+    </div>
+    <div class="cap">
+      <span class="cap-num">02</span>
+      <div>
+        <h3>Define your own propellants</h3>
+        <p>The propellant editor takes burn rate, density, flame temperature, molecular weight. As many propellants as you want. No locked database. You own the numbers.</p>
+      </div>
+    </div>
+    <div class="cap">
+      <span class="cap-num">03</span>
+      <div>
+        <h3>See the grain regress in real time</h3>
+        <p>The grain editor shows how the propellant burns out as the burn progresses. Tweak geometry, watch the regression, cut down on the iterations before you mill any aluminum.</p>
+      </div>
+    </div>
+    <div class="cap">
+      <span class="cap-num">04</span>
+      <div>
+        <h3>Work in metric or imperial</h3>
+        <p>Switch between systems at any time. The UI handles both without converting your files.</p>
+      </div>
+    </div>
+    <div class="cap">
+      <span class="cap-num">05</span>
+      <div>
+        <h3>Export and import</h3>
+        <p>ENG file export for flight simulators. Burnsim import and export so you can compare results or migrate from an existing workflow.</p>
+      </div>
+    </div>
+    <div class="cap">
+      <span class="cap-num">06</span>
+      <div>
+        <h3>Save, load, undo, redo</h3>
+        <p>Designs save to YAML files with a .ric extension. Full undo/redo stack. Motor files are plain text under the hood if you ever need to edit them directly.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="screenshot">
+  <p class="section-label">Interface</p>
+  <h2>The application.</h2>
+  <div class="screenshot">
+    <img src="https://reilley.net/openMotor/screenshot.png" alt="openMotor interface screenshot" loading="lazy" onerror="this.style.display='none'">
+  </div>
+  <p style="font-size:.82rem;color:var(--dim);margin-top:.6rem">Grain editor, propellant editor, results plot. All in one window.</p>
+</section>
+
+<section id="how">
+  <p class="section-label">Under the hood</p>
+  <h2>How the regression works.</h2>
+  <p class="about-text">Solid rocket propellant burns inward from the surface. Modeling how that surface moves over time is called "regression." For simple cylindrical bores this is trivial. The radius grows linearly. For anything more complex (Star, Finocyl, irregular cores), the surface topology changes in ways that are hard to write down with a formula.</p>
+  <p class="about-text">openMotor uses the <strong>Fast Marching Method</strong> to track the burning surface. The burn rate at each point depends on local pressure. Pressure depends on the total burn rate. These two are coupled, so FMM solves the resulting level-set equation without needing to remesh.</p>
+  <p class="about-text">The core computation is in <code>motorlib/</code>, with Cython accelerations in <code>mathlib/</code>.</p>
+</section>
+
+<section id="download">
+  <p class="section-label">Download</p>
+  <h2>Get started.</h2>
+
+  <div class="how-grid">
+    <div class="how-card">
+      <h3>Pre-built release</h3>
+      <p>Download the latest release for Windows, macOS, or Linux. Unzip and run. No install needed.</p>
+    </div>
+    <div class="how-card">
+      <h3>Build from source</h3>
+      <p>Clone the repo, set up a Python 3.10+ venv, install requirements, run the setup scripts, then <code>python main.py</code>.</p>
+    </div>
+  </div>
+
+  <pre><code><span class="cm"># Clone and set up</span>
+git clone https://github.com/reilleya/openMotor.git
+cd openMotor
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+<span class="cm"># Build UI files (requires Qt Designer + pyuic6)</span>
+python setup.py build_ui
+
+<span class="cm"># Build Cython extensions</span>
+python setup.py build_ext --inplace
+
+<span class="cm"># Run</span>
+python main.py</code></pre>
+</section>
+
+<section id="community">
+  <p class="section-label">Community</p>
+  <h2>Links.</h2>
+
+  <div class="link-grid">
+    <div class="link-item">
+      <div>
+        <div class="link-label">GitHub repository</div>
+        <div class="link-desc">Source code, issues, releases, pull requests</div>
+      </div>
+      <a href="https://github.com/reilleya/openMotor">github.com/reilleya/openMotor →</a>
+    </div>
+    <div class="link-item">
+      <div>
+        <div class="link-label">Richard Nakka's website</div>
+        <div class="link-desc">The rocket theory reference used throughout the project</div>
+      </div>
+      <a href="https://www.nakka-rocketry.net/rtheory.html">nakka-rocketry.net →</a>
+    </div>
+    <div class="link-item">
+      <div>
+        <div class="link-label">Rocket Propulsion Elements</div>
+        <div class="link-desc">George Sutton, the foundational textbook for solid rocket theory</div>
+      </div>
+      <a href="https://en.wikipedia.org/wiki/Rocket_Propulsion_Elements">Sutton · 4th edition →</a>
+    </div>
+    <div class="link-item">
+      <div>
+        <div class="link-label">ThrustCurve</div>
+        <div class="link-desc">Motor data for correlating simulations with real-world motors</div>
+      </div>
+      <a href="https://www.thrustcurve.org">thrustcurve.org →</a>
+    </div>
+  </div>
+</section>
+
+</div><!-- /container -->
+
+<footer>
+  <div class="container">
+    <p>Rocket motors are dangerous. Always verify calculations before testing.</p>
+    <p>Stay far from people and structures. Results are estimates, not guarantees.</p>
+    <p>GPL-3.0 · <a href="https://github.com/reilleya/openMotor">github.com/reilleya/openMotor</a> · Issues and pull requests welcome.</p>
+    <p>Built by rocketeers. No marketing team.</p>
+  </div>
+</footer>
+
+</body>
+</html>
