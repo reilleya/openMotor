@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "Cython>=3.0.11", "numpy>=1.24.3"]
+requires = ["setuptools>=61.0", "Cython>=3.0.11", "numpy>=1.24.3", "pyqt-distutils"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,6 +7,7 @@ name = "openMotor"
 version = "0.6.2"
 description = "Internal ballistics simulator for rocket motors"
 readme = "README.md"
+license = "GPL-3.0-only"
 requires-python = ">=3.10"
 dependencies = [
     "Cython>=3.0.11",
@@ -24,6 +25,8 @@ dependencies = [
     "scikit-fmm>=2023.4.2",
     "scikit-image>=0.18.3",
     "scipy>=1.10.1",
+    "ruff>=0.16.6",
+    "setuptools>=84.0.0",
 ]
 
 [project.optional-dependencies]
