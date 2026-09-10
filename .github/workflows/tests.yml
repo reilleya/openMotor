@@ -30,11 +30,11 @@ jobs:
       run: |
         uv run python setup.py build_ext --inplace
 
-    - name: Lint with flake8
+    - name: Lint with ruff
       run: |
-        # Тимчасово залишаємо flake8 для сумісності з поточним кодом
-        uv run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        uv run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+        uv run ruff check . --select E9,F63,F7,F82
+        uv run ruff check . --exit-zero
 
     - name: Run unit tests
       run: |
