@@ -1,12 +1,18 @@
 """Contains the motor class and a supporting configuration property collection."""
 
 from typing import Dict, Union, List
+import math
 import numpy as np
 from scipy.optimize import newton
 
 from . import geometry
 from .constants import atmosphericPressure, gasConstant
-from .grains import EndBurningGrain, grainTypes
+from .grains import (
+    BottomHemisphericalGrain,
+    EndBurningGrain,
+    TopHemisphericalGrain,
+    grainTypes,
+)
 from .nozzle import Nozzle
 from .propellant import Propellant
 from .properties import FloatProperty, IntProperty, PropertyCollection
@@ -99,6 +105,174 @@ class Motor:
             self.grains.append(grainTypes[entry["type"]]())
             self.grains[-1].setProperties(entry["properties"])
         self.config.setProperties(dictionary["config"])
+
+    def getCapsulePlacementErrors(self, checkInterfaces=False):
+        """Return errors and warnings for hemispherical capsule grain placement."""
+        alerts = []
+        topIndices = [
+            gid
+            for gid, grain in enumerate(self.grains)
+            if isinstance(grain, TopHemisphericalGrain)
+        ]
+        bottomIndices = [
+            gid
+            for gid, grain in enumerate(self.grains)
+            if isinstance(grain, BottomHemisphericalGrain)
+        ]
+
+        def add(level, description, location="Motor"):
+            alerts.append(
+                SimAlert(level, SimAlertType.GEOMETRY, description, location)
+            )
+
+        for gid in topIndices:
+            if gid != 0:
+                add(
+                    SimAlertLevel.ERROR,
+                    "Top Hemispherical Grain must be the first grain",
+                    "Grain {}".format(gid + 1),
+                )
+        for gid in bottomIndices:
+            if gid != len(self.grains) - 1:
+                add(
+                    SimAlertLevel.ERROR,
+                    "Bottom Hemispherical Grain must be the last grain",
+                    "Grain {}".format(gid + 1),
+                )
+
+        if len(topIndices) > 1:
+            add(SimAlertLevel.ERROR, "A capsule may only have one top hemispherical grain")
+        if len(bottomIndices) > 1:
+            add(
+                SimAlertLevel.ERROR,
+                "A capsule may only have one bottom hemispherical grain",
+            )
+        if topIndices and len(self.grains) < 2:
+            add(
+                SimAlertLevel.ERROR,
+                "A top hemispherical grain requires a following grain",
+            )
+        if bottomIndices and len(self.grains) < 2:
+            add(
+                SimAlertLevel.ERROR,
+                "A bottom hemispherical grain requires a preceding grain",
+            )
+        if (
+            topIndices
+            and bottomIndices
+            and len(self.grains) < 3
+        ):
+            add(
+                SimAlertLevel.ERROR,
+                "Top and bottom hemispherical grains require at least one grain between them",
+            )
+
+        if not topIndices and not bottomIndices:
+            return alerts
+
+        capsArePositioned = (
+            (not topIndices or topIndices == [0])
+            and (
+                not bottomIndices
+                or bottomIndices == [len(self.grains) - 1]
+            )
+        )
+        if (
+            not capsArePositioned
+            or len(topIndices) > 1
+            or len(bottomIndices) > 1
+        ):
+            return alerts
+
+        cap = self.grains[topIndices[0] if topIndices else bottomIndices[0]]
+        referenceDiameter = cap.getProperty("diameter")
+        for gid, grain in enumerate(self.grains):
+            if not math.isclose(
+                grain.getProperty("diameter"),
+                referenceDiameter,
+                rel_tol=0,
+                abs_tol=1e-6,
+            ):
+                add(
+                    SimAlertLevel.ERROR,
+                    "All capsule grains must have matching outer diameters",
+                    "Grain {}".format(gid + 1),
+                )
+
+        interfaces = []
+        if topIndices and len(self.grains) >= 2:
+            top = self.grains[0]
+            firstMiddle = self.grains[1]
+            firstInhibition = (
+                firstMiddle.getProperty("inhibitedEnds")
+                if "inhibitedEnds" in firstMiddle.props
+                else None
+            )
+            if firstInhibition not in ("Top", "Both"):
+                add(
+                    SimAlertLevel.ERROR,
+                    "The forward face of the grain after a top cap must be inhibited",
+                    "Grain 2",
+                )
+            if checkInterfaces:
+                interfaces.append(
+                    ("top", top.getMatingPortArea(0), firstMiddle.getPortArea(0), 2)
+                )
+
+        if bottomIndices and len(self.grains) >= 2:
+            lastMiddle = self.grains[-2]
+            bottom = self.grains[-1]
+            lastInhibition = (
+                lastMiddle.getProperty("inhibitedEnds")
+                if "inhibitedEnds" in lastMiddle.props
+                else None
+            )
+            if lastInhibition not in ("Bottom", "Both"):
+                add(
+                    SimAlertLevel.ERROR,
+                    "The aft face of the grain before a bottom cap must be inhibited",
+                    "Grain {}".format(len(self.grains) - 1),
+                )
+            if checkInterfaces:
+                interfaces.append(
+                    (
+                        "bottom",
+                        bottom.getMatingPortArea(0),
+                        lastMiddle.getPortArea(0),
+                        len(self.grains) - 1,
+                    )
+                )
+
+        if not checkInterfaces:
+            return alerts
+
+        for name, capArea, middleArea, middleNumber in interfaces:
+            if middleArea is None or middleArea <= 0:
+                add(
+                    SimAlertLevel.ERROR,
+                    "The grain adjacent to the {} cap must have an open port".format(
+                        name
+                    ),
+                    "Grain {}".format(middleNumber),
+                )
+                continue
+            if capArea + 1e-12 < middleArea:
+                add(
+                    SimAlertLevel.ERROR,
+                    "The {} cap port must not obstruct the adjacent grain port".format(
+                        name.capitalize()
+                    ),
+                    "Grain {}".format(middleNumber),
+                )
+            elif not math.isclose(capArea, middleArea, rel_tol=0.05):
+                add(
+                    SimAlertLevel.WARNING,
+                    "The {} cap and adjacent grain port areas differ by more than 5%".format(
+                        name
+                    ),
+                    "Grain {}".format(middleNumber),
+                )
+        return alerts
 
     def calcBurningSurfaceArea(self, regDepth):
         burnoutThres = self.config.getProperty("burnoutWebThres")
@@ -222,6 +396,8 @@ class Motor:
             for alert in grain.getGeometryErrors():
                 alert.location = "Grain {}".format(gid + 1)
                 simRes.addAlert(alert)
+        for alert in self.getCapsulePlacementErrors():
+            simRes.addAlert(alert)
         for alert in self.nozzle.getGeometryErrors():
             simRes.addAlert(alert)
 
@@ -251,6 +427,11 @@ class Motor:
         # Generate coremaps for perforated grains
         for grain in self.grains:
             grain.simulationSetup(self.config)
+
+        for alert in self.getCapsulePlacementErrors(checkInterfaces=True):
+            simRes.addAlert(alert)
+        if len(simRes.getAlertsByLevel(SimAlertLevel.ERROR)) > 0:
+            return simRes
 
         # Setup initial values
         perGrainReg = [0 for grain in self.grains]
@@ -456,6 +637,12 @@ class Motor:
 
         simRes = SimulationResult(self)
 
+        if any(
+            alert.level == SimAlertLevel.ERROR
+            for alert in self.getCapsulePlacementErrors()
+        ):
+            return results
+
         density = (
             self.propellant.getProperty("density")
             if self.propellant is not None
@@ -474,6 +661,12 @@ class Motor:
                     return results
 
             grain.simulationSetup(self.config)
+
+        if any(
+            alert.level == SimAlertLevel.ERROR
+            for alert in self.getCapsulePlacementErrors(checkInterfaces=True)
+        ):
+            return results
 
         perGrainReg = [0 for grain in self.grains]
 

@@ -15,6 +15,7 @@ PyQt6==6.7.1
 PyQt6-sip==13.8.0
 python-dateutil==2.8.2
 PyYAML==6.0
+python-docx==1.1.2
 scikit-fmm==2023.4.2
 scikit-image==0.18.3
 scipy==1.10.1

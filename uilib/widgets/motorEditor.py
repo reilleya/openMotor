@@ -38,7 +38,25 @@ class MotorEditor(CollectionEditor):
             nozzle.setProperties(self.getProperties())
             self.nozzlePreview.loadNozzle(nozzle)
 
-        if issubclass(self.objType, motorlib.grain.PerforatedGrain):
+        if issubclass(
+            self.objType,
+            (
+                motorlib.grain.PerforatedGrain,
+                motorlib.grains.AxisymmetricHemisphericalGrain,
+            ),
+        ):
+            if issubclass(
+                self.objType, motorlib.grains.AxisymmetricHemisphericalGrain
+            ):
+                lengthEditor = self.propertyEditors["length"]
+                length = self.propertyEditors["diameter"].getValue() / 2
+                displayLength = motorlib.units.convert(
+                    length, lengthEditor.prop.unit, lengthEditor.dispUnit
+                )
+                lengthEditor.editor.blockSignals(True)
+                lengthEditor.editor.setRange(displayLength, displayLength)
+                lengthEditor.editor.setValue(displayLength)
+                lengthEditor.editor.blockSignals(False)
             testGrain = self.objType()
             testGrain.setProperties(self.getProperties())
             self.grainPreview.loadGrain(testGrain)
@@ -47,7 +65,13 @@ class MotorEditor(CollectionEditor):
         self.objType = type(obj)
         self.loadProperties(obj)
 
-        if issubclass(self.objType, motorlib.grain.PerforatedGrain):
+        if issubclass(
+            self.objType,
+            (
+                motorlib.grain.PerforatedGrain,
+                motorlib.grains.AxisymmetricHemisphericalGrain,
+            ),
+        ):
             self.grainPreview.show()
             self.nozzlePreview.hide()
             self.expRatioLabel.hide()

@@ -1,0 +1,56 @@
+document:
+  title: INTERNAL BALLISTICS MOTOR REPORT
+  title_pt: RELATÓRIO DE BALÍSTICA INTERNA DO MOTOR
+  subtitle: Simulation, Design Inputs, and Performance Assessment
+  subtitle_pt: Simulação, Dados de Projeto e Avaliação de Desempenho
+  confidentiality: ENGINEERING WORKING DOCUMENT
+  confidentiality_pt: DOCUMENTO DE TRABALHO DE ENGENHARIA
+
+sections:
+  revision: DOCUMENT CONTROL / CONTROLE DO DOCUMENTO
+  contents: CONTENTS / SUMÁRIO
+  purpose: 1. PURPOSE AND SCOPE / OBJETIVO E ESCOPO
+  inputs: 2. MOTOR INPUT CONFIGURATION / CONFIGURAÇÃO DE ENTRADA
+  propellant: 3. PROPELLANT / PROPELENTE
+  grains: 4. GRAIN GEOMETRY / GEOMETRIA DOS GRÃOS
+  nozzle: 5. NOZZLE / TUBEIRA
+  performance: 6. SIMULATED PERFORMANCE / DESEMPENHO SIMULADO
+  figures: 7. PERFORMANCE CURVES / CURVAS DE DESEMPENHO
+  regression: 8. GRAIN REGRESSION / REGRESSÃO DOS GRÃOS
+  compliance: 9. ENGINEERING CHECKS / VERIFICAÇÕES DE ENGENHARIA
+  conclusions: 10. CONCLUSIONS / CONCLUSÕES
+  appendix: APPENDIX A. SIMULATION SETTINGS / APÊNDICE A. CONFIGURAÇÕES
+
+text:
+  purpose_en: >
+    This report documents the input configuration and predicted internal
+    ballistic performance of the referenced solid rocket motor. Results were
+    generated directly from the accompanying openMotor file using the
+    deterministic openMotor simulation engine.
+  purpose_pt: >
+    Este relatório documenta a configuração de entrada e o desempenho previsto
+    de balística interna do motor-foguete sólido de referência. Os resultados
+    foram gerados diretamente a partir do arquivo openMotor correspondente,
+    utilizando o mecanismo determinístico de simulação do openMotor.
+  method_en: >
+    The analysis couples propellant regression, evolving burning area, nozzle
+    flow, chamber pressure, and thrust at each simulation time step. All values
+    in this report use SI units.
+  method_pt: >
+    A análise acopla a regressão do propelente, a área de queima variável, o
+    escoamento na tubeira, a pressão da câmara e o empuxo em cada passo de
+    simulação. Todos os valores deste relatório utilizam unidades SI.
+  disclaimer_en: >
+    Engineering note: simulation results are estimates and shall be verified
+    by qualified review and appropriately controlled testing before hardware
+    use.
+  disclaimer_pt: >
+    Nota de engenharia: os resultados de simulação são estimativas e devem ser
+    verificados por revisão qualificada e ensaios adequadamente controlados
+    antes do uso em hardware.
+
+styles:
+  primary_color: 17365D
+  accent_color: 2F75B5
+  light_fill: D9EAF7
+  font: Arial

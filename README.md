@@ -11,6 +11,7 @@ Current Features:
 
 * Metric and imperial units
 * Support for common grain geometries such as BATES, Finocyl, Star and more
+* Axisymmetric top and bottom hemispherical grains for capsule-shaped propellant assemblies
 * Loading custom grain geometry from DXF files
 * A propellant editor that allows the user to enter the properties of as many propellants as they wish
 * The grain editor displays how a grain will regress to cut down on the guesswork involved in tweaking geometry
@@ -96,6 +97,57 @@ Note that if you make changes to any of the `.pyx` files, you must re-compile th
 Once everything is set up, you can start openMotor by running: `python main.py` or `uv run main.py`
 
 ###### Note: On some systems, Python 2 and 3 are installed simultaneously, so you may have to specify which version to run when creating the venv. After the venv has been activated, the programs `python` and `pip` are aliased to the python runtime specific for your venv, so use those (instead of `pip3` and `python3`, on e.g. Debian Linux)
+
+Standalone Optimizer
+--------------------
+The configurable optimizer can vary any numeric motor property, apply output
+constraints, calculate a multi-objective Pareto front, save selected `.ric`
+files, and generate Pareto and pressure plots. The GUI and command-line modes
+use the same YAML configuration format.
+
+Copy `tools/optimizer-example.yaml`, then edit the motor path, variable paths,
+ranges, constraints, and objectives. A variable can update several linked
+properties by listing multiple paths, for example the core diameter of several
+grains.
+
+Run from the command line:
+```
+python tools/openmotor_optimizer.py run my-optimizer.yaml
+```
+
+Open the desktop interface, optionally with an existing configuration:
+```
+python tools/openmotor_optimizer.py gui my-optimizer.yaml
+```
+
+The output directory contains all successful results, the Pareto front,
+full-resolution selected motor files, a JSON summary, and comparison plots.
+All values in YAML use openMotor's SI units.
+
+Engineering Report Generator
+----------------------------
+The standalone report generator loads an openMotor `.ric` file, runs the
+simulation locally, creates engineering plots, and fills a bilingual
+English/Portuguese Word report. Runtime report generation is deterministic and
+does not use an LLM or require network access. The report template wording and
+style are stored in `tools/report-template.yaml`.
+
+Generate a report from a saved configuration:
+```
+python tools/openmotor_report.py run my-report.yaml
+```
+
+Open the desktop report interface:
+```
+python tools/openmotor_report.py gui my-report.yaml
+```
+
+Copy `tools/report-example.yaml` to configure document metadata, simulation
+resolution, figure quality, input motor, output document, and template. The
+generated report includes document control, inputs, propellant and grain data,
+nozzle geometry, performance tables, pressure and thrust histories, diagnostic
+curves, grain regression figures, engineering-limit checks, alerts,
+conclusions, and simulation settings.
 
 Data Files
 -----------

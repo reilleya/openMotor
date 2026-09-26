@@ -1,0 +1,22 @@
+motor: ../test/data/regression/simple/motor.ric
+output: ../motor-engineering-report.docx
+template: report-template.yaml
+
+metadata:
+  motor_name: Example Solid Rocket Motor
+  project: openMotor Engineering Analysis
+  prepared_by: Analyst Name
+  organization: Organization Name
+  document_id: OMR-001
+  revision: A
+  status: Preliminary
+  date: auto
+
+simulation:
+  map_dim: 750
+
+figures:
+  dpi: 180
+  regression_map_dim: 300
+  regression_contours: 7
+  keep_png_files: true

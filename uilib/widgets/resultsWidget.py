@@ -1,4 +1,12 @@
-from PyQt6.QtWidgets import QWidget, QHeaderView, QLabel, QTableWidgetItem
+from PyQt6.QtWidgets import (
+    QWidget,
+    QHeaderView,
+    QLabel,
+    QSlider,
+    QTableWidgetItem,
+    QVBoxLayout,
+)
+from PyQt6.QtCore import Qt
 import numpy as np
 
 import motorlib
@@ -6,6 +14,7 @@ from motorlib.simResult import singleValueChannels, multiValueChannels, alertLev
 from motorlib.constants import standardGravity
 
 from .grainImageWidget import GrainImageWidget
+from .motorCrossSectionWidget import MotorCrossSectionWidget
 
 from ..views.ResultsWidget_ui import Ui_ResultsWidget
 
@@ -33,6 +42,26 @@ class ResultsWidget(QWidget):
 
         self.ui.horizontalSliderTime.valueChanged.connect(self.updateGrainTab)
         self.ui.tableWidgetGrains.setRowHeight(0, 128)
+
+        self.crossSectionTab = QWidget()
+        crossSectionLayout = QVBoxLayout(self.crossSectionTab)
+        self.crossSectionWidget = MotorCrossSectionWidget(
+            self.crossSectionTab
+        )
+        crossSectionLayout.addWidget(self.crossSectionWidget)
+        self.crossSectionSlider = QSlider(Qt.Orientation.Horizontal)
+        crossSectionLayout.addWidget(self.crossSectionSlider)
+        self.crossSectionSlider.valueChanged.connect(
+            self.ui.horizontalSliderTime.setValue
+        )
+        self.ui.horizontalSliderTime.valueChanged.connect(
+            self.crossSectionSlider.setValue
+        )
+        self.ui.tabWidget.insertTab(
+            self.ui.tabWidget.indexOf(self.ui.tabAlerts),
+            self.crossSectionTab,
+            "Longitudinal Section",
+        )
 
         header = self.ui.tableWidgetAlerts.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
@@ -65,6 +94,9 @@ class ResultsWidget(QWidget):
 
         self.cleanupGrainTab()
         self.ui.horizontalSliderTime.setMaximum(len(simResult.channels['time'].getData()) - 1)
+        self.crossSectionSlider.setMaximum(
+            len(simResult.channels['time'].getData()) - 1
+        )
         self.ui.tableWidgetGrains.setColumnCount(len(simResult.motor.grains))
         for _ in range(len(self.grainImageWidgets)):
             del self.grainImageWidgets[-1]
@@ -108,6 +140,12 @@ class ResultsWidget(QWidget):
     def updateGrainTab(self):
         if self.simResult is not None:
             index = self.ui.horizontalSliderTime.value()
+            regressions = self.simResult.channels[
+                'regression'
+            ].getPoint(index)
+            self.crossSectionWidget.showData(
+                self.simResult.motor, regressions
+            )
             for gid, grain in enumerate(self.simResult.motor.grains):
                 if self.grainImages[gid] is not None:
                     regDist = self.simResult.channels['regression'].getPoint(index)[gid]
@@ -155,6 +193,7 @@ class ResultsWidget(QWidget):
         self.simResult = None
         self.ui.grainSelector.resetChecks()
         self.ui.widgetGraph.resetPlot()
+        self.crossSectionWidget.resetPlot()
         self.cleanupGrainTab()
 
     def cleanupGrainTab(self):

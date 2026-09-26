@@ -1,0 +1,49 @@
+motor: ../test/data/regression/simple/motor.ric
+output_directory: ../optimization-results
+samples: 2000
+workers: 4
+seed: 20260921
+include_current: true
+map_dim: 250
+validation_map_dim: 750
+
+variables:
+  - name: core_diameter
+    paths:
+      - grains[0].properties.coreDiameter
+      - grains[1].properties.coreDiameter
+    min: 0.020
+    max: 0.050
+    type: float
+  - name: grain_length
+    paths:
+      - grains[0].properties.length
+      - grains[1].properties.length
+    min: 0.080
+    max: 0.250
+    type: float
+  - name: nozzle_exit
+    paths:
+      - nozzle.exit
+    min: 0.025
+    max: 0.050
+    type: float
+  - name: nozzle_throat
+    paths:
+      - nozzle.throat
+    min: 0.008
+    max: 0.020
+    type: float
+
+constraints:
+  - metric: impulse
+    min: 1000
+  - metric: burn_time
+    min: 1
+    max: 20
+
+objectives:
+  - metric: relative_pressure_spread
+    direction: minimize
+  - metric: propellant_mass
+    direction: minimize
