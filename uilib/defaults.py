@@ -10,23 +10,27 @@ DEFAULT_PREFERENCES = {
         'burnoutThrustThres': 0.1,
         'timestep': 0.03,
         'ambPressure': 101325,
-        'igniterPressure': 150 * 6895, # Deprecated, but needed for migration
+        'igniterPressure': 150 * 6895,
+        'pressureModel': 'Steady State',
+        'chamberVolume': 0,
         'mapDim': 750,
         'sepPressureRatio' : 0.4, # This is a good default value known as the Summerfield Criteria https://ntrs.nasa.gov/api/citations/19840011402/downloads/19840011402.pdf
         'flowSeparationWarnPercent': 0.05
     },
     'units': {
-        'm': 'in',
-        'm^3': 'in^3',
-        'm/s': 'ft/s',
-        'Pa': 'psi',
-        'kg': 'lb',
-        'kg/m^3': 'lb/in^3',
-        'kg/s': 'lb/s',
-        'kg/(m^2*s)': 'lb/(in^2*s)',
-        '(m*Pa)/s': '(in*psi)/s',
-        'm/(s*Pa)': 'thou/(s*psi)',
-        'm/(s*Pa^n)': 'in/(s*psi^n)'
+        'm': 'm',
+        'm^3': 'm^3',
+        'm/s': 'm/s',
+        'N': 'N',
+        'Ns': 'Ns',
+        'Pa': 'Pa',
+        'kg': 'kg',
+        'kg/m^3': 'kg/m^3',
+        'kg/s': 'kg/s',
+        'kg/(m^2*s)': 'kg/(m^2*s)',
+        '(m*Pa)/s': '(m*Pa)/s',
+        'm/(s*Pa)': 'um/(s*mPa)',
+        'm/(s*Pa^n)': 'mm/(s*Pa^n)'
     }
 }
 

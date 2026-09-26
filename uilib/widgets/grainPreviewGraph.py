@@ -8,15 +8,14 @@ from matplotlib.figure import Figure
 
 class GrainPreviewGraph(FigureCanvas):
     def __init__(self):
-        super(GrainPreviewGraph, self).__init__(Figure())
+        figure = Figure()
+        super(GrainPreviewGraph, self).__init__(figure)
         self.setParent(None)
         self.preferences = None
 
         self.image = None
         self.numContours = 0
 
-        self.figure = Figure()
-        self.canvas = FigureCanvas(self.figure)
         self.figure.tight_layout()
 
         self.plot = self.figure.add_subplot(111)
@@ -40,8 +39,8 @@ class GrainPreviewGraph(FigureCanvas):
             self.image.remove()
             self.image = None
         if self.numContours > 0:
-            for _ in range(0, self.numContours):
-                self.plot.lines[0].remove()
+            for line in list(self.plot.lines):
+                line.remove()
             self.numContours = 0
         self.draw()
 

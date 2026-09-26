@@ -2,19 +2,23 @@ import sys
 from threading import Thread
 
 from PyQt6.QtWidgets import QMainWindow, QTableWidgetItem, QHeaderView
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 
 import motorlib
 import uilib.widgets.aboutDialog
 from uilib.views.MainWindow_ui import Ui_MainWindow
 
 class Window(QMainWindow):
+    quickResultsReady = pyqtSignal(int, object)
+
     def __init__(self, app):
         QMainWindow.__init__(self)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
         self.app = app
+        self.quickResultsRequest = 0
+        self.quickResultsReady.connect(self.showQuickResults)
 
         self.setWindowIcon(self.app.icon)
 
@@ -326,12 +330,22 @@ class Window(QMainWindow):
         self.ui.labelDeliveredThrustCoefficient.setText(self.formatMotorStat(simResult.getAdjustedThrustCoefficient(), ''))
 
     def getQuickResults(self, motor):
-        thread = lambda: self.showQuickResults(motor.getQuickResults())
+        self.quickResultsRequest += 1
+        request = self.quickResultsRequest
 
-        dataThread = Thread(target=thread)
+        dataThread = Thread(
+            target=self.calculateQuickResults,
+            args=(motor, request),
+            daemon=True
+        )
         dataThread.start()
 
-    def showQuickResults(self, results):
+    def calculateQuickResults(self, motor, request):
+        self.quickResultsReady.emit(request, motor.getQuickResults())
+
+    def showQuickResults(self, request, results):
+        if request != self.quickResultsRequest:
+            return
         self.ui.labelVolumeLoading.setText('{:.2f}%'.format(results['volumeLoading']))
         self.ui.labelInitialKN.setText(self.formatMotorStat(results['initialKn'], ''))
         propellantDimensionString = '⌀ {} x {}'.format(

@@ -1,20 +1,21 @@
-from threading import Thread
-
 from PyQt6.QtWidgets import QWidget
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import QTimer
 
 import motorlib
 
 from ..views.GrainPreview_ui import Ui_GrainPreview
 
 class GrainPreviewWidget(QWidget):
-
-    previewReady = pyqtSignal(tuple)
-
     def __init__(self):
         super().__init__()
         self.ui = Ui_GrainPreview()
         self.ui.setupUi(self)
+
+        self.pendingGrain = None
+        self.previewTimer = QTimer(self)
+        self.previewTimer.setSingleShot(True)
+        self.previewTimer.setInterval(100)
+        self.previewTimer.timeout.connect(self._genData)
 
         self.ui.tabFace.setupImagePlot()
         self.ui.tabRegression.setupImagePlot()
@@ -24,9 +25,6 @@ class GrainPreviewWidget(QWidget):
         self.lastNonAlertTab = 1
 
         self.ui.tabWidget.currentChanged.connect(self.onTabChanged)
-
-        self.previewReady.connect(self.updateView)
-
     def loadGrain(self, grain):
         geomAlerts = grain.getGeometryErrors()
 
@@ -47,13 +45,16 @@ class GrainPreviewWidget(QWidget):
         if self.ui.tabWidget.currentIndex() == 0:
             self.ui.tabWidget.setCurrentIndex(self.lastNonAlertTab)
 
-        # Generate the contents to show on the image/graph tabs
-        dataThread = Thread(target=self._genData, args=[grain])
-        dataThread.start()
+        self.pendingGrain = grain
+        self.previewTimer.start()
 
-    def _genData(self, grain):
+    def _genData(self):
+        grain = self.pendingGrain
+        self.pendingGrain = None
+        if grain is None:
+            return
         out = grain.getRegressionData(250, coreBlack=False)
-        self.previewReady.emit(out)
+        self.updateView(out)
 
     def updateView(self, data):
         coreIm, regImage, contours, contourLengths = data
@@ -81,6 +82,8 @@ class GrainPreviewWidget(QWidget):
 
     def cleanup(self):
         self.lastNonAlertTab = 1
+        self.previewTimer.stop()
+        self.pendingGrain = None
         self.ui.tabAlerts.clear()
         self.ui.tabRegression.cleanup()
         self.ui.tabFace.cleanup()

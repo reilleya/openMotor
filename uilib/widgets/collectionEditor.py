@@ -12,7 +12,7 @@ class CollectionEditor(QWidget):
     closed = pyqtSignal()
 
     def __init__(self, parent, buttons=False):
-        super(CollectionEditor, self).__init__(QWidget(parent))
+        super(CollectionEditor, self).__init__(parent)
 
         self.preferences = None
 

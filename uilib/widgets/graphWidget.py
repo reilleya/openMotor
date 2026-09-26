@@ -12,8 +12,9 @@ def selectGrains(data, grains):
 
 class GraphWidget(FigureCanvas):
     def __init__(self, parent):
-        super(GraphWidget, self).__init__(Figure())
-        self.setParent(None)
+        figure = Figure()
+        super(GraphWidget, self).__init__(figure)
+        self.setParent(parent)
         self.setupPlot()
         self.preferences = None
 
@@ -21,8 +22,6 @@ class GraphWidget(FigureCanvas):
         self.preferences = pref
 
     def setupPlot(self):
-        self.figure = Figure()
-        self.canvas = FigureCanvas(self.figure)
         self.plot = self.figure.add_subplot(111)
         self.figure.tight_layout()
 

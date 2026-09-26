@@ -5,12 +5,11 @@ from motorlib.units import convertAll
 
 class BurnrateGraph(FigureCanvas):
     def __init__(self):
-        super(BurnrateGraph, self).__init__(Figure())
+        figure = Figure()
+        super(BurnrateGraph, self).__init__(figure)
         self.setParent(None)
         self.preferences = None
 
-        self.figure = Figure()
-        self.canvas = FigureCanvas(self.figure)
         self.figure.tight_layout()
 
         self.plot = self.figure.add_subplot(111)

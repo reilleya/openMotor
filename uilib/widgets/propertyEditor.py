@@ -14,7 +14,7 @@ class PropertyEditor(QWidget):
     valueChanged = pyqtSignal()
 
     def __init__(self, parent, prop, preferences):
-        super(PropertyEditor, self).__init__(QWidget(parent))
+        super(PropertyEditor, self).__init__(parent)
         self.preferences = preferences
         self.setLayout(QVBoxLayout())
         self.layout().setSpacing(0)

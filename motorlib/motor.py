@@ -2,6 +2,7 @@
 
 from typing import Dict, Union, List
 import numpy as np
+from scipy.integrate import solve_ivp
 from scipy.optimize import newton
 
 from . import geometry
@@ -9,7 +10,7 @@ from .constants import atmosphericPressure, gasConstant
 from .grains import EndBurningGrain, grainTypes
 from .nozzle import Nozzle
 from .propellant import Propellant
-from .properties import FloatProperty, IntProperty, PropertyCollection
+from .properties import EnumProperty, FloatProperty, IntProperty, PropertyCollection
 from .simResult import SimAlert, SimAlertLevel, SimAlertType, SimulationResult
 from .grain import Grain
 
@@ -46,6 +47,15 @@ class MotorConfig(PropertyCollection):
         self.props["timestep"] = FloatProperty("Simulation Timestep", "s", 0.0001, 0.1)
         self.props["ambPressure"] = FloatProperty(
             "Ambient Pressure", "Pa", 0.0001, 102000
+        )
+        self.props["igniterPressure"] = FloatProperty(
+            "Igniter Pressure", "Pa", 0, 1e7
+        )
+        self.props["pressureModel"] = EnumProperty(
+            "Pressure Model", ["Steady State", "Transient"]
+        )
+        self.props["chamberVolume"] = FloatProperty(
+            "Additional Chamber Volume", "m^3", 0, 1
         )
         self.props["mapDim"] = IntProperty("Grain Map Dimension", "", 250, 2000)
         self.props["sepPressureRatio"] = FloatProperty(
@@ -136,13 +146,77 @@ class Motor:
 
     def calcFreeVolume(self, regDepth):
         """Calculates the volume inside of the motor not occupied by proppellant for a set of regression depths."""
-        return sum(
+        grainVolume = sum(
             [grain.getFreeVolume(reg) for grain, reg in zip(self.grains, regDepth)]
         )
+        return grainVolume + self.config.getProperty("chamberVolume")
 
     def calcTotalVolume(self):
         """Calculates the bounding-cylinder volume of the combustion chamber."""
-        return sum([grain.getGrainBoundingVolume() for grain in self.grains])
+        grainVolume = sum([grain.getGrainBoundingVolume() for grain in self.grains])
+        return grainVolume + self.config.getProperty("chamberVolume")
+
+    def calcPressureRate(self, regDepth, dThroat, pressure):
+        freeVolume = self.calcFreeVolume(regDepth)
+        if freeVolume <= 0:
+            raise ValueError(
+                "Transient pressure simulation requires a non-zero chamber free volume"
+            )
+        burningArea = self.calcBurningSurfaceArea(regDepth)
+        throatArea = self.nozzle.getThroatArea(dThroat)
+        return self._calcPressureRate(pressure, burningArea, freeVolume, throatArea)
+
+    def _calcPressureRate(self, pressure, burningArea, freeVolume, throatArea):
+        _, _, _, temperature, molarMass = self.propellant.getCombustionProperties(
+            pressure
+        )
+        specificGasConstant = gasConstant / molarMass
+        gasDensity = pressure / (specificGasConstant * temperature)
+        generated = (
+            self.propellant.getBurnRate(pressure)
+            * burningArea
+            * (self.propellant.getProperty("density") - gasDensity)
+        )
+        discharged = (
+            pressure * throatArea / self.propellant.getCStar(pressure)
+        )
+        return (specificGasConstant * temperature / freeVolume) * (
+            generated - discharged
+        )
+
+    def integratePressure(self, regDepth, dThroat, pressure, dTime):
+        burningArea = self.calcBurningSurfaceArea(regDepth)
+        freeVolume = self.calcFreeVolume(regDepth)
+        throatArea = self.nozzle.getThroatArea(dThroat)
+        if freeVolume <= 0:
+            raise ValueError(
+                "Transient pressure simulation requires a non-zero chamber free volume"
+            )
+
+        ambientPressure = self.config.getProperty("ambPressure")
+
+        def pressureRate(_, state):
+            chamberPressure = max(ambientPressure, state[0])
+            rate = self._calcPressureRate(
+                chamberPressure, burningArea, freeVolume, throatArea
+            )
+            if state[0] <= ambientPressure and rate < 0:
+                rate = 0
+            return [rate]
+
+        solution = solve_ivp(
+            pressureRate,
+            (0, dTime),
+            [max(pressure, ambientPressure)],
+            max_step=min(0.0005, dTime),
+            rtol=1e-6,
+            atol=1,
+        )
+        if not solution.success:
+            raise RuntimeError(
+                "Unable to integrate chamber pressure: " + solution.message
+            )
+        return max(ambientPressure, solution.y[0][-1])
 
     def calcMachNumber(self, chamberPres, massFlux):
         """Calculates the mach number in the core of a grain for a given chamber pressure and mass flux."""
@@ -254,13 +328,45 @@ class Motor:
 
         # Setup initial values
         perGrainReg = [0 for grain in self.grains]
+        transientPressure = self.config.getProperty("pressureModel") == "Transient"
 
         # At t = 0, the motor has ignited
         simRes.channels["time"].addData(0)
         simRes.channels["kn"].addData(self.calcKN(perGrainReg, 0))
-        simRes.channels["pressure"].addData(
-            self.calcIdealPressure(perGrainReg, 0, None)
-        )
+        if transientPressure:
+            igniterPressure = self.config.getProperty("igniterPressure")
+            ambientPressure = self.config.getProperty("ambPressure")
+            if igniterPressure <= ambientPressure:
+                description = (
+                    "Igniter pressure must exceed ambient pressure for transient simulation"
+                )
+                simRes.addAlert(
+                    SimAlert(
+                        SimAlertLevel.ERROR,
+                        SimAlertType.CONSTRAINT,
+                        description,
+                        "Motor",
+                    )
+                )
+                return simRes
+            if self.calcFreeVolume(perGrainReg) <= 0:
+                description = (
+                    "Set Additional Chamber Volume above zero for transient pressure simulation"
+                )
+                simRes.addAlert(
+                    SimAlert(
+                        SimAlertLevel.ERROR,
+                        SimAlertType.CONSTRAINT,
+                        description,
+                        "Motor",
+                    )
+                )
+                return simRes
+            simRes.channels["pressure"].addData(igniterPressure)
+        else:
+            simRes.channels["pressure"].addData(
+                self.calcIdealPressure(perGrainReg, 0, None)
+            )
         simRes.channels["force"].addData(0)
         simRes.channels["mass"].addData(
             [grain.getVolumeAtRegression(0) * density for grain in self.grains]
@@ -300,6 +406,16 @@ class Motor:
 
         # Perform timesteps
         while simRes.shouldContinueSim(burnoutThrustThres):
+            lastPressure = simRes.channels["pressure"].getLast()
+            dThroat = simRes.channels["dThroat"].getLast()
+            if transientPressure:
+                pressure = self.integratePressure(
+                    perGrainReg, dThroat, lastPressure, dTime
+                )
+                regressionPressure = (lastPressure + pressure) / 2
+            else:
+                regressionPressure = lastPressure
+
             # Calculate regression
             massFlow = 0
             perGrainMass = [0 for grain in self.grains]
@@ -309,9 +425,7 @@ class Motor:
             for gid, grain in enumerate(self.grains):
                 if grain.getWebLeft(perGrainReg[gid]) > burnoutWebThres:
                     # Calculate regression at the current pressure
-                    reg = dTime * self.propellant.getBurnRate(
-                        simRes.channels["pressure"].getLast()
-                    )
+                    reg = dTime * self.propellant.getBurnRate(regressionPressure)
                     # Find the mass flux through the grain based on the mass flow fed into from grains above it
                     perGrainMassFlux[gid] = grain.getPeakMassFlux(
                         massFlow, dTime, perGrainReg[gid], reg, density
@@ -339,12 +453,12 @@ class Motor:
             simRes.channels["massFlux"].addData(perGrainMassFlux)
 
             # Calculate KN
-            dThroat = simRes.channels["dThroat"].getLast()
             simRes.channels["kn"].addData(self.calcKN(perGrainReg, dThroat))
 
             # Calculate Pressure
-            lastKn = simRes.channels["kn"].getLast()
-            pressure = self.calcIdealPressure(perGrainReg, dThroat, lastKn)
+            if not transientPressure:
+                lastKn = simRes.channels["kn"].getLast()
+                pressure = self.calcIdealPressure(perGrainReg, dThroat, lastKn)
             simRes.channels["pressure"].addData(pressure)
 
             # Calculate Mach Number
@@ -436,6 +550,11 @@ class Motor:
         # Note that this only adds all errors found on the first datapoint where there were errors to avoid repeating
         # errors. It should be revisited if getPressureErrors ever returns multiple types of errors
         for pressure in simRes.channels["pressure"].getData():
+            if (
+                transientPressure
+                and pressure < self.propellant.getMinimumValidPressure()
+            ):
+                continue
             if pressure > 0:
                 err = self.propellant.getPressureErrors(pressure)
                 if len(err) > 0:
