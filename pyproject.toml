@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "Cython>=3.0.11", "numpy>=1.24.3", "pyqt-distutils"]
+requires = ["setuptools>=61.0", "Cython>=3.0.11", "numpy==1.24.3", "pyqt-distutils"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,23 +10,28 @@ readme = "README.md"
 license = "GPL-3.0-only"
 requires-python = ">=3.10"
 dependencies = [
-    "Cython>=3.0.11",
-    "docopt>=0.6.2",
-    "ezdxf>=1.4.0",
-    "imageio>=2.31.0",
-    "matplotlib>=3.7.1",
-    "networkx>=3.1",
-    "numpy>=1.24.3",
-    "Pillow>=9.5.0",
-    "platformdirs>=4.2.2",
-    "PyQt6>=6.7.1",
-    "pyqt-distutils>=0.7.3",
-    "PyYAML>=6.0",
-    "scikit-fmm>=2023.4.2",
-    "scikit-image>=0.18.3",
-    "scipy>=1.10.1",
+    "cycler==0.11.0",
+    "Cython==3.0.11",
+    "decorator==5.1.1",
+    "docopt==0.6.2",
+    "ezdxf==1.4.0",
+    "imageio==2.31.0",
+    "matplotlib==3.7.1",
+    "networkx==3.1",
+    "numpy==1.24.3",
+    "Pillow==9.5.0",
+    "platformdirs==4.2.2",
+    "pyparsing==3.0.9",
+    "PyQt6==6.7.1",
+    "PyQt6-sip==13.8.0",
+    "python-dateutil==2.8.2",
+    "PyYAML==6.0",
+    "scikit-fmm==2023.4.2",
+    "scikit-image==0.18.3",
+    "scipy==1.10.1",
+    "six==1.16.0",
+    "setuptools>=61.0",
     "ruff>=0.16.6",
-    "setuptools>=84.0.0",
 ]
 
 [project.optional-dependencies]
