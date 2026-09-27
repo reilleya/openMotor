@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 from PyQt6.QtWidgets import QApplication, QMessageBox
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QFileOpenEvent, QIcon
 from PyQt6.QtCore import Qt
 
 import motorlib
@@ -22,6 +22,9 @@ class App(QApplication):
         self.icon = QIcon(os.path.join(os.path.dirname(sys.argv[0]), 'resources/oMIconCyclesSmall.png'))
 
         self.headless = '-h' in args
+        self.window = None
+        self._pendingOpenFile = None
+        self._startupFilePath = None
 
         if not self.headless and self.isDarkMode():
             # Change these settings before any graph widgets are built, so they apply everywhere
@@ -40,6 +43,7 @@ class App(QApplication):
         self.fileManager = uilib.fileManager.FileManager(self)
         startupFileLoaded = False
         if len(args) > 1 and args[-1][0] != '-':
+            self._startupFilePath = os.path.abspath(args[-1])
             startupFileLoaded = self.fileManager.load(args[-1])
         self.propellantManager.updated.connect(self.fileManager.updatePropellant)
 
@@ -92,6 +96,33 @@ class App(QApplication):
                 self.window.ui.resultsWidget.setupGrainChecks(len(self.fileManager.getCurrentMotor().grains), False)
             self.window.show()
             logger.log('Window opened')
+
+            # Finder may deliver the startup document as a FileOpen event during launch.
+            # Open it only if argv did not already load the same path.
+            if self._pendingOpenFile is not None:
+                pendingPath = self._pendingOpenFile
+                self._pendingOpenFile = None
+                if self._startupFilePath is None or os.path.abspath(pendingPath) != self._startupFilePath:
+                    self.openExternalFile(pendingPath)
+
+    def event(self, event):
+        if isinstance(event, QFileOpenEvent):
+            self.openExternalFile(event.file())
+            return True
+        return super().event(event)
+
+    def openExternalFile(self, path):
+        if self.headless or not path:
+            return
+
+        if self.window is None:
+            self._pendingOpenFile = path
+            return
+
+        logger.log('Opening external file "{}"'.format(path))
+        self.window.raise_()
+        self.window.activateWindow()
+        self.window.loadMotor(path)
 
     def isDarkMode(self):
         if self.headless:
