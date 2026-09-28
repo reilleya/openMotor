@@ -870,7 +870,7 @@ requires-dist = [
     { name = "imageio", specifier = "==2.31.0" },
     { name = "matplotlib", specifier = "==3.7.1" },
     { name = "networkx", specifier = "==3.1" },
-    { name = "numpy", specifier = "==1.24.3" },
+    { name = "numpy", specifier = ">=1.24.3" },
     { name = "pillow", specifier = "==9.5.0" },
     { name = "platformdirs", specifier = "==4.2.2" },
     { name = "pyparsing", specifier = "==3.0.9" },
