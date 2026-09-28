@@ -324,15 +324,6 @@ wheels = [
 ]
 
 [[package]]
-name = "decorator"
-version = "5.1.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/66/0c/8d907af351aa16b42caae42f9d6aa37b900c67308052d10fdce809f8d952/decorator-5.1.1.tar.gz", hash = "sha256:637996211036b6385ef91435e4fae22989472f9d571faba8927ba8253acbc330", size = 35016, upload-time = "2022-01-07T08:20:05.666Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d5/50/83c593b07763e1161326b3b8c6686f0f4b0f24d5526546bee538c89837d6/decorator-5.1.1-py3-none-any.whl", hash = "sha256:b8c3f85900b9dc423225913c5aace94729fe1fa9763b38939a95226f02d37186", size = 9073, upload-time = "2022-01-07T08:20:03.734Z" },
-]
-
-[[package]]
 name = "docopt"
 version = "0.6.2"
 source = { registry = "https://pypi.org/simple" }
@@ -828,9 +819,7 @@ name = "openmotor"
 version = "0.6.2"
 source = { editable = "." }
 dependencies = [
-    { name = "cycler" },
     { name = "cython" },
-    { name = "decorator" },
     { name = "docopt" },
     { name = "ezdxf" },
     { name = "imageio" },
@@ -839,17 +828,14 @@ dependencies = [
     { name = "numpy" },
     { name = "pillow" },
     { name = "platformdirs" },
-    { name = "pyparsing" },
+    { name = "pyqt-distutils" },
     { name = "pyqt6" },
-    { name = "pyqt6-sip" },
-    { name = "python-dateutil" },
     { name = "pyyaml" },
     { name = "ruff" },
     { name = "scikit-fmm" },
     { name = "scikit-image" },
     { name = "scipy" },
     { name = "setuptools" },
-    { name = "six" },
 ]
 
 [package.optional-dependencies]
@@ -862,29 +848,24 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cycler", specifier = "==0.11.0" },
-    { name = "cython", specifier = "==3.0.11" },
-    { name = "decorator", specifier = "==5.1.1" },
-    { name = "docopt", specifier = "==0.6.2" },
-    { name = "ezdxf", specifier = "==1.4.0" },
-    { name = "imageio", specifier = "==2.31.0" },
-    { name = "matplotlib", specifier = "==3.7.1" },
-    { name = "networkx", specifier = "==3.1" },
+    { name = "cython", specifier = ">=3.0.11" },
+    { name = "docopt", specifier = ">=0.6.2" },
+    { name = "ezdxf", specifier = ">=1.4.0" },
+    { name = "imageio", specifier = ">=2.31.0" },
+    { name = "matplotlib", specifier = ">=3.7.1" },
+    { name = "networkx", specifier = ">=3.1" },
     { name = "numpy", specifier = ">=1.24.3" },
-    { name = "pillow", specifier = "==9.5.0" },
-    { name = "platformdirs", specifier = "==4.2.2" },
-    { name = "pyparsing", specifier = "==3.0.9" },
-    { name = "pyqt6", specifier = "==6.7.1" },
-    { name = "pyqt6-sip", specifier = "==13.8.0" },
-    { name = "python-dateutil", specifier = "==2.8.2" },
-    { name = "pyyaml", specifier = ">=6.0.1" },
+    { name = "pillow", specifier = ">=9.5.0" },
+    { name = "platformdirs", specifier = ">=4.2.2" },
+    { name = "pyqt-distutils", specifier = ">=0.7.3" },
+    { name = "pyqt6", specifier = ">=6.7.1" },
+    { name = "pyyaml", specifier = ">=6.0" },
     { name = "ruff", specifier = ">=0.16.6" },
     { name = "ruff", marker = "extra == 'dev'" },
     { name = "scikit-fmm", specifier = ">=2023.4.2" },
-    { name = "scikit-image", specifier = "==0.18.3" },
+    { name = "scikit-image", specifier = ">=0.18.3" },
     { name = "scipy", specifier = "==1.10.1" },
-    { name = "setuptools", specifier = ">=61.0" },
-    { name = "six", specifier = "==1.16.0" },
+    { name = "setuptools", specifier = ">=84.0.0" },
     { name = "sphinx", marker = "extra == 'dev'", specifier = ">=7.0.1" },
 ]
 provides-extras = ["dev"]
@@ -956,6 +937,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/71/22/207523d16464c40a0310d2d4d8926daffa00ac1f5b1576170a32db749636/pyparsing-3.0.9.tar.gz", hash = "sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb", size = 1999906, upload-time = "2022-05-10T23:26:05.963Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6c/10/a7d0fa5baea8fe7b50f448ab742f26f52b80bfca85ac2be9d35cdd9a3246/pyparsing-3.0.9-py3-none-any.whl", hash = "sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc", size = 98338, upload-time = "2022-05-10T23:26:03.201Z" },
+]
+
+[[package]]
+name = "pyqt-distutils"
+version = "0.7.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "docopt" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3a/28/0c38bea00c3288493bfa69d896ee478bcbbed24e02120ba670027eb5114d/pyqt-distutils-0.7.3.tar.gz", hash = "sha256:ee5b8c30d3b0a473a5c23e43b2a29ce8e47fa7b48d8dc91816953da37bc053e8", size = 7193, upload-time = "2017-06-18T11:18:52.44Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7a/58/458679654c85a70894c60bd7fcf02c3c75548f16f6659300df4632aac6be/pyqt_distutils-0.7.3-py2.py3-none-any.whl", hash = "sha256:74ed14c5e41ef2941879c788a848c50b9288ea4e8d3e1abd669be4ed864c727f", size = 7828, upload-time = "2017-06-18T11:18:50.669Z" },
 ]
 
 [[package]]
