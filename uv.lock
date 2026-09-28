@@ -880,7 +880,7 @@ requires-dist = [
     { name = "pyyaml", specifier = ">=6.0.1" },
     { name = "ruff", specifier = ">=0.16.6" },
     { name = "ruff", marker = "extra == 'dev'" },
-    { name = "scikit-fmm", specifier = "==2023.4.2" },
+    { name = "scikit-fmm", specifier = ">=2023.4.2" },
     { name = "scikit-image", specifier = "==0.18.3" },
     { name = "scipy", specifier = "==1.10.1" },
     { name = "setuptools", specifier = ">=61.0" },
