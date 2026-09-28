@@ -1183,15 +1183,14 @@ wheels = [
 
 [[package]]
 name = "scikit-fmm"
-version = "2023.4.2"
+version = "2025.6.23"
 source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/27/30/5c1026ada50c5a48ea92fbb3788015c28e28d46f6eb1d45d3a900c255e46/scikit-fmm-2023.4.2.tar.gz", hash = "sha256:d7871c47f820772aba92f25651ef14e4d27de8ce393c0ae3c02ab3c6e2423c0b", size = 435123, upload-time = "2023-04-03T14:16:20.652Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/90/94/3b2969fc1f64a5faafad03c421ed200e717fc99c556985da0a17822f868d/scikit_fmm-2025.6.23.tar.gz", hash = "sha256:a3208f5f3881e40b7878d1121ba39b8d57f1bc38fb4e5f0d9d1c66a9b007e44f", size = 467753, upload-time = "2025-06-23T19:04:13.366Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ee/78/6f0c6fd726faa721f0df7b981c4b0de658448517de954f9b1170851cccee/scikit_fmm-2023.4.2-cp310-cp310-win_amd64.whl", hash = "sha256:236a1c81bdd1507102851e9c65826280f7d4dff18c77295303783dd1b403719c", size = 52669, upload-time = "2023-04-03T14:16:09.935Z" },
-    { url = "https://files.pythonhosted.org/packages/4c/df/2fe2e2676a06ecbfafebae47b699d22d04ed965e4ab2b4f62a83d36b0460/scikit_fmm-2023.4.2-cp311-cp311-win_amd64.whl", hash = "sha256:95e584a6193ab1bc6fa5b27ae5c711e8a513ca49de812fbfcd1b86b51df51fca", size = 51590, upload-time = "2023-04-03T14:16:11.871Z" },
+    { url = "https://files.pythonhosted.org/packages/ea/b2/5e34d766d438c1a14f37cd06084277b6214f10961aee0222fad1c4bb3893/scikit_fmm-2025.6.23-cp310-cp310-win_amd64.whl", hash = "sha256:616739029757464edccbf4546bee496e9e561c3ff04484e121685120d4a3563a", size = 68948, upload-time = "2025-06-23T19:04:08.876Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/0f/61132e1b4cc9e8ac81723f3fcbe096408f957ceeaffa2b8b949b212aff12/scikit_fmm-2025.6.23-cp311-cp311-win_amd64.whl", hash = "sha256:e5fedb1b79d6def36616cce9d32f26954355c2b3e4e0c7e6b1ca28ad9ca5a0d4", size = 69025, upload-time = "2025-06-23T19:04:10.083Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/10/093e76640c8c6efae5e42203e92e86cb3e5dceaa3dcb8ac0733a1f817c64/scikit_fmm-2025.6.23-cp312-cp312-win_amd64.whl", hash = "sha256:859e5076d09f5d9b87d3d6fdc08652b714b43c5ad31523e5d58b28abdc9ced5b", size = 69261, upload-time = "2025-06-23T19:04:11.187Z" },
+    { url = "https://files.pythonhosted.org/packages/52/2c/7aac8f88a20df085aeaa5802de8c8958a02d33715652b69d5ef90bc41b8b/scikit_fmm-2025.6.23-cp313-cp313-win_amd64.whl", hash = "sha256:a5f291db66949f15a68cc3e472c73e50ceb70d5ecb49eb364f55befdcbdcbc6e", size = 68454, upload-time = "2025-06-23T19:04:12.222Z" },
 ]
 
 [[package]]
