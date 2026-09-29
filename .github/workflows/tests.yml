@@ -1,40 +1,42 @@
 name: Unit Tests
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        python-version: ['3.10']
+        python-version: ["3.14"]
 
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v7
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v3
-      with:
-        enable-cache: true
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.2.0
+        with:
+          enable-cache: true
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies
-      run: |
-        uv sync
+      - name: Install dependencies
+        run: uv sync --extra dev
 
-    - name: Build mathlib
-      run: |
-        uv run python setup.py build_ext --inplace
+      - name: Build package
+        run: uv build
 
-    - name: Lint with ruff
-      run: |
-        uv run ruff check . --select E9,F63,F7,F82
-        uv run ruff check . --exit-zero
+      - name: Lint with ruff
+        run: |
+          uv run ruff check . --select E9,F63,F7,F82
+          uv run ruff check . --exit-zero
 
-    - name: Run unit tests
-      run: |
-        PYTHONPATH=. uv run python test/unit.py
+      - name: Run unit tests
+        run: |
+          PYTHONPATH=. uv run python test/unit.py
