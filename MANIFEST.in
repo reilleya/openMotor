@@ -7,3 +7,5 @@ recursive-include resources *
 # include pyuic config
 include pyuic.json
 
+# include Cython sources
+recursive-include mathlib *.pyx

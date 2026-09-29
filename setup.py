@@ -11,11 +11,6 @@ except ImportError:
     build_ui = None  # user won't have pyqt_distutils when deploying
     cmdclass = {}
 
-try:
-    from uilib.fileIO import appVersionStr
-except ImportError:
-    print('App version not available, defaulting to 0.0.0')
-    appVersionStr = '0.0.0'
 
 extensions = [
     Extension(
@@ -28,7 +23,6 @@ extensions = [
 
 setup(
     name='openMotor',
-    version=appVersionStr,
     license='GPLv3',
     ext_modules=cythonize(extensions, 
             nthreads = multiprocessing.cpu_count(), 
