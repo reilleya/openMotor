@@ -1,7 +1,17 @@
 import xml.etree.ElementTree as ET
 
-import motorlib
 from motorlib.constants import standardGravity
+from motorlib.grains import (
+    BatesGrain,
+    CGrain,
+    DGrain,
+    EndBurningGrain,
+    Finocyl,
+    MoonBurner,
+    XCore,
+)
+from motorlib.units import convert
+
 from ..converter import Exporter
 
 # Attributes for the root element of the BSX file
@@ -19,18 +29,18 @@ bsxMotorAttrib = {
 
 # oM class -> BS type for grains we can export
 EXPORT_TYPES = {
-    motorlib.grains.BatesGrain: '1',
-    motorlib.grains.EndBurningGrain: '1',
-    motorlib.grains.DGrain: '2',
-    motorlib.grains.MoonBurner: '3',
-    motorlib.grains.CGrain: '5',
-    motorlib.grains.XCore: '6',
-    motorlib.grains.Finocyl: '7'
+    BatesGrain: '1',
+    EndBurningGrain: '1',
+    DGrain: '2',
+    MoonBurner: '3',
+    CGrain: '5',
+    XCore: '6',
+    Finocyl: '7'
 }
 
 def mToIn(value):
     """Converts a float containing meters to a string of inches"""
-    return str(motorlib.units.convert(value, 'm', 'in'))
+    return str(convert(value, 'm', 'in'))
 
 
 class BurnSimExporter(Exporter):
@@ -61,7 +71,7 @@ class BurnSimExporter(Exporter):
                 outGrain.attrib['Diameter'] = mToIn(grain.getProperty('diameter'))
                 outGrain.attrib['Length'] = mToIn(grain.getProperty('length'))
 
-                if isinstance(grain, motorlib.grains.EndBurningGrain):
+                if isinstance(grain, EndBurningGrain):
                     outGrain.attrib['CoreDiameter'] = '0'
                     outGrain.attrib['EndsInhibited'] = '1'
                 else:
@@ -73,25 +83,25 @@ class BurnSimExporter(Exporter):
                     else:
                         outGrain.attrib['EndsInhibited'] = '2'
                     # Grains with core diameter
-                    if type(grain) in (motorlib.grains.BatesGrain, motorlib.grains.Finocyl, motorlib.grains.MoonBurner):
+                    if type(grain) in (BatesGrain, Finocyl, MoonBurner):
                         outGrain.attrib['CoreDiameter'] = mToIn(grain.getProperty('coreDiameter'))
 
-                    if isinstance(grain, motorlib.grains.DGrain):
+                    if isinstance(grain, DGrain):
                         outGrain.attrib['EdgeOffset'] = mToIn(grain.getProperty('slotOffset'))
 
-                    elif isinstance(grain, motorlib.grains.MoonBurner):
+                    elif isinstance(grain, MoonBurner):
                         outGrain.attrib['CoreOffset'] = mToIn(grain.getProperty('coreOffset'))
 
-                    elif isinstance(grain, motorlib.grains.CGrain):
+                    elif isinstance(grain, CGrain):
                         outGrain.attrib['SlotWidth'] = mToIn(grain.getProperty('slotWidth'))
                         radius = motor.grains[-1].getProperty('diameter') / 2
                         outGrain.attrib['SlotDepth'] = mToIn(grain.getProperty('slotOffset') - radius)
 
-                    elif isinstance(grain, motorlib.grains.XCore):
+                    elif isinstance(grain, XCore):
                         outGrain.attrib['SlotWidth'] = mToIn(grain.getProperty('slotWidth'))
                         outGrain.attrib['CoreDiameter'] = mToIn(2 * grain.getProperty('slotLength'))
 
-                    elif isinstance(grain, motorlib.grains.Finocyl):
+                    elif isinstance(grain, Finocyl):
                         outGrain.attrib['FinCount'] = str(grain.getProperty('numFins'))
                         outGrain.attrib['FinLength'] = mToIn(grain.getProperty('finLength'))
                         outGrain.attrib['FinWidth'] = mToIn(grain.getProperty('finWidth'))
@@ -101,10 +111,10 @@ class BurnSimExporter(Exporter):
                 # Have to pick a single pressure for output
                 exportPressure = 5.17e6
                 ballA, ballN, gamma, _, m = motor.propellant.getCombustionProperties(exportPressure)
-                ballA = motorlib.units.convert(ballA * (6895**ballN), 'm/(s*Pa^n)', 'in/(s*psi^n)')
+                ballA = convert(ballA * (6895**ballN), 'm/(s*Pa^n)', 'in/(s*psi^n)')
                 outProp.attrib['BallisticA'] = str(ballA)
                 outProp.attrib['BallisticN'] = str(ballN)
-                density = str(motorlib.units.convert(motor.propellant.getProperty('density'), 'kg/m^3', 'lb/in^3'))
+                density = str(convert(motor.propellant.getProperty('density'), 'kg/m^3', 'lb/in^3'))
                 outProp.attrib['Density'] = density
                 outProp.attrib['SpecificHeatRatio'] = str(gamma)
                 outProp.attrib['MolarMass'] = str(m)

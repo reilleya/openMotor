@@ -1,18 +1,21 @@
 import xml.etree.ElementTree as ET
 
-import motorlib
 from motorlib.constants import gasConstant, standardGravity
+from motorlib.grains import BatesGrain, CGrain, DGrain, Finocyl, MoonBurner, XCore
+from motorlib.motor import Motor
+from motorlib.propellant import Propellant, PropellantTab
+from motorlib.units import convert
 
 from ..converter import Importer
 
 # BS type -> oM class for all grains we can import
 SUPPORTED_GRAINS = {
-    '1': motorlib.grains.BatesGrain,
-    '2': motorlib.grains.DGrain,
-    '3': motorlib.grains.MoonBurner,
-    '5': motorlib.grains.CGrain,
-    '6': motorlib.grains.XCore,
-    '7': motorlib.grains.Finocyl
+    '1': BatesGrain,
+    '2': DGrain,
+    '3': MoonBurner,
+    '5': CGrain,
+    '6': XCore,
+    '7': Finocyl
 }
 
 # BS type -> label for grains we know about but can't import
@@ -24,20 +27,20 @@ UNSUPPORTED_GRAINS = {
 
 def inToM(value):
     """Converts a string containing a value in inches to a float of meters"""
-    return motorlib.units.convert(float(value), 'in', 'm')
+    return convert(float(value), 'in', 'm')
 
 def importPropellant(node):
     errors = ''
-    propellant = motorlib.propellant.Propellant()
-    propTab = motorlib.propellant.PropellantTab()
+    propellant = Propellant()
+    propTab = PropellantTab()
     propellant.setProperty('name', node.attrib['Name'])
     ballN = float(node.attrib['BallisticN'])
     ballA = float(node.attrib['BallisticA']) * 1/(6895**ballN)
     propTab.setProperty('n', ballN)
     # Conversion only does in/s to m/s, the rest is handled above
-    ballA = motorlib.units.convert(ballA, 'in/(s*psi^n)', 'm/(s*Pa^n)')
+    ballA = convert(ballA, 'in/(s*psi^n)', 'm/(s*Pa^n)')
     propTab.setProperty('a', ballA)
-    density = motorlib.units.convert(float(node.attrib['Density']), 'lb/in^3', 'kg/m^3')
+    density = convert(float(node.attrib['Density']), 'lb/in^3', 'kg/m^3')
     propellant.setProperty('density', density)
     gamma = float(node.attrib['SpecificHeatRatio'])
     propTab.setProperty('k', gamma)
@@ -64,7 +67,7 @@ class BurnSimImporter(Importer):
         super().__init__(manager, 'BurnSim File', 'Loads motor files for BurnSim 3.0', {'.bsx': 'BurnSim Files'})
 
     def doConversion(self, path):
-        motor = motorlib.motor.Motor()
+        motor = Motor()
         motor.config.setProperties(self.manager.preferences.general.getProperties())
         tree = ET.parse(path)
         root = tree.getroot()

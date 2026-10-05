@@ -1,10 +1,16 @@
-from PyQt6.QtWidgets import QDialog, QApplication
+from PyQt6.QtWidgets import QApplication, QDialog
 
-from motorlib.properties import PropertyCollection, FloatProperty, StringProperty, EnumProperty
+from motorlib.properties import (
+    EnumProperty,
+    FloatProperty,
+    PropertyCollection,
+    StringProperty,
+)
+
 from ..converter import Exporter
-
 from ..views.EngExporter_ui import Ui_EngExporterDialog
 from motorlib.constants import maximumRefDiameter, maximumRefLength
+
 
 class EngSettings(PropertyCollection):
     def __init__(self):
