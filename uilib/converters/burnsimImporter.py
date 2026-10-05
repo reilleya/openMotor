@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
 import motorlib
-from motorlib.constants import gasConstant, standardGravity
+from numpy import pi, cos
 
 from ..converter import Importer
 
@@ -10,6 +10,7 @@ SUPPORTED_GRAINS = {
     '1': motorlib.grains.BatesGrain,
     '2': motorlib.grains.DGrain,
     '3': motorlib.grains.MoonBurner,
+    '4': motorlib.grains.StarGrain,
     '5': motorlib.grains.CGrain,
     '6': motorlib.grains.XCore,
     '7': motorlib.grains.Finocyl
@@ -17,7 +18,6 @@ SUPPORTED_GRAINS = {
 
 # BS type -> label for grains we know about but can't import
 UNSUPPORTED_GRAINS = {
-    '4': 'Star',
     '8': 'Tablet',
     '9': 'Pie Segment'
 }
@@ -27,7 +27,6 @@ def inToM(value):
     return motorlib.units.convert(float(value), 'in', 'm')
 
 def importPropellant(node):
-    errors = ''
     propellant = motorlib.propellant.Propellant()
     propTab = motorlib.propellant.PropellantTab()
     propellant.setProperty('name', node.attrib['Name'])
@@ -39,29 +38,23 @@ def importPropellant(node):
     propTab.setProperty('a', ballA)
     density = motorlib.units.convert(float(node.attrib['Density']), 'lb/in^3', 'kg/m^3')
     propellant.setProperty('density', density)
-    gamma = float(node.attrib['SpecificHeatRatio'])
-    propTab.setProperty('k', gamma)
+    propTab.setProperty('k', float(node.attrib['SpecificHeatRatio']))
     impMolarMass = node.attrib['MolarMass']
-    # If the user didn't set molar mass, it'll come through as 0. If this happens, use a sensible default
+    # If the user has entered 0, override it to match the default propellant.
     if impMolarMass == '0':
-        molarMass = 23.67
-        errors = "Propellant didn't specify molar mass, using default.\n"
+        propTab.setProperty('m', 23.67)
     else:
-        molarMass = float(impMolarMass)
-    propTab.setProperty('m', molarMass)
-    # Burnsim doesn't provide temperature (always 0), but we can back it out using things they do provide
-    cstar = float(node.attrib['ISPStar']) * standardGravity
-    temperature = (cstar ** 2) * gamma * ((2 / (gamma + 1))**((gamma + 1) / (gamma - 1))) / gasConstant * molarMass
-    propTab.setProperty('t', temperature)
-
+        propTab.setProperty('m', float(impMolarMass))
+    # Burnsim doesn't provide this property. Set it to match the default propellant.
+    propTab.setProperty('t', 3500)
     propTab.setProperty('minPressure', 0)
     propTab.setProperty('maxPressure', 6.895e+06)
     propellant.setProperty('tabs', [propTab.getProperties()])
-    return propellant, errors
+    return propellant
 
 class BurnSimImporter(Importer):
     def __init__(self, manager):
-        super().__init__(manager, 'BurnSim File', 'Loads motor files for BurnSim 3.0', {'.bsx': 'BurnSim Files'})
+        super().__init__(manager, 'BurnSim Motor', 'Loads motor files for BurnSim 3.0', {'.bsx': 'BurnSim Files'})
 
     def doConversion(self, path):
         motor = motorlib.motor.Motor()
@@ -101,6 +94,16 @@ class BurnSimImporter(Importer):
 
                     elif grainType == '3': # Moonburner specific properties
                         motor.grains[-1].setProperty('coreOffset', inToM(child.attrib['CoreOffset']))
+                        
+                    elif grainType == '4': #Star Grain:
+                        numPoints = int(child.attrib['Points'])
+                        minorRadius = float(child.attrib['MinorWidth'])/2
+                        majorRadius = float(child.attrib['MajorWidth'])/2
+                        base_length = minorRadius * (2-(2*cos((2*pi)/numPoints)))**.5
+                        point_height = majorRadius - (minorRadius*cos(pi/numPoints))
+                        motor.grains[-1].setProperty('numPoints', numPoints)
+                        motor.grains[-1].setProperty('pointLength', inToM(point_height))
+                        motor.grains[-1].setProperty('pointWidth', inToM(base_length))
 
                     elif grainType == '5': # C grain specific properties
                         motor.grains[-1].setProperty('slotWidth', inToM(child.attrib['SlotWidth']))
@@ -117,9 +120,7 @@ class BurnSimImporter(Importer):
                         motor.grains[-1].setProperty('numFins', int(child.attrib['FinCount']))
 
                     if not propSet: # Use propellant numbers from the forward grain
-                        motor.propellant, propellantErrors = importPropellant(child.find('Propellant'))
-                        if propellantErrors != '':
-                            errors += propellantErrors
+                        motor.propellant = importPropellant(child.find('Propellant'))
                         propSet = True
 
                 else:
@@ -135,9 +136,7 @@ class BurnSimImporter(Importer):
 
             if child.tag == "Propellant":
                 if not propSet:
-                    motor.propellant, propellantErrors = importPropellant(child)
-                    if propellantErrors != '':
-                        errors += propellantErrors
+                    motor.propellant = importPropellant(child)
                     propSet = True
 
         if errors != '':
