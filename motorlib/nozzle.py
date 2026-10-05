@@ -8,8 +8,17 @@ from . import geometry
 from .simResult import SimAlert, SimAlertLevel, SimAlertType
 from .constants import maximumRefDiameter, maximumRefLength
 
-def eRatioFromPRatio(k, pRatio):
-    """Returns the expansion ratio of a nozzle given the pressure ratio it causes."""
+def eRatioFromPRatio(k: float, pRatio: float) -> float:
+    """
+    Returns the expansion ratio of a nozzle given the pressure ratio it causes.
+
+    Args:
+        k (float): ratio of specific heats (also known as the adiabatic index or heat capacity ratio)
+        pRatio (float): nozzle exit plane pressure at to stagnation pressure ratio
+
+    Returns:
+        float: Optimum expansion ratio
+    """
     return (((k+1)/2)**(1/(k-1))) * (pRatio ** (1/k)) * ((((k+1)/(k-1))*(1-(pRatio**((k-1)/k))))**0.5)
 
 class Nozzle(PropertyCollection):
