@@ -1,0 +1,75 @@
+# openMotor Kod ve Algoritma İnceleme Raporu
+
+## 1. Özet
+
+openMotor, amatör roket motoru deneycileri için geliştirilmiş, açık kaynak kodlu bir iç balistik (internal ballistics) simülasyon yazılımıdır. Python ile geliştirilmiş olan bu yazılım, yakıt özellikleri, motor geometrisi ve nozul (lüle) spesifikasyonlarını kullanarak roket motorunun yanma odası basıncını (chamber pressure), üreteceği itkiyi (thrust) ve iç akış karakteristiklerini tahmin eder.
+
+Simülasyon sürecinin temelinde zaman adımlı (time-step) bir yaklaşım ve termodinamik denklemler yer alırken; yakıt yanma yüzeylerinin (grain geometry) zaman içerisindeki gerilemesini (regression) hesaplamak için "Fast Marching Method (FMM)" algoritmasından faydalanılır. Bu rapor, yazılımın `motorlib` paketi altındaki fiziksel modellemelerine, algoritmalarına ve temel denklemlerine odaklanarak detaylı bir analiz sunmaktadır.
+
+## 2. Temel Simülasyon Döngüsü (`motorlib/motor.py`)
+
+Motor simülasyonu, `Motor` sınıfı içindeki `runSimulation` metodunda koşturulmaktadır. Bu metot, her bir zaman adımı (`dTime`) için şu hesaplamaları tekrar eder:
+
+1. **Yanma Miktarı Hesaplaması:** Mevcut basınca bağlı olarak yakıtın yanma hızı belirlenir ve o adımda ne kadar içeri (regresyon) girileceği bulunur.
+2. **Kütle Akışı ve Hacim:** Yakıt geometrisine (Grain) göre bu regresyon sonucu açığa çıkan gaz kütlesi hesaplanır (Kütle Akışı - Mass Flow).
+3. **Kn (Klemmung) Oranı:** Yanma yüzey alanı ile nozul boğaz alanı (throat area) oranlanarak Kn değeri elde edilir.
+4. **Oda Basıncı:** İdeal basınç, elde edilen Kn oranı kullanılarak termodinamik eşitliklerden bulunur.
+5. **Mach Sayısı:** Yanma odasındaki çekirdek Mach sayısı kütle akısına bağlı olarak (Newton-Raphson metoduyla) hesaplanır.
+6. **Nozul Çıkış Basıncı ve İtki:** Nozul genişleme oranı ve termodinamik özellikler (gamma, molekül ağırlığı vb.) ile çıkış basıncı çözümlenir, buradan da İtki (Force) elde edilir.
+
+Bu döngü, yakıt tamamen tükenene kadar (web kalınlığı eşiğinin altına inene kadar) veya itki kullanıcı tarafından belirlenen limitin altına düşene kadar devam eder.
+
+## 3. Yakıt Geometrisi ve Fast Marching Method (`motorlib/grain.py`)
+
+openMotor'un en dikkat çekici özelliklerinden biri, karmaşık veya rastgele delik yapılarına sahip (perforated) yakıt profillerinin yanma analizini yapabilmesidir (örneğin Star, BATES, Finocyl gibi tipler veya özel DXF geometrileri).
+
+- **Geometrik Gerileme Modeli:** Geleneksel simülasyonlarda sadece dairesel delikler kolayca matematiksel formüllerle analiz edilebilirken, karmaşık şekiller için geometrik gerileme yüzeyleri bulmak zordur.
+- **skfmm Kullanımı:** `FmmGrain` alt sınıfı (ve mirasçıları), bu sorunu çözmek için `scikit-fmm` kütüphanesini kullanır.
+    - Yakıt profili öncelikle piksellerden oluşan bir matris haritasına (Core Map) dönüştürülür (boşluk 1, yakıt 0).
+    - Daha sonra Fast Marching Method algoritması ile sınır çizgilerinden (yanma yüzeyleri) içe doğru "mesafe (distance) haritası" çıkartılır (`generateRegressionMap`).
+    - Bu sayede belirli bir yanma mesafesinde (`regDist`), algoritma mesafeye karşılık gelen seviye kümesini (level set) bularak o anki çekirdek çevresini (perimeter) ve yanma alanını son derece yüksek doğrulukla hesaplar (`getFaceArea`, `getCorePerimeter`).
+
+## 4. Termodinamik Modeller ve İdeal Basınç (`motorlib/propellant.py`)
+
+Yakıt (Propellant) sınıfı, fiziksel balistik hesaplamaları yürütür. Temel Saint-Robert (Vielle) Yasası uygulanır:
+- **Yanma Hızı Formülü:** $r = a \cdot P^n$
+  (Burada $r$ yanma hızı, $a$ katsayı, $P$ basınç, $n$ ise basınç üssüdür).
+
+### İdeal Oda Basıncının Bulunması
+Motor bir denge (steady-state) anında ideal basınca ulaşır. Bu basıncı bulmak için şu formül kullanılır:
+Basınç çözümü doğrudan `Kn` (Yanma alanı / Boğaz alanı) değerine ve yakıtın tablolanmış özelliklerine bağlıdır. Kod içerisinde `getPressureFromKn(kn)` fonksiyonu şuna denk gelen bir denklem çözer:
+$$ P = \left( \frac{Kn \cdot \rho \cdot a}{ \sqrt{ \frac{\gamma}{(R/M) \cdot T} \left(\frac{2}{\gamma+1}\right)^{\frac{\gamma+1}{\gamma-1}} } } \right)^{\frac{1}{1-n}} $$
+*(Burada $\rho$ yakıt yoğunluğu, $R$ evrensel gaz sabiti, $M$ egzoz gazı mol kütlesi, $T$ yanma sıcaklığı, $\gamma$ (gamma) özgül ısı oranıdır.)*
+
+Farklı basınç aralıkları için farklı $a$ ve $n$ katsayıları olabileceği için yazılım, elde edilen basıncın geçerli tabloda olup olmadığını kontrol eder (`tabs`).
+
+## 5. Nozul (Lüle) Akışları ve İtki (`motorlib/nozzle.py`)
+
+Nozul sınıfı, yanma odasından (chamber) çıkan gazların atmosfere atılmasını modeller.
+
+### 5.1. Çıkış Basıncı ve Genişleme Oranı (Expansion Ratio)
+Nozulun genişleme oranı (Boğaz Alanı ile Çıkış Alanı arasındaki oran), izantropik akış kurallarına tabiidir. `getExitPressure` fonksiyonunda "scipy.optimize.fsolve" kullanılarak izantropik denklem tersten çözülür ve Çıkış Basıncı (Exit Pressure) hesaplanır.
+
+### 5.2. İtki (Thrust) Hesabı
+Motor itkisi, Momentum İtkisi (momentum thrust) ve Basınç İtkisinin (pressure thrust) toplamından oluşur. `getIdealThrustCoeff` ve `getAdjustedThrustCoeff` fonksiyonları üzerinden itki katsayısı (C_f) hesaplanır:
+$$ C_f = \sqrt{ \frac{2\gamma^2}{\gamma-1} \left(\frac{2}{\gamma+1}\right)^{\frac{\gamma+1}{\gamma-1}} \left[ 1 - \left(\frac{P_e}{P_c}\right)^{\frac{\gamma-1}{\gamma}} \right] } + \frac{(P_e - P_a) A_e}{A_t P_c} $$
+Burada $P_c$ oda basıncı, $P_e$ çıkış basıncı, $P_a$ ortam basıncı, $A_e$ çıkış alanı ve $A_t$ boğaz alanıdır.
+
+### 5.3. Kayıplar ve Verimlilik
+openMotor ideal denklemleri kullanmakla yetinmez, gerçek dünya kayıplarını da dahil eder:
+- **Divergence Losses:** Nozulun genişleme açısına bağlı kayıp $\frac{1 + \cos(\theta)}{2}$.
+- **Throat Losses:** Boğaz radyus / oran kayıpları.
+- **Skin Losses:** Yüzey sürtünme direncine bağlı (şu an kod içinde 0.99 sabiti olarak alınmış) kayıplar.
+
+Ayrıca cüruf (slag) birikimi veya aşınma (erosion) gibi etkenlerle boğaz çapının zamanla değişimi (dThroat) katsayılarla adım adım (`change = dTime * ((-2 * slagRate) + (2 * erosionRate))`) simülasyona dahil edilir.
+
+## 6. Mach Sayısı Kontrolü ve Optimizasyon Eşitliği
+Sıvı veya katı yakıtlı motorların port bölgelerinde ses üstü akış oluşması tehlikelidir ve itki kayıplarına (Choked flow vs) yol açar. `motor.py` içindeki `calcMachNumber` fonksiyonu, mevcut kesit alanından geçen kütle akısını analiz ederek port içi lokal Mach sayısını iteratif olarak (Newton-Raphson fprime turev fonksiyonuyla) bulur. Akış sınırları zorlanırsa (Mach 1.0) kullanıcıya simülasyon sonucu bir uyarı (`SimAlert`) yansıtılır.
+
+## 7. Sonuç
+openMotor'un `motorlib` algoritması;
+1. Geometriyi dinamik şekilde dijital piksellere işleyerek en karmaşık yakıt profillerinin FMM ile tam yanma haritasını oluşturur.
+2. Bu haritadan zamana bağlı alan bilgisi çıkartıp, çoklu basınç seviyesi-tablolamasına dayalı bir St. Robert yakıt modeliyle entegre eder.
+3. Bulduğu iteratif oda basıncını, aerodinamik kayıpların da hesaba katıldığı gerçekçi nozul termodinamiğiyle birleştirip itki ve itici güç parametrelerini yüksek hassasiyetle kullanıcıya (ve CSV formatlarına) aktarır.
+
+Bu yapısı sayesinde son derece modüler, hızlı (C/Cython entegrasyonu ile FMM matris hesaplamaları) ve akademik standartlara uygun teorik modellere dayanan bir altyapı sunmaktadır.
