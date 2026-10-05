@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QWidget, QHeaderView, QLabel, QTableWidgetItem
 import numpy as np
 
 import motorlib
-from motorlib.simResult import singleValueChannels, multiValueChannels, alertLevelNames, alertTypeNames
+from motorlib.simResult import singleValueChannels, multiValueChannels
 from motorlib.constants import standardGravity
 
 from .grainImageWidget import GrainImageWidget
@@ -84,8 +84,8 @@ class ResultsWidget(QWidget):
         self.ui.tableWidgetAlerts.setRowCount(0) # Clear the table
         self.ui.tableWidgetAlerts.setRowCount(len(simResult.alerts))
         for row, alert in enumerate(simResult.alerts):
-            self.ui.tableWidgetAlerts.setItem(row, 0, QTableWidgetItem(alertLevelNames[alert.level]))
-            self.ui.tableWidgetAlerts.setItem(row, 1, QTableWidgetItem(alertTypeNames[alert.type]))
+            self.ui.tableWidgetAlerts.setItem(row, 0, QTableWidgetItem(alert.level.name.capitalize()))
+            self.ui.tableWidgetAlerts.setItem(row, 1, QTableWidgetItem(alert.type.name.capitalize()))
             self.ui.tableWidgetAlerts.setItem(row, 2, QTableWidgetItem(alert.location))
             self.ui.tableWidgetAlerts.setItem(row, 3, QTableWidgetItem(alert.description))
 

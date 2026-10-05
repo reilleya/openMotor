@@ -26,19 +26,6 @@ class SimAlertType(Enum):
     VALUE = 3
 
 
-alertLevelNames = {
-    SimAlertLevel.ERROR: "Error",
-    SimAlertLevel.WARNING: "Warning",
-    SimAlertLevel.MESSAGE: "Message",
-}
-
-alertTypeNames = {
-    SimAlertType.GEOMETRY: "Geometry",
-    SimAlertType.CONSTRAINT: "Constraint",
-    SimAlertType.VALUE: "Value",
-}
-
-
 class SimAlert:
     """A sim alert signifies a possible problem with a motor. It has levels of severity including 'error' (simulation
     should not continue or has failed), 'warning' (values entered appear incorrect but can be simulated), and 'message'

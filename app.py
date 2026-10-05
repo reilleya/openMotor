@@ -7,8 +7,7 @@ from PyQt6.QtWidgets import QApplication, QMessageBox
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 
-import motorlib
-from motorlib import simResult
+
 from uilib import preferencesManager, propellantManager, simulationManager, fileManager, toolManager
 from uilib import importExportManager
 import uilib.widgets.mainWindow
@@ -61,8 +60,9 @@ class App(QApplication):
                 motor = self.fileManager.getCurrentMotor()
                 simulationResult = motor.runSimulation()
                 for alert in simulationResult.alerts:
-                    print('{} ({}, {}): {}'.format(motorlib.simResult.alertLevelNames[alert.level],
-                        motorlib.simResult.alertTypeNames[alert.type],
+                    print('{} ({}, {}): {}'.format(
+                        alert.level.name.capitalize(),
+                        alert.type.name.capitalize(),
                         alert.location,
                         alert.description))
                 print()
