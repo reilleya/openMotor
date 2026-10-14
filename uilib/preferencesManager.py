@@ -4,7 +4,7 @@ from os import replace
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QApplication
 
-from motorlib.properties import PropertyCollection, EnumProperty
+from motorlib.properties import PropertyCollection, EnumProperty, BooleanProperty
 from motorlib.units import unitLabels, getAllConversions
 from motorlib.motor import MotorConfig
 
@@ -15,7 +15,9 @@ from .logger import logger
 
 class Preferences():
     def __init__(self, propDict=None):
-        self.general = MotorConfig()
+        self.general = MotorConfig() # Default motor configuration
+        self.ui = PropertyCollection() # App settings that are not saved in motor files
+        self.ui.props['dualAxis'] = BooleanProperty('Dual-Axis Plotting')
         self.units = PropertyCollection()
         for unit in unitLabels:
             self.units.props[unit] = EnumProperty(unitLabels[unit], getAllConversions(unit))
@@ -26,11 +28,14 @@ class Preferences():
     def getDict(self):
         prefDict = {}
         prefDict['general'] = self.general.getProperties()
+        prefDict['ui'] = self.ui.getProperties()
         prefDict['units'] = self.units.getProperties()
         return prefDict
 
     def applyDict(self, dictionary):
         self.general.setProperties(dictionary['general'])
+        if 'ui' in dictionary: # Older preferences files don't have this section
+            self.ui.setProperties(dictionary['ui'])
         self.units.setProperties(dictionary['units'])
 
     def getUnit(self, fromUnit):

@@ -20,12 +20,14 @@ class PreferencesMenu(QDialog):
         self.ui.buttonBox.rejected.connect(self.cancel)
 
     def load(self, pref):
-        self.ui.settingsEditorGeneral.setPreferences(pref)
-        self.ui.settingsEditorGeneral.loadProperties(pref.general)
+        self.ui.settingsEditorGeneral.loadProperties(pref.ui)
+        self.ui.settingsEditorDefaults.setPreferences(pref)
+        self.ui.settingsEditorDefaults.loadProperties(pref.general)
         self.ui.settingsEditorUnits.loadProperties(pref.units)
 
     def apply(self):
-        self.preferencesApplied.emit({'general': self.ui.settingsEditorGeneral.getProperties(),
+        self.preferencesApplied.emit({'general': self.ui.settingsEditorDefaults.getProperties(),
+                                      'ui': self.ui.settingsEditorGeneral.getProperties(),
                                       'units': self.ui.settingsEditorUnits.getProperties()})
         self.hide()
 

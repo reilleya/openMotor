@@ -15,6 +15,9 @@ DEFAULT_PREFERENCES = {
         'sepPressureRatio' : 0.4, # This is a good default value known as the Summerfield Criteria https://ntrs.nasa.gov/api/citations/19840011402/downloads/19840011402.pdf
         'flowSeparationWarnPercent': 0.05
     },
+    'ui': {
+        'dualAxis': False
+    },
     'units': {
         'm': 'in',
         'm^3': 'in^3',
